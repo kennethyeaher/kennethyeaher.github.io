@@ -91,6 +91,8 @@ export interface Education {
   period: string;
   honors: string[];
   activities: string[];
+  /** Optional prose description of the degree. */
+  description?: string;
 }
 
 /** A program, fellowship, or certification shown as a card. */
@@ -98,6 +100,8 @@ export interface Certification {
   name: string;
   issuer: string;
   detail: string;
+  /** Optional issue date, like "Apr 2026". */
+  issued?: string;
 }
 
 /** A hobby or interest shown as a small card. */
