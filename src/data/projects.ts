@@ -137,25 +137,157 @@ export const projects: Project[] = [
     ],
   },
   {
-    slug: "capstone-user-research",
-    title: "Capstone: User Research and Development",
-    role: "UX Researcher",
+    slug: "college-park-capstone",
+    title: "City of College Park Capstone",
+    role: "Project Manager",
     category: "HCI / UX Research",
     period: "2024",
-    tagline: "A capstone user research and product development project.",
+    tagline:
+      "Led a team improving communication strategies for the City of College Park through user research.",
     featured: false,
-    tags: ["HCI", "UX Research", "User Centered Design"],
+    tags: ["UX Research", "Project Management", "User Personas", "Civic"],
     links: [
       {
-        label: "View on portfolio",
+        label: "View case study",
         url: "https://kyeahere72e.myportfolio.com/capstone-user-research-and-development",
       },
     ],
     metrics: [],
     sections: [
       {
-        heading: "Overview",
-        body: "A capstone project grounded in user centered design and primary user research. Add a short summary of the problem, your research method, and the outcome here. Pull the strongest details from your existing portfolio writeup.",
+        heading: "What I did",
+        body: "For my capstone at the University of Maryland College of Information, I served as project manager, leading my team to improve communication strategies for the City of College Park. I owned the client relationship with Bill Gardiner, the Assistant City Manager, along with the city team and our institutional advisors. The role meant aligning team effort with client expectations, running regular updates, and holding our deliverables to a high standard.",
+      },
+      {
+        heading: "The research",
+        body: "We worked to address the needs of a diverse community of families, students, and bilingual residents. Through interviews, surveys, and contextual inquiries at events like College Park Day, we collected insight about the challenges residents faced. We learned that Spanish speaking families felt excluded by limited bilingual resources, while students wanted stronger connections to city initiatives.",
+      },
+      {
+        heading: "The outcome",
+        body: "We turned the research into detailed user personas and journey maps that surfaced pain points and clear opportunities for better engagement, then presented actionable recommendations to the city. The project sharpened my skills in research, teamwork, and problem solving, and confirmed my decision to pursue human computer interaction.",
+      },
+    ],
+  },
+  {
+    slug: "cognitive-wellness-garden",
+    title: "Cognitive Wellness Garden",
+    role: "UX Designer",
+    category: "HCI / UX Research",
+    period: "2024",
+    tagline:
+      "A health centered design concept for elderly individuals with early dementia.",
+    featured: false,
+    tags: ["UX Research", "Health Tech", "Accessibility", "User Centered Design"],
+    links: [
+      {
+        label: "View case study",
+        url: "https://kyeahere72e.myportfolio.com/cognitive-wellness-garden-a-user-centered-design",
+      },
+    ],
+    metrics: [],
+    sections: [
+      {
+        heading: "The concept",
+        body: "A case study from my user centered design course where I developed a Cognitive Wellness Garden for elderly individuals with early dementia. Inspired by my mother work with this population, I focused on safety, accessibility, and sensory engagement. The goal was an environment that supports physical, emotional, and cognitive well being while encouraging social interaction and independence.",
+      },
+      {
+        heading: "The design",
+        body: "Every feature addresses a specific challenge. Non slip circular pathways let people navigate without the fear of getting lost. Sensory areas with lavender, rosemary, and a small waterfall help reduce anxiety. Raised garden beds make gardening accessible for people with mobility challenges. Central gathering spaces and interactive elements like bird feeders create opportunities for social connection and help combat isolation.",
+      },
+      {
+        heading: "What it shows",
+        body: "The project reflects how I apply human centered design to complex healthcare challenges, grounded in research and guided by the goal of a welcoming, therapeutic experience for an underserved community.",
+      },
+    ],
+  },
+  {
+    slug: "terpcare",
+    title: "TerpCare",
+    role: "UX Designer",
+    category: "HCI / UX Research",
+    period: "2024",
+    tagline:
+      "A mental health app prototype designed to close gaps in support for UMD students.",
+    featured: false,
+    tags: ["UX Research", "Figma", "Health Tech", "Prototyping"],
+    links: [
+      {
+        label: "View case study",
+        url: "https://kyeahere72e.myportfolio.com/mental-health-application",
+      },
+    ],
+    metrics: [],
+    sections: [
+      {
+        heading: "The problem",
+        body: "TerpCare is a mental health app prototype my group and I designed to address gaps in mental health resources for UMD students. The idea came from the barriers students face when seeking support, including stigma, limited availability, and high cost. Competitive analysis helped us find the gaps in existing solutions and tailor the app to a university community.",
+      },
+      {
+        heading: "What I built",
+        body: "Built in Figma, the app prioritizes accessibility and usability with a mood calendar, chat options with mental health professionals, campus resources, and a discussion board. We used UMD branding colors to build familiarity and trust. I worked on an intuitive prototype that balanced functionality and aesthetics, moving through research, wireframing, and iteration based on user feedback.",
+      },
+      {
+        heading: "What it shows",
+        body: "The project brought together UX and UI principles, creativity, and collaboration to design a user friendly, accessible app for a specific audience, and reflects my commitment to using technology to address real world mental health challenges.",
+      },
+    ],
+  },
+  {
+    slug: "bookscout",
+    title: "BookScout",
+    role: "Developer",
+    category: "Data Science",
+    period: "2023",
+    tagline:
+      "A GUI book search app over 50,000 Goodreads records, merging data analysis and front end design.",
+    featured: false,
+    tags: ["Python", "Data Analysis", "tkinter", "pandas"],
+    links: [
+      {
+        label: "View case study",
+        url: "https://kyeahere72e.myportfolio.com/bookscout-merging-data-analysis-and-front-end-design",
+      },
+    ],
+    metrics: [
+      { value: "50,000+", label: "books in the searchable dataset" },
+    ],
+    sections: [
+      {
+        heading: "What I built",
+        body: "BookScout is a GUI application I developed with my classmate Lillian Gunn for our object oriented programming course. It lets users search for books by title or author across a dataset of more than 50,000 books scraped from Goodreads. I built the interface with Python tkinter and handled data with pandas, including dropdown menus, search and clear buttons, and a results listbox.",
+      },
+      {
+        heading: "The challenge",
+        body: "Managing a 50,000 row dataset meant optimizing queries for fast, responsive performance. Troubleshooting GUI responsiveness and dataset handling taught me to approach problems systematically and deepened my Python skills, especially with tkinter and pandas.",
+      },
+      {
+        heading: "What it shows",
+        body: "BookScout reflects my ability to combine data analysis with intuitive design, taking ownership of both the technical and design sides to produce something functional and user friendly.",
+      },
+    ],
+  },
+  {
+    slug: "fitdish",
+    title: "FitDish",
+    role: "UX Designer",
+    category: "HCI / UX Research",
+    period: "2021",
+    tagline:
+      "A dietary app concept and my first steps into user centered design.",
+    featured: false,
+    tags: ["UX Research", "Prototyping", "User Centered Design"],
+    links: [
+      { label: "View case study", url: "https://kyeahere72e.myportfolio.com/fitdish" },
+    ],
+    metrics: [],
+    sections: [
+      {
+        heading: "The concept",
+        body: "FitDish is a dietary app concept I created in my second year of college. It was designed to provide personalized meal plans and recipes tailored to dietary preferences, fitness goals, and restrictions, with a dietary quiz, a searchable recipe catalog, and a My Recipes tab. The goal was a free, inclusive platform that addressed common gaps like high cost, limited healthy options, and accessibility challenges.",
+      },
+      {
+        heading: "What it shows",
+        body: "This was my first experience with prototyping and using research to align design features with user needs. It introduced me to wireframing, competitive analysis, and accessibility focused design, and set the foundation for my growth in human computer interaction.",
       },
     ],
   },
