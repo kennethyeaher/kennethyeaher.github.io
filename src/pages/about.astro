@@ -1,89 +1,239 @@
 ---
-// About page. Opens with the personal origin, pivots to the academic and
-// analytical foundation, then frames the founder experience as the reason
-// for a path into venture, consulting, and data science.
+// About page. Comprehensive profile modeled on a strong portfolio structure
+// but rendered in this site own green palette with clean line icons.
+// Header, summary, skills, work experience, education, certifications, hobbies.
 import Base from "@/layouts/Base.astro";
-import { credentials } from "@/data/profile";
+import Card from "@/components/Card.astro";
+import Badge from "@/components/Badge.astro";
+import {
+  profile,
+  credentialPills,
+  summary,
+  skillGroups,
+  workExperience,
+  fellowships,
+  education,
+  certifications,
+  hobbies,
+} from "@/data/profile";
+
+// Inline line icons so the page ships no icon library. Keyed by name.
+const icons: Record<string, string> = {
+  "trending-up": "M3 17l6-6 4 4 8-8M21 7v6h-6",
+  "bar-chart": "M3 3v18h18M8 17V9M13 17V5M18 17v-7",
+  flask: "M9 3h6M10 3v6l-5 9a2 2 0 002 3h10a2 2 0 002-3l-5-9V3",
+  wrench: "M14 7a4 4 0 01-5 5L5 16a2 2 0 003 3l4-4a4 4 0 015-5l-3-3z",
+  trophy: "M8 21h8M12 17v4M7 4h10v5a5 5 0 01-10 0V4zM5 4H3v2a3 3 0 003 3M19 4h2v2a3 3 0 01-3 3",
+  mountain: "M3 20h18L14 6l-3 6-2-3-6 11z",
+  tent: "M3 20h18L12 4 3 20zM12 4v16",
+  blocks: "M4 4h7v7H4zM13 13h7v7h-7zM13 4h7v7h-7zM4 13h7v7H4z",
+  target: "M12 12m-9 0a9 9 0 1018 0a9 9 0 10-18 0M12 12m-5 0a5 5 0 1010 0a5 5 0 10-10 0M12 12m-1 0a1 1 0 102 0a1 1 0 10-2 0",
+  "circle-dot": "M12 12m-9 0a9 9 0 1018 0a9 9 0 10-18 0M12 12m-2 0a2 2 0 104 0a2 2 0 10-4 0",
+  briefcase: "M3 7h18v13H3zM8 7V5a2 2 0 012-2h4a2 2 0 012 2v2",
+  "graduation-cap": "M22 10L12 5 2 10l10 5 10-5zM6 12v5c0 1 3 3 6 3s6-2 6-3v-5",
+  award: "M12 8m-5 0a5 5 0 1010 0a5 5 0 10-10 0M8 13l-2 8 6-3 6 3-2-8",
+  user: "M12 12m-4 0a4 4 0 108 0a4 4 0 10-8 0M4 21a8 8 0 0116 0",
+  heart: "M12 21C5 14 3 10 5 7a4 4 0 017-1 4 4 0 017 1c2 3 0 7-7 14z",
+};
+
+/** Build an inline svg string for a given icon name. */
+function icon(name: string): string {
+  return icons[name] ?? icons["circle-dot"];
+}
 ---
 
 <Base title="About">
-  <section class="mx-auto max-w-3xl px-6 pb-10 pt-20">
-    <h1 class="reveal font-display text-4xl font-semibold tracking-tight sm:text-5xl">
-      About
-    </h1>
-    <div
-      class="reveal mt-8 space-y-5 text-lg leading-relaxed text-ink-soft dark:text-paper/80"
-      style="transition-delay: 80ms"
-    >
-      <p>
-        I was born in Monrovia, Liberia, and most of my family still lives there.
-        Most clinics in the country run on paper records, and I watched files get
-        misplaced, water damaged, or lost between visits. Seeing how much a system can
-        shape who gets care is what first pulled me toward technology and the decisions
-        behind it.
-      </p>
-      <p>
-        That pull turned into a foundation at the University of Maryland. I earned a
-        B.S. in Information Science and I am finishing a Master of Information Management,
-        both at College Park. The training runs across the full stack of working with
-        information, from data science and analytics to research methods and human
-        centered design. It taught me to start from evidence, structure a messy problem,
-        and turn analysis into a decision someone can act on.
-      </p>
-      <p>
-        I also wanted to understand how things actually get built, so I cofounded
-        <strong class="text-ink dark:text-paper">Frontground</strong>, a mobile first
-        EMR for low resource clinics. I raised $25K, ran more than 60 physician
-        interviews, and learned how an operator weighs a market, a team, and a roadmap
-        under real constraints. That experience is the reason I am drawn to venture,
-        consulting, and data science. Having sat in the founder seat, I read companies
-        and problems from the inside, which is exactly the judgment those roles reward.
-      </p>
-      <p>
-        Today I work across three modes. I evaluate startups as a
-        <strong class="text-ink dark:text-paper">Venture Fellow</strong> at the USM
-        Maryland Momentum Fund, I build data products like
-        <strong class="text-ink dark:text-paper">Ovara</strong> and
-        <strong class="text-ink dark:text-paper">Kairo Health</strong>, and I keep using
-        research to make sure the work points at a real problem. Healthcare access stays
-        the value underneath it, but the throughline is broader. I want to evaluate and
-        build at the intersection of data, technology, and the decisions that move them.
-      </p>
-    </div>
-  </section>
-
-  <section class="mx-auto max-w-3xl px-6 py-10">
-    <h2 class="reveal mb-6 text-2xl font-semibold">Education</h2>
-    <div class="space-y-4">
-      <div class="reveal border-l-2 border-accent/40 pl-4">
-        <div class="font-semibold">Master of Information Management</div>
-        <div class="text-sm text-ink-muted dark:text-paper/55">
-          University of Maryland, College Park. Expected 2027.
-        </div>
-      </div>
-      <div class="reveal border-l-2 border-accent/40 pl-4" style="transition-delay: 50ms">
-        <div class="font-semibold">B.S. Information Science</div>
-        <div class="text-sm text-ink-muted dark:text-paper/55">
-          University of Maryland, College Park. 2024.
+  {/* Header. Photo, name, role line, and credential pills. */}
+  <section class="mx-auto max-w-5xl px-6 pt-20">
+    <div class="reveal flex flex-col items-center gap-6 sm:flex-row sm:items-center">
+      <img
+        src="/images/kenneth.jpg"
+        alt="Portrait of {profile.name}"
+        width="140"
+        height="140"
+        class="h-32 w-32 shrink-0 rounded-full object-cover ring-4 ring-accent/30 dark:ring-accent-soft/30 sm:h-36 sm:w-36"
+      />
+      <div class="text-center sm:text-left">
+        <h1 class="font-display text-4xl font-semibold tracking-tight sm:text-5xl">
+          {profile.name}
+        </h1>
+        <p class="mt-2 font-mono text-sm text-accent dark:text-accent-soft">
+          MIM @ UMD | Venture Capital Intern | Data Scientist
+        </p>
+        <div class="mt-4 flex flex-wrap justify-center gap-2 sm:justify-start">
+          {credentialPills.map((pill) => <Badge>{pill}</Badge>)}
         </div>
       </div>
     </div>
   </section>
 
-  <section class="mx-auto max-w-3xl px-6 py-10">
-    <h2 class="reveal mb-6 text-2xl font-semibold">Credentials</h2>
-    <div class="space-y-4">
+  {/* Professional summary. */}
+  <section class="mx-auto max-w-5xl px-6 py-10">
+    <Card class="reveal p-7">
+      <div class="mb-4 flex items-center gap-3">
+        <svg class="h-5 w-5 text-accent dark:text-accent-soft" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d={icon("user")} />
+        </svg>
+        <h2 class="text-2xl font-semibold">Professional Summary</h2>
+      </div>
+      <div class="space-y-4 text-ink-soft dark:text-paper/75">
+        {summary.map((para) => <p>{para}</p>)}
+      </div>
+    </Card>
+  </section>
+
+  {/* Skills, grouped into cards. */}
+  <section class="mx-auto max-w-5xl px-6 py-10">
+    <h2 class="reveal mb-7 flex items-center gap-3 text-3xl font-semibold">
+      <svg class="h-5 w-5 text-accent dark:text-accent-soft" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d={icon("wrench")} />
+      </svg>
+      Skills and Expertise
+    </h2>
+    <div class="grid gap-5 sm:grid-cols-2">
       {
-        credentials.map((credential, index) => (
-          <div
-            class="reveal border-l-2 border-accent/40 pl-4"
-            style={`transition-delay: ${index * 50}ms`}
-          >
-            <div class="font-semibold">{credential.name}</div>
-            <div class="text-sm text-ink-muted dark:text-paper/55">
-              {credential.detail}
+        skillGroups.map((group, index) => (
+          <Card class="reveal p-6" style={`transition-delay: ${index * 60}ms`}>
+            <div class="mb-4 flex items-center gap-2.5">
+              <svg class="h-5 w-5 text-accent dark:text-accent-soft" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d={icon(group.icon)} />
+              </svg>
+              <h3 class="text-lg font-semibold">{group.title}</h3>
             </div>
-          </div>
+            <div class="flex flex-wrap gap-2">
+              {group.skills.map((skill) => <Badge>{skill}</Badge>)}
+            </div>
+          </Card>
+        ))
+      }
+    </div>
+  </section>
+
+  {/* Work experience timeline. */}
+  <section class="mx-auto max-w-5xl px-6 py-10">
+    <h2 class="reveal mb-7 flex items-center gap-3 text-3xl font-semibold">
+      <svg class="h-5 w-5 text-accent dark:text-accent-soft" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d={icon("briefcase")} />
+      </svg>
+      Work Experience
+    </h2>
+    <div class="relative space-y-5 border-l border-paper-line pl-6 dark:border-night-line">
+      {
+        workExperience.map((role, index) => (
+          <Card class="reveal relative p-6" style={`transition-delay: ${index * 50}ms`}>
+            <span class="absolute -left-[1.95rem] top-7 h-3 w-3 rounded-full border-2 border-accent bg-paper dark:border-accent-soft dark:bg-night" />
+            <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+              <h3 class="text-lg font-semibold">{role.title}</h3>
+              <span class="font-mono text-xs text-ink-muted dark:text-paper/50">
+                {role.period}
+              </span>
+            </div>
+            <p class="mt-0.5 text-sm text-accent dark:text-accent-soft">
+              {role.org} &middot; {role.location}
+            </p>
+            <ul class="mt-3 list-disc space-y-2 pl-5 text-ink-soft dark:text-paper/75">
+              {role.bullets.map((bullet) => <li>{bullet}</li>)}
+            </ul>
+            <div class="mt-4 flex flex-wrap gap-2">
+              {role.tags.map((tag) => <Badge>{tag}</Badge>)}
+            </div>
+          </Card>
+        ))
+      }
+    </div>
+  </section>
+
+  {/* Education. */}
+  <section class="mx-auto max-w-5xl px-6 py-10">
+    <h2 class="reveal mb-7 flex items-center gap-3 text-3xl font-semibold">
+      <svg class="h-5 w-5 text-accent dark:text-accent-soft" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d={icon("graduation-cap")} />
+      </svg>
+      Education
+    </h2>
+    <div class="grid gap-5 sm:grid-cols-2">
+      {
+        education.map((edu) => (
+          <Card class="reveal p-6">
+            <h3 class="font-semibold">{edu.degree}</h3>
+            <p class="mt-1 text-sm text-accent dark:text-accent-soft">{edu.school}</p>
+            <p class="text-sm text-ink-muted dark:text-paper/55">
+              {edu.location} &middot; {edu.period}
+            </p>
+            {edu.honors.length > 0 && (
+              <div class="mt-3 flex flex-wrap gap-2">
+                {edu.honors.map((honor) => <Badge>{honor}</Badge>)}
+              </div>
+            )}
+          </Card>
+        ))
+      }
+    </div>
+  </section>
+
+  {/* Certifications and programs. */}
+  <section class="mx-auto max-w-5xl px-6 py-10">
+    <h2 class="reveal mb-7 flex items-center gap-3 text-3xl font-semibold">
+      <svg class="h-5 w-5 text-accent dark:text-accent-soft" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d={icon("award")} />
+      </svg>
+      Certifications and Programs
+    </h2>
+    <p class="reveal mb-6 -mt-2 text-ink-muted dark:text-paper/60">
+      Six certifications across venture, AI, and graph data.
+    </p>
+    <div class="grid gap-5 sm:grid-cols-3">
+      {
+        certifications.map((cert) => (
+          <Card class="reveal p-6">
+            <h3 class="font-semibold">{cert.name}</h3>
+            <p class="mt-1 text-sm text-accent dark:text-accent-soft">{cert.issuer}</p>
+            <p class="mt-2 text-sm text-ink-muted dark:text-paper/60">{cert.detail}</p>
+          </Card>
+        ))
+      }
+    </div>
+
+    {/* Compact earlier fellowships. */}
+    <div class="mt-6">
+      <h3 class="reveal mb-4 text-lg font-semibold text-ink-muted dark:text-paper/70">
+        Earlier Fellowships and Programs
+      </h3>
+      <div class="grid gap-3 sm:grid-cols-2">
+        {
+          fellowships.map((item) => (
+            <div class="reveal border-l-2 border-accent/40 pl-4">
+              <div class="font-medium">{item.name}</div>
+              <div class="text-sm text-ink-muted dark:text-paper/55">
+                {item.issuer}. {item.detail}
+              </div>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  {/* Hobbies and interests. */}
+  <section class="mx-auto max-w-5xl px-6 py-10 pb-20">
+    <h2 class="reveal mb-7 flex items-center gap-3 text-3xl font-semibold">
+      <svg class="h-5 w-5 text-accent dark:text-accent-soft" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d={icon("heart")} />
+      </svg>
+      Hobbies and Interests
+    </h2>
+    <div class="grid gap-4 sm:grid-cols-3">
+      {
+        hobbies.map((hobby, index) => (
+          <Card class="reveal p-5" style={`transition-delay: ${index * 40}ms`}>
+            <div class="flex items-center gap-2.5">
+              <svg class="h-5 w-5 text-accent dark:text-accent-soft" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d={icon(hobby.icon)} />
+              </svg>
+              <h3 class="font-semibold">{hobby.name}</h3>
+            </div>
+            <p class="mt-1.5 text-sm text-ink-muted dark:text-paper/60">{hobby.blurb}</p>
+          </Card>
         ))
       }
     </div>
