@@ -1,0 +1,59 @@
+---
+// Sticky site header with the name, page links, and a theme toggle.
+// Highlights the link that matches the current path.
+import { profile } from "@/data/profile";
+
+// Top level pages in nav order.
+const navLinks = [
+  { href: "/", label: "Home" },
+  { href: "/about", label: "About" },
+  { href: "/projects", label: "Projects" },
+  { href: "/research", label: "Research" },
+  { href: "/vc", label: "VC" },
+  { href: "/contact", label: "Contact" },
+];
+
+// Normalize the current path so trailing slashes do not break matching.
+const path = Astro.url.pathname.replace(/\/$/, "") || "/";
+
+/** True when a nav link matches the current page exactly or as a parent. */
+function isActive(href: string): boolean {
+  if (href === "/") return path === "/";
+  return path.startsWith(href);
+}
+---
+
+<header
+  class="sticky top-0 z-50 border-b border-paper-line bg-paper/80 backdrop-blur dark:border-night-line dark:bg-night/80"
+>
+  <nav class="mx-auto flex h-16 max-w-5xl items-center justify-between px-6">
+    <a href="/" class="font-display text-lg font-semibold tracking-tight">
+      {profile.name}
+    </a>
+    <div class="flex items-center gap-5 text-sm">
+      {
+        navLinks.map((link) => (
+          <a
+            href={link.href}
+            class:list={[
+              "transition-colors hover:text-accent",
+              isActive(link.href)
+                ? "text-accent"
+                : "text-ink-muted dark:text-paper/70",
+            ]}
+          >
+            {link.label}
+          </a>
+        ))
+      }
+      <button
+        id="theme-toggle"
+        aria-label="Toggle dark mode"
+        class="text-ink-muted transition-colors hover:text-accent dark:text-paper/70"
+      >
+        <span class="dark:hidden">&#9790;</span>
+        <span class="hidden dark:inline">&#9728;</span>
+      </button>
+    </div>
+  </nav>
+</header>
