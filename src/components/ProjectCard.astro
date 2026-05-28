@@ -1,0 +1,52 @@
+---
+// Clickable summary card for one project.
+// Shows tags, title, role, tagline, and optional headline metrics,
+// then links to the full case study.
+import type { Project } from "@/data/types";
+import Badge from "./Badge.astro";
+import Card from "./Card.astro";
+
+interface Props {
+  project: Project;
+  showMetrics?: boolean;
+}
+const { project, showMetrics = true } = Astro.props;
+---
+
+<a href={`/projects/${project.slug}`} class="group block">
+  <Card class="p-6 transition-colors hover:border-accent">
+    <div class="mb-3 flex flex-wrap items-center gap-2">
+      {project.tags.map((tag) => <Badge>{tag}</Badge>)}
+    </div>
+
+    <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+      <h3 class="font-display text-xl font-semibold group-hover:text-accent">
+        {project.title}
+      </h3>
+      <span class="font-mono text-xs text-ink-muted dark:text-paper/50">
+        {project.role} &middot; {project.period}
+      </span>
+    </div>
+
+    <p class="mt-2 max-w-prose text-ink-soft dark:text-paper/75">
+      {project.tagline}
+    </p>
+
+    {
+      showMetrics && project.metrics.length > 0 && (
+        <div class="mt-4 flex flex-wrap gap-x-8 gap-y-2">
+          {project.metrics.map((metric) => (
+            <div>
+              <div class="font-display text-lg font-semibold text-accent">
+                {metric.value}
+              </div>
+              <div class="text-xs text-ink-muted dark:text-paper/50">
+                {metric.label}
+              </div>
+            </div>
+          ))}
+        </div>
+      )
+    }
+  </Card>
+</a>
