@@ -1,0 +1,21 @@
+---
+// Bordered surface used for projects and content blocks.
+// Keeps the border, radius, and background consistent across the site.
+// Forwards any extra attributes such as style so callers can add stagger delays.
+interface Props {
+  class?: string;
+  [key: string]: unknown;
+}
+const { class: extraClass = "", ...rest } = Astro.props;
+---
+
+<div
+  class:list={[
+    "rounded-2xl border bg-paper-card dark:bg-night-card",
+    "border-paper-line dark:border-night-line",
+    extraClass,
+  ]}
+  {...rest}
+>
+  <slot />
+</div>
