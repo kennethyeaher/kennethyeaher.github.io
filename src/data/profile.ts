@@ -109,8 +109,10 @@ export const credentialPills: string[] = [
 // Professional summary paragraphs for the About page.
 export const summary: string[] = [
   "I am a Master of Information Management student at the University of Maryland aiming at venture capital, tech consulting, and data science. My throughline is access. I was born in Monrovia, Liberia, where most clinics still run on paper, and that problem is what pulled me into technology and the decisions behind it.",
-  "I have built and evaluated companies. As a founder I raised $25K and ran more than 60 physician interviews for Frontground, a mobile first EMR for low resource clinics. As a Venture Fellow at the USM Maryland Momentum Fund I run sourcing stage diligence and coauthor investment memos. In between I have shipped data products and clinical NLP research grounded in real healthcare problems.",
-  "Having sat in the founder seat, I read companies and problems from the inside, which is the judgment venture, consulting, and data roles reward. Healthcare access stays the value underneath the work, but the throughline is broader. I want to evaluate and build at the intersection of data, technology, and the decisions that move them.",
+  "I have built and evaluated companies. As a founder I raised $25K in non dilutive funding and ran more than 60 physician interviews for Frontground, a mobile first EMR for low resource clinics, turning primary field research into a product roadmap and pitching in front of judges and large audiences. As a Venture Capital Intern at the USM Maryland Momentum Fund I run sourcing stage diligence and coauthor investment memos delivered to the fund partners.",
+  "On the data side, I worked hands on with large datasets at Towers Surgical Partners, writing SQL, building Python ETL pipelines, and shipping Tableau dashboards. My focus was never just the numbers but explaining what they meant, helping leadership find patterns, surface inefficiencies, and make informed decisions. That work taught me how to move from raw data to insights that are actionable and easy to digest for non technical audiences.",
+  "Having sat in the founder seat, I read companies and problems from the inside, which is the judgment venture, consulting, and data roles reward. I combine analytical thinking with founder empathy, and I understand both the excitement and the challenges entrepreneurs face because I have built and competed in the startup ecosystem myself.",
+  "Healthcare access stays the value underneath the work, but the throughline is broader. I want to evaluate and build at the intersection of data, technology, and the decisions that move them, spotting strong companies, supporting the founders behind them, and turning bold ideas into something durable.",
 ];
 
 // Skill groups shown as cards. Icon is a lucide style line icon name.
@@ -173,14 +175,26 @@ export const skillGroups: SkillGroup[] = [
 // Work experience timeline. Strongest roles first.
 export const workExperience: WorkExperience[] = [
   {
+    title: "Venture Capital Intern",
+    org: "USM Maryland Momentum Fund",
+    location: "Baltimore, MD",
+    period: "June 2026 to Present",
+    bullets: [
+      "Joining the investment team to support sourcing and diligence across early stage deals, building on a fellowship that earned a return offer for the role.",
+      "Contributing to founder diligence and the structured analysis behind investment memos delivered to fund partners.",
+      "Tracking deal flow and market research to help surface high potential companies for the fund.",
+    ],
+    tags: ["Early Stage Investing", "Diligence", "Investment Memos", "Sourcing"],
+  },
+  {
     title: "Venture Fellow",
     org: "USM Maryland Momentum Fund",
     location: "Baltimore, MD",
-    period: "Jan 2026 to Present",
+    period: "Jan 2026 to June 2026",
     bullets: [
-      "Lead sourcing stage diligence on early stage startups, building structured theses across technology, market, business model, traction, team, and moat from primary founder materials and external research.",
-      "Drive founder diligence calls with structured question sets on moat defensibility, unit economics, scalability, and failure modes, then coauthor the resulting investment memos delivered to the fund partners.",
-      "Surface a deal highest conviction risks, including pre revenue projections, manufacturing scale up, and customer concentration, and issue pursue, track, or pass recommendations grounded in them.",
+      "Led sourcing stage diligence on early stage startups, building structured theses across technology, market, business model, traction, team, and moat from primary founder materials and external research.",
+      "Drove founder diligence calls with structured question sets on moat defensibility, unit economics, scalability, and failure modes, then coauthored the resulting investment memos delivered to the fund partners.",
+      "Surfaced a deal highest conviction risks, including pre revenue projections, manufacturing scale up, and customer concentration, and issued pursue, track, or pass recommendations grounded in them.",
     ],
     tags: ["Early Stage Investing", "Venture Financing", "Diligence", "Investment Memos"],
   },
@@ -188,13 +202,25 @@ export const workExperience: WorkExperience[] = [
     title: "Data Analyst",
     org: "Towers Surgical Partners",
     location: "Rockville, MD",
-    period: "May 2024 to June 2025",
+    period: "Jan 2025 to June 2025",
     bullets: [
-      "Engineered a Python ETL pipeline aggregating provider data across fragmented healthcare directories, reducing manual research workload 70 percent and accelerating provider network expansion analysis.",
-      "Built Tableau dashboards and geographic coverage models across major US metros analyzing referral flow, revenue, and procedure trends, which leadership used to set provider recruitment priorities.",
-      "Built network tracking tools adopted by leadership and a pipeline processing 5,000 plus insurance documents, surfacing revenue cycle inefficiencies to support litigation billing review.",
+      "Architected an end to end Python ETL pipeline aggregating provider data across fragmented healthcare directories, reducing manual research workload 70 percent and accelerating provider network expansion analysis.",
+      "Delivered Tableau dashboards analyzing referral flow, revenue, and procedure trends to improve decision visibility for leadership.",
+      "Analyzed reimbursement and claims data to surface revenue cycle inefficiencies during litigation billing review, building a pipeline that processed 5,000 plus insurance documents.",
+      "Built geographic coverage models across major US metros to guide provider recruitment priorities.",
     ],
-    tags: ["Python", "ETL", "Tableau", "Data Cleaning", "Healthcare"],
+    tags: ["Python", "ETL", "Tableau", "SQL", "Healthcare"],
+  },
+  {
+    title: "Data Analyst Intern",
+    org: "Towers Surgical Partners",
+    location: "Rockville, MD",
+    period: "May 2024 to Dec 2024",
+    bullets: [
+      "Built internal tracking tools adopted by leadership to monitor provider network growth, enabling the team to prioritize outreach and manage a growing portfolio of partner relationships.",
+      "Scraped and verified physician data across 100 major US metro areas for NGYNSS, a national gynecological specialist directory supporting patient navigation and healthcare market analysis.",
+    ],
+    tags: ["Python", "Data Cleaning", "Provider Research", "Healthcare"],
   },
   {
     title: "Cofounder and CEO",
@@ -258,6 +284,7 @@ export const education: Education[] = [
     period: "Expected May 2027",
     honors: ["Phi Kappa Phi Honor Society"],
     activities: [],
+    description: "STEM designated program combining technical, analytical, and leadership skills to prepare graduates for senior information roles. Pursuing the Data Science and Analytics specialization, with coursework spanning machine learning, ETL, predictive analytics, data visualization, and emerging technologies, alongside hands on projects with industry partners in the DC region.",
   },
   {
     degree: "Bachelor of Science, Information Science",
@@ -266,6 +293,7 @@ export const education: Education[] = [
     period: "Dec 2024",
     honors: [],
     activities: [],
+    description: "Interdisciplinary program blending technical foundations in database design, data analytics, programming, and information architecture with the social and organizational side of information. Prepares graduates for careers in data science and analytics, user experience research, and information systems.",
   },
 ];
 
@@ -274,17 +302,38 @@ export const certifications: Certification[] = [
   {
     name: "VC University",
     issuer: "NVCA and Berkeley Law",
+    issued: "Apr 2026",
     detail: "10 week program on fund economics, term sheets, deal structuring, and cap table modeling, taught by partners at Andreessen Horowitz, Bessemer, and Forerunner.",
   },
   {
-    name: "Phi Kappa Phi Honor Society",
-    issuer: "University of Maryland",
-    detail: "Inducted into the nation oldest and most selective honor society, top 10 percent of graduate students.",
+    name: "AI Agents Fundamentals",
+    issuer: "Hugging Face",
+    issued: "Apr 2026",
+    detail: "Foundations of building and evaluating LLM powered agents, covering tool use, planning, and multi step reasoning.",
   },
   {
-    name: "Startup Shell Founder",
-    issuer: "University of Maryland",
-    detail: "Fall 2022 cohort, top 10 percent of applicants, of the student run startup incubator.",
+    name: "LLM Course Unit 3: Fine-tuning Language Models",
+    issuer: "Hugging Face",
+    issued: "Apr 2026",
+    detail: "Hands on fine tuning of language models, including data preparation, training loops, and evaluation strategies.",
+  },
+  {
+    name: "Case Study: Analyzing Healthcare Data in Power BI",
+    issuer: "DataCamp",
+    issued: "Apr 2026",
+    detail: "Applied case study analyzing healthcare datasets in Power BI, building dashboards that surface operational and clinical insights.",
+  },
+  {
+    name: "Neo4j Graph Data Science Certification",
+    issuer: "Neo4j",
+    issued: "Mar 2026",
+    detail: "Graph data science with Neo4j, covering Cypher, graph algorithms, and applied analytics on connected data.",
+  },
+  {
+    name: "Neo4j Certified Professional",
+    issuer: "Neo4j",
+    issued: "Feb 2026",
+    detail: "Core Neo4j and Cypher query language proficiency for designing and querying graph databases at scale.",
   },
 ];
 
