@@ -1,8 +1,19 @@
 ---
-// Projects index. Lists every project as a card, newest and strongest first.
+// Projects index. Lists every project as a card and lets the visitor filter
+// by category. Filtering runs with a few lines of vanilla JavaScript so the
+// page stays light, no animation or state library needed.
 import Base from "@/layouts/Base.astro";
 import ProjectCard from "@/components/ProjectCard.astro";
 import { projects } from "@/data/projects";
+
+// The filter buttons. "All" shows everything, the rest match a project category.
+const filters = [
+  "All",
+  "Venture",
+  "Data Science",
+  "ML / NLP Research",
+  "HCI / UX Research",
+];
 ---
 
 <Base
@@ -17,18 +28,67 @@ import { projects } from "@/data/projects";
       class="reveal mt-4 max-w-prose text-lg text-ink-muted dark:text-paper/60"
       style="transition-delay: 80ms"
     >
-      A founder venture, a clinical NLP study, a data product, and venture diligence,
-      plus user research from my degree.
+      A founder venture, a clinical NLP study, a data product, venture diligence, and
+      user research from my degree. Filter by area below.
     </p>
+
+    <div class="reveal mt-8 flex flex-wrap gap-2" style="transition-delay: 160ms">
+      {
+        filters.map((filter) => (
+          <button
+            class="filter-button rounded-full border border-ink/20 px-4 py-1.5 text-sm transition-colors hover:border-accent hover:text-accent dark:border-paper/20"
+            data-filter={filter}
+          >
+            {filter}
+          </button>
+        ))
+      }
+    </div>
   </section>
 
-  <section class="mx-auto grid max-w-5xl gap-5 px-6 pb-10">
+  <section id="project-grid" class="mx-auto grid max-w-5xl gap-5 px-6 pb-10">
     {
       projects.map((project, index) => (
-        <div class="reveal" style={`transition-delay: ${index * 50}ms`}>
+        <div
+          class="project-item reveal"
+          data-category={project.category}
+          style={`transition-delay: ${index * 50}ms`}
+        >
           <ProjectCard project={project} showMetrics={false} />
         </div>
       ))
     }
   </section>
 </Base>
+
+<script is:inline>
+  (function () {
+    const buttons = document.querySelectorAll(".filter-button");
+    const items = document.querySelectorAll(".project-item");
+
+    function setActive(activeButton) {
+      buttons.forEach((button) => {
+        const isActive = button === activeButton;
+        button.classList.toggle("border-accent", isActive);
+        button.classList.toggle("text-accent", isActive);
+      });
+    }
+
+    function applyFilter(filter) {
+      items.forEach((item) => {
+        const match = filter === "All" || item.dataset.category === filter;
+        item.style.display = match ? "" : "none";
+      });
+    }
+
+    buttons.forEach((button) => {
+      button.addEventListener("click", () => {
+        setActive(button);
+        applyFilter(button.dataset.filter);
+      });
+    });
+
+    const first = document.querySelector('.filter-button[data-filter="All"]');
+    if (first) setActive(first);
+  })();
+</script>
