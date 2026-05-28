@@ -93,6 +93,8 @@ export interface Education {
   activities: string[];
   /** Optional prose description of the degree. */
   description?: string;
+  /** Optional GPA, like "4.0". */
+  gpa?: string;
 }
 
 /** A program, fellowship, or certification shown as a card. */
@@ -109,4 +111,8 @@ export interface Hobby {
   name: string;
   blurb: string;
   icon: string;
+  /** Optional image path under /images. */
+  image?: string;
+  /** Alt text for the image. */
+  imageAlt?: string;
 }
