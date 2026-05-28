@@ -151,6 +151,14 @@ export const projects: Project[] = [
         label: "View case study",
         url: "https://kyeahere72e.myportfolio.com/capstone-user-research-and-development",
       },
+      {
+        label: "View slides",
+        url: "REPLACE_WITH_SLIDES_URL",
+      },
+      {
+        label: "View Trello board",
+        url: "https://trello.com/b/KcPtpgd4/city-of-college-park-capstone",
+      },
     ],
     metrics: [],
     sections: [

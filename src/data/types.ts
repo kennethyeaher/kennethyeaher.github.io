@@ -8,7 +8,7 @@ export interface Metric {
   label: string;
 }
 
-/** An external link attached to a project, like a repo or live demo. */
+/** An external link attached to a project, like a repo, slide deck, or Figma file. */
 export interface ProjectLink {
   label: string;
   url: string;
@@ -20,7 +20,17 @@ export interface ProjectSection {
   body: string;
 }
 
-/** The category a project belongs to. Drives filtering on the Research and VC pages. */
+/** The kind of external content an embed points at. Drives how it renders later. */
+export type EmbedKind = "slides" | "doc" | "figma" | "pdf";
+
+/** An inline embed of external content. Added now, rendered when URLs are ready. */
+export interface ProjectEmbed {
+  kind: EmbedKind;
+  title: string;
+  url: string;
+}
+
+/** The category a project belongs to. Drives filtering on the Projects page. */
 export type ProjectCategory =
   | "Venture"
   | "Data Science"
@@ -40,6 +50,8 @@ export interface Project {
   links: ProjectLink[];
   metrics: Metric[];
   sections: ProjectSection[];
+  /** Optional inline embeds (slides, docs, Figma). Omit if none. */
+  embeds?: ProjectEmbed[];
 }
 
 /** A grouped set of skills shown on the home page. */
