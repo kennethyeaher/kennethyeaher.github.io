@@ -158,7 +158,7 @@ function icon(name: string): string {
             <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
               <h3 class="text-lg font-semibold">{edu.degree}</h3>
               <span class="font-mono text-xs text-ink-muted dark:text-paper/50">
-                {edu.period}
+                {edu.period}{edu.gpa && <>{" "}&middot; GPA {edu.gpa}</>}
               </span>
             </div>
             <p class="mt-1 text-sm text-accent dark:text-accent-soft">
@@ -170,6 +170,16 @@ function icon(name: string): string {
             {edu.honors.length > 0 && (
               <div class="mt-4 flex flex-wrap gap-2">
                 {edu.honors.map((honor) => <Badge>{honor}</Badge>)}
+              </div>
+            )}
+            {edu.activities.length > 0 && (
+              <div class="mt-4">
+                <div class="font-mono text-xs uppercase tracking-wide text-ink-muted dark:text-paper/55">
+                  Activities and Societies
+                </div>
+                <p class="mt-1.5 text-sm text-ink-soft dark:text-paper/70">
+                  {edu.activities.join(", ")}
+                </p>
               </div>
             )}
           </Card>
@@ -237,7 +247,15 @@ function icon(name: string): string {
     <div class="grid gap-4 sm:grid-cols-3">
       {
         hobbies.map((hobby, index) => (
-          <Card class="reveal p-5" style={`transition-delay: ${index * 40}ms`}>
+          <Card class="reveal overflow-hidden p-5" style={`transition-delay: ${index * 40}ms`}>
+            {hobby.image && (
+              <img
+                src={hobby.image}
+                alt={hobby.imageAlt ?? hobby.name}
+                class="-mx-5 -mt-5 mb-4 h-40 w-[calc(100%+2.5rem)] object-cover"
+                loading="lazy"
+              />
+            )}
             <div class="flex items-center gap-2.5">
               <svg class="h-5 w-5 text-accent dark:text-accent-soft" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d={icon(hobby.icon)} />
