@@ -5,12 +5,12 @@ export default {
   theme: {
     extend: {
       colors: {
-        // marm ink and paper base with a clinical teal accent.
-        // deliberately not the default purple on white look.
-        ink: { DEFAULT: "#15140f", soft: "#2c2820", muted: "#6b6457" },
-        paper: { DEFAULT: "#f5f2eb", card: "#fbf9f4", line: "#e4ded1" },
-        accent: { DEFAULT: "#0e7c7b", soft: "#14b8a6", warm: "#c2683a" },
-        night: { DEFAULT: "#101009", card: "#1b1a13", line: "#2d291f" },
+        // "Quite clear" palette, green led with maroon held in reserve.
+        // Cool grays for structure, deep green as the single accent.
+        ink: { DEFAULT: "#1a1a1a", soft: "#3a3a3a", muted: "#6b6b6b" },
+        paper: { DEFAULT: "#f2f2f2", card: "#fafafa", line: "#dcdcdc" },
+        accent: { DEFAULT: "#174d38", soft: "#2a7d5a", warm: "#4d1717" },
+        night: { DEFAULT: "#0f1411", card: "#18201b", line: "#2a332d" },
       },
       fontFamily: {
         // editorial pairing with personality, not Inter or Roboto.

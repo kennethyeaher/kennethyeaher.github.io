@@ -21,19 +21,19 @@ body {
   /* soft atmospheric tint so the background is not a flat color */
   background-image: radial-gradient(
       circle at 18% 8%,
-      rgba(14, 124, 123, 0.045),
+      rgba(23, 77, 56, 0.04),
       transparent 42%
     ),
-    radial-gradient(circle at 82% 88%, rgba(194, 104, 58, 0.04), transparent 45%);
+    radial-gradient(circle at 82% 88%, rgba(106, 137, 167, 0.035), transparent 45%);
 }
 html.dark body {
   @apply bg-night text-paper;
   background-image: radial-gradient(
       circle at 18% 8%,
-      rgba(20, 184, 166, 0.06),
+      rgba(42, 125, 90, 0.06),
       transparent 45%
     ),
-    radial-gradient(circle at 82% 88%, rgba(194, 104, 58, 0.05), transparent 48%);
+    radial-gradient(circle at 82% 88%, rgba(106, 137, 167, 0.05), transparent 48%);
 }
 
 h1,
