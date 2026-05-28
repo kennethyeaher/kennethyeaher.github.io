@@ -1,0 +1,90 @@
+---
+// Project detail page. Astro pre renders one page per slug at build time
+// using getStaticPaths, which is what static export needs.
+import Base from "@/layouts/Base.astro";
+import Badge from "@/components/Badge.astro";
+import { projects } from "@/data/projects";
+import type { Project } from "@/data/types";
+
+/** Tell Astro which slugs to build and hand each page its project data. */
+export function getStaticPaths() {
+  return projects.map((project) => ({
+    params: { slug: project.slug },
+    props: { project },
+  }));
+}
+
+interface Props {
+  project: Project;
+}
+const { project } = Astro.props;
+---
+
+<Base title={project.title} description={project.tagline}>
+  <article class="mx-auto max-w-3xl px-6 pb-10 pt-20">
+    <a href="/projects" class="reveal text-sm text-accent hover:underline">
+      Back to all projects
+    </a>
+
+    <div class="reveal mb-4 mt-6 flex flex-wrap items-center gap-2">
+      {project.tags.map((tag) => <Badge>{tag}</Badge>)}
+    </div>
+
+    <h1 class="reveal font-display text-4xl font-semibold tracking-tight sm:text-5xl">
+      {project.title}
+    </h1>
+    <p class="reveal mt-3 font-mono text-sm text-ink-muted dark:text-paper/55">
+      {project.role} &middot; {project.period}
+    </p>
+    <p
+      class="reveal mt-5 font-display text-xl leading-relaxed text-ink-soft dark:text-paper/80"
+    >
+      {project.tagline}
+    </p>
+
+    {
+      project.links.length > 0 && (
+        <div class="reveal mt-6 flex flex-wrap gap-3">
+          {project.links.map((link) => (
+            <a
+              href={link.url}
+              class="rounded-full border border-ink/20 px-4 py-2 text-sm transition-colors hover:border-accent hover:text-accent dark:border-paper/20"
+            >
+              {link.label}
+            </a>
+          ))}
+        </div>
+      )
+    }
+
+    {
+      project.metrics.length > 0 && (
+        <div class="reveal mt-10 grid grid-cols-3 gap-4 border-y border-paper-line py-6 dark:border-night-line">
+          {project.metrics.map((metric) => (
+            <div>
+              <div class="font-display text-2xl font-bold text-accent sm:text-3xl">
+                {metric.value}
+              </div>
+              <div class="mt-1 text-xs text-ink-muted dark:text-paper/55">
+                {metric.label}
+              </div>
+            </div>
+          ))}
+        </div>
+      )
+    }
+
+    <div class="mt-10 space-y-9">
+      {
+        project.sections.map((section, index) => (
+          <section class="reveal" style={`transition-delay: ${index * 50}ms`}>
+            <h2 class="mb-3 text-xl font-semibold">{section.heading}</h2>
+            <p class="max-w-prose text-lg leading-relaxed text-ink-soft dark:text-paper/80">
+              {section.body}
+            </p>
+          </section>
+        ))
+      }
+    </div>
+  </article>
+</Base>

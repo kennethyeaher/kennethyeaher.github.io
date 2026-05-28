@@ -1,0 +1,34 @@
+---
+// Projects index. Lists every project as a card, newest and strongest first.
+import Base from "@/layouts/Base.astro";
+import ProjectCard from "@/components/ProjectCard.astro";
+import { projects } from "@/data/projects";
+---
+
+<Base
+  title="Projects"
+  description="Founder, research, and venture work across healthcare, data, and access."
+>
+  <section class="mx-auto max-w-5xl px-6 pb-8 pt-20">
+    <h1 class="reveal font-display text-4xl font-semibold tracking-tight sm:text-5xl">
+      Projects
+    </h1>
+    <p
+      class="reveal mt-4 max-w-prose text-lg text-ink-muted dark:text-paper/60"
+      style="transition-delay: 80ms"
+    >
+      A founder venture, a clinical NLP study, a data product, and venture diligence,
+      plus user research from my degree.
+    </p>
+  </section>
+
+  <section class="mx-auto grid max-w-5xl gap-5 px-6 pb-10">
+    {
+      projects.map((project, index) => (
+        <div class="reveal" style={`transition-delay: ${index * 50}ms`}>
+          <ProjectCard project={project} showMetrics={false} />
+        </div>
+      ))
+    }
+  </section>
+</Base>
