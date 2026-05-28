@@ -1,0 +1,93 @@
+---
+// Home page. Hero with the core positioning, a four pillar skills grid,
+// and the featured project cards. Reveal classes drive the fade up on scroll.
+
+import Base from "@/layouts/Base.astro";
+import Card from "@/components/Card.astro";
+import Badge from "@/components/Badge.astro";
+import ProjectCard from "@/components/ProjectCard.astro";
+import { profile, skillPillars } from "@/data/profile";
+import { getFeaturedProjects } from "@/data/projects";
+
+const featured = getFeaturedProjects();
+const firstName = profile.name.split(" ")[0];
+---
+
+<Base>
+  {/* Hero. Leads with identity and two clear calls to action. */}
+  <section class="mx-auto max-w-5xl px-6 pb-16 pt-20">
+    <p class="reveal mb-4 font-mono text-sm text-accent">{profile.location}</p>
+    <h1
+      class="reveal max-w-3xl font-display text-4xl font-semibold leading-[1.05] tracking-tight sm:text-6xl"
+      style="transition-delay: 80ms"
+    >
+      Hi, I am {firstName}.
+    </h1>
+    <p
+      class="reveal mt-6 max-w-2xl font-display text-xl text-ink-soft dark:text-paper/80 sm:text-2xl"
+      style="transition-delay: 160ms"
+    >
+      {profile.tagline}
+    </p>
+    <p
+      class="reveal mt-5 max-w-prose text-lg leading-relaxed text-ink-muted dark:text-paper/60"
+      style="transition-delay: 240ms"
+    >
+      {profile.shortBio}
+    </p>
+    <div class="reveal mt-8 flex flex-wrap gap-4" style="transition-delay: 320ms">
+      
+        href="/projects"
+        class="rounded-full bg-accent px-5 py-2.5 font-medium text-paper transition-colors hover:bg-accent-soft"
+      >
+        View Projects
+      </a>
+      
+        href="/contact"
+        class="rounded-full border border-ink/20 px-5 py-2.5 transition-colors hover:border-accent hover:text-accent dark:border-paper/20"
+      >
+        Get in Touch
+      </a>
+    </div>
+  </section>
+
+  {/* Skills grid. Four practice areas, each backed by a real project. */}
+  <section class="mx-auto max-w-5xl px-6 py-14">
+    <h2 class="reveal text-2xl font-semibold">What I do</h2>
+    <p class="reveal mb-8 mt-1 max-w-prose text-ink-muted dark:text-paper/60">
+      Four overlapping practices, each one anchored by real work below.
+    </p>
+    <div class="grid gap-5 sm:grid-cols-2">
+      {
+        skillPillars.map((pillar, index) => (
+          <Card class="reveal h-full p-6" style={`transition-delay: ${index * 60}ms`}>
+            <h3 class="text-lg font-semibold">{pillar.title}</h3>
+            <p class="mb-4 mt-1 text-sm text-ink-muted dark:text-paper/55">
+              {pillar.blurb}
+            </p>
+            <div class="flex flex-wrap gap-2">
+              {pillar.skills.map((skill) => <Badge>{skill}</Badge>)}
+            </div>
+          </Card>
+        ))
+      }
+    </div>
+  </section>
+
+  {/* Featured work. Pulls only projects flagged featured. */}
+  <section class="mx-auto max-w-5xl px-6 py-14">
+    <div class="reveal mb-8 flex items-end justify-between">
+      <h2 class="text-2xl font-semibold">Featured work</h2>
+      <a href="/projects" class="text-sm text-accent hover:underline">View all</a>
+    </div>
+    <div class="grid gap-5">
+      {
+        featured.map((project, index) => (
+          <div class="reveal" style={`transition-delay: ${index * 60}ms`}>
+            <ProjectCard project={project} />
+          </div>
+        ))
+      }
+    </div>
+  </section>
+</Base>
