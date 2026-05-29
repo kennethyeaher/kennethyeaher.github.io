@@ -326,8 +326,9 @@ export const education: Education[] = [
     location: "College Park, MD",
     period: "Expected May 2027",
     gpa: "4.0",
-    honors: ["Phi Kappa Phi Honor Society"],
+    honors: [],
     activities: [
+      "Phi Kappa Phi Honor Society",
       "Investing Club",
       "The Black Business Association",
       "xFoundry Xtrapreneurs",
