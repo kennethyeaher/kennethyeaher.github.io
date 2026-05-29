@@ -18,6 +18,10 @@ export interface ProjectLink {
 export interface ProjectSection {
   heading: string;
   body: string;
+  /** Optional image path under /images, rendered inside the section. */
+  image?: string;
+  /** Alt text for the section image. */
+  imageAlt?: string;
 }
 
 /** The kind of external content an embed points at. Drives how it renders later. */
