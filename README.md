@@ -263,11 +263,6 @@ Astro and TypeScript project mapped to iSchool standards.
 | Reproducible installs | `package.json` and `package-lock.json` committed |
 | Type and content check before every commit | `npm run check` must report `0 errors` |
 
-Writing style is enforced for all prose and comments:
-
-- No em dashes anywhere
-- No hyphenated words in prose, comments, or commit messages. Hyphens are allowed only in CSS classes, URL slugs, and package names
-- Commit messages are short, sentence cased, and no colons
 
 See `SECURITY.md` for the dependency audit decisions, including the dev only `npm audit` findings deliberately left unfixed.
 
