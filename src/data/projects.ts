@@ -148,14 +148,6 @@ export const projects: Project[] = [
     tags: ["UX Research", "Project Management", "User Personas", "Civic"],
     links: [
       {
-        label: "View case study",
-        url: "https://kyeahere72e.myportfolio.com/capstone-user-research-and-development",
-      },
-      {
-        label: "View slides",
-        url: "REPLACE_WITH_SLIDES_URL",
-      },
-      {
         label: "View Trello board",
         url: "https://trello.com/b/KcPtpgd4/city-of-college-park-capstone",
       },
@@ -187,10 +179,6 @@ export const projects: Project[] = [
     featured: false,
     tags: ["UX Research", "Health Tech", "Accessibility", "User Centered Design"],
     links: [
-      {
-        label: "View case study",
-        url: "https://kyeahere72e.myportfolio.com/cognitive-wellness-garden-a-user-centered-design",
-      },
     ],
     metrics: [],
     sections: [
@@ -219,10 +207,6 @@ export const projects: Project[] = [
     featured: false,
     tags: ["UX Research", "Figma", "Health Tech", "Prototyping"],
     links: [
-      {
-        label: "View case study",
-        url: "https://kyeahere72e.myportfolio.com/mental-health-application",
-      },
     ],
     metrics: [],
     sections: [
@@ -251,10 +235,6 @@ export const projects: Project[] = [
     featured: false,
     tags: ["Python", "Data Analysis", "tkinter", "pandas"],
     links: [
-      {
-        label: "View case study",
-        url: "https://kyeahere72e.myportfolio.com/bookscout-merging-data-analysis-and-front-end-design",
-      },
     ],
     metrics: [
       { value: "50,000+", label: "books in the searchable dataset" },
@@ -285,7 +265,6 @@ export const projects: Project[] = [
     featured: false,
     tags: ["UX Research", "Prototyping", "User Centered Design"],
     links: [
-      { label: "View case study", url: "https://kyeahere72e.myportfolio.com/fitdish" },
     ],
     metrics: [],
     sections: [
