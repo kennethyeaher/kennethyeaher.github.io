@@ -14,6 +14,7 @@ import {
   fellowships,
   education,
   certifications,
+  caseStudies,
   hobbies,
 } from "@/data/profile";
 
@@ -34,6 +35,7 @@ const icons: Record<string, string> = {
   award: "M12 8m-5 0a5 5 0 1010 0a5 5 0 10-10 0M8 13l-2 8 6-3 6 3-2-8",
   user: "M12 12m-4 0a4 4 0 108 0a4 4 0 10-8 0M4 21a8 8 0 0116 0",
   heart: "M12 21C5 14 3 10 5 7a4 4 0 017-1 4 4 0 017 1c2 3 0 7-7 14z",
+  compass: "M12 12m-10 0a10 10 0 1020 0a10 10 0 10-20 0M16.24 7.76l-2.12 6.36-6.36 2.12 2.12-6.36 6.36-2.12z",
 };
 
 /** Build an inline svg string for a given icon name. */
@@ -86,7 +88,7 @@ function icon(name: string): string {
   <section class="mx-auto max-w-5xl px-6 py-10">
     <h2 class="reveal mb-7 flex items-center gap-3 text-3xl font-semibold">
       <svg class="h-5 w-5 text-accent dark:text-accent-soft" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d={icon("wrench")} />
+        <path d={icon("target")} />
       </svg>
       Skills and Expertise
     </h2>
@@ -177,9 +179,9 @@ function icon(name: string): string {
                 <div class="font-mono text-xs uppercase tracking-wide text-ink-muted dark:text-paper/55">
                   Activities and Societies
                 </div>
-                <p class="mt-1.5 text-sm text-ink-soft dark:text-paper/70">
-                  {edu.activities.join(", ")}
-                </p>
+                <div class="mt-2 flex flex-wrap gap-2">
+                  {edu.activities.map((activity) => <Badge>{activity}</Badge>)}
+                </div>
               </div>
             )}
           </Card>
@@ -197,7 +199,7 @@ function icon(name: string): string {
       Certifications and Programs
     </h2>
     <p class="reveal mb-6 -mt-2 text-ink-muted dark:text-paper/60">
-      Six certifications across venture, AI, and graph data.
+      Four certifications across venture and graph data.
     </p>
     <div class="grid gap-5 sm:grid-cols-3">
       {
@@ -233,6 +235,35 @@ function icon(name: string): string {
           ))
         }
       </div>
+    </div>
+  </section>
+
+  {/* Applied case studies and continued learning. */}
+  <section class="mx-auto max-w-5xl px-6 py-10">
+    <h2 class="reveal mb-7 flex items-center gap-3 text-3xl font-semibold">
+      <svg class="h-5 w-5 text-accent dark:text-accent-soft" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d={icon("flask")} />
+      </svg>
+      Applied Case Studies and Continued Learning
+    </h2>
+    <p class="reveal mb-6 -mt-2 text-ink-muted dark:text-paper/60">
+      Hands on coursework in AI, LLMs, and applied analytics.
+    </p>
+    <div class="grid gap-5 sm:grid-cols-3">
+      {
+        caseStudies.map((study) => (
+          <Card class="reveal p-6">
+            <h3 class="font-semibold">{study.name}</h3>
+            <p class="mt-1 text-sm text-accent dark:text-accent-soft">{study.issuer}</p>
+            {study.issued && (
+              <p class="mt-0.5 font-mono text-xs text-ink-muted dark:text-paper/50">
+                Issued {study.issued}
+              </p>
+            )}
+            <p class="mt-2 text-sm text-ink-muted dark:text-paper/60">{study.detail}</p>
+          </Card>
+        ))
+      }
     </div>
   </section>
 
