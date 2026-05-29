@@ -1,6 +1,8 @@
 ---
 // Project detail page. Astro pre renders one page per slug at build time
 // using getStaticPaths, which is what static export needs.
+// Wider layout, bolder primary button, optional section images,
+// and prev next navigation at the bottom that wraps across all projects.
 import Base from "@/layouts/Base.astro";
 import Badge from "@/components/Badge.astro";
 import { projects } from "@/data/projects";
@@ -8,47 +10,63 @@ import type { Project } from "@/data/types";
 
 /** Tell Astro which slugs to build and hand each page its project data. */
 export function getStaticPaths() {
-  return projects.map((project) => ({
-    params: { slug: project.slug },
-    props: { project },
-  }));
+  return projects.map((project, index) => {
+    // Compute prev and next with wrap around so navigation never dead ends.
+    const prev = projects[(index - 1 + projects.length) % projects.length];
+    const next = projects[(index + 1) % projects.length];
+    return {
+      params: { slug: project.slug },
+      props: { project, prev, next },
+    };
+  });
 }
 
 interface Props {
   project: Project;
+  prev: Project;
+  next: Project;
 }
-const { project } = Astro.props;
+const { project, prev, next } = Astro.props;
 ---
 
 <Base title={project.title} description={project.tagline}>
-  <article class="mx-auto max-w-3xl px-6 pb-10 pt-20">
+  <article class="mx-auto max-w-4xl px-6 pb-16 pt-20">
     <a href="/projects" class="reveal text-sm text-accent hover:underline">
       Back to all projects
     </a>
 
-    <div class="reveal mb-4 mt-6 flex flex-wrap items-center gap-2">
-      {project.tags.map((tag) => <Badge>{tag}</Badge>)}
-    </div>
+    {/* Category label sits above the title in mono caps. */}
+    <p class="reveal mt-6 font-mono text-xs uppercase tracking-widest text-ink-muted dark:text-paper/55">
+      {project.category}
+    </p>
 
-    <h1 class="reveal font-display text-4xl font-semibold tracking-tight sm:text-5xl">
+    <h1 class="reveal mt-2 font-display text-4xl font-semibold tracking-tight sm:text-5xl">
       {project.title}
     </h1>
     <p class="reveal mt-3 font-mono text-sm text-ink-muted dark:text-paper/55">
       {project.role} &middot; {project.period}
     </p>
     <p
-      class="reveal mt-5 font-display text-xl leading-relaxed text-ink-soft dark:text-paper/80"
+      class="reveal mt-5 max-w-prose font-display text-xl leading-relaxed text-ink-soft dark:text-paper/80"
     >
       {project.tagline}
     </p>
 
+    <div class="reveal mt-5 flex flex-wrap items-center gap-2">
+      {project.tags.map((tag) => <Badge>{tag}</Badge>)}
+    </div>
+
     {
       project.links.length > 0 && (
-        <div class="reveal mt-6 flex flex-wrap gap-3">
-          {project.links.map((link) => (
+        <div class="reveal mt-7 flex flex-wrap gap-3">
+          {project.links.map((link, index) => (
             <a
               href={link.url}
-              class="rounded-full border border-ink/20 px-4 py-2 text-sm transition-colors hover:border-accent hover:text-accent dark:border-paper/20"
+              class={
+                index === 0
+                  ? "rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-paper transition-colors hover:bg-accent-soft dark:text-night"
+                  : "rounded-full border border-ink/20 px-5 py-2.5 text-sm transition-colors hover:border-accent hover:text-accent dark:border-paper/20"
+              }
             >
               {link.label}
             </a>
@@ -59,7 +77,7 @@ const { project } = Astro.props;
 
     {
       project.metrics.length > 0 && (
-        <div class="reveal mt-10 grid grid-cols-3 gap-4 border-y border-paper-line py-6 dark:border-night-line">
+        <div class="reveal mt-12 grid gap-4 border-y border-paper-line py-7 dark:border-night-line sm:grid-cols-2 lg:grid-cols-[repeat(auto-fit,minmax(180px,1fr))]">
           {project.metrics.map((metric) => (
             <div>
               <div class="font-display text-2xl font-bold text-accent sm:text-3xl">
@@ -74,7 +92,7 @@ const { project } = Astro.props;
       )
     }
 
-    <div class="mt-10 space-y-9">
+    <div class="mt-12 space-y-10">
       {
         project.sections.map((section, index) => (
           <section class="reveal" style={`transition-delay: ${index * 50}ms`}>
@@ -82,9 +100,43 @@ const { project } = Astro.props;
             <p class="max-w-prose text-lg leading-relaxed text-ink-soft dark:text-paper/80">
               {section.body}
             </p>
+            {section.image && (
+              <img
+                src={section.image}
+                alt={section.imageAlt ?? section.heading}
+                class="mt-5 w-full rounded-lg border border-paper-line dark:border-night-line"
+                loading="lazy"
+              />
+            )}
           </section>
         ))
       }
     </div>
+
+    {/* Prev next navigation. Wraps across all projects so it never dead ends. */}
+    <nav class="reveal mt-16 grid gap-4 border-t border-paper-line pt-10 dark:border-night-line sm:grid-cols-2">
+      <a
+        href={`/projects/${prev.slug}`}
+        class="group rounded-lg border border-paper-line p-5 transition-colors hover:border-accent dark:border-night-line"
+      >
+        <div class="font-mono text-xs uppercase tracking-widest text-ink-muted dark:text-paper/55">
+          Previous
+        </div>
+        <div class="mt-1 font-display text-lg font-semibold group-hover:text-accent">
+          &larr; {prev.title}
+        </div>
+      </a>
+      <a
+        href={`/projects/${next.slug}`}
+        class="group rounded-lg border border-paper-line p-5 text-right transition-colors hover:border-accent dark:border-night-line"
+      >
+        <div class="font-mono text-xs uppercase tracking-widest text-ink-muted dark:text-paper/55">
+          Next
+        </div>
+        <div class="mt-1 font-display text-lg font-semibold group-hover:text-accent">
+          {next.title} &rarr;
+        </div>
+      </a>
+    </nav>
   </article>
 </Base>
