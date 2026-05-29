@@ -277,7 +277,75 @@ export const projects: Project[] = [
         body: "This was my first experience with prototyping and using research to align design features with user needs. It introduced me to wireframing, competitive analysis, and accessibility focused design, and set the foundation for my growth in human computer interaction.",
       },
     ],
+  },  {
+    slug: "school-lunch-academic-performance",
+    title: "School Lunch Programs and Test Performance in Maryland",
+    role: "Team contributor",
+    category: "Data Science",
+    period: "Fall 2025",
+    tagline:
+      "Linear regression study across 846 Maryland public schools linking free and reduced lunch eligibility to ELA proficiency rates on the MCAP.",
+    featured: false,
+    tags: ["Linear Regression", "R", "Education Data", "Statistical Analysis", "INST627"],
+    links: [],
+    metrics: [
+      { value: "846", label: "Maryland schools analyzed" },
+      { value: "p < 0.001", label: "statistical significance" },
+      { value: "-0.603", label: "slope per percentage point" },
+    ],
+    sections: [
+      {
+        heading: "Research question",
+        body: "Does the percentage of students receiving free and reduced price lunch predict academic performance in Maryland public schools? Specifically, is there an association between free and reduced lunch eligibility and the percent of students scoring proficient on the Maryland Comprehensive Assessment Program English Language Arts test?",
+      },
+      {
+        heading: "Method",
+        body: "Joined two Maryland State Department of Education datasets from the 2022 to 2023 school year, free and reduced meals participation and MCAP ELA proficiency, using a concatenated school name, address, and city as the join key. Cleaned filler values, removed unmatched rows, and fit a linear regression in R against the final sample of 846 schools.",
+      },
+      {
+        heading: "Findings",
+        body: "Strong negative association between free and reduced lunch eligibility and ELA proficiency. For each percentage point increase in eligibility, the school's English proficiency rate drops by 0.603 points on average. Intercept of 81.0 percent, p value below 0.001, residual plots support the linearity assumption.",
+      },
+      {
+        heading: "What it means",
+        body: "The relationship reflects deeper socioeconomic disparities, not lunch participation itself. Findings have implications for how proficiency rates are interpreted in school evaluation and how resources are allocated to schools serving lower income communities. Future work could expand to other states, other subjects, and qualitative studies on nutritional quality and meal delivery models.",
+      },
+    ],
   },
+  {
+    slug: "inst441-misinformation-policy-debate",
+    title: "Misinformation Policy Debate Infographic",
+    role: "Team of 4",
+    category: "Policy / Ethics",
+    period: "Spring 2024",
+    tagline:
+      "Visual policy debate examining whether tech companies or governments should be primarily responsible for combating misinformation and disinformation online.",
+    featured: false,
+    tags: ["Information Policy", "Visual Communication", "Research", "Infographic", "INST441"],
+    links: [
+      { label: "View infographic", url: "/projects/inst441-policy-debate-infographic.pdf" },
+    ],
+    metrics: [],
+    sections: [
+      {
+        heading: "The question",
+        body: "Should tech companies or governments primarily combat misinformation and disinformation? The infographic frames the stakes, defines the terms, and sets up a structured debate that takes both sides seriously rather than advocating for one.",
+      },
+      {
+        heading: "Setting context",
+        body: "Synthesized current methods platforms and governments already use, algorithm adjustments, increased transparency, digital literacy education, fact checking partnerships, and content moderation, then anchored the debate in real legal frameworks like Section 230 in the United States and the European Union Digital Services Act.",
+      },
+      {
+        heading: "Both sides on the page",
+        body: "Built parallel strengths and weaknesses arguments for both positions. The tech company side weighs transparency, accountability, and healthy competition against censorship risk, global enforcement gaps, and innovation chilling effects. The government side weighs checks and balances and user protection rights against abuse of power, jurisdictional conflict, and resource limitations.",
+      },
+      {
+        heading: "Approach",
+        body: "Structured the four page infographic for visual hierarchy, with statistics, definitions, current methods, and the two sided debate each occupying a distinct visual zone. Cited fourteen sources across academic journals, policy organizations, and primary law to ground every claim.",
+      },
+    ],
+  },
+
 ];
 
 /** Return only the projects flagged as featured, used on the home page. */
