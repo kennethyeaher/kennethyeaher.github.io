@@ -39,7 +39,8 @@ export type ProjectCategory =
   | "Venture"
   | "Data Science"
   | "ML / NLP Research"
-  | "HCI / UX Research";
+  | "HCI / UX Research"
+  | "Policy / Ethics";
 
 /** A full project case study. Renders as a card and its own detail page. */
 export interface Project {
@@ -108,6 +109,22 @@ export interface Certification {
   detail: string;
   /** Optional issue date, like "Apr 2026". */
   issued?: string;
+}
+
+/** A grouped lab series or coursework item shown on the About page. */
+export interface Coursework {
+  title: string;
+  course: string;
+  period: string;
+  detail: string;
+  /** Optional skill tags. */
+  tags?: string[];
+  /** Optional list of GitHub repo URLs when the lab series is on GitHub. */
+  repoUrls?: { label: string; url: string }[];
+  /** Optional screenshot image path under /images. */
+  image?: string;
+  /** Alt text for the image. */
+  imageAlt?: string;
 }
 
 /** A hobby or interest shown as a small card. */
