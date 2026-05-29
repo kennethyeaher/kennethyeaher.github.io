@@ -5,6 +5,7 @@ import type {
   WorkExperience,
   Education,
   Certification,
+  Coursework,
   Hobby,
 } from "./types";
 
@@ -142,7 +143,7 @@ export const skillGroups: SkillGroup[] = [
     skills: [
       "Python (pandas, NumPy)",
       "SQL",
-      "Spark",
+      "Apache Spark",
       "R (tidyverse)",
       "ETL Pipelines",
       "Web Scraping (Beautiful Soup)",
@@ -152,7 +153,16 @@ export const skillGroups: SkillGroup[] = [
       "Power BI",
       "Tableau",
       "Excel (VBA)",
+      "Bokeh",
+      "Folium",
+      "Geospatial Data Analysis",
+      "Choropleth Mapping",
+      "Interactive Mapping",
+      "MongoDB",
+      "NoSQL",
       "Neo4j",
+      "Databricks",
+      "Cloud Computing",
     ],
   },
   {
@@ -165,6 +175,14 @@ export const skillGroups: SkillGroup[] = [
       "Experimental Design",
       "Statistical Testing",
       "Quantitative Research",
+      "Predictive Analytics",
+      "Linear Regression",
+      "Decision Trees",
+      "Classification",
+      "Ensemble Methods",
+      "Random Forest",
+      "Gradient Boosting",
+      "Data Splitting",
       "Graph Data Science",
       "Graph Embeddings",
       "Link Prediction",
@@ -428,6 +446,49 @@ export const caseStudies: Certification[] = [
     issuer: "DataCamp",
     issued: "Feb 2026",
     detail: "Modeled customer churn drivers in Power BI, building dashboards that flag retention risk and segment behavior.",
+  },
+];
+
+// Coursework and labs from the MIM program.
+// Sustained problem set series and labs grouped by course.
+export const coursework: Coursework[] = [
+  {
+    title: "Machine Learning Problem Sets",
+    course: "INST737, Introduction to Data Science",
+    period: "Fall 2025",
+    detail: "Four problem sets in Python building and evaluating ML models, covering data splitting, linear regression, decision trees, classification, and ensemble methods with scikit-learn.",
+    tags: ["scikit-learn", "Python", "Classification", "Decision Trees", "Ensemble Methods"],
+    repoUrls: [
+      { label: "Problem Set 1", url: "https://github.com/kennethyeaher/problem-set-1" },
+      { label: "Problem Set 2", url: "https://github.com/kennethyeaher/problem-set-2" },
+      { label: "Problem Set 3", url: "https://github.com/kennethyeaher/problem-set-3" },
+      { label: "Problem Set 4", url: "https://github.com/kennethyeaher/problem-set-4" },
+    ],
+  },
+  {
+    title: "Modeling and Analysis Labs",
+    course: "INST737, Introduction to Data Science",
+    period: "Fall 2025",
+    detail: "Built and evaluated linear regression and decision tree models in Python with scikit-learn, using train and test splitting to validate accuracy, comparing R squared metrics, and contrasting non linear tree based models against linear approaches.",
+    tags: ["Linear Regression", "Decision Trees", "scikit-learn", "Data Splitting", "Predictive Analytics"],
+    image: "/images/labs/ma-lab-2-decision-tree.png",
+    imageAlt: "Decision tree classification output from M and A Lab 2",
+  },
+  {
+    title: "ETL and NoSQL Lab",
+    course: "INST627, Data Analytics for Information Professionals",
+    period: "Fall 2025",
+    detail: "Deployed a cloud based MongoDB Atlas cluster with IP whitelisting, connected through VS Code, and worked with BSON document structures to contrast schema flexible NoSQL architecture against the relational model.",
+    tags: ["MongoDB", "NoSQL", "Cloud Computing", "BSON", "Python"],
+  },
+  {
+    title: "Data Visualization Labs",
+    course: "INST627, Data Analytics for Information Professionals",
+    period: "Fall 2025",
+    detail: "Built interactive visualizations in Python. Engineered Folium choropleth maps from external CSV datasets like ecological footprint per capita, and Bokeh dashboards for stock market and Iris classification data, deploying both as standalone HTML for browser sharing.",
+    tags: ["Bokeh", "Folium", "Geospatial Data Analysis", "Choropleth Mapping", "Interactive Mapping"],
+    image: "/images/labs/vp-lab-1-choropleth.png",
+    imageAlt: "World choropleth map of ecological footprint per capita built with Folium",
   },
 ];
 
