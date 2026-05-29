@@ -20,7 +20,11 @@
 
 </div>
 
-> **Hero screenshot placeholder.** Replace this block with `![Portfolio hero](public/images/og-hero.jpg)` once the screenshot lands at `public/images/og-hero.jpg`.
+<div align="center">
+
+![Kenneth Yeaher Portfolio hero](public/images/portfolio-hero.png)
+
+</div>
 
 ## Overview
 
