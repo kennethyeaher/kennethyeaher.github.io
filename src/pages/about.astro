@@ -190,6 +190,28 @@ function icon(name: string): string {
     </div>
   </section>
 
+  {/* Earlier fellowships and programs, lifted to its own section. */}
+  <section class="mx-auto max-w-5xl px-6 py-10">
+    <h2 class="reveal mb-7 flex items-center gap-3 text-3xl font-semibold">
+      <svg class="h-5 w-5 text-accent dark:text-accent-soft" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d={icon("trending-up")} />
+      </svg>
+      Earlier Fellowships and Programs
+    </h2>
+    <div class="grid gap-3 sm:grid-cols-2">
+      {
+        fellowships.map((item) => (
+          <div class="reveal border-l-2 border-accent/40 pl-4">
+            <div class="font-medium">{item.name}</div>
+            <div class="text-sm text-ink-muted dark:text-paper/55">
+              {item.issuer}. {item.detail}
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
   {/* Certifications and programs. */}
   <section class="mx-auto max-w-5xl px-6 py-10">
     <h2 class="reveal mb-7 flex items-center gap-3 text-3xl font-semibold">
@@ -216,25 +238,6 @@ function icon(name: string): string {
           </Card>
         ))
       }
-    </div>
-
-    {/* Compact earlier fellowships. */}
-    <div class="mt-6">
-      <h3 class="reveal mb-4 text-lg font-semibold text-ink-muted dark:text-paper/70">
-        Earlier Fellowships and Programs
-      </h3>
-      <div class="grid gap-3 sm:grid-cols-2">
-        {
-          fellowships.map((item) => (
-            <div class="reveal border-l-2 border-accent/40 pl-4">
-              <div class="font-medium">{item.name}</div>
-              <div class="text-sm text-ink-muted dark:text-paper/55">
-                {item.issuer}. {item.detail}
-              </div>
-            </div>
-          ))
-        }
-      </div>
     </div>
   </section>
 
