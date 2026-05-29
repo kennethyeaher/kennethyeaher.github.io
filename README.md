@@ -12,7 +12,7 @@
 ![License](https://img.shields.io/badge/License-MIT-green?style=flat)
 ![Status](https://img.shields.io/badge/Status-Live-brightgreen?style=flat)
 
-**Personal portfolio for venture capital, tech consulting, and data science work, with a foundation in healthcare, data, and access.**
+**Personal portfolio for venture capital, tech consulting, and data science work, grounded in healthcare, data, and access.**
 
 [Live Site](https://kennethyeaher.github.io) · [Quick Start](#quick-start) · [Editing Content](#editing-content) · [Architecture](#architecture) · [Design Decisions](#design-decisions)
 
@@ -28,11 +28,11 @@
 
 ## Overview
 
-A static, hand coded portfolio site that doubles as INST graded coursework. Every commit is intentional, every component is documented, and the data layer is the single source of truth for everything visible on the site. The visual identity leans on a deep green accent over cool grays, with Fraunces for display, Newsreader for body, and JetBrains Mono for labels.
+A static, hand coded portfolio site that also doubles as INST graded coursework. Every commit is intentional, every component is documented, and the data layer is the single source of truth for everything visible on the site. The visual identity uses a deep green accent over cool grays, with Fraunces for display, Newsreader for body, and JetBrains Mono for labels.
 
-The site positions me across three tracks, venture capital, tech consulting, and data science, with healthcare access as the throughline. It replaces an earlier Adobe portfolio with a static, version controlled rebuild that ships in seconds and can be edited entirely from the data layer.
+The site positions me across three tracks: venture capital, tech consulting, and data science, with healthcare access as the throughline. It replaces my earlier Adobe portfolio with a static, version controlled rebuild that ships quickly and can be edited almost entirely from the data layer.
 
-> **Core principle:** Content is data, design is code, every change is a commit.
+> **Core principle:** Content is data. Design is code. Every change is a commit.
 
 ---
 
@@ -67,7 +67,7 @@ Almost everything visible on the site lives in the data layer under `src/data`. 
 | File | Controls |
 |---|---|
 | `src/data/profile.ts` | Name, tagline, bio, email, links, skills, credentials, work experience, education, certifications, case studies, coursework, hobbies |
-| `src/data/projects.ts` | Every project. Each entry auto generates a card on the Projects page and a detail page at `/projects/[slug]` |
+| `src/data/projects.ts` | Every project. Each entry creates a card on the Projects page and a detail page at `/projects/[slug]` |
 | `src/data/types.ts` | Shared TypeScript contracts for all data files |
 | `tailwind.config.mjs` | Brand colors and fonts |
 
@@ -76,7 +76,7 @@ Almost everything visible on the site lives in the data layer under `src/data`. 
 
 <br>
 
-Add a new object to the `projects` array in `src/data/projects.ts`. The required fields are defined by the `Project` interface in `types.ts`, slug, title, role, category, period, tagline, featured flag, tags, links, metrics, and sections. Astro statically generates a route for the slug at build time through `getStaticPaths` in `src/pages/projects/[slug].astro`, so no extra wiring is needed.
+Add a new object to the `projects` array in `src/data/projects.ts`. The required fields are defined by the `Project` interface in `types.ts`: slug, title, role, category, period, tagline, featured flag, tags, links, metrics, and sections. Astro statically creates a route for the slug at build time through `getStaticPaths` in `src/pages/projects/[slug].astro`, so no extra wiring is needed.
 
 </details>
 
@@ -91,7 +91,7 @@ Three places must stay in sync:
 2. `src/data/projects.ts`, use the new category on relevant entries.
 3. `src/pages/projects/index.astro`, add the new string to the `filters` array.
 
-TypeScript will catch any mismatch at `npm run check` time.
+TypeScript will catch any mismatch when you run `npm run check`.
 
 </details>
 
@@ -100,7 +100,7 @@ TypeScript will catch any mismatch at `npm run check` time.
 
 <br>
 
-The palette is defined in `tailwind.config.mjs` under `theme.extend.colors`. Four token families drive everything: `ink` for text, `paper` for light mode surfaces, `accent` for the green highlight and its dark mode and warm reserve variants, and `night` for dark mode surfaces. Components reference tokens by name, never raw hex, so a single edit reflows the whole site.
+The palette is defined in `tailwind.config.mjs` under `theme.extend.colors`. Four token families drive the site: `ink` for text, `paper` for light mode surfaces, `accent` for the green highlight and its dark mode and warm reserve variants, and `night` for dark mode surfaces. Components reference tokens by name, never raw hex, so a single edit updates the full site.
 
 </details>
 
@@ -108,7 +108,7 @@ The palette is defined in `tailwind.config.mjs` under `theme.extend.colors`. Fou
 
 ## Architecture
 
-```
+```text
 src/
   pages/         Astro pages, one file per route
     index.astro
@@ -166,11 +166,11 @@ SECURITY.md          Dependency audit decisions
 | Component | Purpose |
 |---|---|
 | `Base.astro` | Layout shell. Wraps every page with head, sticky nav, and footer |
-| `Nav.astro` | Sticky site header. Active link highlighting, theme toggle, brand wordmark |
-| `Footer.astro` | Copyright, links to GitHub, LinkedIn, and email |
-| `Card.astro` | Bordered surface used for skill cards, education cards, project cards, hobby cards, case study cards |
-| `Badge.astro` | Mono uppercase chip used for tags, honors, activities, credential pills |
-| `ProjectCard.astro` | Summary card for one project. Renders tags, title, role, tagline, and optional metrics. Wraps the entire card in a link to the project detail page |
+| `Nav.astro` | Sticky site header with active link highlighting, theme toggle, and brand wordmark |
+| `Footer.astro` | Copyright and links to GitHub, LinkedIn, and email |
+| `Card.astro` | Bordered surface used for skill cards, education cards, project cards, hobby cards, and case study cards |
+| `Badge.astro` | Mono uppercase chip used for tags, honors, activities, and credential pills |
+| `ProjectCard.astro` | Summary card for one project. Renders tags, title, role, tagline, and optional metrics. Wraps the full card in a link to the project detail page |
 
 </details>
 
@@ -183,7 +183,7 @@ SECURITY.md          Dependency audit decisions
 
 <br>
 
-Astro ships zero JavaScript by default. The site is content heavy and interaction light, so React or Vue level reactivity would be dead weight. The two pieces of interactivity that exist, the project category filter and the scroll reveal animation, are written in a few lines of vanilla JavaScript that never enter a bundle. The result is a static export that loads instantly on a cold cache.
+Astro ships zero JavaScript by default. The site is content heavy and interaction light, so React or Vue level reactivity would be extra weight. The two interactive pieces, the project category filter and scroll reveal animation, are written in a few lines of vanilla JavaScript that never enter a large bundle. The result is a static export that loads quickly on a cold cache.
 
 </details>
 
@@ -192,7 +192,7 @@ Astro ships zero JavaScript by default. The site is content heavy and interactio
 
 <br>
 
-Every piece of content on the site, from the skills grid to project metrics to hobby blurbs, lives in `src/data`. Components are pure renderers that take that data and lay it out. Adding a new role, certification, or project never touches a component. This makes the site editable by anyone who can read TypeScript and keeps the visual layer free of hardcoded strings.
+Every piece of content on the site, from the skills grid to project metrics to hobby blurbs, lives in `src/data`. Components are pure renderers that take that data and lay it out. Adding a new role, certification, or project does not require editing a component. This makes the site easier to maintain and keeps the visual layer free of hardcoded strings.
 
 </details>
 
@@ -201,7 +201,7 @@ Every piece of content on the site, from the skills grid to project metrics to h
 
 <br>
 
-A single deep green accent on cool grays, with maroon held in reserve, never wired to anything. Green nods to growth and health without leaning into the generic blue fintech aesthetic. Fraunces for display, Newsreader for body, and JetBrains Mono for labels gives every page a serif anchor and a confident editorial feel rather than the sans serif startup default.
+The visual system uses one deep green accent on cool grays, with maroon held in reserve. Green connects to growth and health without falling into the generic blue fintech look. Fraunces for display, Newsreader for body, and JetBrains Mono for labels gives each page a serif anchor and a more editorial feel than the usual sans serif startup default.
 
 </details>
 
@@ -210,7 +210,7 @@ A single deep green accent on cool grays, with maroon held in reserve, never wir
 
 <br>
 
-Every line icon on the About page is a hand drawn SVG path defined inline in `about.astro`. No icon library is loaded, no extra HTTP requests, and the path strokes inherit the accent color through `currentColor`. Five sections have unique icons, target for Skills, briefcase for Work, graduation cap for Education, award for Certifications, flask for Case Studies, bar chart for Coursework, heart for Hobbies, plus a unique icon per skill and hobby card.
+Every line icon on the About page is a hand drawn SVG path defined inline in `about.astro`. No icon library is loaded, there are no extra HTTP requests, and the path strokes inherit the accent color through `currentColor`. Sections have unique icons: target for Skills, briefcase for Work, graduation cap for Education, award for Certifications, flask for Case Studies, bar chart for Coursework, heart for Hobbies, plus a unique icon per skill and hobby card.
 
 </details>
 
@@ -219,7 +219,7 @@ Every line icon on the About page is a hand drawn SVG path defined inline in `ab
 
 <br>
 
-The site is a static export served from GitHub Pages, no CDN configuration, no AWS, no runtime server. `.github/workflows/deploy.yml` builds the site and pushes it to the `gh-pages` deployment on every push to `main`. Pages source in repo settings must be set to GitHub Actions, not the default branch deploy. Total infrastructure footprint, one workflow file.
+The site is a static export served from GitHub Pages, with no CDN configuration, no AWS, and no runtime server. `.github/workflows/deploy.yml` builds the site and deploys it on every push to `main`. Pages source in repo settings must be set to GitHub Actions, not default branch deploy. Total infrastructure footprint: one workflow file.
 
 </details>
 
@@ -230,7 +230,7 @@ The site is a static export served from GitHub Pages, no CDN configuration, no A
 ```bash
 # Local
 git add .
-git commit -m "Short message no em dashes no hyphenated words"
+git commit -m "short message"
 git push origin main
 
 # Remote
@@ -243,7 +243,7 @@ git push origin main
 
 <br>
 
-GitHub Pages on this repo uses the Actions deploy source, not the default Jekyll branch deploy. The Pages source must be set to **GitHub Actions** in repo settings, otherwise Jekyll attempts to build and fails. The `.nojekyll` file in `public/` ensures any future Jekyll source override still skips Jekyll processing.
+GitHub Pages on this repo uses the Actions deploy source, not the default Jekyll branch deploy. The Pages source must be set to **GitHub Actions** in repo settings, otherwise Jekyll tries to build and fails. The `.nojekyll` file in `public/` ensures any future Jekyll source override still skips Jekyll processing.
 
 </details>
 
@@ -266,10 +266,10 @@ Astro and TypeScript project mapped to iSchool standards.
 Writing style is enforced for all prose and comments:
 
 - No em dashes anywhere
-- No hyphenated words in prose, comments, or commit messages, hyphens are allowed only in CSS classes, URL slugs, and package names
-- Commit messages are short, sentence cased, no colons
+- No hyphenated words in prose, comments, or commit messages. Hyphens are allowed only in CSS classes, URL slugs, and package names
+- Commit messages are short, sentence cased, and no colons
 
-See `SECURITY.md` for the dependency audit decisions including the seven dev only `npm audit` findings deliberately left unfixed.
+See `SECURITY.md` for the dependency audit decisions, including the dev only `npm audit` findings deliberately left unfixed.
 
 ---
 
@@ -293,11 +293,11 @@ See `SECURITY.md` for the dependency audit decisions including the seven dev onl
 
 ## Author
 
-**Kenneth Yeaher**
-Master of Information Management, Class of 2027
-University of Maryland, College Park
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Kenneth_Yeaher-0A66C2?style=flat&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/kennethyeaher/)
-[![GitHub](https://img.shields.io/badge/GitHub-kennethyeaher-181717?style=flat&logo=github&logoColor=white)](https://github.com/kennethyeaher)
+**Kenneth Yeaher**  
+Master of Information Management, Class of 2027  
+University of Maryland, College Park  
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Kenneth_Yeaher-0A66C2?style=flat&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/kennethyeaher/)  
+[![GitHub](https://img.shields.io/badge/GitHub-kennethyeaher-181717?style=flat&logo=github&logoColor=white)](https://github.com/kennethyeaher)  
 [![Email](https://img.shields.io/badge/Email-kennethyeaher@gmail.com-D14836?style=flat&logo=gmail&logoColor=white)](mailto:kennethyeaher@gmail.com)
 
 `Venture Capital` · `Data Science` · `Tech Consulting` · `Healthcare Access`
