@@ -134,7 +134,6 @@ export const skillGroups: SkillGroup[] = [
       "Portfolio Management",
       "Go to Market Strategy",
       "Customer Discovery",
-      "PitchBook",
     ],
   },
   {
@@ -176,7 +175,7 @@ export const skillGroups: SkillGroup[] = [
   },
   {
     title: "Design and Research",
-    icon: "target",
+    icon: "compass",
     skills: [
       "Figma",
       "Adobe XD",
@@ -193,11 +192,18 @@ export const skillGroups: SkillGroup[] = [
     title: "Tools and Platforms",
     icon: "wrench",
     skills: [
+      "PitchBook",
+      "Crunchbase",
+      "Affinity",
       "Salesforce",
+      "Slack",
+      "Microsoft Office",
+      "Google Workspace",
+      "Notion",
+      "Airtable",
       "Jira",
       "Trello",
-      "Airtable",
-      "Notion",
+      "GitHub",
       "Git",
     ],
   },
@@ -358,6 +364,35 @@ export const certifications: Certification[] = [
     detail: "10 week program on fund economics, term sheets, deal structuring, and cap table modeling, taught by partners at Andreessen Horowitz, Bessemer, and Forerunner.",
   },
   {
+    name: "Neo4j Graph Data Science Certification",
+    issuer: "Neo4j",
+    issued: "Mar 2026",
+    detail: "Graph data science with Neo4j, covering Cypher, graph algorithms, and applied analytics on connected data.",
+  },
+  {
+    name: "Neo4j Certified Professional",
+    issuer: "Neo4j",
+    issued: "Feb 2026",
+    detail: "Core Neo4j and Cypher query language proficiency for designing and querying graph databases at scale.",
+  },
+  {
+    name: "Neo4j Fundamentals",
+    issuer: "Neo4j",
+    issued: "Feb 2026",
+    detail: "Foundations of Neo4j and the Cypher query language, covering graph databases and modeling connected data.",
+  },
+];
+
+// Applied case studies and continued learning, separate from formal certifications.
+// Ordered newest to oldest.
+export const caseStudies: Certification[] = [
+  {
+    name: "Case Study: Analyzing Job Market Data in Power BI",
+    issuer: "DataCamp",
+    issued: "May 2026",
+    detail: "Examined job market trends in Power BI, surfacing patterns across roles, locations, and compensation.",
+  },
+  {
     name: "AI Agents Fundamentals",
     issuer: "Hugging Face",
     issued: "Apr 2026",
@@ -373,19 +408,25 @@ export const certifications: Certification[] = [
     name: "Case Study: Analyzing Healthcare Data in Power BI",
     issuer: "DataCamp",
     issued: "Apr 2026",
-    detail: "Applied case study analyzing healthcare datasets in Power BI, building dashboards that surface operational and clinical insights.",
+    detail: "Analyzed healthcare datasets in Power BI, building dashboards that surface operational and clinical insights.",
   },
   {
-    name: "Neo4j Graph Data Science Certification",
-    issuer: "Neo4j",
+    name: "Case Study: Ecommerce Analysis in Power BI",
+    issuer: "DataCamp",
     issued: "Mar 2026",
-    detail: "Graph data science with Neo4j, covering Cypher, graph algorithms, and applied analytics on connected data.",
+    detail: "Investigated a fictitious online retailer dataset, applying market basket analysis and shipping cost strategies, then built dashboard style pages with combination graphs, treemaps, and maps.",
   },
   {
-    name: "Neo4j Certified Professional",
-    issuer: "Neo4j",
+    name: "Case Study: Supply Chain Analytics in Power BI",
+    issuer: "DataCamp",
+    issued: "Mar 2026",
+    detail: "Built a make versus buy quote analysis tool in Power BI, modeling costs across production volumes and integrating internal manufacturing cost data.",
+  },
+  {
+    name: "Case Study: Analyzing Customer Churn in Power BI",
+    issuer: "DataCamp",
     issued: "Feb 2026",
-    detail: "Core Neo4j and Cypher query language proficiency for designing and querying graph databases at scale.",
+    detail: "Modeled customer churn drivers in Power BI, building dashboards that flag retention risk and segment behavior.",
   },
 ];
 
