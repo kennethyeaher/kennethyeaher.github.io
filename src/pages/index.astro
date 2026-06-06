@@ -10,10 +10,9 @@ import { profile, skillPillars } from "@/data/profile";
 import { getFeaturedProjects } from "@/data/projects";
 
 const featured = getFeaturedProjects();
-const firstName = profile.name.split(" ")[0];
 
 // Credential line shown under the name, pipe separated.
-const credentialLine = "MIM @ UMD | Venture Capital Intern | Data Scientist";
+const credentialLine = "MIM @ UMD | Investment Associate | Data Scientist";
 ---
 
 <Base>
@@ -30,10 +29,10 @@ const credentialLine = "MIM @ UMD | Venture Capital Intern | Data Scientist";
       class="reveal mt-8 font-display text-4xl font-semibold leading-[1.05] tracking-tight sm:text-6xl"
       style="transition-delay: 80ms"
     >
-      Hi, I am {firstName}.
+      Hi, I am Ken.
     </h1>
     <p
-      class="reveal mx-auto mt-5 max-w-xl font-mono text-sm text-accent dark:text-accent-soft sm:text-base"
+      class="reveal mx-auto mt-5 max-w-xl font-mono text-sm text-gold dark:text-gold-soft sm:text-base"
       style="transition-delay: 160ms"
     >
       {credentialLine}
