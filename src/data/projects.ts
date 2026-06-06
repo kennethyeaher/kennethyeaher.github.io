@@ -6,36 +6,6 @@ import type { Project } from "./types";
 // with no em dashes and no hyphenated words.
 export const projects: Project[] = [
   {
-    slug: "momentum-fund",
-    title: "USM Maryland Momentum Fund",
-    role: "Venture Fellow",
-    category: "Venture",
-    period: "Feb 2026 to May 2026",
-    tagline:
-      "Sourcing stage diligence and an investment memo on an early stage deep tech startup.",
-    featured: true,
-    tags: ["Venture", "Diligence", "Investment Memo"],
-    links: [],
-    metrics: [
-      { value: "1", label: "investment memo coauthored" },
-      { value: "6", label: "diligence dimensions assessed" },
-    ],
-    sections: [
-      {
-        heading: "What I did",
-        body: "I led sourcing stage diligence on a deep tech materials startup. I built a structured thesis across technology, market, business model, traction, team, and moat, drawing on primary founder materials and external research.",
-      },
-      {
-        heading: "Founder diligence",
-        body: "I drove a founder diligence call with a structured question set on moat defensibility, unit economics, scalability, and failure modes. I then coauthored the resulting investment memo delivered to the fund partners.",
-      },
-      {
-        heading: "Recommendation",
-        body: "I surfaced the deal highest conviction risks, including pre revenue hockey stick projections, a 100x manufacturing scale up, and customer concentration exposure. I issued a pursue, track, or pass recommendation grounded in those risks.",
-      },
-    ],
-  },
-  {
     slug: "ovara",
     title: "Ovara",
     role: "Data Scientist",
