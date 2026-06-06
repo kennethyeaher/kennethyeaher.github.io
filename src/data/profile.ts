@@ -490,32 +490,88 @@ export const coursework: Coursework[] = [
 ];
 
 // Curated notable courses for the education page, grouped by degree level.
-// Not a full transcript. Seeded with the two graduate courses verifiable from
-// the coursework above; add your undergraduate list and any further grad courses.
+// Not a full transcript. Ordered strongest-to-lane within each group.
 export const notableCourses: CourseGroup[] = [
   {
     level: "Graduate",
     degree: "M.S. Information Management",
     courses: [
       {
+        code: "INST664",
+        title: "Transforming Unstructured Content with AI",
+        note: "Building applied AI pipelines that turn unstructured text, images, and audio into structured data, spanning NLP representation, entity extraction, OCR, and LLM prompting, with attention to evaluation and bias.",
+      },
+      {
         code: "INST737",
-        title: "Introduction to Data Science",
-        note: "End to end machine learning in Python: regression, decision trees, classification, and ensemble methods with train and test evaluation.",
+        title: "Data Science Techniques",
+        note: "End to end data science pipeline from project design to deployment, applying supervised and unsupervised learning across clustering, classification, and regression in Python.",
+      },
+      {
+        code: "INST762",
+        title: "Visual Analytics",
+        note: "Interactive visual interfaces for analytical reasoning, pairing human perception with machine learning to explore real-world datasets.",
       },
       {
         code: "INST627",
         title: "Data Analytics for Information Professionals",
-        note: "Applied analytics across statistical methods, ETL, NoSQL document modeling, and interactive Python visualization.",
+        note: "Inferential statistics on structured data, covering study design, hypothesis testing, and multiple regression, with analysis in R.",
       },
-      // Add more graduate courses here.
+      {
+        code: "INFM600",
+        title: "Information Management Ecosystems",
+        note: "Models and methods for managing information across teams, organizations, and platforms, including data modeling, descriptive statistics, and visualization.",
+      },
+      {
+        code: "INST610",
+        title: "Information Ethics",
+        note: "Ethical frameworks for the information age applied to privacy, access, and intellectual freedom, including non-Western and feminist perspectives.",
+      },
     ],
   },
   {
     level: "Undergraduate",
     degree: "B.S. Information Science",
     courses: [
-      // Add your curated undergraduate courses here, same shape as above.
-      // Example: { code: "INST441", title: "Information Ethics and Policy", note: "..." },
+      {
+        code: "BMGT468R",
+        title: "Fearless Founders Venture Practicum",
+        note: "Lean startup venture practicum advised by the Dingman Center: customer discovery interviews, business model validation, and building a venture pitch.",
+      },
+      {
+        code: "INST402",
+        title: "Designing Patient-Centered Technologies",
+        note: "Studying patients' health and wellness needs, then designing and evaluating digital health technologies to meet them.",
+      },
+      {
+        code: "INST408A",
+        title: "Consumer Health Informatics",
+        note: "Consumer health information behavior and health justice: how people find and use health information, and the access gaps behind health disparities.",
+      },
+      {
+        code: "INST327",
+        title: "Database Design and Modeling",
+        note: "Relational database design through entity relationship modeling and normalization, building and querying a working database in SQL.",
+      },
+      {
+        code: "INST314",
+        title: "Statistics for Information Science",
+        note: "Foundations of inferential statistics for decision making: study design, measurement, data exploration, and hypothesis testing in R.",
+      },
+      {
+        code: "INST326",
+        title: "Object-Oriented Programming",
+        note: "Object oriented programming in Python, covering design, inheritance, testing, and documentation through applied projects.",
+      },
+      {
+        code: "INST362",
+        title: "User-Centered Design",
+        note: "The user centered design process end to end: user research, personas, task analysis, wireframing, and usability testing.",
+      },
+      {
+        code: "INST346",
+        title: "Technologies, Infrastructure, and Architecture",
+        note: "Computing infrastructure from hardware and networking to client server and cloud architectures, including deploying a virtual system in a distributed environment.",
+      },
     ],
   },
 ];
