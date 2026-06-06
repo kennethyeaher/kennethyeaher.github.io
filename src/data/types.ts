@@ -127,6 +127,26 @@ export interface Coursework {
   imageAlt?: string;
 }
 
+/** A single notable course shown on the education page. */
+export interface NotableCourse {
+  /** Course code, like "INST737". */
+  code: string;
+  /** Course title. */
+  title: string;
+  /** Optional one line note on what the course covered. */
+  note?: string;
+}
+
+/** A curated group of notable courses for one degree level. */
+export interface CourseGroup {
+  /** Level label, like "Graduate" or "Undergraduate". */
+  level: string;
+  /** Degree the group belongs to. */
+  degree: string;
+  /** Curated courses, not a full transcript. */
+  courses: NotableCourse[];
+}
+
 /** A hobby or interest shown as a small card. */
 export interface Hobby {
   name: string;

@@ -6,6 +6,7 @@ import type {
   Education,
   Certification,
   Coursework,
+  CourseGroup,
   Hobby,
 } from "./types";
 
@@ -485,6 +486,37 @@ export const coursework: Coursework[] = [
     period: "Fall 2025",
     detail: "Built two interactive Python visualization projects. Engineered a Folium choropleth that joins ecological footprint per capita data to world country polygons with custom color ramps, opacity, and zoom defaults, and built Bokeh dashboards for stock market closing prices and Iris classification with hover tooltips, markers, and alpha blending. Both deployed as standalone HTML for browser sharing.",
     tags: ["Bokeh", "Folium", "Geospatial Data Analysis", "Choropleth Mapping", "Interactive Mapping", "Python"],
+  },
+];
+
+// Curated notable courses for the education page, grouped by degree level.
+// Not a full transcript. Seeded with the two graduate courses verifiable from
+// the coursework above; add your undergraduate list and any further grad courses.
+export const notableCourses: CourseGroup[] = [
+  {
+    level: "Graduate",
+    degree: "M.S. Information Management",
+    courses: [
+      {
+        code: "INST737",
+        title: "Introduction to Data Science",
+        note: "End to end machine learning in Python: regression, decision trees, classification, and ensemble methods with train and test evaluation.",
+      },
+      {
+        code: "INST627",
+        title: "Data Analytics for Information Professionals",
+        note: "Applied analytics across statistical methods, ETL, NoSQL document modeling, and interactive Python visualization.",
+      },
+      // Add more graduate courses here.
+    ],
+  },
+  {
+    level: "Undergraduate",
+    degree: "B.S. Information Science",
+    courses: [
+      // Add your curated undergraduate courses here, same shape as above.
+      // Example: { code: "INST441", title: "Information Ethics and Policy", note: "..." },
+    ],
   },
 ];
 
