@@ -455,7 +455,7 @@ export const caseStudies: Certification[] = [
 export const coursework: Coursework[] = [
   {
     title: "Machine Learning Problem Sets",
-    course: "INST737, Introduction to Data Science",
+    course: "INST737, Data Science Techniques",
     period: "Fall 2025",
     detail: "Engineered four end to end machine learning workflows in Python with scikit-learn. Cleaned input data, split it into train and test sets, fit and tuned linear regression, decision tree, classification, and ensemble models, and evaluated each model with R squared, accuracy, and confusion matrix diagnostics. Each problem set is its own repository, committed end to end.",
     tags: ["scikit-learn", "Python", "Classification", "Decision Trees", "Ensemble Methods", "Random Forest", "Gradient Boosting"],
@@ -468,7 +468,7 @@ export const coursework: Coursework[] = [
   },
   {
     title: "Modeling and Analysis Labs",
-    course: "INST737, Introduction to Data Science",
+    course: "INST737, Data Science Techniques",
     period: "Fall 2025",
     detail: "Fit linear regression and decision tree models in Python with scikit-learn, validated each one with train and test splitting, and contrasted the two by comparing training and testing R squared and classification accuracy. Wrote Python scripts in VS Code to verify predictions row by row and surface where the non linear tree based model outperformed the linear baseline.",
     tags: ["Linear Regression", "Decision Trees", "scikit-learn", "Data Splitting", "Predictive Analytics", "Python"],
