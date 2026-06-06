@@ -1,0 +1,166 @@
+---
+// Education page. Degrees, curated notable courses by level, and coursework labs.
+// Reads entirely from the data layer so About and Education share one source.
+import Base from "@/layouts/Base.astro";
+import Card from "@/components/Card.astro";
+import Badge from "@/components/Badge.astro";
+import { education, notableCourses, coursework } from "@/data/profile";
+
+// Inline line icons, same approach as the About page, no icon library.
+const icons: Record<string, string> = {
+  "graduation-cap": "M22 10L12 5 2 10l10 5 10-5zM6 12v5c0 1 3 3 6 3s6-2 6-3v-5",
+  book: "M4 19.5A2.5 2.5 0 016.5 17H20M4 19.5A2.5 2.5 0 006.5 22H20V2H6.5A2.5 2.5 0 004 4.5v15z",
+  "bar-chart": "M3 3v18h18M8 17V9M13 17V5M18 17v-7",
+};
+
+/** Inline svg path for an icon name, falling back to the book glyph. */
+function icon(name: string): string {
+  return icons[name] ?? icons["book"];
+}
+
+// Only render course groups that actually have entries, so an empty
+// placeholder group never ships as a blank card.
+const courseGroups = notableCourses.filter((group) => group.courses.length > 0);
+---
+
+<Base title="Education">
+  {/* Page header. */}
+  <section class="mx-auto max-w-5xl px-6 pt-20">
+    <h1 class="reveal font-display text-4xl font-semibold tracking-tight sm:text-5xl">
+      Education
+    </h1>
+    <p class="reveal mt-4 max-w-2xl text-ink-soft dark:text-paper/75">
+      My degrees, the courses that shaped how I work, and the problem sets and
+      labs behind them, all at the University of Maryland.
+    </p>
+  </section>
+
+  {/* Degrees. */}
+  <section class="mx-auto max-w-5xl px-6 py-10">
+    <h2 class="reveal mb-7 flex items-center gap-3 text-3xl font-semibold">
+      <svg class="h-5 w-5 text-accent dark:text-accent-soft" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d={icon("graduation-cap")} />
+      </svg>
+      Degrees
+    </h2>
+    <div class="space-y-5">
+      {
+        education.map((edu) => (
+          <Card class="reveal p-7">
+            <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+              <h3 class="text-lg font-semibold">{edu.degree}</h3>
+              <span class="font-mono text-xs text-ink-muted dark:text-paper/50">
+                {edu.period}{edu.gpa && <>{" "}&middot; GPA {edu.gpa}</>}
+              </span>
+            </div>
+            <p class="mt-1 text-sm text-accent dark:text-accent-soft">
+              {edu.school} &middot; {edu.location}
+            </p>
+            {edu.description && (
+              <p class="mt-3 text-ink-soft dark:text-paper/75">{edu.description}</p>
+            )}
+            {edu.activities.length > 0 && (
+              <div class="mt-4">
+                <div class="font-mono text-xs uppercase tracking-wide text-ink-muted dark:text-paper/55">
+                  Activities and Societies
+                </div>
+                <div class="mt-2 flex flex-wrap gap-2">
+                  {edu.activities.map((activity) => <Badge>{activity}</Badge>)}
+                </div>
+              </div>
+            )}
+          </Card>
+        ))
+      }
+    </div>
+  </section>
+
+  {/* Notable courses, grouped by degree level. Hidden if no group has entries. */}
+  {
+    courseGroups.length > 0 && (
+      <section class="mx-auto max-w-5xl px-6 py-10">
+        <h2 class="reveal mb-7 flex items-center gap-3 text-3xl font-semibold">
+          <svg class="h-5 w-5 text-accent dark:text-accent-soft" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d={icon("book")} />
+          </svg>
+          Notable Courses
+        </h2>
+        <div class="space-y-5">
+          {courseGroups.map((group) => (
+            <Card class="reveal p-7">
+              <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                <h3 class="text-lg font-semibold">{group.level}</h3>
+                <span class="font-mono text-xs text-ink-muted dark:text-paper/50">
+                  {group.degree}
+                </span>
+              </div>
+              <div class="mt-5 grid gap-x-8 gap-y-4 sm:grid-cols-2">
+                {group.courses.map((course) => (
+                  <div class="flex gap-3">
+                    <span class="shrink-0 font-mono text-xs text-accent dark:text-accent-soft">
+                      {course.code}
+                    </span>
+                    <div>
+                      <div class="text-sm font-medium">{course.title}</div>
+                      {course.note && (
+                        <p class="mt-0.5 text-sm text-ink-muted dark:text-paper/60">
+                          {course.note}
+                      </p>
+                    )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  {/* Coursework and labs. */}
+  <section class="mx-auto max-w-5xl px-6 py-10 pb-20">
+    <h2 class="reveal mb-7 flex items-center gap-3 text-3xl font-semibold">
+      <svg class="h-5 w-5 text-accent dark:text-accent-soft" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d={icon("bar-chart")} />
+      </svg>
+      Coursework and Labs
+    </h2>
+    <p class="reveal mb-6 -mt-2 text-ink-muted dark:text-paper/60">
+      Grouped problem set series and labs from my coursework.
+    </p>
+    <div class="space-y-5">
+      {
+        coursework.map((item) => (
+          <Card class="reveal p-7">
+            <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+              <h3 class="text-lg font-semibold">{item.title}</h3>
+              <span class="font-mono text-xs text-ink-muted dark:text-paper/50">
+                {item.period}
+              </span>
+            </div>
+            <p class="mt-1 text-sm text-accent dark:text-accent-soft">{item.course}</p>
+            <p class="mt-3 text-ink-soft dark:text-paper/75">{item.detail}</p>
+            {item.tags && item.tags.length > 0 && (
+              <div class="mt-4 flex flex-wrap gap-2">
+                {item.tags.map((tag) => <Badge>{tag}</Badge>)}
+              </div>
+            )}
+            {item.repoUrls && item.repoUrls.length > 0 && (
+              <div class="mt-5 flex flex-wrap gap-2">
+                {item.repoUrls.map((repo) => (
+                  <a
+                    href={repo.url}
+                    class="rounded-full border border-ink/20 px-3.5 py-1 text-xs transition-colors hover:border-accent hover:text-accent dark:border-paper/20"
+                  >
+                    {repo.label}
+                  </a>
+                ))}
+              </div>
+            )}
+          </Card>
+        ))
+      }
+    </div>
+  </section>
+</Base>
