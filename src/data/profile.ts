@@ -15,7 +15,7 @@ export const profile = {
   tagline:
     "Master of Information Management student building at the intersection of healthcare, data, and access.",
   shortBio:
-    "Health tech founder and venture fellow. I build data products and study the gap between the research lab and the clinic floor, spanning data science, ML and NLP research, and HCI.",
+    "I'm a founder turned operator. I can diligence the company, build the data product, pressure test it with ML research, and design the experience around it; all anchored in healthcare access and health tech.",
   location: "Maryland, USA",
   college: "University of Maryland, College Park",
   email: "kennethyeaher@gmail.com",
@@ -230,7 +230,7 @@ export const skillGroups: SkillGroup[] = [
 // Work experience timeline. Strongest roles first.
 export const workExperience: WorkExperience[] = [
   {
-    title: "Venture Capital Intern",
+    title: "Summer Investment Associate",
     org: "USM Maryland Momentum Fund",
     location: "Baltimore, MD",
     period: "June 2026 to Present",
