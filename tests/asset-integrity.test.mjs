@@ -8,8 +8,6 @@ import { aboutGallery, profile, projects } from "../src/data/portfolio.mjs";
 
 const projectRoot = new URL("..", import.meta.url).pathname;
 const publicRoot = join(projectRoot, "public");
-const resumeSource =
-  "/Users/kennethyeaher/Desktop/Career_Application_System/01_MASTER_MATERIALS/01_Master_Resume/Kenneth_Yeaher_Master_Resume.pdf";
 
 function publicFile(pathname) {
   return join(publicRoot, pathname.replace(/^\//, ""));
@@ -40,11 +38,10 @@ test("every published portfolio media reference resolves to a non-empty real fil
   }
 });
 
-test("the published resume is byte-for-byte identical to the supplied master PDF", () => {
+test("the published resume matches the approved master PDF fingerprint", () => {
   const publishedResume = publicFile(profile.links.resume);
 
   assert.equal(existsSync(publishedResume), true);
-  assert.equal(sha256(publishedResume), sha256(resumeSource));
   assert.equal(
     sha256(publishedResume),
     "a53d35cdff2fd9a9f939c316fb38bebc7b2d47e97df5ebec72be6223225a7655",
