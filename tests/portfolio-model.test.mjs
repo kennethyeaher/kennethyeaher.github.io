@@ -180,8 +180,20 @@ test("Kairo connects benchmark results to a deployment routing decision", () => 
   const kairo = getProjectBySlug("kairo-health");
 
   assert.ok(kairo.sections.some(({ id }) => id === "deployment-routing"));
-  assert.equal(kairo.evidence.heavyNoiseMcNemarP, 7.4e-14);
-  assert.equal(kairo.evidence.totalHallucinations, 4);
+  assert.equal(kairo.evidence.heavyNoiseMcNemarP, 1.6e-15);
+  assert.equal(kairo.evidence.totalHallucinations, 5);
+});
+
+test("Kairo publishes the corrected safety finding and a reproducible pipeline", () => {
+  const kairo = getProjectBySlug("kairo-health");
+  const sectionIds = kairo.sections.map(({ id }) => id);
+
+  for (const id of ["triage-safety", "reproducibility", "audit"]) {
+    assert.ok(sectionIds.includes(id), `kairo-health is missing the ${id} section`);
+  }
+
+  assert.equal(kairo.evidence.reproducibleWithoutApiKey, true);
+  assert.equal(kairo.evidence.cachedModelResponses, 146);
 });
 
 test("every case includes at least one source-backed visual artifact beyond screenshots", () => {
