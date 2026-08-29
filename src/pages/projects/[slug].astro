@@ -1,0 +1,20 @@
+---
+// Preserve former project URLs without publishing stale duplicate case studies.
+import { projects as legacyProjects } from "@/data/projects";
+import { projects as currentProjects } from "@/data/portfolio.mjs";
+
+interface Props {
+  target: string;
+}
+
+export function getStaticPaths() {
+  const currentSlugs = new Set(currentProjects.map(({ slug }) => slug));
+
+  return legacyProjects.map(({ slug }) => ({
+    params: { slug },
+    props: { target: currentSlugs.has(slug) ? `/work/${slug}` : "/" },
+  }));
+}
+
+return Astro.redirect(Astro.props.target, 301);
+---

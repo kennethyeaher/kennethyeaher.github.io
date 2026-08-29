@@ -1,0 +1,109 @@
+---
+// Work index with an editorial thesis and evidence-led project grid.
+import Base from "@/layouts/Base.astro";
+import ExperienceList from "@/components/ExperienceList.astro";
+import ProjectCard from "@/components/ProjectCard.astro";
+import { experience, getFeaturedProjects, profile } from "@/data/portfolio.mjs";
+
+const projects = getFeaturedProjects();
+---
+
+<Base description={profile.intro}>
+  <div class="home-page">
+    <section class="home-intro" aria-labelledby="home-title">
+      <div class="home-thesis" data-reveal>
+        <h1 id="home-title">
+          I’m Ken, a product specialist led by <em>evidence.</em>
+        </h1>
+      </div>
+      <div class="home-experience" data-reveal>
+        <ExperienceList entries={experience} />
+      </div>
+    </section>
+
+    <section class="work-grid" aria-label="Selected work">
+      {
+        projects.map((project, index) => (
+          <ProjectCard project={project} priority={index < 2} />
+        ))
+      }
+    </section>
+  </div>
+</Base>
+
+<style>
+  .home-page {
+    width: min(100%, var(--content-max));
+    margin: 0 auto;
+    padding-inline: var(--page-gutter);
+  }
+
+  .home-intro {
+    display: grid;
+    padding-top: 210px;
+    padding-bottom: 62px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 24px;
+    align-items: end;
+  }
+
+  .home-thesis h1 {
+    max-width: 660px;
+    margin: 0;
+    color: var(--ink-strong);
+    font-family: var(--display);
+    font-size: clamp(48px, 4.4vw, 68px);
+    font-weight: 400;
+    letter-spacing: -0.025em;
+    line-height: 0.98;
+  }
+
+  .home-thesis h1 em {
+    font-weight: 400;
+  }
+
+  .home-experience {
+    padding-bottom: 4px;
+  }
+
+  .work-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 52px 24px;
+  }
+
+  @media (max-width: 1020px) {
+    .home-intro {
+      padding-top: 120px;
+      grid-template-columns: 1fr;
+      gap: 44px;
+    }
+
+    .home-thesis h1 {
+      max-width: 720px;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .home-intro {
+      padding-top: 84px;
+      padding-bottom: 46px;
+    }
+
+    .home-thesis h1 {
+      font-size: clamp(42px, 12vw, 58px);
+      line-height: 1.02;
+    }
+
+    .work-grid {
+      grid-template-columns: 1fr;
+      gap: 52px;
+    }
+  }
+
+  @media (max-width: 420px) {
+    .home-intro {
+      padding-top: 58px;
+    }
+  }
+</style>

@@ -1,0 +1,430 @@
+---
+// Static, evidence-led case studies generated from one verified project model.
+import Base from "@/layouts/Base.astro";
+import CaseStudyArtifact from "@/components/CaseStudyArtifact.astro";
+import CaseStudyMedia from "@/components/CaseStudyMedia.astro";
+import CaseStudyNav from "@/components/CaseStudyNav.astro";
+import ProjectCover from "@/components/ProjectCover.astro";
+import ProjectPager from "@/components/ProjectPager.astro";
+import {
+  getAdjacentProject,
+  getFeaturedProjects,
+  projects,
+} from "@/data/portfolio.mjs";
+
+type ProjectRecord = (typeof projects)[number];
+
+interface Props {
+  project: ProjectRecord;
+}
+
+export function getStaticPaths() {
+  return getFeaturedProjects().map((project) => ({
+    params: { slug: project.slug },
+    props: { project },
+  }));
+}
+
+const { project } = Astro.props;
+const previous = getAdjacentProject(project.slug, "previous");
+const next = getAdjacentProject(project.slug, "next");
+---
+
+<Base title={project.title} description={project.summary} image={project.heroImage}>
+  <div class="case-shell">
+    <CaseStudyNav chapters={project.sections} />
+
+    <article class="case-study">
+      <header class="case-header" data-reveal>
+        <p class="case-eyebrow">
+          {project.organization} · {project.category} · {project.year}
+        </p>
+        <h1>{project.title}</h1>
+        <p class="case-summary">{project.summary}</p>
+      </header>
+
+      <div class="case-hero" data-reveal>
+        <ProjectCover project={project} priority={true} size="hero" />
+      </div>
+
+      <dl class="case-meta" data-reveal>
+        <div>
+          <dt>Role</dt>
+          <dd>{project.role}</dd>
+        </div>
+        <div>
+          <dt>Timeline</dt>
+          <dd>{project.timeline}</dd>
+        </div>
+        <div>
+          <dt>Team</dt>
+          <dd>{project.team}</dd>
+        </div>
+        <div>
+          <dt>Skills</dt>
+          <dd>{project.skills.join(", ")}</dd>
+        </div>
+      </dl>
+
+      {
+        "links" in project && project.links && project.links.length > 0 && (
+          <nav class="project-links" aria-label="Project sources" data-reveal>
+            {project.links.map((link) => (
+              <a href={link.href} target="_blank" rel="noreferrer">
+                {link.label}
+              </a>
+            ))}
+          </nav>
+        )
+      }
+
+      {
+        project.metrics.length > 0 && (
+          <dl class="case-metrics" aria-label="Project evidence" data-reveal>
+            {project.metrics.map((metric) => (
+              <div>
+                <dt>{metric.label}</dt>
+                <dd>{metric.value}</dd>
+              </div>
+            ))}
+          </dl>
+        )
+      }
+
+      <div class="case-sections">
+        {
+          project.sections.map((section, sectionIndex) => (
+            <section id={section.id} class="case-section" data-case-section>
+              <p class="chapter-index">{String(sectionIndex + 1).padStart(2, "0")}</p>
+              <h2>{section.heading}</h2>
+              <div class="case-copy">
+                {section.body.map((paragraph) => <p>{paragraph}</p>)}
+              </div>
+              {
+                "artifact" in section && section.artifact && (
+                  <CaseStudyArtifact artifact={section.artifact} />
+                )
+              }
+              {section.media && (
+                <CaseStudyMedia media={section.media} />
+              )}
+              {
+                section.id === "high-fidelity" &&
+                  "screenInventory" in project &&
+                  project.screenInventory && (
+                    <div class="screen-inventory" data-reveal>
+                      <div class="screen-inventory-heading">
+                        <p>Complete product surface</p>
+                        <span>{project.screenInventory.length} screens</span>
+                      </div>
+                      <ol>
+                        {project.screenInventory.map((screen, index) => (
+                          <li>
+                            <span>{String(index + 1).padStart(2, "0")}</span>
+                            <strong>{screen.name}</strong>
+                          </li>
+                        ))}
+                      </ol>
+                    </div>
+                  )
+              }
+            </section>
+          ))
+        }
+      </div>
+
+      <ProjectPager previous={previous} next={next} />
+    </article>
+  </div>
+</Base>
+
+<style>
+  .case-shell {
+    display: grid;
+    width: 100%;
+    margin: 0;
+    padding: 48px var(--page-gutter) 0;
+    grid-template-columns: 200px minmax(0, 1000px);
+    gap: clamp(48px, 13vw, 260px);
+  }
+
+  .case-study {
+    min-width: 0;
+    grid-column: 2;
+  }
+
+  .case-eyebrow,
+  .chapter-index {
+    margin: 0;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  .case-header h1 {
+    max-width: 800px;
+    margin: 14px 0 0;
+    color: var(--ink-strong);
+    font-family: var(--display);
+    font-size: clamp(48px, 5.3vw, 72px);
+    font-weight: 400;
+    letter-spacing: -0.03em;
+    line-height: 0.98;
+  }
+
+  .case-summary {
+    max-width: 67ch;
+    margin: 22px 0 0;
+    color: #66727d;
+    font-size: 17px;
+    line-height: 1.5;
+  }
+
+  .case-hero {
+    overflow: hidden;
+    margin-top: 42px;
+    aspect-ratio: 16 / 9;
+    background: var(--surface);
+  }
+
+  .case-meta {
+    display: grid;
+    margin: 28px 0 0;
+    padding: 0;
+    grid-template-columns: 0.8fr 0.85fr 1fr 1.45fr;
+    gap: 22px;
+  }
+
+  .case-meta div,
+  .case-metrics div {
+    min-width: 0;
+  }
+
+  .case-meta dt,
+  .case-metrics dt {
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+  }
+
+  .case-meta dd {
+    margin: 8px 0 0;
+    color: var(--ink);
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+  .project-links {
+    display: flex;
+    margin-top: 28px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .project-links a {
+    padding: 8px 12px;
+    border: 1px solid var(--rule);
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    transition:
+      border-color 180ms ease,
+      background-color 180ms ease,
+      color 180ms ease;
+  }
+
+  .project-links a:hover,
+  .project-links a:focus-visible {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: #ffffff;
+  }
+
+  .case-metrics {
+    display: grid;
+    margin: 70px 0 0;
+    padding: 24px 0;
+    border-block: 1px solid var(--rule);
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 22px;
+  }
+
+  .case-metrics div {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 8px;
+  }
+
+  .case-metrics dd {
+    margin: 0;
+    color: var(--ink-strong);
+    font-family: var(--display);
+    font-size: clamp(30px, 4vw, 46px);
+    line-height: 1;
+  }
+
+  .case-sections {
+    margin-top: 104px;
+  }
+
+  .case-section {
+    scroll-margin-top: 32px;
+  }
+
+  .case-section + .case-section {
+    margin-top: 124px;
+  }
+
+  .case-section h2 {
+    max-width: 680px;
+    margin: 14px 0 0;
+    color: var(--ink-strong);
+    font-family: var(--display);
+    font-size: clamp(34px, 4.1vw, 52px);
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    line-height: 1.02;
+  }
+
+  .case-copy {
+    max-width: 66ch;
+    margin-top: 30px;
+  }
+
+  .case-copy p {
+    margin: 0;
+    color: #53616d;
+    font-size: 18px;
+    line-height: 1.62;
+  }
+
+  .case-copy p + p {
+    margin-top: 18px;
+  }
+
+  .case-section :global(.case-media-grid) {
+    margin-top: 42px;
+  }
+
+  .screen-inventory {
+    margin-top: 42px;
+    padding: 24px;
+    border: 1px solid var(--rule);
+    background: #ffffff;
+  }
+
+  .screen-inventory-heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 24px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .screen-inventory-heading p,
+  .screen-inventory-heading span {
+    margin: 0;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+
+  .screen-inventory-heading p {
+    color: var(--ink-strong);
+  }
+
+  .screen-inventory-heading span {
+    color: var(--accent);
+  }
+
+  .screen-inventory ol {
+    display: grid;
+    margin: 0;
+    padding: 20px 0 0;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0 24px;
+    list-style: none;
+  }
+
+  .screen-inventory li {
+    display: grid;
+    min-width: 0;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--rule);
+    grid-template-columns: 30px minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .screen-inventory li span {
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 10px;
+  }
+
+  .screen-inventory li strong {
+    color: var(--ink);
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.35;
+  }
+
+  @media (max-width: 1080px) {
+    .case-shell {
+      grid-template-columns: 180px minmax(0, 1fr);
+      gap: clamp(36px, 8vw, 88px);
+    }
+  }
+
+  @media (max-width: 980px) {
+    .case-shell {
+      display: block;
+      width: min(100%, 816px);
+      padding-top: 34px;
+    }
+
+    .case-study {
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 720px) {
+    .case-header h1 {
+      font-size: clamp(43px, 12vw, 60px);
+    }
+
+    .case-meta {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 24px 18px;
+    }
+
+    .case-sections {
+      margin-top: 84px;
+    }
+
+    .screen-inventory ol {
+      grid-template-columns: 1fr;
+    }
+
+    .case-section + .case-section {
+      margin-top: 94px;
+    }
+
+    .case-copy p {
+      font-size: 17px;
+      line-height: 1.58;
+    }
+  }
+
+  @media (max-width: 460px) {
+    .case-meta {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

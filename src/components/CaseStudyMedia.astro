@@ -1,0 +1,89 @@
+---
+// Source-backed project media with reusable captions and responsive pairing.
+interface MediaItem {
+  src: string;
+  alt: string;
+  caption?: string;
+  wide?: boolean;
+}
+
+interface Props {
+  media: MediaItem[];
+  priority?: boolean;
+}
+
+const { media, priority = false } = Astro.props;
+---
+
+<div
+  class:list={[
+    "case-media-grid",
+    media.length > 1 && "is-multiple",
+    media.length > 2 && "is-gallery",
+  ]}
+  data-media-count={media.length}
+>
+  {
+    media.map((item, index) => (
+      <figure class:list={["case-media", item.wide && "is-wide"]} data-reveal>
+        <img
+          src={item.src}
+          alt={item.alt}
+          loading={priority && index === 0 ? "eager" : "lazy"}
+          fetchpriority={priority && index === 0 ? "high" : "auto"}
+        />
+        {item.caption && <figcaption>{item.caption}</figcaption>}
+      </figure>
+    ))
+  }
+</div>
+
+<style>
+  .case-media-grid {
+    display: grid;
+    gap: 18px;
+  }
+
+  .case-media-grid.is-multiple {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .case-media-grid.is-gallery {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .case-media {
+    margin: 0;
+  }
+
+  .case-media-grid.is-gallery .case-media.is-wide {
+    grid-column: 1 / -1;
+  }
+
+  .case-media img {
+    width: 100%;
+    height: auto;
+    border: 1px solid var(--rule);
+    background: var(--surface);
+  }
+
+  .case-media figcaption {
+    max-width: 72ch;
+    margin-top: 9px;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  @media (max-width: 680px) {
+    .case-media-grid.is-multiple {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (min-width: 681px) and (max-width: 940px) {
+    .case-media-grid.is-gallery {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

@@ -1,0 +1,17 @@
+---
+// Small pill label used for skills and project tags.
+interface Props {
+  class?: string;
+}
+const { class: extraClass = "" } = Astro.props;
+---
+
+<span
+  class:list={[
+    "inline-block rounded-full px-2.5 py-1 text-xs font-mono",
+    "bg-gold/10 text-gold dark:bg-gold-soft/15 dark:text-gold-soft",
+    extraClass,
+  ]}
+>
+  <slot />
+</span>

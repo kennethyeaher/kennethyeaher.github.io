@@ -1,0 +1,81 @@
+---
+// Compact resume-backed credibility list used beside the home thesis.
+interface Props {
+  entries: Array<{
+    year: string;
+    organization: string;
+    role: string;
+  }>;
+}
+
+const { entries } = Astro.props;
+---
+
+<ol class="experience-list" aria-label="Selected experience">
+  {
+    entries.map((entry) => (
+      <li>
+        <span class="experience-year">{entry.year}</span>
+        <span class="experience-org">{entry.organization}</span>
+        <span class="experience-role">{entry.role}</span>
+      </li>
+    ))
+  }
+</ol>
+
+<style>
+  .experience-list {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    gap: 5px;
+    list-style: none;
+  }
+
+  .experience-list li {
+    display: grid;
+    grid-template-columns: 64px minmax(190px, 1.1fr) minmax(200px, 1fr);
+    align-items: baseline;
+    column-gap: 18px;
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+  .experience-year,
+  .experience-role {
+    color: var(--muted);
+  }
+
+  .experience-year {
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+
+  .experience-org {
+    color: var(--ink-strong);
+  }
+
+  @media (max-width: 1180px) {
+    .experience-list li {
+      grid-template-columns: 58px minmax(130px, 0.8fr) minmax(170px, 1.2fr);
+      column-gap: 12px;
+      font-size: 14px;
+    }
+  }
+
+  @media (max-width: 720px) {
+    .experience-list {
+      gap: 14px;
+    }
+
+    .experience-list li {
+      grid-template-columns: 52px 1fr;
+      column-gap: 12px;
+    }
+
+    .experience-role {
+      grid-column: 2;
+      font-size: 13px;
+    }
+  }
+</style>

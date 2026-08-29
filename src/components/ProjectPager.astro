@@ -1,0 +1,87 @@
+---
+// Circular previous/next navigation keeps every case study connected.
+interface PagerProject {
+  slug: string;
+  cardTitle: string;
+}
+
+interface Props {
+  previous: PagerProject;
+  next: PagerProject;
+}
+
+const { previous, next } = Astro.props;
+---
+
+<nav class="project-pager" aria-label="More case studies" data-project-pager>
+  <a href={`/work/${previous.slug}`}>
+    <span>Previous project</span>
+    <strong>{previous.cardTitle}</strong>
+  </a>
+  <a href={`/work/${next.slug}`}>
+    <span>Next project</span>
+    <strong>{next.cardTitle}</strong>
+  </a>
+</nav>
+
+<style>
+  .project-pager {
+    display: grid;
+    margin-top: 124px;
+    border-block: 1px solid var(--rule);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .project-pager a {
+    display: grid;
+    min-height: 150px;
+    padding: 28px 0;
+    align-content: center;
+    gap: 7px;
+  }
+
+  .project-pager a + a {
+    padding-left: 28px;
+    border-left: 1px solid var(--rule);
+    text-align: right;
+  }
+
+  .project-pager span {
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+  }
+
+  .project-pager strong {
+    color: var(--ink-strong);
+    font-family: var(--display);
+    font-size: clamp(20px, 2.5vw, 29px);
+    font-weight: 400;
+    line-height: 1.1;
+    transition: color 180ms ease;
+  }
+
+  .project-pager a:hover strong,
+  .project-pager a:focus-visible strong {
+    color: var(--accent);
+  }
+
+  @media (max-width: 620px) {
+    .project-pager {
+      margin-top: 88px;
+      grid-template-columns: 1fr;
+    }
+
+    .project-pager a {
+      min-height: 112px;
+    }
+
+    .project-pager a + a {
+      padding-left: 0;
+      border-top: 1px solid var(--rule);
+      border-left: 0;
+      text-align: left;
+    }
+  }
+</style>

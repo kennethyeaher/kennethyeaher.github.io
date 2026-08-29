@@ -1,0 +1,133 @@
+---
+// Evidence-led work card shared by the home page and future work indexes.
+import ProjectCover from "@/components/ProjectCover.astro";
+
+interface Props {
+  project: {
+    slug: string;
+    cardTitle: string;
+    category: string;
+    year: string;
+    role: string;
+    summary: string;
+    cardImage: string;
+    cardAlt: string;
+    cover: {
+      variant: string;
+      video: string;
+      poster: string;
+      palette: string[];
+      titlePlacement: string;
+    };
+  };
+  priority?: boolean;
+}
+
+const { project, priority = false } = Astro.props;
+---
+
+<a
+  class="project-card"
+  href={`/work/${project.slug}`}
+  data-cursor-label="View case study"
+  data-reveal
+>
+  <figure class="project-media">
+    <ProjectCover project={project} priority={priority} size="card" />
+  </figure>
+  <div class="project-heading">
+    <h2>{project.cardTitle}</h2>
+    <span>{project.year}</span>
+  </div>
+  <p class="project-role">{project.category} · {project.role}</p>
+  <p class="project-summary">{project.summary}</p>
+</a>
+
+<style>
+  .project-card {
+    display: block;
+    min-width: 0;
+  }
+
+  .project-media {
+    position: relative;
+    overflow: hidden;
+    margin: 0;
+    aspect-ratio: 16 / 9;
+    background: var(--surface);
+  }
+
+  .project-media::after {
+    position: absolute;
+    inset: 0;
+    content: "";
+    opacity: 0;
+    background: rgb(15 43 71 / 10%);
+    transition: opacity 300ms ease;
+  }
+
+  .project-heading {
+    display: flex;
+    margin-top: 13px;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 20px;
+  }
+
+  .project-heading h2 {
+    margin: 0;
+    color: var(--ink-strong);
+    font-family: var(--display);
+    font-size: clamp(20px, 2vw, 27px);
+    font-weight: 400;
+    line-height: 1.15;
+    transition: color 220ms ease;
+  }
+
+  .project-heading span,
+  .project-role {
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+  }
+
+  .project-role {
+    margin: 5px 0 0;
+  }
+
+  .project-summary {
+    max-width: 62ch;
+    margin: 9px 0 0;
+    color: #66727d;
+    font-size: 15px;
+    line-height: 1.42;
+  }
+
+  .project-card:hover .project-media::after,
+  .project-card:focus-visible .project-media::after {
+    opacity: 1;
+  }
+
+  .project-card:hover :global(.project-cover),
+  .project-card:focus-visible :global(.project-cover) {
+    transform: scale(1.015);
+  }
+
+  .project-card:hover .project-heading h2,
+  .project-card:focus-visible .project-heading h2 {
+    color: var(--accent);
+  }
+
+  @media (max-width: 620px) {
+    .project-summary {
+      font-size: 16px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .project-media :global(.project-cover) {
+      transform: none !important;
+    }
+  }
+</style>

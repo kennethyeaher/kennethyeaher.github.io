@@ -1,0 +1,133 @@
+---
+interface Artifact {
+  eyebrow: string;
+  title: string;
+  columns: string[];
+  rows: string[][];
+  note?: string;
+}
+
+interface Props {
+  artifact: Artifact;
+}
+
+const { artifact } = Astro.props;
+---
+
+<figure class="case-artifact" data-reveal>
+  <figcaption>
+    <p>{artifact.eyebrow}</p>
+    <h3>{artifact.title}</h3>
+  </figcaption>
+  <div class="artifact-table-wrap">
+    <table>
+      <thead>
+        <tr>
+          {artifact.columns.map((column) => <th scope="col">{column}</th>)}
+        </tr>
+      </thead>
+      <tbody>
+        {artifact.rows.map((row) => (
+          <tr>
+            {row.map((cell, index) =>
+              index === 0 ? <th scope="row">{cell}</th> : <td>{cell}</td>,
+            )}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+  {artifact.note && <p class="artifact-note">{artifact.note}</p>}
+</figure>
+
+<style>
+  .case-artifact {
+    margin: 42px 0 0;
+    padding: clamp(22px, 3vw, 34px);
+    border: 1px solid var(--rule);
+    background: #ffffff;
+  }
+
+  figcaption p {
+    margin: 0;
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  figcaption h3 {
+    max-width: 720px;
+    margin: 10px 0 0;
+    color: var(--ink-strong);
+    font-family: var(--display);
+    font-size: clamp(24px, 3vw, 35px);
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    line-height: 1.08;
+  }
+
+  .artifact-table-wrap {
+    overflow-x: auto;
+    margin-top: 28px;
+    border-top: 1px solid var(--rule);
+  }
+
+  table {
+    width: 100%;
+    min-width: 660px;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+  th,
+  td {
+    padding: 15px 16px 15px 0;
+    border-bottom: 1px solid var(--rule);
+    text-align: left;
+    vertical-align: top;
+  }
+
+  thead th {
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 9px;
+    font-weight: 400;
+    letter-spacing: 0.035em;
+    text-transform: uppercase;
+  }
+
+  tbody th {
+    color: var(--ink-strong);
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  tbody td {
+    color: #596773;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  tbody tr:hover {
+    background: color-mix(in srgb, var(--accent-soft) 42%, #ffffff);
+  }
+
+  .artifact-note {
+    max-width: 76ch;
+    margin: 18px 0 0;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  @media (max-width: 680px) {
+    .case-artifact {
+      margin-inline: calc(var(--page-gutter) * -1);
+      padding-inline: var(--page-gutter);
+      border-inline: 0;
+    }
+  }
+</style>

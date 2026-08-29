@@ -1,0 +1,53 @@
+---
+// Global navigation mirrors the reference's restrained, single-line header.
+import { profile } from "@/data/portfolio.mjs";
+
+const links = [
+  { href: "/", label: "Work" },
+  { href: "/about", label: "About" },
+  { href: profile.links.resume, label: "Resume", external: true },
+];
+
+const path = Astro.url.pathname.replace(/\/$/, "") || "/";
+
+/** Return whether one internal navigation item represents the current route. */
+function isActive(href: string): boolean {
+  if (href === "/") return path === "/" || path.startsWith("/work/");
+  return path === href;
+}
+---
+
+<header class="site-header">
+  <nav class="site-nav" aria-label="Primary navigation">
+    <a class="brand-lockup" href="/" aria-label={`${profile.name}, Work`}>
+      <span class="brand-name">{profile.name}</span>
+      <span class="brand-role">{profile.roleLine}</span>
+    </a>
+
+    <button
+      class="menu-toggle"
+      type="button"
+      aria-expanded="false"
+      aria-controls="primary-links"
+      data-nav-toggle
+    >
+      <span data-menu-label>Menu</span>
+    </button>
+
+    <div class="primary-links" id="primary-links" data-nav-links>
+      {
+        links.map((link) => (
+          <a
+            href={link.href}
+            class:list={["nav-link", !link.external && isActive(link.href) && "is-active"]}
+            aria-current={!link.external && isActive(link.href) ? "page" : undefined}
+            target={link.external ? "_blank" : undefined}
+            rel={link.external ? "noreferrer" : undefined}
+          >
+            {link.label}
+          </a>
+        ))
+      }
+    </div>
+  </nav>
+</header>

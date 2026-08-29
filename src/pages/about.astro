@@ -1,0 +1,187 @@
+---
+// HCI-focused biography with a future-ready, real-media-only photo journal.
+import AboutGallery from "@/components/AboutGallery.astro";
+import Base from "@/layouts/Base.astro";
+import { aboutGallery, profile } from "@/data/portfolio.mjs";
+
+const identityLanes = [
+  {
+    number: "01",
+    title: "Product specialist",
+    body: "I use interviews, field evidence, and systems thinking to decide what a product should make clearer or easier.",
+  },
+  {
+    number: "02",
+    title: "Startup + venture",
+    body: "I have sat on both sides of the table, building a company and evaluating the assumptions behind other founders’ plans.",
+  },
+  {
+    number: "03",
+    title: "Data",
+    body: "I build pipelines and analysis that turn fragmented information into a decision another person can explain and use.",
+  },
+  {
+    number: "04",
+    title: "Athlete",
+    body: "Training keeps me close to repetition, feedback, and the quiet work that happens before a visible result.",
+  },
+  {
+    number: "05",
+    title: "Adventurer",
+    body: "New places reset my assumptions and remind me that a familiar system can feel completely different from the outside.",
+  },
+];
+---
+
+<Base title="About" description={profile.aboutParagraphs[0]}>
+  <article class="about-page">
+    <header class="about-intro" data-reveal>
+      <p class="about-kicker">About Kenneth</p>
+      <h1>{profile.aboutHeadline}</h1>
+      <div class="about-copy">
+        {profile.aboutParagraphs.map((paragraph) => <p>{paragraph}</p>)}
+      </div>
+      <p class="about-availability">{profile.availability}</p>
+    </header>
+
+    <section class="identity-grid" aria-labelledby="identity-title">
+      <h2 id="identity-title" class="sr-only">How I work and live</h2>
+      {
+        identityLanes.map((lane) => (
+          <article class="identity-lane" data-reveal>
+            <p>{lane.number}. {lane.title}</p>
+            <h3>{lane.title}</h3>
+            <div>{lane.body}</div>
+          </article>
+        ))
+      }
+    </section>
+
+    <AboutGallery items={aboutGallery} />
+  </article>
+</Base>
+
+<style>
+  .about-page {
+    width: min(100%, var(--content-max));
+    margin: 0 auto;
+    padding-inline: var(--page-gutter);
+  }
+
+  .about-intro {
+    padding-top: 72px;
+  }
+
+  .about-kicker {
+    margin: 0 0 26px;
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+  }
+
+  .about-intro h1 {
+    max-width: 940px;
+    margin: 0;
+    color: var(--ink-strong);
+    font-family: var(--display);
+    font-size: clamp(52px, 6.5vw, 92px);
+    font-weight: 400;
+    letter-spacing: -0.035em;
+    line-height: 0.98;
+  }
+
+  .about-copy {
+    max-width: 760px;
+    margin-top: 52px;
+  }
+
+  .about-copy p {
+    margin: 0 0 18px;
+    color: #66727d;
+    font-size: 18px;
+    line-height: 1.58;
+  }
+
+  .about-availability {
+    max-width: 760px;
+    margin: 28px 0 0;
+    color: var(--ink-strong);
+    font-size: 18px;
+  }
+
+  .identity-grid {
+    display: grid;
+    margin-top: 116px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border-top: 1px solid var(--rule);
+  }
+
+  .identity-lane {
+    min-height: 224px;
+    padding: 26px 26px 34px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .identity-lane:nth-child(odd) {
+    padding-left: 26px;
+    border-left: 1px solid var(--rule);
+  }
+
+  .identity-lane > p {
+    margin: 0 0 34px;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+  }
+
+  .identity-lane h3 {
+    margin: 0;
+    font-family: var(--display);
+    font-size: clamp(30px, 3vw, 46px);
+    font-weight: 400;
+  }
+
+  .identity-lane div {
+    max-width: 49ch;
+    margin-top: 12px;
+    color: #66727d;
+    font-size: 16px;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+  }
+
+  @media (max-width: 760px) {
+    .about-intro {
+      padding-top: 58px;
+    }
+
+    .about-copy {
+      margin-top: 38px;
+    }
+
+    .identity-grid {
+      margin-top: 84px;
+      grid-template-columns: 1fr;
+    }
+
+    .identity-lane,
+    .identity-lane:nth-child(odd) {
+      min-height: 0;
+      padding: 24px 0 30px;
+      border-left: 0;
+    }
+
+    .identity-lane > p {
+      margin-bottom: 22px;
+    }
+  }
+</style>

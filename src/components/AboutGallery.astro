@@ -1,0 +1,113 @@
+---
+// Future-ready photo journal that only renders real media currently available.
+interface GalleryItem {
+  src: string;
+  alt: string;
+  group: string;
+  caption: string;
+  ratio: string;
+}
+
+interface Props {
+  items: GalleryItem[];
+}
+
+const { items } = Astro.props;
+---
+
+<section class="about-gallery" data-about-gallery aria-labelledby="photo-journal-title">
+  <div class="gallery-heading" data-reveal>
+    <p>Photo journal</p>
+    <h2 id="photo-journal-title">The work is only one part of the person doing it.</h2>
+  </div>
+  <div class="gallery-grid">
+    {
+      items.map((item) => (
+        <figure class:list={["gallery-item", `is-${item.ratio}`]} data-reveal>
+          <p class="gallery-label">{item.group}</p>
+          <img src={item.src} alt={item.alt} loading="lazy" />
+          <figcaption>{item.caption}</figcaption>
+        </figure>
+      ))
+    }
+  </div>
+</section>
+
+<style>
+  .about-gallery {
+    margin-top: 116px;
+  }
+
+  .gallery-heading {
+    display: grid;
+    margin-bottom: 34px;
+    grid-template-columns: minmax(160px, 0.5fr) minmax(0, 1.5fr);
+    gap: 24px;
+  }
+
+  .gallery-heading p,
+  .gallery-label {
+    margin: 0;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+  }
+
+  .gallery-heading h2 {
+    max-width: 680px;
+    margin: 0;
+    font-family: var(--display);
+    font-size: clamp(32px, 4vw, 54px);
+    font-weight: 400;
+    line-height: 1.05;
+  }
+
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 24px;
+  }
+
+  .gallery-item {
+    grid-column: span 4;
+    margin: 0;
+  }
+
+  .gallery-label {
+    margin-bottom: 12px;
+  }
+
+  .gallery-item img {
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+  }
+
+  .gallery-item figcaption {
+    max-width: 38ch;
+    margin-top: 10px;
+    color: #66727d;
+    font-size: 14px;
+  }
+
+  @media (max-width: 860px) {
+    .gallery-heading {
+      grid-template-columns: 1fr;
+    }
+
+    .gallery-item {
+      grid-column: span 6;
+    }
+  }
+
+  @media (max-width: 620px) {
+    .about-gallery {
+      margin-top: 80px;
+    }
+
+    .gallery-item {
+      grid-column: 1 / -1;
+    }
+  }
+</style>
