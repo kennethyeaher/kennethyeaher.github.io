@@ -330,6 +330,7 @@ export const caseStudies = [
         label: "Dashboard",
         heading: "Two grains, one interface, and a reset that always works",
         body: [
+          "The reader I built this for is the person I used to hand analysis to, someone deciding where a multi site women's health group opens next. That person needs to compare two candidate counties, not admire a national pattern. The interface only partly serves them. It shows where supply is thin and leaves the ranking, the confidence, and the what if to the reader.",
           "The Dash interface opens on the national picture and moves down. State level gives per capita density, a ranked bar chart, and a choropleth. Switching to county level swaps in the tier map across 3,144 counties, the tier distribution, and a findings card for whatever is selected. Selecting a state filters the companion views, and reset restores the national view from any state of the interface.",
           "The state view no longer offers a risk tier, because the model behind it was retired. It shows observed density and a rank, and it says so.",
         ],
@@ -380,6 +381,7 @@ export const caseStudies = [
           "The version of this project I submitted was wrong in three places, and it looked finished. All three defects passed a run, produced plausible output, and rendered cleanly. What caught them was recomputing published numbers from source instead of trusting the README, and asking of each feature whether it could contain the answer.",
           "The lesson I took is narrower and more useful than being careful. A number needs a guard, not a comment. Connecticut was fixed by a check that raises on a vintage mismatch, the denominator by a plausibility range, and the leak by a test that fails if the feature returns. Those three guards are why I would put my name on the current numbers.",
           "I also changed what I think a good result looks like here. The regression was the assignment, and it does not work. The count does, and it is the finding that has held through every correction. Reporting the model as a negative result and putting the county count in the headline is the version of this project I would want an analyst to inherit.",
+          "One gap I would not defend. I never put this in front of the person it was built for. Everything above is my judgment checked against data rather than against a user, and the difference shows in the product half of the project. There is no ranked shortlist, no confidence marker on a county where a single provider swings the rate, and no way to ask what two more providers would change. I would run that conversation before I added another chart.",
         ],
       },
     ],
