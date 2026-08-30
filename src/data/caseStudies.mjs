@@ -184,6 +184,18 @@ export const caseStudies = [
         ],
       },
       {
+        id: "evidence",
+        label: "Evidence",
+        heading: "What this research supports, and what it does not",
+        body: [
+          "Twenty four students answered the campus survey and nine residents answered the resident one. Nine is small enough that I want to be precise about what it carries. It was enough to tell us which questions were worth asking. It is not enough to estimate how common an answer is across College Park, so the resident channel preferences on this page should be read as nine people’s answers rather than a rate.",
+          "Those nine also skew new. Four had lived in College Park between one and three years, two for less than a year, two for four to ten, and one for more than ten. The resident sample is mostly recent arrivals, which means it says least about the residents who have been here longest.",
+          "The personas rest on a narrower base than the word persona usually implies. The surveys measured which channels people follow and which they prefer, and those answers are in the profiles. Age, occupation, household, and the personality scales are not survey outputs. They came from contextual interviews at College Park Day, Good Neighbor Day, and Friday Night LIVE, and we did not record how many of those conversations we had. That number belongs in the report and it is not there.",
+          "The bigger gap is that none of this went back to the people it describes. We built five personas and three journey maps, presented them to the city, and handed them over. No resident ever saw the profile meant to represent them. Maria is the one I would fix first. She carries the project’s argument about bilingual access, her journey map is the most detailed of the three, and the resident survey never asked a single question about language. Katherine Garcia, the city’s bilingual communications coordinator, sat on the client team. Checking Maria against her reading was available to us and we did not do it.",
+          "What the work does support is narrower and still worth something. Twenty two of twenty four students had never attended a City of College Park event, a gap large enough that the direction is not in doubt even if the exact share is. The journey maps are honest reconstructions of three specific paths through one kind of event. The personas gave the city a shared vocabulary it did not have before. None of that needs a bigger sample to be useful. It needs me to say which claims rest on measurement and which rest on judgment.",
+        ],
+      },
+      {
         id: "reflection",
         label: "Reflection",
         heading: "This project made HCI feel like the work I wanted to keep doing",
