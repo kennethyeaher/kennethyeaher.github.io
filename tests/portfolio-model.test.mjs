@@ -48,7 +48,7 @@ test("adjacent-project navigation wraps without a dead end", () => {
 test("the public identity uses the corrected professional title", () => {
   assert.equal(
     profile.roleLine,
-    "Product Specialist, Data Scientist, Venture Capitalist",
+    "Product Designer and Data Scientist",
   );
 });
 

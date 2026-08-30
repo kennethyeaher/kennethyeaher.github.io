@@ -4,7 +4,7 @@ import { caseStudies } from "./caseStudies.mjs";
 export const profile = {
   name: "Kenneth Yeaher",
   shortName: "Ken",
-  roleLine: "Product Specialist, Data Scientist, Venture Capitalist",
+  roleLine: "Product Designer and Data Scientist",
   headline: "I’m Ken, a product specialist led by evidence.",
   intro:
     "I study how people move through systems, build with the data those systems leave behind, and use both to decide what should exist next.",
