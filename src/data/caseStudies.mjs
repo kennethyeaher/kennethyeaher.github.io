@@ -265,7 +265,7 @@ export const caseStudies = [
         heading: "Seventeen stages, and every number traces back to a file",
         body: [
           "The pipeline runs in seventeen ordered stages, from pulling the NPPES weekly release through writing the dashboard exports. Critical stages abort the run so a later stage never reads a stale input, and reporting stages warn and continue so a chart bug does not look like a pipeline failure. Each stage writes a named artifact with a data dictionary beside it, so any figure on the dashboard can be traced back through the transformations to the federal file it came from.",
-          "The definition of supply is a choice rather than a given, so I made it visible. 100,397 providers enter the analysis across twelve of the thirteen tracked taxonomy codes. Obstetrics and Gynecology alone is 55.9 percent of the count. Certified nurse midwives, midwives, and women's health nurse practitioners together are 28.2 percent, and reproductive endocrinologists are 2.0 percent. Anyone reading the map should know that a county counted as served might have a midwife and no surgeon.",
+          "The definition of supply is a choice rather than a given, so I made it visible. 100,397 providers enter the analysis across twelve of the thirteen tracked taxonomy codes. Obstetrics and Gynecology alone is 55.9 percent of the count. Certified nurse midwives, midwives, and women's health nurse practitioners together are 28.2 percent, and reproductive endocrinologists are 2.0 percent. The state rates cover 99,544 of them, because 853 sit in Puerto Rico, another territory, a military postal address, or abroad, and there is no state population to divide those by. Anyone reading the map should know that a county counted as served might have a midwife and no surgeon.",
         ],
         artifact: {
           eyebrow: "Pipeline architecture",
@@ -344,7 +344,7 @@ export const caseStudies = [
         ],
         media: [
           { src: "/images/work/ovara/ovara-dashboard-state.jpg", alt: "Ovara state level dashboard showing per capita density KPIs and a ranked state chart", caption: "The state view opens on observed density per 100,000 and a rank. There is no predicted tier here any more.", wide: true },
-          { src: "/images/work/ovara/ovara-dashboard-map.jpg", alt: "Ovara county tier choropleth across 3,144 counties", caption: "The county tier map reads the same four step ramp as every chart beside it.", wide: true },
+          { src: "/images/work/ovara/ovara-dashboard-map.jpg", alt: "Ovara county tier choropleth across 3,144 counties with the five tier legend in frame", caption: "The county tier map reads the same four step purple ramp as every chart beside it, with access deserts held out in coral.", wide: true },
         ],
       },
       {
@@ -358,7 +358,7 @@ export const caseStudies = [
           "The findings card under the county map used to state a conclusion the data did not always support, because it was written for one case and reused for the rest. It now branches on what the selected county actually holds, whether that is a desert, thin supply, or no shortage, and it adds a coverage caveat when the registry match rate for that state is weak. I believe that is the part of this project that would matter most in a real policy or clinical setting. A correct number with the wrong sentence attached is worse than no number.",
         ],
         media: [
-          { src: "/images/work/ovara/ovara-dashboard-county.jpg", alt: "Ovara county view with tier KPIs and the findings card beneath the map", caption: "The findings card writes a different sentence depending on what the selected area actually holds.", wide: true },
+          { src: "/images/work/ovara/ovara-dashboard-county.jpg", alt: "Ovara county view for Alabama with the findings card beneath the tier map", caption: "Alabama selected. The findings card writes a different sentence depending on what the selected area actually holds.", wide: true },
         ],
       },
       {
