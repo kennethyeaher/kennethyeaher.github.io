@@ -355,7 +355,7 @@ export const caseStudies = [
           "A dashboard that presents a shaky model with the same visual confidence as a direct count is misleading by construction. Most of the interface decisions here came out of that one problem.",
           "Colour carries the tier meaning, so it is defined once and shared. Access tiers use a single four step purple ramp that has to stay readable on the light basemap and on the dark plum panel, which pins its lightness window to roughly L 0.53 to 0.80 in OKLab and holds a minimum contrast of 1.78 on the light ground and 3.03 on the dark. Coral is reserved for one meaning, the access desert tier, so a reader who learns it on the map reads it correctly on every chart.",
           "Colour alone was not enough in one case. Checking the taxonomy chart under simulated deuteranopia, two of the three category hues came out at a Delta E of 0.4, which is not a distinguishable difference. I regrouped the bars by category with spacing and a legend, so the grouping survives without colour at all. The tier chart carries the same redundancy in position and label.",
-          "The findings card under the county map used to state a conclusion the data did not always support, because it was written for one case and reused for the rest. It now branches on what the selected county actually holds, whether that is a desert, thin supply, or no shortage, and it adds a coverage caveat when the registry match rate for that state is weak. I believe that is the part of this project that would matter most in a real policy or clinical setting. A correct number with the wrong sentence attached is worse than no number.",
+          "The findings card under the county map used to state a conclusion the data did not always support, because it was written for one case and reused for the rest. It now branches on what the selected county actually holds, whether that is a desert, thin supply, or no shortage, and it flags weak registry coverage for that state. I believe that is the part of this project that would matter most in a real policy or clinical setting. A correct number with the wrong sentence attached is worse than no number.",
         ],
         media: [
           { src: "/images/work/ovara/ovara-dashboard-county.jpg", alt: "Ovara county view for Alabama with the findings card beneath the tier map", caption: "Alabama selected. The findings card writes a different sentence depending on what the selected area actually holds.", wide: true },
@@ -371,12 +371,12 @@ export const caseStudies = [
         ],
       },
       {
-        id: "limitations",
-        label: "Limitations",
+        id: "scope",
+        label: "Scope",
         heading: "What this measures, and what it does not",
         body: [
           "This measures registered providers, not delivered care. NPPES records a self reported practice address and a self selected taxonomy, and a provider who works across three counties appears in one. A provider who has retired without deactivating an NPI still counts. Nothing here captures whether a listed provider takes new patients, accepts Medicaid, or has a six month wait.",
-          "Geography is approximate at the edges. ZIPs are assigned whole to the county holding the largest share of their land area, so a ZIP that straddles a county line lands entirely on one side. Connecticut ZIPs route through a centroid based crosswalk with the same limitation. Some providers fail the ZIP lookup outright and drop out of the county layer.",
+          "Geography is approximate at the edges. ZIPs are assigned whole to the county holding the largest share of their land area, so a ZIP that straddles a county line lands entirely on one side. Connecticut ZIPs route through a centroid based crosswalk with the same edge problem. Some providers fail the ZIP lookup outright and drop out of the county layer.",
           "The vintages are mixed. County population comes from the 2022 ACS, the demand features from 2024, and the metro reference from the 2023 delineation. The manifest records this rather than hiding it, but a reader comparing two runs should check it first.",
           "The tier thresholds are a judgment call, not a standard. Zero, five, ten and twenty providers per 100,000 are reasonable cut points, and a different set would move counties between tiers. Only the zero threshold is unarguable, which is one more reason the headline sits there.",
         ],
