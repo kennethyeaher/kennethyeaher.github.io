@@ -177,11 +177,26 @@ export const caseStudies = [
       {
         id: "recommendations",
         label: "Recommendations",
-        heading: "The final strategy connected inclusive access with measurable action",
+        heading: "Six recommendations, and two of them specific enough to buy",
         body: [
-          "We recommended expanding and updating the persona system, strengthening social engagement, adding interactive digital tools, tracking participation over time, and building long-term community engagement into the communications cadence.",
-          "The personas and maps made those recommendations easier to evaluate because every proposal could be traced to a resident need and a point in the experience.",
+          "We gave the city six recommendations: update the personas every year, improve engagement platform by platform, add an interactive digital tool, track participation properly, build long term partnerships with schools and campus groups, and use the deliverables in day to day communication rather than filing them. Four of those are the kind of advice any consultancy hands over. Two were specific enough to act on the same week.",
+          "The first was moving event management off Nextdoor and onto Eventbrite, for the analytics. Eventbrite reports RSVP counts and attendee demographics, integrates with Google Analytics, collects structured post-event surveys, and publishes event pages in more than one language. That last point carries more weight than it looks like it should, because the bilingual access problem running through this project is partly a tooling problem and not only a translation one.",
+          "The second was replacing Hootsuite. The audit found four problems with it for a team this size: pricing that climbs steeply as seats are added, an interface with a real learning curve, thin collaboration tools, and accessibility support behind competitors that ship captioning and alt text properly. We costed five alternatives rather than naming one, because the right answer depends on whether the city optimises for budget or for governance.",
+          "The recommendation I would defend hardest is the first one on that list. Five profiles built from thirty three survey responses and a semester of conversations are a starting position, not a finished instrument. They are worth more to the city as something maintained every year than as something delivered once.",
         ],
+        artifact: {
+          eyebrow: "Social media audit · tooling",
+          title: "Five replacements for Hootsuite, costed for a municipal team",
+          columns: ["Tool", "Entry price", "Why it was on the list"],
+          rows: [
+            ["Sprout Social", "$249 per user per month", "Government tailored plans, strongest analytics, geotagging and alt text"],
+            ["Loomly", "$42 per month per seat", "Collaborative approval workflows, discounts for government and non-profits"],
+            ["Buffer", "$6 per month per channel", "Simplest interface and cheapest path for a small team, thin partner posting"],
+            ["Statusbrew", "$6 per month per channel", "Buffer’s price with SubRip caption upload for video accessibility"],
+            ["Sprinklr", "Custom, by consultation", "Thirty plus channels, AI sentiment analysis, enterprise approval governance"],
+          ],
+          note: "Prices as quoted in the December 2024 audit. Any of them would need re-checking before a purchase.",
+        },
       },
       {
         id: "evidence",
