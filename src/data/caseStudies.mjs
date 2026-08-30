@@ -741,7 +741,7 @@ export const caseStudies = [
     team: "Five-person INFM600 team; I managed the project and led the design direction",
     skills: ["Information architecture", "Interaction design", "Design systems", "Service design", "Figma", "Accessibility"],
     summary:
-      "A redesign of a campus health hub around one measure: how long it takes a University of Maryland student to go from noticing a symptom to knowing what to do about it.",
+      "A redesign of a campus health hub built around one measure: how long a University of Maryland student takes to go from noticing a symptom to knowing what to do about it.",
     cardImage: "/images/work/terpcarehub/cover-gradient-poster.png",
     cardAlt: "TerpCareHub motion cover in University of Maryland red and gold",
     heroImage: "/images/work/terpcarehub/cover-gradient-poster.png",
@@ -773,18 +773,18 @@ export const caseStudies = [
         label: "Opportunity",
         heading: "Campus health information is published in five places at once",
         body: [
-          "TerpCareHub began as an INFM600 group project: a centralized health hub for the University of Maryland. The team delivered a pitch and a working site. Neither answered the question the problem research kept circling, which is what a student is supposed to do at the moment they actually need care.",
-          "The Health Center, the Counseling Center, Prince George's County public health, student-organization accounts, and emergency email all publish separately, in different formats, with no shared vocabulary. This design direction is my own, and it treats that fragmentation as a timing problem rather than a content problem.",
+          "TerpCareHub started as an INFM600 group project, a centralized health hub for the University of Maryland. The team delivered a pitch and a working site. Neither one answered the question our problem research kept circling back to, which is what a student should actually do at the moment they need care.",
+          "Five sources publish campus health information on their own: the Health Center, the Counseling Center, Prince George's County public health, student organization accounts, and emergency email. Different formats, no shared vocabulary, no agreement on what counts as urgent. I led this redesign, and it treats that split as a timing problem rather than a content problem.",
         ],
-        media: [{ src: "/images/work/terpcarehub/home-hero.png", alt: "TerpCareHub marketing hero in the university palette", caption: "The redesigned hero states the promise in the university's own colours, with the product's real interface language behind it." }],
+        media: [{ src: "/images/work/terpcarehub/home-hero.png", alt: "TerpCareHub marketing hero in the university palette", caption: "The redesigned hero states the promise in the university's own colours, using the product's real interface language behind it." }],
       },
       {
         id: "measure",
         label: "The measure",
         heading: "Time to awareness, mapped hour by hour",
         body: [
-          "I mapped one student's Sunday night across the systems that exist today. Fever at 11:02 PM. Four sources checked. Twenty-two minutes of searching. No decision reached. An appointment finally taken at 2:40 PM the next afternoon, at the cost of a missed lecture.",
-          "The low point of that map is not the overnight wait. It is minute twenty-two, when the search ends without an answer. Every design decision in the rest of this project is argued against that moment rather than against a feature list.",
+          "I mapped one student's Sunday night across the systems that exist today. A fever starts at 11:02 PM. She checks four sources over twenty-two minutes and reaches no decision, gives up, and takes an appointment at 2:40 PM the next afternoon. She misses a lecture to do it.",
+          "The worst moment on that map is not the overnight wait. It is minute twenty-two, when the search ends and she still does not know what to do. I argued every later design decision against that moment instead of against a feature list.",
         ],
         artifact: {
           eyebrow: "Current state",
@@ -804,20 +804,20 @@ export const caseStudies = [
       {
         id: "users",
         label: "Users",
-        heading: "Three proto-personas, each carrying the test that would confirm it",
+        heading: "Three proto-personas, each with the test that would confirm it",
         body: [
-          "The product depends on three people rather than one. A student in an acute moment, a student-organization wellness chair who supplies events, and a county health communications officer who supplies advisories. A campus health hub with no submitters and no county feed is just a static page.",
-          "These are proto-personas, built from the project's problem research, the Health Center and Counseling Center service pages, and county health communications. They are not drawn from interviews I ran. Each card states its assumption in the open and names the study that would confirm or kill it, so the rationale can be checked rather than taken on trust.",
+          "The product depends on three people, not one. A student in an acute moment, a wellness chair from a student organization who supplies the events, and a county health communications officer who supplies the advisories. A campus health hub without submitters and without a county feed is only a static page.",
+          "These are proto-personas. I built them from the project's problem research, the Health Center and Counseling Center service pages, and county health communications. They are not drawn from interviews I ran. Each card states its assumption in the open and names the study that would confirm or kill it, so a reviewer can check the reasoning instead of taking it on trust.",
         ],
-        media: [{ src: "/images/work/terpcarehub/personas.png", alt: "Three proto-persona cards with goals, frustrations, design implications, and assumptions to test", caption: "Every persona ends in a design implication and an assumption to test, not a portrait." }],
+        media: [{ src: "/images/work/terpcarehub/personas.png", alt: "Three proto-persona cards with goals, frustrations, design implications, and assumptions to test", caption: "Every persona ends in a design implication and an assumption to test rather than a portrait." }],
       },
       {
         id: "information-architecture",
         label: "Information architecture",
         heading: "Six destinations, with sign-in and verification modelled",
         body: [
-          "The structure separates what a student can browse from what requires an account, and marks which content passes through source verification before it publishes. Those two facts drive most of the interaction design that follows.",
-          "Find Care and Submit an event did not exist in the group build. They are the two paths the personas actually need, and adding them changed the shape of the whole system.",
+          "The structure separates what a student can browse from what requires an account, and it marks which content passes source verification before it publishes. Those two facts drive most of the interaction design that follows.",
+          "Find Care and Submit an event did not exist in the group build. They are the two paths the personas need, and adding them changed the shape of the whole system.",
         ],
         artifact: {
           eyebrow: "Information architecture",
@@ -840,8 +840,8 @@ export const caseStudies = [
         label: "Task flows",
         heading: "Three flows carry the product",
         body: [
-          "Finding same-day care, publishing a wellness event, and moving a county advisory to a student who acts on it. Each flow is annotated with why it is shaped that way, because the reasoning is the part worth reviewing.",
-          "The submission flow is the one that changed most. An org leader who emails a staff member and hears nothing will not try twice, so review has a visible state, rejection carries a reason, and published events return view and sign-up counts to the person who submitted them.",
+          "The three are finding same-day care, publishing a wellness event, and moving a county advisory to a student who acts on it. I annotated each flow with the reason it is shaped that way, because the reasoning is the part worth reviewing.",
+          "The submission flow changed the most. An org leader who emails a staff member and hears nothing back will not try again, so review has a visible state, a rejection carries a reason, and a published event returns view and sign-up counts to the person who submitted it.",
         ],
         media: [
           { src: "/images/work/terpcarehub/flow-find-care.png", alt: "Find same-day care task flow with a decision branch", caption: "Find care. Filters are preset, cost is visible before the click, and sign-in is required only to book." },
@@ -853,8 +853,8 @@ export const caseStudies = [
         label: "Product",
         heading: "The decision moves onto the card",
         body: [
-          "The provider card is where the argument lands. Availability, plan acceptance, and expected cost sit on the card itself, because cost was the blocker that ended the search in the journey map and deferring it to a detail page recreates the dead end.",
-          "Alerts carry a severity tag applied at ingest, a source badge, and a timestamp that travel together, so an advisory keeps its authority when it is screenshotted and reshared out of the product. High-severity alerts have to be acknowledged rather than swiped away, and acknowledging says where the alert went.",
+          "The provider card carries the decision. Availability, plan acceptance, and expected cost sit on the card itself. Cost was the blocker that ended the search in the journey map, and pushing it to a detail page would rebuild the same dead end one screen further in.",
+          "Alerts carry a severity tag applied at ingest, a source badge, and a timestamp. Those three travel together, so an advisory keeps its authority after someone screenshots it and reshares it outside the product. A high-severity alert has to be acknowledged rather than swiped away, and acknowledging it says where the alert went.",
         ],
         media: [
           { src: "/images/work/terpcarehub/provider-card.png", alt: "Provider card showing status, next availability, plan acceptance, and cost", caption: "Provider card. Three facts answer the decision before any click." },
@@ -868,8 +868,8 @@ export const caseStudies = [
         label: "Design system",
         heading: "Tokens, components, and the states most concepts skip",
         body: [
-          "The original file had no components, no text styles, and three font families competing across five pages. I rebuilt it on a token collection for colour, spacing, and radius, a ten-step type ramp, and nine components carrying written descriptions of the decision each one encodes.",
-          "The interface states are the part I would point a reviewer at first. An empty result proposes the specific fix and says what it will find. Loading names what is being checked. Degraded data is labelled rather than silently served, which for a health product is the state that actually matters. Mobile is a designed surface rather than a resize, because mobile-first was the primary need the original research named.",
+          "The original file had no components, no text styles, and three font families competing across five pages. I rebuilt it on a token collection for colour, spacing, and radius, a ten-step type ramp, and nine components. Each component carries a written description of the decision it encodes.",
+          "The interface states are the part I would point a reviewer at first. An empty result proposes a specific fix and says what that fix will find. Loading names what is being checked. Degraded data is labelled rather than served quietly, which for a health product is the state that matters most. Mobile is designed rather than resized, because mobile-first was the primary need the original research named.",
         ],
         media: [
           { src: "/images/work/terpcarehub/interface-states.png", alt: "Four interface states with the reasoning written under each", caption: "Empty, loading, degraded, and confirmation states, each annotated with why it behaves that way." },
@@ -883,9 +883,9 @@ export const caseStudies = [
         label: "Reflection",
         heading: "What I would test first",
         body: [
-          "This project taught me to design against a measurement rather than a feature list. Naming time to awareness early made the arguments concrete: it decided where authentication sits, which three facts earn space on a card, and why an empty state has to propose a next move instead of an apology.",
-          "The honest limit is that this redesign has not met a user yet, and I know what that costs. The sixty-plus physician interviews behind Frontground and the two survey cohorts in my College Park capstone are both in this portfolio, and both moved decisions I would otherwise have gotten wrong. Research is the part of this work I most want to keep doing.",
-          "So the plan is specific. A five-participant task test on one instruction, find somewhere you could be seen today, with a target of under ninety seconds and no more than one wrong turn. Interviews with three organization wellness chairs on their real time-to-publish. A feasibility conversation with county communications about whether an institutional feed would clear their approval process at all. Those three studies would confirm or kill most of what this file assumes, and every persona card already names which one applies to it.",
+          "This project taught me to design against a measurement instead of a feature list. Naming time to awareness early made the arguments concrete. It decided where authentication sits, which three facts earn space on a card, and why an empty state has to propose a next move rather than apologize.",
+          "The honest limit is that this redesign has not met a user yet, and I know what that costs. The sixty-plus physician interviews behind Frontground and the two survey cohorts in my College Park capstone are both in this portfolio, and both changed decisions I would otherwise have gotten wrong. Research is the part of this work I most want to keep doing.",
+          "The plan for that is specific. A five-participant task test on one instruction, find somewhere you could be seen today, with a target of under ninety seconds and no more than one wrong turn. Interviews with three organization wellness chairs about how long publishing an event really takes them today. A feasibility conversation with county communications about whether an institutional feed would clear their approval process at all. I think those three studies would confirm or kill most of what this file assumes, and every persona card already names which one applies to it.",
         ],
       },
     ],
