@@ -112,10 +112,12 @@ test("the Capstone preserves the two survey cohorts and their decision evidence"
     residents: 9,
   });
   assert.deepEqual(survey.artifact.rows, [
-    ["UMD students", "Event attendance", "22 of 24 had not attended a city event", "Close the discovery gap"],
-    ["UMD students", "Preferred updates", "20 of 23 chose social media; 9 email; 9 text", "Use a coordinated channel mix"],
-    ["UMD students", "Interest", "16 of 24 were at least somewhat interested", "Interest existed before participation"],
-    ["College Park residents", "Preferred updates", "6 of 9 chose email; 5 text; 4 bulletins; 3 social", "Make direct updates easy to opt into"],
+    ["UMD students", "Event attendance", "22 of 24 had not attended a city event", "Discovery is the first problem, not persuasion"],
+    ["UMD students", "Channels followed", "17 of 24 followed none; 7 Instagram, 2 Twitter, 1 Facebook", "More posts on the same accounts will not reach them"],
+    ["UMD students", "Interest", "14 somewhat interested, 2 very interested, 8 not interested", "Interest is real and it is not universal"],
+    ["UMD students", "Preferred updates", "20 of 23 chose social media; 9 email; 9 text; 6 bulletins; 4 campus calendar", "No single channel covers the cohort"],
+    ["College Park residents", "Channels followed", "4 of 9 followed none; 3 Facebook, 2 Instagram, 2 Twitter", "The same gap appears, on nine answers"],
+    ["College Park residents", "Preferred updates", "6 of 9 chose email; 5 text; 4 bulletins; 3 social", "Residents ask for direct channels, students ask for social"],
   ]);
 });
 

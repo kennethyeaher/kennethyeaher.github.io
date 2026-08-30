@@ -96,23 +96,26 @@ export const caseStudies = [
       {
         id: "survey-audit",
         label: "Survey + audit",
-        heading: "The surveys exposed an awareness gap, not an interest gap",
+        heading: "Most students had never attended, and most followed nothing the city posts",
         body: [
-          "We ran separate surveys for University of Maryland students and College Park residents. Among 24 student respondents, 22 had never attended a City of College Park event, yet 16 were at least somewhat interested in hearing more. The opportunity was not simply creating demand; it was making city activity easier to discover and recognize as relevant.",
-          "Channel preferences clarified how to close that gap. Twenty of 23 students who answered the update question selected social media, while email and text each received nine selections. Among nine resident respondents, email led with six selections, followed by text with five, campus bulletins or newsletters with four, and social media with three.",
-          "The audit produced practical recommendations around accessibility, interactive community pride, balanced content, visual storytelling, campaign awareness, and clearer measures of success.",
+          "We ran two surveys, one for University of Maryland students and one for College Park residents. Twenty two of the twenty four students had never attended a City of College Park event. Seventeen followed none of the city’s accounts at all. Seven followed Instagram, two Twitter, one Facebook. The city was publishing into a place these students were not standing.",
+          "Interest was real and it was not universal. Fourteen students said they were somewhat interested in hearing more and two said very interested. Eight said they were not interested at all. That is a third of the cohort, and it puts a ceiling on what better communication alone can do.",
+          "Channel preferences pointed in two directions. Twenty of the twenty three students who answered chose social media, with nine each for email and text, six for campus bulletins, and four for the campus calendar. The nine residents inverted it: six chose email, five text, four bulletins, three social. One channel strategy was never going to serve both groups.",
+          "The social media audit ran alongside the surveys and closed on six recommendations: accessibility, interactivity and community pride, broader and more balanced content, visual storytelling, cross promotion, and measurement.",
         ],
         artifact: {
           eyebrow: "Survey findings · two audiences",
-          title: "Participation was low, but the right communication mix could unlock interest",
+          title: "Two cohorts, two channel habits, and one reach problem",
           columns: ["Audience", "Signal", "Result", "Design implication"],
           rows: [
-            ["UMD students", "Event attendance", "22 of 24 had not attended a city event", "Close the discovery gap"],
-            ["UMD students", "Preferred updates", "20 of 23 chose social media; 9 email; 9 text", "Use a coordinated channel mix"],
-            ["UMD students", "Interest", "16 of 24 were at least somewhat interested", "Interest existed before participation"],
-            ["College Park residents", "Preferred updates", "6 of 9 chose email; 5 text; 4 bulletins; 3 social", "Make direct updates easy to opt into"],
+            ["UMD students", "Event attendance", "22 of 24 had not attended a city event", "Discovery is the first problem, not persuasion"],
+            ["UMD students", "Channels followed", "17 of 24 followed none; 7 Instagram, 2 Twitter, 1 Facebook", "More posts on the same accounts will not reach them"],
+            ["UMD students", "Interest", "14 somewhat interested, 2 very interested, 8 not interested", "Interest is real and it is not universal"],
+            ["UMD students", "Preferred updates", "20 of 23 chose social media; 9 email; 9 text; 6 bulletins; 4 campus calendar", "No single channel covers the cohort"],
+            ["College Park residents", "Channels followed", "4 of 9 followed none; 3 Facebook, 2 Instagram, 2 Twitter", "The same gap appears, on nine answers"],
+            ["College Park residents", "Preferred updates", "6 of 9 chose email; 5 text; 4 bulletins; 3 social", "Residents ask for direct channels, students ask for social"],
           ],
-          note: "Counts transcribed from the survey charts on pages 15–17 of the supplied Capstone Final Report. Channel questions allowed multiple selections.",
+          note: "Counts read from the survey charts on pages 15 to 17 of the final report. The channel questions allowed multiple selections, so those rows do not sum to the cohort. Twenty three of the twenty four students answered the preference question.",
         },
         media: [
           {
