@@ -214,7 +214,7 @@ test("case-study records preserve the approved evidence boundaries", () => {
   const terpcare = getProjectBySlug("terpcare");
   const terpcarehub = getProjectBySlug("terpcarehub");
 
-  assert.deepEqual(capstone.metrics.map(({ value }) => value), ["5", "3"]);
+  assert.deepEqual(capstone.metrics.map(({ value }) => value), ["17 of 24", "5", "3"]);
   assert.equal(ovara.evidence.modelStatus, "negative result at state level, direct count at county level");
   assert.equal(ovara.evidence.crossValidationR2, 0.1244);
   assert.equal(ovara.evidence.zeroProviderCounties, 1029);

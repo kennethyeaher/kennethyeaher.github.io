@@ -38,7 +38,8 @@ export const caseStudies = [
       },
     ],
     metrics: [
-      { value: "5", label: "research-backed personas" },
+      { value: "17 of 24", label: "students followed no city channel" },
+      { value: "5", label: "personas from 33 responses and field interviews" },
       { value: "3", label: "resident journey maps" },
     ],
     evidence: {
@@ -133,10 +134,11 @@ export const caseStudies = [
       {
         id: "personas",
         label: "Personas",
-        heading: "Five personas kept the strategy accountable to real differences",
+        heading: "Five personas built from two surveys and a semester of conversations",
         body: [
-          "Jessica, Alex, Priya, Tyler, and Maria represented distinct relationships to College Park: an engaged parent, a young professional, an on-campus student leader, an off-campus student, and a Spanish-speaking community member.",
-          "Each profile combined goals, routines, attitudes, and participation barriers. Together they gave the client a concrete way to ask who a communication decision served and who it might miss.",
+          "Jessica, Alex, Priya, Tyler, and Maria stand for five different relationships to College Park: an engaged parent eight years in, a married graphic designer three years in with no children, an on-campus student leader, an off-campus junior, and a Spanish speaking mother of a four year old.",
+          "Each profile has two frames. The first carries the photograph, the basics, and a seven axis personality scale. The second carries motivations, frustrations, goals, preferred communication channels, and quotes. Both are on this page, because the second frame is where the research actually sits and showing only the first one would have been the flattering choice.",
+          "The channel rows are the part the surveys measured. Age, household, occupation, and the personality scales came out of contextual interviews and the team’s reading of them. That makes these a shared vocabulary for talking about residents, not a description of the population, and the difference matters the moment someone uses a persona to justify a decision.",
         ],
         media: [
           { src: "/images/work/capstone/persona-jessica.png", alt: "Jessica persona card with photo, the label Engaged Parent, age 34, stay at home mom working part time at a library, married with two children aged 6 and 10, eight years in College Park, a bio, and a seven axis personality scale", caption: "Jessica, the engaged parent, and the longest settled of the five at eight years in College Park.", wide: true },
