@@ -295,19 +295,10 @@ export const caseStudies = [
           "The second was a denominator. The function that built state population summed a metro reference table that carries the whole metro's population on every county row, so the twenty nine county Atlanta metro added its 6,411,149 residents twenty nine times. Georgia's denominator came to 198,940,717 against a true 10,722,325. The fifty one state populations summed to 2,187,759,309, roughly 6.6 times the country. The inflation ran 0.32x to 28.8x, so it scrambled the state ranking rather than scaling it. National density moved from 4.55 to 30.06 per 100,000, and the thinnest states changed from New Jersey, Virginia, Georgia and Indiana to Arkansas, Alabama, North Dakota and Mississippi. The corrected order matches published maternity care desert research. The order I had shipped contradicted it.",
           "The third was target leakage, and it is the one I would have been least likely to catch by looking at output. The best scoring feature was growth_per_100k, which is recent provider growth divided by state population. The target is provider count divided by state population. Recently enumerated providers are a strict subset of the provider count in all fifty one states, averaging 5.8 percent of the workforce. The feature was a piece of the answer over the same denominator, and the model was scoring itself on information it should not have had.",
           "Each of the three now has a test or a runtime guard that fails if it comes back.",
+          "The residents figure was overstated by 33 percent for as long as the Connecticut bug was live. That is the number I would have quoted in an interview.",
         ],
-        artifact: {
-          eyebrow: "Audit log",
-          title: "What was published, what was true, and what stops it recurring",
-          columns: ["Correction", "Published", "Corrected", "Guard"],
-          rows: [
-            ["Connecticut geography vintage", "0 CT providers, 1,038 deserts, 14,529,192 residents", "1,275 CT providers, 1,029 deserts, 10,917,875 residents", "build_county_dataset raises if crosswalk and population geography diverge"],
-            ["State population denominator", "4.55 providers per 100k, GA denominator 198,940,717", "30.06 providers per 100k, GA denominator 10,722,325", "check_population_plausible raises outside 400,000 to 45,000,000"],
-            ["Target leakage in the regression", "CV R2 +0.3253 on a leaking feature", "CV R2 +0.1244 on taxonomy diversity alone", "A test fails if any feature derived from provider_count returns to FEATURE_COLUMNS"],
-          ],
-          note: "The residents figure was overstated by 33 percent for as long as the Connecticut bug was live. That is the number I would have quoted in an interview.",
-        },
         media: [
+          { src: "/images/work/ovara/ovara-corrections.png", alt: "Three correction panels showing what was published, what was true, the failure mechanism, and the guard that now catches each one", caption: "The denominator was holding cross validated R2 at -0.39. Correcting it lifted the same model to +0.33, and that was the score that exposed the leak.", wide: true },
           { src: "/images/work/ovara/ovara-density-by-state.png", alt: "Bar chart of reproductive health providers per 100,000 residents by state, thinnest states highlighted", caption: "The corrected per capita ranking. On the broken denominator this chart put New Jersey and Virginia at the thin end.", wide: true },
         ],
       },
