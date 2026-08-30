@@ -213,8 +213,11 @@ test("case-study records preserve the approved evidence boundaries", () => {
   const garden = getProjectBySlug("cognitive-wellness-garden");
 
   assert.deepEqual(capstone.metrics.map(({ value }) => value), ["5", "3"]);
-  assert.equal(ovara.evidence.modelStatus, "exploratory screening tool");
-  assert.equal(ovara.evidence.crossValidationR2, -0.226);
+  assert.equal(ovara.evidence.modelStatus, "negative result at state level, direct count at county level");
+  assert.equal(ovara.evidence.crossValidationR2, 0.1244);
+  assert.equal(ovara.evidence.zeroProviderCounties, 1029);
+  assert.equal(ovara.evidence.populationInZeroProviderCounties, 10917875);
+  assert.equal(ovara.evidence.stateRiskTiers, false);
   assert.equal(kairo.evidence.syntheticDocuments, 150);
   assert.equal(kairo.evidence.heavyNoiseUndertriage, "2 of 30");
   assert.equal(terpcare.evidence.directUserTesting, false);
