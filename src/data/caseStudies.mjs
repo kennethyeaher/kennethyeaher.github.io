@@ -198,7 +198,7 @@ export const caseStudies = [
     role: "Data Scientist",
     timeline: "January to May 2026",
     team: "Independent project",
-    skills: ["Python", "ETL", "Regression", "Geospatial joins", "Dash", "Data visualization"],
+    skills: ["Python", "ETL", "Regression", "Geospatial joins", "Dash", "Data visualization", "Interaction design", "Accessibility"],
     summary:
       "A seventeen stage pipeline and dashboard that counts reproductive health providers against Census population, and an audit that found three published numbers wrong before anyone else did.",
     cardImage: "/images/work/ovara/cover-gradient-poster.png",
