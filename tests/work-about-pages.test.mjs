@@ -34,7 +34,7 @@ test("the Work page renders the approved thesis and project order", () => {
     "/work/ovara",
     "/work/kairo-health",
     "/work/terpcare",
-    "/work/cognitive-wellness-garden",
+    "/work/terpcarehub",
   ];
   const positions = routes.map((route) => workHtml.indexOf(`href="${route}"`));
 

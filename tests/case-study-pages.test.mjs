@@ -10,7 +10,7 @@ const slugs = [
   "ovara",
   "kairo-health",
   "terpcare",
-  "cognitive-wellness-garden",
+  "terpcarehub",
 ];
 const pages = new Map();
 
@@ -95,9 +95,9 @@ test("the renamed capstone and expanded product evidence render publicly", () =>
 
 test("previous and next project links wrap without dead ends", () => {
   const first = pages.get("college-park-capstone");
-  const last = pages.get("cognitive-wellness-garden");
+  const last = pages.get("terpcarehub");
 
-  assert.match(first, /href="\/work\/cognitive-wellness-garden"/);
+  assert.match(first, /href="\/work\/terpcarehub"/);
   assert.match(first, /href="\/work\/ovara"/);
   assert.match(last, /href="\/work\/terpcare"/);
   assert.match(last, /href="\/work\/college-park-capstone"/);

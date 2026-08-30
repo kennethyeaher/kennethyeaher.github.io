@@ -15,7 +15,7 @@ const expectedOrder = [
   "ovara",
   "kairo-health",
   "terpcare",
-  "cognitive-wellness-garden",
+  "terpcarehub",
 ];
 
 test("featured work returns the approved five projects in narrative order", () => {
@@ -37,10 +37,10 @@ test("every project has a unique slug and every navigation target resolves", () 
 test("adjacent-project navigation wraps without a dead end", () => {
   assert.equal(
     getAdjacentProject("college-park-capstone", "previous").slug,
-    "cognitive-wellness-garden",
+    "terpcarehub",
   );
   assert.equal(
-    getAdjacentProject("cognitive-wellness-garden", "next").slug,
+    getAdjacentProject("terpcarehub", "next").slug,
     "college-park-capstone",
   );
 });
@@ -75,7 +75,7 @@ test("every featured project carries a project-palette motion cover and a substa
     ["ovara", 8],
     ["kairo-health", 8],
     ["terpcare", 7],
-    ["cognitive-wellness-garden", 5],
+    ["terpcarehub", 8],
   ]);
 
   for (const project of projects) {
@@ -210,7 +210,7 @@ test("case-study records preserve the approved evidence boundaries", () => {
   const ovara = getProjectBySlug("ovara");
   const kairo = getProjectBySlug("kairo-health");
   const terpcare = getProjectBySlug("terpcare");
-  const garden = getProjectBySlug("cognitive-wellness-garden");
+  const terpcarehub = getProjectBySlug("terpcarehub");
 
   assert.deepEqual(capstone.metrics.map(({ value }) => value), ["5", "3"]);
   assert.equal(ovara.evidence.modelStatus, "negative result at state level, direct count at county level");
@@ -221,7 +221,7 @@ test("case-study records preserve the approved evidence boundaries", () => {
   assert.equal(kairo.evidence.syntheticDocuments, 150);
   assert.equal(kairo.evidence.heavyNoiseUndertriage, "2 of 30");
   assert.equal(terpcare.evidence.directUserTesting, false);
-  assert.equal(garden.evidence.participantValidation, false);
+  assert.equal(terpcarehub.evidence.directUserTesting, false);
 });
 
 test("unknown slugs fail closed", () => {
