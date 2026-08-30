@@ -281,7 +281,7 @@ export const caseStudies = [
           note: "The publish layer reads only what the analyze layer wrote. A figure and the dashboard cannot disagree, because neither one does its own arithmetic.",
         },
         media: [
-          { src: "/images/work/ovara/ovara-pipeline.png", alt: "Ovara source and pipeline overview", caption: "Six federal sources become one traceable set of outputs." },
+          { src: "/images/work/ovara/ovara-pipeline.png", alt: "Lineage diagram tracing 100,644 provider rows down to the 1,029 counties with no provider, naming the rows lost at every hop", caption: "The count falls at four points inside the pipeline, and every fall is a named filter or a failed join.", wide: true },
           { src: "/images/work/ovara/ovara-taxonomy.png", alt: "Reproductive health provider counts by taxonomy code, grouped into OB/GYN, midwifery, and nurse practitioner categories", caption: "Who counts as a provider is a decision, so the chart shows the whole definition rather than a total." },
         ],
       },
