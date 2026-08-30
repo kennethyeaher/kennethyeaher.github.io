@@ -54,18 +54,14 @@ export const caseStudies = [
         heading: "Making city communication easier to enter",
         body: [
           "The City of College Park serves families, students, long-time residents, and bilingual households through many separate channels. Our capstone team studied how people discovered city programs, where communication lost momentum, and what would make participation feel more relevant.",
-          "As project manager, I led the client relationship with Assistant City Manager Bill Gardiner, coordinated our institutional advisors, and kept research, synthesis, and presentation work aligned with the city’s goals.",
+          "As project manager, I led the client relationship with Assistant City Manager Bill Gardiner, coordinated our institutional advisors, and kept research, synthesis, and presentation work aligned with the city’s goals. The client team also included Katherine Garcia, the bilingual communications coordinator, and Ryna Quinones, the communications and events manager. Garcia’s title is the reason the bilingual access thread in this project was never incidental. The city already had someone responsible for it.",
         ],
         media: [
           {
-            src: "/images/work/capstone/capstone-team.png",
-            alt: "Capstone teammates collaborating during an early team exercise",
-            caption: "I set the team rhythm early: shared ownership, visible decisions, and a direct line from evidence to deliverable.",
-          },
-          {
             src: "/images/work/capstone/capstone-intention.png",
-            alt: "Reflection slide showing the project intention and planning notes",
-            caption: "A social-impact intention kept the work centered on community access throughout the semester.",
+            alt: "Course slide titled Setting the Intention, showing a photograph of a board of handwritten sticky notes with an arrow labelled My sticky note pointing to one that reads Providing Social Impact",
+            caption: "The class opened by writing down what we each wanted from the semester. Mine reads providing social impact. Most of the rest ask for hands on experience, which is a fair account of what a capstone is for.",
+            wide: true,
           },
         ],
       },
@@ -83,14 +79,14 @@ export const caseStudies = [
         label: "Field research",
         heading: "Research happened where civic life was already happening",
         body: [
-          "We combined interviews, surveys, and contextual inquiry at College Park Day, Friday Night LIVE!, and local outreach events. Observing the experience in context showed the distance between publishing information and helping a resident act on it.",
+          "We combined the two surveys with contextual interviews at three city events: College Park Day, Good Neighbor Day, and Friday Night LIVE. Observing the experience in context showed the distance between publishing information and helping a resident act on it.",
           "Face-to-face conversations made two needs especially clear: Spanish-speaking families wanted more consistent bilingual access, while students wanted city initiatives to feel connected to their lives rather than adjacent to campus.",
         ],
         media: [
           {
             src: "/images/work/capstone/capstone-fieldwork.png",
-            alt: "Photographs from City of College Park community events used for contextual inquiry",
-            caption: "Fieldwork put the research inside the moments where residents encountered city outreach.",
+            alt: "Five photographs from College Park Day 2024: the printed hand fan, its reverse showing the Family Stage and Main Stage schedule over a site map, the inflatable welcome arch, a street of vendor tents, and families queuing at a bounce house",
+            caption: "College Park Day 2024. The stage times and the site map were printed on the back of a hand fan, which is the kind of thing you only learn by standing there.",
           },
         ],
       },
