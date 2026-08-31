@@ -52,7 +52,7 @@ test("the Work page renders the approved thesis and newest-first project order",
 
 test("the About page is HCI-focused and renders no fake photo placeholders", () => {
   assert.match(aboutHtml, /Human-computer interaction is the thread connecting my work/);
-  assert.match(aboutHtml, /more than 60 physician interviews/);
+  assert.match(aboutHtml, /iPad-first electronic medical record/);
   assert.match(aboutHtml, /USM Maryland Momentum Fund/);
   assert.match(aboutHtml, /data-about-gallery/);
   assert.doesNotMatch(aboutHtml, /placeholder/i);

@@ -12,7 +12,7 @@ export const profile = {
   aboutParagraphs: [
     "Human-computer interaction is the thread connecting my work. I’m a Master of Information Management student at the University of Maryland, and I start projects by learning how people actually navigate a system before I decide what to build, measure, or recommend.",
     "That approach is personal. I was born in Monrovia, Liberia, where many clinics still run on paper. The gap between what technology can do and who can reliably use it pulled me toward healthcare access, product research, and the decisions behind both.",
-    "I have built and evaluated companies. As the founder of Frontground, I raised $25K in non-dilutive funding and ran more than 60 physician interviews for a mobile-first electronic medical record for low-resource clinics. At the USM Maryland Momentum Fund, I screened companies, led sourcing-stage diligence, supported expert panels, and co-authored investment work for the fund’s leadership.",
+    "I have built and evaluated companies. As the founder of Frontground, I raised $25K in non-dilutive funding and ran physician interviews for an iPad-first electronic medical record for low-resource clinics. At the USM Maryland Momentum Fund, I screened companies, led sourcing-stage diligence, supported expert panels, and co-authored investment work for the fund’s leadership.",
     "I also work from raw data to a decision someone can act on. At Towers Surgical Partners, I built Python ETL pipelines and Tableau dashboards that helped leadership see provider coverage, referral patterns, and revenue-cycle problems more clearly. Across product, venture, and data work, my job is the same: find the signal, explain it plainly, and make the next move more useful for the people involved.",
   ],
   availability:
@@ -122,7 +122,7 @@ export const roles = [
     period: "Sept 2022 to May 2024",
     bullets: [
       "Founded and led an early stage health tech startup from concept to go to market, securing $25K in non dilutive funding across competitive pitch processes, including the Pitch Dingman Competition Social Impact Award.",
-      "Ran more than 60 physician interviews across Liberian healthcare facilities to validate product market fit and map adoption barriers, turning primary field research into the product roadmap.",
+      "Ran physician interviews across Liberian healthcare facilities to validate product market fit and map adoption barriers, turning primary field research into the product roadmap.",
       "Built and managed relationships with physicians and health administrators in Monrovia and university advisors, converting their feedback into product and partnership decisions.",
     ],
   },
