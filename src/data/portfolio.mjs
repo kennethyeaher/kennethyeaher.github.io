@@ -386,7 +386,6 @@ export const aboutGallery = [
   { src: "/images/about/about-08.jpg", alt: "With friends before a night out" },
   { src: "/images/about/about-09.jpg", alt: "Full squad and supporters on the track" },
   { src: "/images/about/about-10.jpg", alt: "Talking with a teammate on the sideline" },
-  { src: "/images/about/about-11.jpg", alt: "Cherry blossoms on a Baltimore street corner" },
   { src: "/images/about/about-12.jpg", alt: "Looking out over a snowy mountain run" },
   { src: "/images/about/about-13.jpg", alt: "With friends outside Pat's King of Steaks in Philadelphia" },
 ];
