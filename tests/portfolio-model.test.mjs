@@ -11,16 +11,17 @@ import {
 } from "../src/data/portfolio.mjs";
 
 const expectedOrder = [
-  "frontground",
   "usm-venture-benchmark",
-  "college-park-capstone",
   "ovara",
   "kairo-health",
-  "terpcare",
   "terpcarehub",
+  "college-park-capstone",
+  "frontground",
+  "terpcare",
+  "sohive",
 ];
 
-test("featured work returns the approved seven projects in narrative order", () => {
+test("featured work returns the approved eight projects newest first", () => {
   assert.deepEqual(
     getFeaturedProjects().map((project) => project.slug),
     expectedOrder,
@@ -38,16 +39,16 @@ test("every project has a unique slug and every navigation target resolves", () 
 
 test("adjacent-project navigation wraps without a dead end", () => {
   assert.equal(
-    getAdjacentProject("frontground", "previous").slug,
-    "terpcarehub",
+    getAdjacentProject("usm-venture-benchmark", "previous").slug,
+    "sohive",
   );
   assert.equal(
-    getAdjacentProject("terpcarehub", "next").slug,
-    "frontground",
-  );
-  assert.equal(
-    getAdjacentProject("college-park-capstone", "previous").slug,
+    getAdjacentProject("sohive", "next").slug,
     "usm-venture-benchmark",
+  );
+  assert.equal(
+    getAdjacentProject("frontground", "previous").slug,
+    "college-park-capstone",
   );
 });
 
@@ -79,6 +80,7 @@ test("every featured project carries a project-palette motion cover and a substa
   const minimumSections = new Map([
     ["frontground", 8],
     ["usm-venture-benchmark", 5],
+    ["sohive", 8],
     ["college-park-capstone", 8],
     ["ovara", 8],
     ["kairo-health", 8],

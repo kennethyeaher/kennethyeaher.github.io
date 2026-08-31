@@ -380,10 +380,10 @@ export const aboutGallery = [
   },
 ];
 
-/** Seven publishable project records that drive the Work page and case studies. */
+/** Eight publishable project records that drive the Work page and case studies. */
 export const projects = caseStudies;
 
-/** Return the selected work in its approved narrative order. */
+/** Return the selected work in reverse chronological order, newest first. */
 export function getFeaturedProjects() {
   return [...projects];
 }
