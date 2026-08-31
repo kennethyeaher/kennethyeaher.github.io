@@ -12,7 +12,7 @@ export const caseStudies = [
     year: "2026",
     role: "Investment Associate",
     timeline: "Summer 2026",
-    team: "Two-person investment team",
+    team: "Solo capstone project for my internship, reviewed by the fund team",
     skills: ["Investment research", "Benchmark design", "Data normalization", "Evidence synthesis", "Data visualization", "Quality assurance"],
     summary:
       "A 29-profile benchmark of university venture ecosystems, turning fragmented public and licensed evidence into 22 normalized fields, a validated comparison matrix, and board-ready investment synthesis.",
