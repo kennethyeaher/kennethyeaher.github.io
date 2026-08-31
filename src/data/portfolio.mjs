@@ -57,6 +57,11 @@ export const experience = [
     organization: "Frontground",
     role: "Founder",
   },
+  {
+    year: "2021",
+    organization: "hiveSocial",
+    role: "Product Design Intern",
+  },
 ];
 
 /**
@@ -371,13 +376,19 @@ export const interests = [
  * be added here without rendering empty image placeholders in the meantime.
  */
 export const aboutGallery = [
-  {
-    src: "/images/kenneth.jpg",
-    alt: "Portrait of Kenneth Yeaher",
-    group: "01. Product specialist",
-    caption: "Listening first, then turning evidence into a product decision.",
-    ratio: "portrait",
-  },
+  { src: "/images/about/about-01.jpg", alt: "Techstars AI Health Baltimore, before the room filled up" },
+  { src: "/images/about/about-02.jpg", alt: "With three friends at a PwC recruiting event" },
+  { src: "/images/about/about-03.jpg", alt: "Carrying the ball upfield in a lacrosse game" },
+  { src: "/images/about/about-04.jpg", alt: "With my parents on the field after a home game" },
+  { src: "/images/about/about-05.jpg", alt: "The room at a student startup showcase" },
+  { src: "/images/about/about-06.jpg", alt: "With friends outside the stadium" },
+  { src: "/images/about/about-07.jpg", alt: "Team photo on the field after a win" },
+  { src: "/images/about/about-08.jpg", alt: "With friends before a night out" },
+  { src: "/images/about/about-09.jpg", alt: "Full squad and supporters on the track" },
+  { src: "/images/about/about-10.jpg", alt: "Talking with a teammate on the sideline" },
+  { src: "/images/about/about-11.jpg", alt: "Cherry blossoms on a Baltimore street corner" },
+  { src: "/images/about/about-12.jpg", alt: "Looking out over a snowy mountain run" },
+  { src: "/images/about/about-13.jpg", alt: "With friends outside Pat's King of Steaks in Philadelphia" },
 ];
 
 /** Eight publishable project records that drive the Work page and case studies. */

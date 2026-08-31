@@ -1,11 +1,8 @@
 ---
-// Future-ready photo journal that only renders real media currently available.
+// photo journal: a simple masonry grid, no per-photo labels or captions.
 interface GalleryItem {
   src: string;
   alt: string;
-  group: string;
-  caption: string;
-  ratio: string;
 }
 
 interface Props {
@@ -23,10 +20,8 @@ const { items } = Astro.props;
   <div class="gallery-grid">
     {
       items.map((item) => (
-        <figure class:list={["gallery-item", `is-${item.ratio}`]} data-reveal>
-          <p class="gallery-label">{item.group}</p>
-          <img src={item.src} alt={item.alt} loading="lazy" />
-          <figcaption>{item.caption}</figcaption>
+        <figure class="gallery-item" data-reveal>
+          <img src={item.src} alt={item.alt} loading="lazy" decoding="async" />
         </figure>
       ))
     }
@@ -45,8 +40,7 @@ const { items } = Astro.props;
     gap: 24px;
   }
 
-  .gallery-heading p,
-  .gallery-label {
+  .gallery-heading p {
     margin: 0;
     color: var(--muted);
     font-family: var(--mono);
@@ -64,40 +58,25 @@ const { items } = Astro.props;
   }
 
   .gallery-grid {
-    display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    gap: 24px;
+    column-count: 3;
+    column-gap: 20px;
   }
 
   .gallery-item {
-    grid-column: span 4;
-    margin: 0;
-  }
-
-  .gallery-label {
-    margin-bottom: 12px;
+    margin: 0 0 20px;
+    break-inside: avoid;
   }
 
   .gallery-item img {
+    display: block;
     width: 100%;
-    aspect-ratio: 4 / 5;
-    object-fit: cover;
-  }
-
-  .gallery-item figcaption {
-    max-width: 38ch;
-    margin-top: 10px;
-    color: #66727d;
-    font-size: 14px;
+    height: auto;
+    background: #eceff2;
   }
 
   @media (max-width: 860px) {
-    .gallery-heading {
-      grid-template-columns: 1fr;
-    }
-
-    .gallery-item {
-      grid-column: span 6;
+    .gallery-grid {
+      column-count: 2;
     }
   }
 
@@ -106,8 +85,8 @@ const { items } = Astro.props;
       margin-top: 80px;
     }
 
-    .gallery-item {
-      grid-column: 1 / -1;
+    .gallery-grid {
+      column-count: 1;
     }
   }
 </style>
