@@ -90,9 +90,17 @@ test("case-study covers render as full-bleed project-palette motion media", () =
 });
 
 test("the renamed capstone and expanded product evidence render publicly", () => {
-  assert.match(pages.get("usm-venture-benchmark"), /USM Venture Benchmark/);
-  assert.match(pages.get("usm-venture-benchmark"), /638 data cells/);
-  assert.match(pages.get("usm-venture-benchmark"), /zero field-level mismatches/);
+  const usm = pages.get("usm-venture-benchmark");
+
+  assert.match(usm, /USM Venture Benchmark/);
+  assert.match(usm, /638 data cells/);
+  assert.match(usm, /zero field-level mismatches/);
+  assert.match(usm, /brief-overview-redacted\.png/);
+  assert.match(usm, /brief-vehicles-redacted\.png/);
+  assert.match(usm, /brief-portfolio-redacted\.png/);
+  assert.match(usm, /brief-deep-dive-redacted\.png/);
+  assert.match(usm, /data-media-layout="lead-grid"/);
+  assert.doesNotMatch(usm, /figma\.com\/design\/Vi6MdEzxLKirckl6xpY2jJ/);
   assert.match(pages.get("college-park-capstone"), /Information Science Capstone/);
   assert.match(pages.get("terpcare"), /15-screen product system/);
   assert.match(pages.get("kairo-health"), /Deployment routing/);

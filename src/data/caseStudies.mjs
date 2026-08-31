@@ -207,12 +207,6 @@ export const caseStudies = [
       palette: ["#111111", "#E21833", "#A61022", "#F2B8BE", "#F6F3EE", "#6A737B"],
       titlePlacement: "center",
     },
-    links: [
-      {
-        label: "Open portfolio visuals in Figma",
-        href: "https://www.figma.com/design/Vi6MdEzxLKirckl6xpY2jJ",
-      },
-    ],
     metrics: [
       { value: "29", label: "finalized institution profiles" },
       { value: "22", label: "normalized comparison fields" },
@@ -248,6 +242,7 @@ export const caseStudies = [
         body: [
           "I used one six-page profile structure for every included institution, then mapped each claim into a twenty-two-field schema. Capital scale, check range, portfolio activity, student involvement, technology-transfer integration, and evergreen design stayed separate instead of being collapsed into one headline score.",
           "A source hierarchy decided what controlled when documents disagreed. Missing disclosure stayed n/d; it was never backfilled with a guess. That discipline produced twenty-nine finalized profiles and one matrix designed for comparison and synthesis.",
+          "My contribution spanned the full artifact: I normalized the research, designed the six-page brief system, and translated the evidence into comparable investment profiles.",
         ],
         media: [
           {
@@ -255,6 +250,26 @@ export const caseStudies = [
             alt: "Four-stage research system moving from source evidence to normalized profiles, a comparison matrix, and investment synthesis",
             caption: "The research system. Every recommendation keeps a visible path back through the matrix, profile, and source evidence.",
             wide: true,
+          },
+          {
+            src: "/images/work/usm-venture-benchmark/brief-overview-redacted.png",
+            alt: "Redacted finished benchmark brief overview showing the page hierarchy, metric row, executive summary, and chart column",
+            caption: "A finished profile overview. Institution names, financial figures, citations, and strategic findings are permanently redacted for the public portfolio.",
+          },
+          {
+            src: "/images/work/usm-venture-benchmark/brief-vehicles-redacted.png",
+            alt: "Redacted finished benchmark brief vehicle breakdown showing four stacked program cards",
+            caption: "The companion vehicle breakdown. Program names, values, citations, and analysis are permanently redacted.",
+          },
+          {
+            src: "/images/work/usm-venture-benchmark/brief-portfolio-redacted.png",
+            alt: "Redacted benchmark brief portfolio page showing a three-by-three company-card grid",
+            caption: "The portfolio evidence page. Company names, descriptions, financing values, citations, and conclusions are permanently redacted.",
+          },
+          {
+            src: "/images/work/usm-venture-benchmark/brief-deep-dive-redacted.png",
+            alt: "Redacted benchmark brief deep-dive page showing a two-column program analysis, evidence table, and pipeline diagram",
+            caption: "The programmatic deep dive. Institution-specific mechanisms, values, company names, citations, and strategic findings are permanently redacted.",
           },
         ],
       },

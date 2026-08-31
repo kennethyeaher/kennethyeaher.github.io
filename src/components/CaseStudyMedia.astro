@@ -13,10 +13,16 @@ interface Props {
 }
 
 const { media, priority = false } = Astro.props;
-const hasLeadPair =
-  media.length === 3 &&
+const hasLeadGrid =
+  media.length >= 3 &&
   Boolean(media[0]?.wide) &&
-  media.slice(1).every((item) => !item.wide);
+  media.slice(1).every((item) => !item.wide) &&
+  (media.length - 1) % 2 === 0;
+const mediaLayout = hasLeadGrid
+  ? media.length === 3
+    ? "lead-pair"
+    : "lead-grid"
+  : undefined;
 ---
 
 <div
@@ -24,10 +30,10 @@ const hasLeadPair =
     "case-media-grid",
     media.length > 1 && "is-multiple",
     media.length > 2 && "is-gallery",
-    hasLeadPair && "has-lead-pair",
+    hasLeadGrid && "has-lead-grid",
   ]}
   data-media-count={media.length}
-  data-media-layout={hasLeadPair ? "lead-pair" : undefined}
+  data-media-layout={mediaLayout}
 >
   {
     media.map((item, index) => (
@@ -58,7 +64,7 @@ const hasLeadPair =
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .case-media-grid.has-lead-pair {
+  .case-media-grid.has-lead-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 

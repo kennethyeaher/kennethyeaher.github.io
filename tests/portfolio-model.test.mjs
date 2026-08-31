@@ -128,17 +128,20 @@ test("the USM benchmark publishes its method and aggregate QA without confidenti
     media.map(({ src }) => src),
     [
       "/images/work/usm-venture-benchmark/research-system.png",
+      "/images/work/usm-venture-benchmark/brief-overview-redacted.png",
+      "/images/work/usm-venture-benchmark/brief-vehicles-redacted.png",
+      "/images/work/usm-venture-benchmark/brief-portfolio-redacted.png",
+      "/images/work/usm-venture-benchmark/brief-deep-dive-redacted.png",
       "/images/work/usm-venture-benchmark/comparison-model.png",
       "/images/work/usm-venture-benchmark/validation-grid.png",
       "/images/work/usm-venture-benchmark/transferability-lens.png",
     ],
   );
-  assert.deepEqual(usm.links, [
-    {
-      label: "Open portfolio visuals in Figma",
-      href: "https://www.figma.com/design/Vi6MdEzxLKirckl6xpY2jJ",
-    },
-  ]);
+  assert.equal("links" in usm, false);
+  assert.match(
+    usm.sections.find(({ id }) => id === "benchmark-system").body.join(" "),
+    /designed the six-page brief system/,
+  );
 });
 
 test("the civic case study uses the approved Information Science Capstone name", () => {
