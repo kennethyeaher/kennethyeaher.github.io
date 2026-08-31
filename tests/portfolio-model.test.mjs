@@ -11,6 +11,8 @@ import {
 } from "../src/data/portfolio.mjs";
 
 const expectedOrder = [
+  "frontground",
+  "usm-venture-benchmark",
   "college-park-capstone",
   "ovara",
   "kairo-health",
@@ -18,7 +20,7 @@ const expectedOrder = [
   "terpcarehub",
 ];
 
-test("featured work returns the approved five projects in narrative order", () => {
+test("featured work returns the approved seven projects in narrative order", () => {
   assert.deepEqual(
     getFeaturedProjects().map((project) => project.slug),
     expectedOrder,
@@ -36,12 +38,16 @@ test("every project has a unique slug and every navigation target resolves", () 
 
 test("adjacent-project navigation wraps without a dead end", () => {
   assert.equal(
-    getAdjacentProject("college-park-capstone", "previous").slug,
+    getAdjacentProject("frontground", "previous").slug,
     "terpcarehub",
   );
   assert.equal(
     getAdjacentProject("terpcarehub", "next").slug,
-    "college-park-capstone",
+    "frontground",
+  );
+  assert.equal(
+    getAdjacentProject("college-park-capstone", "previous").slug,
+    "usm-venture-benchmark",
   );
 });
 
@@ -71,6 +77,8 @@ test("professional history includes the supplied Towers internship and Frontgrou
 
 test("every featured project carries a project-palette motion cover and a substantial case narrative", () => {
   const minimumSections = new Map([
+    ["frontground", 8],
+    ["usm-venture-benchmark", 5],
     ["college-park-capstone", 8],
     ["ovara", 8],
     ["kairo-health", 8],
@@ -79,8 +87,8 @@ test("every featured project carries a project-palette motion cover and a substa
   ]);
 
   for (const project of projects) {
-    assert.match(project.cover.video, /cover-gradient\.mp4$/);
-    assert.match(project.cover.poster, /cover-gradient-poster\.png$/);
+    assert.match(project.cover.video, /\.mp4$/);
+    assert.match(project.cover.poster, /\.png$/);
     assert.equal(project.cover.titlePlacement, "center");
     assert.ok(project.cover.palette.length >= 4, `${project.slug} needs a real project palette`);
     assert.ok(
@@ -94,6 +102,43 @@ test("every featured project carries a project-palette motion cover and a substa
       ({ id }) => id === "reflection",
     ),
   );
+});
+
+test("the USM benchmark publishes its method and aggregate QA without confidential findings", () => {
+  const usm = getProjectBySlug("usm-venture-benchmark");
+  const media = usm.sections.flatMap((section) => section.media ?? []);
+
+  assert.equal(usm.category, "Venture Research + Data Visualization");
+  assert.equal(usm.role, "Investment Associate");
+  assert.deepEqual(
+    usm.sections.map(({ id }) => id),
+    ["comparison-problem", "benchmark-system", "evidence-design", "validation", "vc-lens"],
+  );
+  assert.deepEqual(usm.metrics.map(({ value }) => value), ["29", "22", "638"]);
+  assert.equal(usm.evidence.finalizedProfiles, 29);
+  assert.equal(usm.evidence.matrixFields, 22);
+  assert.equal(usm.evidence.dataCells, 638);
+  assert.equal(usm.evidence.correctedCells, 41);
+  assert.equal(usm.evidence.changedToNotDisclosed, 9);
+  assert.equal(usm.evidence.fieldLevelMismatches, 0);
+  assert.equal(usm.evidence.unresolvedCitations, 0);
+  assert.equal(usm.evidence.publicInstitutionFindings, false);
+  assert.equal(usm.evidence.confidentialRecommendationsPublished, false);
+  assert.deepEqual(
+    media.map(({ src }) => src),
+    [
+      "/images/work/usm-venture-benchmark/research-system.png",
+      "/images/work/usm-venture-benchmark/comparison-model.png",
+      "/images/work/usm-venture-benchmark/validation-grid.png",
+      "/images/work/usm-venture-benchmark/transferability-lens.png",
+    ],
+  );
+  assert.deepEqual(usm.links, [
+    {
+      label: "Open portfolio visuals in Figma",
+      href: "https://www.figma.com/design/Vi6MdEzxLKirckl6xpY2jJ",
+    },
+  ]);
 });
 
 test("the civic case study uses the approved Information Science Capstone name", () => {
@@ -208,6 +253,7 @@ test("every case includes at least one source-backed visual artifact beyond scre
 });
 
 test("case-study records preserve the approved evidence boundaries", () => {
+  const usm = getProjectBySlug("usm-venture-benchmark");
   const capstone = getProjectBySlug("college-park-capstone");
   const ovara = getProjectBySlug("ovara");
   const kairo = getProjectBySlug("kairo-health");
@@ -215,6 +261,8 @@ test("case-study records preserve the approved evidence boundaries", () => {
   const terpcarehub = getProjectBySlug("terpcarehub");
 
   assert.deepEqual(capstone.metrics.map(({ value }) => value), ["17 of 24", "5", "3"]);
+  assert.equal(usm.evidence.publicInstitutionFindings, false);
+  assert.equal(usm.evidence.confidentialRecommendationsPublished, false);
   assert.equal(ovara.evidence.modelStatus, "negative result at state level, direct count at county level");
   assert.equal(ovara.evidence.crossValidationR2, 0.1244);
   assert.equal(ovara.evidence.zeroProviderCounties, 1029);

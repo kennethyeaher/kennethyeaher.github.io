@@ -162,9 +162,9 @@ export const practiceAreas = [
   {
     number: "04",
     title: "Product and venture",
-    blurb: "Diligence, memos, and product market validation.",
-    skills: ["Investment diligence", "Investment memos", "PMF validation", "Fundraising"],
-    caseStudy: { label: "TerpCare", href: "/work/terpcare" },
+    blurb: "Diligence, benchmarking, and product market validation.",
+    skills: ["Investment diligence", "Venture benchmarking", "PMF validation", "Fundraising"],
+    caseStudy: { label: "USM Venture Benchmark", href: "/work/usm-venture-benchmark" },
   },
 ];
 
@@ -380,7 +380,7 @@ export const aboutGallery = [
   },
 ];
 
-/** Five publishable project records that drive the Work page and case studies. */
+/** Seven publishable project records that drive the Work page and case studies. */
 export const projects = caseStudies;
 
 /** Return the selected work in its approved narrative order. */

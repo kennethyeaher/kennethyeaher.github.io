@@ -6,6 +6,8 @@ import assert from "node:assert/strict";
 
 const projectRoot = new URL("..", import.meta.url).pathname;
 const slugs = [
+  "frontground",
+  "usm-venture-benchmark",
   "college-park-capstone",
   "ovara",
   "kairo-health",
@@ -29,8 +31,8 @@ before(() => {
   }
 });
 
-test("all five approved case studies render from one route system", () => {
-  assert.equal(pages.size, 5);
+test("all seven approved case studies render from one route system", () => {
+  assert.equal(pages.size, 7);
 
   for (const html of pages.values()) {
     assert.match(html, /data-case-nav/);
@@ -88,17 +90,23 @@ test("case-study covers render as full-bleed project-palette motion media", () =
 });
 
 test("the renamed capstone and expanded product evidence render publicly", () => {
+  assert.match(pages.get("usm-venture-benchmark"), /USM Venture Benchmark/);
+  assert.match(pages.get("usm-venture-benchmark"), /638 data cells/);
+  assert.match(pages.get("usm-venture-benchmark"), /zero field-level mismatches/);
   assert.match(pages.get("college-park-capstone"), /Information Science Capstone/);
   assert.match(pages.get("terpcare"), /15-screen product system/);
   assert.match(pages.get("kairo-health"), /Deployment routing/);
 });
 
 test("previous and next project links wrap without dead ends", () => {
-  const first = pages.get("college-park-capstone");
+  const first = pages.get("frontground");
+  const usm = pages.get("usm-venture-benchmark");
   const last = pages.get("terpcarehub");
 
   assert.match(first, /href="\/work\/terpcarehub"/);
-  assert.match(first, /href="\/work\/ovara"/);
+  assert.match(first, /href="\/work\/usm-venture-benchmark"/);
+  assert.match(usm, /href="\/work\/frontground"/);
+  assert.match(usm, /href="\/work\/college-park-capstone"/);
   assert.match(last, /href="\/work\/terpcare"/);
-  assert.match(last, /href="\/work\/college-park-capstone"/);
+  assert.match(last, /href="\/work\/frontground"/);
 });

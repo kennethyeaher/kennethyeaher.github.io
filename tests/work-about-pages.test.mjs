@@ -30,6 +30,8 @@ test("the Work page renders the approved thesis and project order", () => {
   assert.match(visibleText(workHtml), /product specialist led by evidence/i);
 
   const routes = [
+    "/work/frontground",
+    "/work/usm-venture-benchmark",
     "/work/college-park-capstone",
     "/work/ovara",
     "/work/kairo-health",
@@ -40,9 +42,9 @@ test("the Work page renders the approved thesis and project order", () => {
 
   assert.ok(positions.every((position) => position >= 0));
   assert.deepEqual([...positions].sort((a, b) => a - b), positions);
-  assert.equal((workHtml.match(/class="project-card"/g) ?? []).length, 5);
-  assert.equal((workHtml.match(/data-cursor-label="View case study"/g) ?? []).length, 5);
-  assert.equal((workHtml.match(/data-project-cover/g) ?? []).length, 5);
+  assert.equal((workHtml.match(/class="project-card"/g) ?? []).length, 7);
+  assert.equal((workHtml.match(/data-cursor-label="View case study"/g) ?? []).length, 7);
+  assert.equal((workHtml.match(/data-project-cover/g) ?? []).length, 7);
   assert.doesNotMatch(workHtml, /Read case study/);
   assert.doesNotMatch(workHtml, /project-media is-contained/);
 });

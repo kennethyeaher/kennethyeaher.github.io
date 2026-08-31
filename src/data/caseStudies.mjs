@@ -4,6 +4,326 @@
  */
 export const caseStudies = [
   {
+    slug: "frontground",
+    title: "Frontground",
+    organization: "Frontground, Inc.",
+    cardTitle: "Frontground",
+    category: "Venture + Product Design",
+    year: "2024",
+    role: "Founder",
+    timeline: "Sept 2022 to May 2024",
+    team: "Solo. I ran the field research, the product decisions, the interface design, and the fundraising.",
+    skills: ["Field research", "Product strategy", "Information architecture", "Interaction design", "Design systems", "Fundraising"],
+    summary:
+      "An electronic health record built for clinics in Monrovia, Liberia that still run on paper. Sixty plus provider interviews, a role gated product, and a design system I later rebuilt from the original Adobe XD files.",
+    cardImage: "/images/work/frontground/cover-gradient-poster.png",
+    cardAlt: "Frontground motion cover in the company navy and green",
+    heroImage: "/images/work/frontground/cover-gradient-poster.png",
+    heroAlt: "Frontground motion cover in the company navy and green",
+    cover: {
+      variant: "frontground",
+      video: "/images/work/frontground/cover-gradient.mp4",
+      poster: "/images/work/frontground/cover-gradient-poster.png",
+      palette: ["#002637", "#003F5D", "#145676", "#0C8B44", "#DDE7EB"],
+      titlePlacement: "center",
+    },
+    links: [
+      { label: "Open Figma file", href: "https://www.figma.com/design/5Yl8NmDe5vohtqxAs4zHou" },
+    ],
+    metrics: [
+      { value: "$25K", label: "non dilutive funding raised" },
+      { value: "60+", label: "provider interviews in Liberia" },
+      { value: "19", label: "screens across three clinical credentials" },
+    ],
+    evidence: {
+      projectType: "founded venture",
+      primaryUserResearch: true,
+      interviewCount: 60,
+      shippedProduct: false,
+    },
+    sections: [
+      {
+        id: "origin",
+        label: "Origin",
+        heading: "I started this because of where I am from",
+        body: [
+          "I was born in Monrovia, Liberia, and most of my family is still there. When someone I know goes to a clinic, their history is a paper folder on a shelf, and whether that folder is found is closer to luck than to process. Files get misplaced, water damaged, or taken to another room and never returned.",
+          "Frontground is the company I founded to work on that. It is an electronic health record designed for facilities where paper is the default and the paper itself is not preserved well. I led it from concept through go to market between 2022 and 2024, and I raised $25K in non dilutive funding along the way, including the Social Impact Award and $10K at the Pitch Dingman Competition.",
+        ],
+      },
+      {
+        id: "research",
+        label: "Market research",
+        heading: "Sixty plus conversations, mostly about a visit and not about software",
+        body: [
+          "The research ran across Liberian healthcare facilities, and the two sites I spent the most time on were JFK Medical Center and the MSF clinic in Monrovia. I spoke to physicians, nurses, and administrators. I deliberately did not ask what features they wanted. I asked them to walk me through a single outpatient visit end to end, and I asked where it usually goes wrong.",
+          "That framing is the reason the product looks the way it does. When you ask about features you get a list of things people have seen in other software. When you ask about a visit you get the shelf, the runner, the missing slip, and the folder that never came back. Those are the things that actually decide whether a record survives.",
+          "I designed against what they told me, brought it back, and changed it. The triage colours, the split of the exam form into two pages, and the decision to keep orders on their own screen all came out of that loop rather than out of my first draft. I am still in contact with a couple of the providers I met, which is the part of this I am most glad about.",
+        ],
+        artifact: {
+          eyebrow: "Interview findings · what changed",
+          title: "What providers raised, and what it changed in the product",
+          columns: ["What came up in interviews", "Where it showed up", "The design decision"],
+          rows: [
+            ["Finding the physical folder was the longest delay in a visit", "Patients", "The record opens from a searchable list. There is no folder to lose, and search covers name and patient ID."],
+            ["Acuity was written on the card but never counted anywhere", "Dashboard", "Triage became a coded field, shown on every queue row and totalled in an overview panel."],
+            ["A full assessment did not fit on one screen without shrinking the type", "New exam", "The exam splits across two pages at a clinical seam, resuscitation first and then the head to toe survey."],
+            ["Lab and medication slips went missing while travelling with the patient", "Orders", "Orders became their own section with a status, so an outstanding request stays visible after the visit."],
+            ["Patients move between facilities and arrive with no history", "Patient history", "History records name the facility each entry came from, rather than assuming a single site."],
+            ["Nurses and doctors needed the same clinical surface, admin did not", "Whole product", "One screen tree with three credentials, rather than three separate products to maintain."],
+          ],
+          note: "Findings are grouped from interview notes across both sites. Counts are not reported per finding because the conversations were unstructured by design.",
+        },
+      },
+      {
+        id: "problem",
+        label: "The problem",
+        heading: "The record does not fail once, it fails at six points",
+        body: [
+          "Mapping the visit stage by stage made something clear that a feature list would have hidden. There is no single moment where a paper record breaks. It degrades at arrival, at retrieval, at triage, in consultation, at ordering, and at refiling, and the failures compound.",
+          "Refiling is the one that matters most and gets the least attention. Every other stage depends on that last step being done correctly every single day, by whoever is on shift, for years. A system that only digitises the consultation still hands the record back to the shelf at the end.",
+        ],
+        media: [
+          {
+            src: "/images/work/frontground/frontground-pain-points.png",
+            alt: "Six stage diagram of an outpatient visit showing what happens on paper, where the record breaks, and what the design does at each stage",
+            caption: "The visit mapped as six stages. Red marks a stage where the record can be lost outright, amber marks a stage that costs time. Refiling is red for a reason.",
+            wide: true,
+          },
+        ],
+      },
+      {
+        id: "solution",
+        label: "The solution",
+        heading: "Build for the queue, not for the chart",
+        body: [
+          "The first screen a clinician sees answers who is in front of me right now. Arrivals, acuity, and open requests get the space. The trend chart is context and it sits to the side. That ordering came straight out of the interviews, where nobody described their day in terms of analytics and everybody described it in terms of the waiting room.",
+          "Triage carries a letter as well as a colour. The original design encoded acuity in colour alone, which fails for colour blind clinicians and on the low cost monitors these facilities actually run. E, U, D and M survive both.",
+        ],
+        media: [
+          {
+            src: "/images/work/frontground/frontground-dashboard.png",
+            alt: "Frontground clinical dashboard showing patient overview, schedule, open requests, and the patient order queue",
+            caption: "The clinical dashboard. The queue and the outstanding requests are the working surface, and the chart is context.",
+            wide: true,
+          },
+          {
+            src: "/images/work/frontground/frontground-patients.png",
+            alt: "Frontground patient list with a triage overview donut chart and an analysis panel",
+            caption: "The patient list, with a triage breakdown for the day beside it.",
+            wide: true,
+          },
+        ],
+      },
+      {
+        id: "record",
+        label: "The record",
+        heading: "Three columns, three questions",
+        body: [
+          "The patient record answers who they are, how they are, and what is pending, in that order and in three columns. Vitals get the largest type on the screen because they are read at a glance during rounds rather than studied.",
+          "The assessment form follows the clinical order a nurse already works in rather than a database schema. Circulation, breathing, fluid status, and haematology, with tap to select options instead of free text so it can be completed at the bedside.",
+        ],
+        media: [
+          {
+            src: "/images/work/frontground/frontground-patient-record.png",
+            alt: "Frontground patient record showing profile, vitals grid, history, notes, medication, and lab results",
+            caption: "The patient record. History names the facility each entry came from, because patients in this network move between sites.",
+            wide: true,
+          },
+          {
+            src: "/images/work/frontground/frontground-assessment.png",
+            alt: "Frontground clinical assessment form with vitals, circulation, breathing, fluid status, and haematology panels",
+            caption: "Page one of the assessment, ordered the way the examination is actually performed.",
+            wide: true,
+          },
+        ],
+      },
+      {
+        id: "system",
+        label: "The system",
+        heading: "One tree with three doors, not three products",
+        body: [
+          "The original files held three near identical copies of the whole flow, one per clinical credential, because the tool I built them in had no components. Every fix had to be made three times and they drifted apart anyway. The fourth nav item was labelled Med on some screens and Orders on others.",
+          "Rebuilding it as one screen tree with role gates fixed that. A doctor and a nurse see the same screen and the same wording. Only settings and the admin section actually differ, and the sidebar grows a sixth item to say so. Underneath sits a real system, twenty one colour tokens, a type scale that pairs Figtree for language with IBM Plex Mono for identifiers and dosages, and components with variants so the sidebar is edited once.",
+        ],
+        media: [
+          {
+            src: "/images/work/frontground/frontground-information-architecture.png",
+            alt: "Information architecture diagram showing one screen tree with coloured dots marking which of the three clinical credentials can reach each node",
+            caption: "The information architecture. Dots on each node say which credential reaches it, which is what makes it one system rather than three.",
+            wide: true,
+          },
+          {
+            src: "/images/work/frontground/frontground-design-system.png",
+            alt: "Frontground design system board showing navigation, buttons, form controls, triage badges, card anatomy, grid and spacing",
+            caption: "The component board. Navigation, controls, status, and the grid, with the reasoning written beside each decision.",
+            wide: true,
+          },
+        ],
+      },
+      {
+        id: "venture",
+        label: "The venture",
+        heading: "The research was also the pitch",
+        body: [
+          "Raising money for this meant standing in front of judges who had never been inside a Liberian clinic and getting them to the point fast. What worked was not the interface. It was the six stage map. Once someone sees that a record can be lost at six separate moments inside a single visit, the case for the product makes itself, and every screen afterwards reads as an answer rather than as a feature.",
+          "I raised $25K in non dilutive funding across competitive pitch processes, including the Social Impact Award and $10K at the Pitch Dingman Competition. I went through the Do Good Accelerator across two cohorts and an Equity Incubator fellowship in the same period, both of which were about turning a social impact idea into something an investor would actually fund.",
+          "The partnership work ran alongside it. I managed relationships with physicians and health administrators in Monrovia as well as university advisors, and I treated what they told me as product input rather than as endorsement. That habit is the through line into the venture work I do now, where the job is asking the same kind of question about somebody else's company.",
+        ],
+      },
+      {
+        id: "reflection",
+        label: "Where it stands",
+        heading: "What the venture taught me and what I still owe it",
+        body: [
+          "Frontground got further than a prototype. It raised $25K without giving up equity, it won the Social Impact Award at Pitch Dingman, and it put me in front of judges and audiences enough times to learn how to defend a decision quickly. The research is the piece I value most, because it is the reason the product had a shape at all.",
+          "The honest position is that this never reached a live deployment in a clinic, so nothing here has been measured against real use. Everything in these screens is a decision defended by an interview rather than by an outcome. I would rather say that plainly than dress a design file up as a shipped product.",
+          "The work also did not stop when the company did. The MSF triage form I saw in Monrovia became the seed for my clinical natural language processing research, which is elsewhere in this portfolio, and the providers I still speak to are the reason I keep coming back to this problem.",
+        ],
+      },
+    ],
+  },
+  {
+    slug: "usm-venture-benchmark",
+    title: "USM Venture Benchmark",
+    organization: "USM Maryland Momentum Fund",
+    cardTitle: "USM Venture Benchmark",
+    category: "Venture Research + Data Visualization",
+    year: "2026",
+    role: "Investment Associate",
+    timeline: "Summer 2026",
+    team: "Two-person investment team",
+    skills: ["Investment research", "Benchmark design", "Data normalization", "Evidence synthesis", "Data visualization", "Quality assurance"],
+    summary:
+      "A 29-profile benchmark of university venture ecosystems, turning fragmented public and licensed evidence into 22 normalized fields, a validated comparison matrix, and board-ready investment synthesis.",
+    cardImage: "/images/work/usm-venture-benchmark/cover-poster.png",
+    cardAlt: "USM Venture Benchmark motion cover in crimson, rose, slate, and deep ink",
+    heroImage: "/images/work/usm-venture-benchmark/cover-poster.png",
+    heroAlt: "USM Venture Benchmark motion cover in crimson, rose, slate, and deep ink",
+    cover: {
+      variant: "usm-benchmark",
+      video: "/images/work/usm-venture-benchmark/cover-loop.mp4",
+      poster: "/images/work/usm-venture-benchmark/cover-poster.png",
+      palette: ["#111111", "#E21833", "#A61022", "#F2B8BE", "#F6F3EE", "#6A737B"],
+      titlePlacement: "center",
+    },
+    links: [
+      {
+        label: "Open portfolio visuals in Figma",
+        href: "https://www.figma.com/design/Vi6MdEzxLKirckl6xpY2jJ",
+      },
+    ],
+    metrics: [
+      { value: "29", label: "finalized institution profiles" },
+      { value: "22", label: "normalized comparison fields" },
+      { value: "638", label: "reconciled data cells" },
+    ],
+    evidence: {
+      projectType: "venture ecosystem benchmark",
+      finalizedProfiles: 29,
+      pagesPerBrief: 6,
+      matrixFields: 22,
+      dataCells: 638,
+      correctedCells: 41,
+      changedToNotDisclosed: 9,
+      fieldLevelMismatches: 0,
+      unresolvedCitations: 0,
+      publicInstitutionFindings: false,
+      confidentialRecommendationsPublished: false,
+    },
+    sections: [
+      {
+        id: "comparison-problem",
+        label: "The comparison problem",
+        heading: "A ranked list would have been tidy and wrong",
+        body: [
+          "The fund needed to understand how other university venture programs were structured: their capital vehicles, student roles, technology-transfer connections, and ability to recycle capital. The source set mixed programs with different mandates, reporting standards, and levels of disclosure. Treating size as quality would have hidden the operating choices that actually mattered.",
+          "My job was to help turn that evidence into a comparison the investment team could defend. The underlying institution briefs and recommendations are confidential, so this public case study shows the method, visual system, and aggregate validation record rather than institution-level findings.",
+        ],
+      },
+      {
+        id: "benchmark-system",
+        label: "Building the benchmark",
+        heading: "One structure for twenty-nine different ecosystems",
+        body: [
+          "I used one six-page profile structure for every included institution, then mapped each claim into a twenty-two-field schema. Capital scale, check range, portfolio activity, student involvement, technology-transfer integration, and evergreen design stayed separate instead of being collapsed into one headline score.",
+          "A source hierarchy decided what controlled when documents disagreed. Missing disclosure stayed n/d; it was never backfilled with a guess. That discipline produced twenty-nine finalized profiles and one matrix designed for comparison and synthesis.",
+        ],
+        media: [
+          {
+            src: "/images/work/usm-venture-benchmark/research-system.png",
+            alt: "Four-stage research system moving from source evidence to normalized profiles, a comparison matrix, and investment synthesis",
+            caption: "The research system. Every recommendation keeps a visible path back through the matrix, profile, and source evidence.",
+            wide: true,
+          },
+        ],
+      },
+      {
+        id: "evidence-design",
+        label: "Designing the evidence",
+        heading: "Compare the system, not just the fund",
+        body: [
+          "The visual model uses four lenses: capital scale, student integration, technology-transfer integration, and evergreen continuity. Together they make different program architectures legible without implying that every ecosystem is trying to produce the same outcome.",
+          "The result works at two speeds. A partner can scan for patterns across the portfolio, while an analyst can trace a comparison back to the underlying profile and citation. The public visualization uses schematic profiles only; it explains the model without publishing an institution's result.",
+        ],
+        media: [
+          {
+            src: "/images/work/usm-venture-benchmark/comparison-model.png",
+            alt: "An anonymized comparison model showing four lenses for evaluating university venture ecosystems",
+            caption: "Four comparison lenses, shown with schematic profiles. The shape of the method is public; institution-level values are not.",
+            wide: true,
+          },
+        ],
+      },
+      {
+        id: "validation",
+        label: "Making the data defensible",
+        heading: "The matrix was treated as a dataset, not an appendix",
+        body: [
+          "Each of the 638 data cells was reconciled against the final briefs. Forty-one cells were corrected during the last pass, and nine were deliberately changed to n/d when the evidence did not support a value. Final validation closed with zero field-level mismatches and zero unresolved citation numbers.",
+          "That quality pass changed the information design. Disclosed, approximate, and not-disclosed values needed to remain visually distinct, so a decision-maker could see where confidence was strong and where the evidence stopped.",
+        ],
+        media: [
+          {
+            src: "/images/work/usm-venture-benchmark/validation-grid.png",
+            alt: "A twenty-nine by twenty-two validation grid showing verified cells, corrected cells, and cells changed to not disclosed",
+            caption: "The final 29 × 22 matrix as a validation surface: 638 cells, 41 corrections, nine changes to n/d, and no remaining field mismatches.",
+            wide: true,
+          },
+        ],
+      },
+      {
+        id: "vc-lens",
+        label: "Applying the VC lens",
+        heading: "The useful question was what could work here",
+        body: [
+          "The last step moved from what exists elsewhere to what might transfer. I evaluated mechanisms against two axes: how broadly they could apply and the governance or capital effort required to adopt them. That separated operating changes that could be piloted from structures that would require new capital or new decision rights.",
+          "The framework gives an investment team a disciplined way to discuss what depends on local scale, what can survive a leadership change, and what should be tested before capital is committed. It is also the part of venture work I value most: synthesis is useful when it produces a better investment question.",
+        ],
+        artifact: {
+          eyebrow: "Decision framework",
+          title: "Four mechanisms, four different commitments",
+          columns: ["Mechanism", "What changes", "Primary test", "Commitment"],
+          rows: [
+            ["Operating policy", "Rules and decision rights", "Can it survive a leadership change?", "Low capital, focused governance"],
+            ["Shared screening", "How opportunities move across partners", "Can teams use one process without slowing decisions?", "Cross-team coordination"],
+            ["Program layer", "Services wrapped around investment", "Does it work at the current operating scale?", "Ongoing operating capacity"],
+            ["Capital vehicle", "Structure and deployment authority", "Can the thesis be tested before new capital is committed?", "High capital and governance"],
+          ],
+          note: "The mechanisms are generic. Confidential institution findings and recommendations are omitted.",
+        },
+        media: [
+          {
+            src: "/images/work/usm-venture-benchmark/transferability-lens.png",
+            alt: "Decision framework positioning operating policies, shared screening, program layers, and capital vehicles by transferability and effort",
+            caption: "The transferability lens. It turns patterns into choices without exposing the confidential conclusions behind the original work.",
+            wide: true,
+          },
+        ],
+      },
+    ],
+  },
+  {
     slug: "college-park-capstone",
     title: "Information Science Capstone",
     organization: "City of College Park",
