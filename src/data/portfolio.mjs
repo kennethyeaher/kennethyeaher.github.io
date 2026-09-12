@@ -10,7 +10,7 @@ export const profile = {
     "I study how people move through systems, build with the data those systems leave behind, and use both to decide what should exist next.",
   aboutHeadline: "I build where people, data, and decisions meet.",
   aboutParagraphs: [
-    "Human-computer interaction is the thread connecting my work. I’m a Master of Information Management student at the University of Maryland, and I start projects by learning how people actually navigate a system before I decide what to build, measure, or recommend.",
+    "Human-computer interaction is the thread connecting my work. I’m a Master of Science in Human-Computer Interaction student at the University of Maryland, and I start projects by learning how people actually navigate a system before I decide what to build, measure, or recommend.",
     "That approach is personal. I was born in Monrovia, Liberia, where many clinics still run on paper. The gap between what technology can do and who can reliably use it pulled me toward healthcare access, product research, and the decisions behind both.",
     "I have built and evaluated companies. As the founder of Frontground, I raised $25K in non-dilutive funding and ran physician interviews for an iPad-first electronic medical record for low-resource clinics. At the USM Maryland Momentum Fund, I screened companies, led sourcing-stage diligence, supported expert panels, and co-authored investment work for the fund’s leadership.",
     "I also work from raw data to a decision someone can act on. At Towers Surgical Partners, I built Python ETL pipelines and Tableau dashboards that helped leadership see provider coverage, referral patterns, and revenue-cycle problems more clearly. Across product, venture, and data work, my job is the same: find the signal, explain it plainly, and make the next move more useful for the people involved.",
@@ -176,7 +176,7 @@ export const practiceAreas = [
 /** Education entries for the About page, newest first. */
 export const education = [
   {
-    degree: "Master of Science, Information Management",
+    degree: "Master of Science, Human-Computer Interaction",
     school: "University of Maryland",
     location: "College Park, MD",
     period: "Expected May 2027",
@@ -188,7 +188,7 @@ export const education = [
       "Black Graduate Student Union",
     ],
     description:
-      "STEM designated program combining technical, analytical, and leadership skills to prepare graduates for senior information roles. Pursuing the Data Science and Analytics specialization, with coursework spanning machine learning, ETL, predictive analytics, data visualization, and emerging technologies, alongside hands on projects with industry partners in the DC region.",
+      "Interdisciplinary graduate study in human-computer interaction, combining research methods, interaction design, and usability evaluation to understand how people use technology and design systems around their needs.",
     notableCourses: [
       {
         code: "INST664",
