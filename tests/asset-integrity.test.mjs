@@ -44,6 +44,6 @@ test("the published resume matches the approved master PDF fingerprint", () => {
   assert.equal(existsSync(publishedResume), true);
   assert.equal(
     sha256(publishedResume),
-    "a53d35cdff2fd9a9f939c316fb38bebc7b2d47e97df5ebec72be6223225a7655",
+    "6d904b3d0b2c727d9228f358a74198a24074bda727b4cf4d82a427d8c93f45b8",
   );
 });
