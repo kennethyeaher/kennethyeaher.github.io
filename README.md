@@ -1,5 +1,9 @@
 # Kenneth Yeaher Portfolio
 
+![Astro](docs/readme/badges/astro-BC52EE.svg)
+![TypeScript](docs/readme/badges/typescript-3178C6.svg)
+![Tailwind CSS](docs/readme/badges/tailwindcss-087EA4.svg)
+
 A light-mode editorial portfolio for Kenneth Yeaher’s product, data, venture, and human-computer interaction work. The site is built with Astro and TypeScript and uses one verified content model for the Work page and five case studies.
 
 
@@ -10,6 +14,12 @@ The published portfolio, captured September 26, 2026.
 ## My contribution
 
 I brought my project narratives and source artifacts into a shared content model, built the portfolio pages and navigation, and added content and asset checks. Individual case studies retain their own research and collaboration context.
+
+## How the portfolio fits together
+
+The Work page provides a quick entry into the projects. Each case study then connects the problem, my role, source artifacts, and limitations. The About page supplies personal context, and the résumé remains available as a direct PDF download.
+
+For a technical review, start with the shared content model in `src/data/portfolio.mjs`, then follow it into the page components. Separating content from presentation keeps project descriptions consistent across cards and detailed pages.
 
 ## Local preview
 
