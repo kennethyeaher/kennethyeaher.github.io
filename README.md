@@ -2,6 +2,15 @@
 
 A light-mode editorial portfolio for Kenneth Yeaher’s product, data, venture, and human-computer interaction work. The site is built with Astro and TypeScript and uses one verified content model for the Work page and five case studies.
 
+
+![Portfolio home page with the introduction and featured project cards.](docs/readme/preview.png)
+
+The published portfolio, captured September 26, 2026.
+
+## My contribution
+
+I brought my project narratives and source artifacts into a shared content model, built the portfolio pages and navigation, and added content and asset checks. Individual case studies retain their own research and collaboration context.
+
 ## Local preview
 
 ```bash
@@ -71,3 +80,14 @@ design-qa.md         Final visual QA record
 ## Published site
 
 The portfolio is published at [kennethyeaher.github.io](https://kennethyeaher.github.io/). Pushes to `main` are verified and deployed automatically through GitHub Pages.
+
+---
+
+## Author
+
+**Kenneth Yeaher**  
+Master of Information Management  
+University of Maryland, College Park  
+[![LinkedIn: Kenneth Yeaher](https://img.shields.io/badge/LinkedIn-Kenneth_Yeaher-0A66C2?style=flat)](https://www.linkedin.com/in/kennethyeaher/)
+
+`Astro` · `TypeScript` · `Portfolio Design`
