@@ -15,7 +15,7 @@ const { title, description, image } = Astro.props;
 const pageTitle = title ? `${title} | ${profile.name}` : `${profile.name} | Portfolio`;
 const pageDescription = description ?? profile.intro;
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site).href;
-const ogImage = new URL(image ?? "/images/og-image.png", Astro.site).href;
+const ogImage = new URL(image ?? "/images/portfolio-preview-2026.png", Astro.site).href;
 ---
 
 <!doctype html>
