@@ -1,15 +1,38 @@
-# Kenneth Yeaher Portfolio
+<p align="center">
+  <img src="docs/assets/banner.svg" alt="Kenneth Yeaher Portfolio. Product, data, venture, and HCI work, led by evidence. An index of five numbered case studies." width="100%">
+</p>
 
-![Astro](docs/readme/badges/astro-BC52EE.svg)
-![TypeScript](docs/readme/badges/typescript-3178C6.svg)
-![Tailwind CSS](docs/readme/badges/tailwindcss-087EA4.svg)
+<p align="center">
+  <strong>A light-mode editorial portfolio for Kenneth Yeaher’s product, data, venture, and human-computer interaction work.</strong><br>
+  The site is built with Astro and TypeScript and uses one verified content model for the Work page and five case studies.
+</p>
 
-A light-mode editorial portfolio for Kenneth Yeaher’s product, data, venture, and human-computer interaction work. The site is built with Astro and TypeScript and uses one verified content model for the Work page and five case studies.
+<p align="center">
+  <img alt="Astro" src="https://img.shields.io/badge/Astro-BC52EE?style=flat-square&logo=astro&logoColor=white">
+  <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white">
+  <img alt="Tailwind CSS" src="https://img.shields.io/badge/Tailwind_CSS-087EA4?style=flat-square&logo=tailwindcss&logoColor=white">
+  <a href="https://kennethyeaher.github.io/"><img alt="Live site" src="https://img.shields.io/badge/site-live-1f4f7a?style=flat-square"></a>
+  <a href="https://github.com/kennethyeaher/kennethyeaher.github.io/actions/workflows/deploy.yml"><img alt="Deploy status" src="https://img.shields.io/github/actions/workflow/status/kennethyeaher/kennethyeaher.github.io/deploy.yml?branch=main&style=flat-square&label=deploy"></a>
+</p>
 
+<p align="center">
+  <a href="https://kennethyeaher.github.io/"><strong>Open the portfolio ↗</strong></a> &nbsp; · &nbsp;
+  <a href="#how-the-portfolio-fits-together">How it fits together</a> &nbsp; · &nbsp;
+  <a href="#verification">Verification</a> &nbsp; · &nbsp;
+  <a href="#editing-content">Editing content</a>
+</p>
 
-![Portfolio home page with the introduction and featured project cards.](docs/readme/preview.png)
+---
 
-The published portfolio, captured September 26, 2026.
+<img src="docs/assets/home-1440.png" alt="The portfolio home page at 1440px wide. A slim header with the name, the line Product designer and data scientist, and Work, About, and Resume links. The serif headline reads I'm Ken, a product specialist led by evidence, beside a dated experience list from hiveSocial in 2021 to the USM Maryland Momentum Fund in 2026. Below are the first two project cards, USM Venture Benchmark and Ovara." width="100%">
+
+<details>
+<summary><strong>See the mobile layout</strong></summary>
+<br>
+<p align="center"><img src="docs/assets/home-375.png" alt="The home page at 375px wide. The header collapses to the name and a Menu button, the headline wraps over four lines, and the experience list stacks each role under its organization." width="320"></p>
+</details>
+
+<sub>The published site, captured October 3, 2026.</sub>
 
 ## My contribution
 
