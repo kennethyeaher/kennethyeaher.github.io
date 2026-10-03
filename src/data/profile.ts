@@ -14,7 +14,7 @@ import type {
 export const profile = {
   name: "Kenneth Yeaher",
   tagline:
-    "Master of Information Management student building at the intersection of healthcare, data, and access.",
+    "MS in Human Computer Interaction student building at the intersection of healthcare, data, and access.",
   shortBio:
     "I'm a founder turned operator. I can diligence the company, build the data product, pressure test it with ML research, and design the experience around it; all anchored in healthcare access and health tech.",
   location: "Maryland, USA",
@@ -110,7 +110,7 @@ export const credentialPills: string[] = [
 
 // Professional summary paragraphs for the About page.
 export const summary: string[] = [
-  "I am a Master of Information Management student at the University of Maryland aiming at venture capital, tech consulting, and data science. My throughline is access. I was born in Monrovia, Liberia, where most clinics still run on paper, and that problem is what pulled me into technology and the decisions behind it.",
+  "I am an MS in Human Computer Interaction student at the University of Maryland aiming at venture capital, tech consulting, and data science. My throughline is access. I was born in Monrovia, Liberia, where most clinics still run on paper, and that problem is what pulled me into technology and the decisions behind it.",
   "I have built and evaluated companies. As a founder I raised $25K in non dilutive funding and ran more than 60 physician interviews for Frontground, a mobile first EMR for low resource clinics, turning primary field research into a product roadmap and pitching in front of judges and large audiences. As a Venture Capital Intern at the USM Maryland Momentum Fund I run sourcing stage diligence and coauthor investment memos delivered to the fund partners.",
   "On the data side, I worked hands on with large datasets at Towers Surgical Partners, writing SQL, building Python ETL pipelines, and shipping Tableau dashboards. My focus was never just the numbers but explaining what they meant, helping leadership find patterns, surface inefficiencies, and make informed decisions. That work taught me how to move from raw data to insights that are actionable and easy to digest for non technical audiences.",
   "Having sat in the founder seat, I read companies and problems from the inside, which is the judgment venture, consulting, and data roles reward. I combine analytical thinking with founder empathy, and I understand both the excitement and the challenges entrepreneurs face because I have built and competed in the startup ecosystem myself.",
@@ -340,7 +340,7 @@ export const fellowships: Certification[] = [
 // Education entries.
 export const education: Education[] = [
   {
-    degree: "Master of Science, Information Management",
+    degree: "Master of Science, Human Computer Interaction",
     school: "University of Maryland",
     location: "College Park, MD",
     period: "Expected May 2027",
@@ -494,7 +494,7 @@ export const coursework: Coursework[] = [
 export const notableCourses: CourseGroup[] = [
   {
     level: "Graduate",
-    degree: "M.S. Information Management",
+    degree: "M.S. Human Computer Interaction",
     courses: [
       {
         code: "INST664",
