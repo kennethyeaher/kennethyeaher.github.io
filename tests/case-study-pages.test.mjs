@@ -78,14 +78,18 @@ test("public case studies keep caveats and future-improvement notes out of the r
   }
 });
 
-test("case-study covers render as full-bleed project-palette motion media", () => {
+test("case-study covers show real exhibits with explicitly controlled motion", () => {
   for (const html of pages.values()) {
     assert.match(html, /data-project-cover/);
     assert.match(html, /class="cover-motion"/);
-    assert.match(html, /autoplay/);
+    assert.doesNotMatch(html, /autoplay/);
+    assert.match(html, /data-cover-toggle/);
+    assert.match(html, /data-cover-video/);
+    assert.match(html, /data-device-frame/);
+    assert.match(html, /preload="none"/);
     assert.match(html, /muted/);
     assert.match(html, /loop/);
-    assert.match(html, /class="cover-label is-centered"/);
+    assert.match(html, /class="cover-label"/);
     assert.doesNotMatch(html, /case-hero[\s\S]{0,500}is-contained/);
   }
 });
@@ -118,4 +122,24 @@ test("previous and next project links wrap without dead ends", () => {
   assert.match(middle, /href="\/work\/terpcare"/);
   assert.match(last, /href="\/work\/terpcare"/);
   assert.match(last, /href="\/work\/usm-venture-benchmark"/);
+});
+
+
+test("every case study has a unique social preview and reading progress", () => {
+  for (const [slug, html] of pages) {
+    assert.match(html, new RegExp(`property="og:image"[^>]*content="https://kennethyeaher\\.github\\.io/images/social/${slug}\\.png"`));
+    assert.match(html, /data-reading-progress/);
+    assert.match(html, new RegExp(`view-transition-name: cover-${slug}`));
+    const names = [...html.matchAll(/view-transition-name: ([a-z-]+)/g)].map((match) => match[1]);
+    assert.equal(new Set(names).size, names.length, `duplicate transition names on ${slug}`);
+    assert.doesNotMatch(html, /\bTODO\b/);
+  }
+});
+
+test("device exhibits preserve captions and source dimensions", () => {
+  for (const slug of ["frontground", "terpcarehub"]) {
+    const html = pages.get(slug);
+    assert.match(html, /data-media-kind="device"/);
+    assert.match(html, /width="\d+" height="\d+"/);
+  }
 });

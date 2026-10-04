@@ -25,15 +25,18 @@ test("the rendered shell exposes only Work, About, and Resume navigation", () =>
   assert.doesNotMatch(html, />\s*Contact\s*</);
 });
 
-test("the rendered shell is light-only and keeps accessible fallbacks", () => {
+test("the rendered shell provides theme choice and keeps accessible fallbacks", () => {
   const html = readFileSync(join(projectRoot, "dist", "index.html"), "utf8");
 
   assert.match(html, /class="skip-link"/);
-  assert.match(html, /class="cursor-dot"/);
-  assert.match(html, /data-cursor-text/);
+  assert.doesNotMatch(html, /cursor-dot/);
+  assert.doesNotMatch(globalCss, /cursor:\s*none/);
   assert.match(html, /data-nav-toggle/);
-  assert.doesNotMatch(html, /theme-toggle/);
-  assert.doesNotMatch(html, /prefers-color-scheme: dark/);
+  assert.match(html, /data-theme-toggle/);
+  assert.match(html, /aria-label="Use dark theme"/);
+  assert.match(globalCss, /prefers-color-scheme: dark/);
+  assert.match(globalCss, /:root\[data-theme="dark"\]/);
+  assert.match(html, /portfolio-theme/);
   assert.match(globalCss, /@media \(prefers-reduced-motion: reduce\)/);
   assert.match(globalCss, /@media \(pointer: fine\) and \(prefers-reduced-motion: no-preference\)/);
 });

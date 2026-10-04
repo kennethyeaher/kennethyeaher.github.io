@@ -25,13 +25,15 @@ test("every published portfolio media reference resolves to a non-empty real fil
       project.heroImage,
       project.cover.poster,
       project.cover.video,
+      project.cover.exhibit?.src,
+      `/images/social/${project.slug}.png`,
       ...project.sections.flatMap((section) =>
-        "media" in section && section.media ? section.media.map(({ src }) => src) : [],
+        "media" in section && section.media ? section.media.flatMap((item) => [item.src, item.poster, item.after?.src, ...(item.sources ?? []).map(({ src }) => src)]) : [],
       ),
     ]),
   ];
 
-  for (const mediaPath of new Set(mediaPaths)) {
+  for (const mediaPath of new Set(mediaPaths.filter(Boolean))) {
     const absolutePath = publicFile(mediaPath);
     assert.equal(existsSync(absolutePath), true, `${mediaPath} is missing`);
     assert.ok(statSync(absolutePath).size > 0, `${mediaPath} is empty`);
@@ -46,4 +48,18 @@ test("the published resume matches the approved master PDF fingerprint", () => {
     sha256(publishedResume),
     "6d904b3d0b2c727d9228f358a74198a24074bda727b4cf4d82a427d8c93f45b8",
   );
+});
+
+
+test("published social cards use the required dimensions and cover exhibits retain source proportions", () => {
+  for (const project of projects) {
+    const png = readFileSync(publicFile(`/images/social/${project.slug}.png`));
+    assert.equal(png.subarray(1, 4).toString(), "PNG");
+    assert.equal(png.readUInt32BE(16), 1200);
+    assert.equal(png.readUInt32BE(20), 630);
+    const exhibit = project.cover.exhibit;
+    assert.ok(exhibit.width > 0 && exhibit.height > 0);
+    assert.ok(["phone", "tablet", "laptop", "sheet"].includes(exhibit.frame));
+    assert.ok(project.sections.some((section) => section.media?.some((item) => item.src === exhibit.src)), `${project.slug} cover must use a documented exhibit`);
+  }
 });
