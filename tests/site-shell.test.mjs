@@ -73,3 +73,11 @@ test("annotation motion follows the exhibit note and stays off under reduced mot
   assert.match(block, /translate: 0 6px/);
   assert.doesNotMatch(block.replace(/\/\*[\s\S]*?\*\//g, ""), /infinite|alternate|pulse/);
 });
+
+test("the collapsed menu is the first paint when scripts run, so the nav never shifts the page", () => {
+  const html = readFileSync(join(projectRoot, "dist", "work", "kairo-health", "index.html"), "utf8");
+  const head = html.slice(0, html.indexOf("<body"));
+  assert.match(head, /document\.documentElement\.classList\.add\("nav-ready"\)/);
+  // without scripts the class never lands, and the link row fallback still applies.
+  assert.match(globalCss, /html:not\(\.nav-ready\) \.primary-links/);
+});

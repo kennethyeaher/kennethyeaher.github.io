@@ -24,6 +24,8 @@ const ogImage = new URL(image ?? "/images/portfolio-preview-2026.png", Astro.sit
   <head>
     <meta charset="utf-8" />
     <script is:inline>
+      // with scripts on, the collapsed menu is the first paint, so the no-script link row never shifts the page.
+      document.documentElement.classList.add("nav-ready");
       // apply the saved preference before the first paint, including when storage is unavailable.
       try {
         const saved = localStorage.getItem("portfolio-theme");
