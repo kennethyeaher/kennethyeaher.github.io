@@ -290,7 +290,7 @@ test("unknown slugs fail closed", () => {
   );
 });
 
-// pages on the v2 exhibit layout. each closes on its Reflection chapter when caseStudies.mjs has one.
+// pages on the v2 exhibit layout.
 const exhibitSlugs = ["kairo-health", "usm-venture-benchmark", "ovara"];
 
 // figma rails for pages whose spec export carries no chapter list, read from the frame's chapter rail.
@@ -325,6 +325,56 @@ test("exhibits are optional and only the converted pages opt in", () => {
   assert.deepEqual(getProjectBySlug("kairo-health").exhibits.map(({ kind }) => kind), ["hero", "stage", "stage", "journey", "section"]);
   assert.deepEqual(getProjectBySlug("usm-venture-benchmark").exhibits.map(({ kind }) => kind), ["hero", "stage", "stage", "journey", "section"]);
   assert.deepEqual(getProjectBySlug("ovara").exhibits.map(({ kind }) => kind), ["hero", "rows", "stage", "custom", "section", "section"]);
+});
+
+/** split prose into sentences, keeping decimals such as 0.91 and initials inside one sentence. */
+function sentences(text) {
+  return text.split(/(?<=[.?!])\s+(?=[A-Z0-9])/).map((sentence) => sentence.trim()).filter(Boolean);
+}
+
+// pages built from their prose mock (figma section 07); every page joins as it is built.
+const ledeSlugs = ["kairo-health"];
+
+/** every lede sentence of a chapter; a prose chapter with no lede of its own reads its section text. */
+function ledeSentences(project, exhibit) {
+  const paragraphs = exhibit.lede ?? project.sections.find(({ id }) => id === exhibit.section).body;
+  return paragraphs.flatMap((paragraph) => typeof paragraph === "string"
+    ? sentences(paragraph).map((text) => ({ text }))
+    : paragraph.map((sentence) => (typeof sentence === "string" ? { text: sentence } : sentence)));
+}
+
+test("every lede sentence on a converted page is that page's own copy", () => {
+  for (const slug of ledeSlugs) {
+    const project = getProjectBySlug(slug);
+    // a page's copy is its section text and the captions of its section media.
+    const prose = project.sections.flatMap(({ body, media }) => [...body, ...(media ?? []).map(({ caption }) => caption)]).join("\n");
+    for (const exhibit of project.exhibits) {
+      const lede = ledeSentences(project, exhibit);
+      assert.ok(lede.length > 0, `${slug} ${exhibit.id} has a lede`);
+      for (const sentence of lede) {
+        if (!sentence.newCopy) assert.ok(prose.includes(sentence.text), `${slug} ${exhibit.id} lede sentence is not verbatim: ${sentence.text}`);
+      }
+    }
+  }
+});
+
+// the "+ prose (mock)" frames in figma section 07, exported to .private/redesign-spec/prose.json, set each
+// page's rail, chapter heads and ledes.
+const prosePath = new URL("../.private/redesign-spec/prose.json", import.meta.url);
+const mockSlugs = ["kairo-health"];
+
+test("converted pages follow their prose mock word for word", { skip: !existsSync(prosePath) && "prose export not present" }, () => {
+  const mocks = JSON.parse(readFileSync(prosePath, "utf8"));
+  for (const slug of mockSlugs) {
+    const project = getProjectBySlug(slug);
+    const mock = mocks[slug];
+    assert.deepEqual(project.exhibits.map(({ chapter }, index) => `0${index + 1} ${chapter}`), mock.rail, `${slug} rail matches the mock`);
+    assert.equal(project.exhibits.length, mock.chapters.length);
+    for (const [exhibit, chapter] of project.exhibits.map((exhibit, index) => [exhibit, mock.chapters[index]])) {
+      assert.deepEqual(exhibit.lede, chapter.paragraphs, `${slug} ${exhibit.id} lede matches the mock`);
+      assert.deepEqual([exhibit.eyebrow, exhibit.heading], [chapter.eyebrow, chapter.heading], `${slug} ${exhibit.id} head matches the mock`);
+    }
+  }
 });
 
 /** compare one converted page against its spec export: chapters, hero, and every exhibit's copy and boxes. */

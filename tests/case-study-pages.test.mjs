@@ -4,6 +4,8 @@ import { join } from "node:path";
 import test, { before } from "node:test";
 import assert from "node:assert/strict";
 
+import { projects } from "../src/data/portfolio.mjs";
+
 const projectRoot = new URL("..", import.meta.url).pathname;
 const slugs = [
   "usm-venture-benchmark",
@@ -192,7 +194,8 @@ test("USM renders the v2 exhibit layout from the approved spec", () => {
   // no reflection text exists, so the closing chapter is the vc-lens prose behind figma's last rail chapter.
   assert.doesNotMatch(usm, /id="reflection"/);
   const closing = usm.slice(usm.indexOf('id="the-vc-lens"'), usm.indexOf("data-project-pager"));
-  assert.ok(closing.indexOf("DECISION FRAMEWORK") < closing.indexOf("The useful question was what could work here"), "the strip opens chapter 05");
+  // like every chapter, 05 runs head, lede, exhibit: the vc-lens prose leads into the decision framework strip.
+  assert.ok(closing.indexOf("The useful question was what could work here") < closing.indexOf("DECISION FRAMEWORK"), "the prose leads into the strip");
   assert.match(closing, /The last step moved from what exists elsewhere to what might transfer\./);
   assert.match(closing, /It is also the part of venture work I value most: synthesis is useful when it produces a better investment question\./);
   assert.doesNotMatch(usm, /transferability-lens/);
@@ -241,4 +244,15 @@ test("Ovara renders the v2 exhibit layout from the approved spec", () => {
   assert.match(ovara, /That is the number I would have quoted in an interview\./);
   assert.match(ovara, /href="\/work\/kairo-health"/);
   assertBadgesResolve(ovara, 3);
+});
+
+test("new lede sentences stay off the page until their wording is approved", () => {
+  for (const project of projects) {
+    const held = (project.exhibits ?? []).flatMap(({ lede }) => (lede ?? []).flat()).filter((sentence) => sentence?.newCopy);
+    for (const { text } of held) assert.ok(!pages.get(project.slug).includes(text), `${project.slug} ships unapproved copy: ${text}`);
+  }
+  const kairo = pages.get("kairo-health");
+  assert.equal([...kairo.matchAll(/class="chapter-lede"/g)].length, 5);
+  assert.match(kairo, /<p class="section-eyebrow"[^>]*>OVERVIEW<\/p>/);
+  assert.match(kairo, /When the scan breaks, how does extraction change\?/);
 });

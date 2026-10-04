@@ -26,7 +26,11 @@
  * @typedef {{ tag?: string, title: string, body: string }} ExhibitCaption
  * @typedef {{ eyebrow: string, value: string, label: string, at?: { x: number, y: number } }} ExhibitKpi
  *   at is the card's top left corner as percentages of the hero stage; it defaults to kairo's spot.
- * @typedef {{ id: string, chapter: string, figma?: string, eyebrow?: string, heading?: string }} ExhibitBase
+ * @typedef {string | { text: string, newCopy: true }} LedeSentence
+ * @typedef {string | LedeSentence[]} LedeParagraph
+ *   lede text comes word for word from the page's sections; a sentence written to join or set up a
+ *   chapter is marked newCopy, listed in .private/redesign-spec/new-copy.md, and held back until approved.
+ * @typedef {{ id: string, chapter: string, figma?: string, eyebrow?: string, heading?: string, lede?: LedeParagraph[] }} ExhibitBase
  * @typedef {ExhibitBase & { kind: "hero", visuals: ExhibitVisual[], kpi?: ExhibitKpi, metrics: { value: string, label: string }[] }} HeroExhibit
  * @typedef {ExhibitBase & { kind: "stage", size: "wide" | "square" | "pair", ratio?: string, visuals: ExhibitVisual[], annotations?: ExhibitAnnotation[], notes?: ExhibitNote[], captions?: ExhibitCaption[] }} StageExhibit
  * @typedef {{ width: number, height: number, sigma: number, circles: { x: number, y: number, r: number, colour: string, alpha: number }[] }} StageField
@@ -39,10 +43,9 @@
  * @typedef {ExhibitBase & { kind: "heatmap", panels: { label: string, columns: string[], rows: string[][] }[], annotations?: ExhibitAnnotation[], notes?: ExhibitNote[] }} HeatmapExhibit
  * @typedef {ExhibitBase & { kind: "matrix", label: string, columns: string[], rows: string[][], annotations?: ExhibitAnnotation[], notes?: ExhibitNote[] }} MatrixExhibit
  * @typedef {ExhibitBase & { kind: "custom", graphic: "timeline" | "visit-map" | "audit-cards" | "artboard-count", text: string, footnote?: string }} CustomExhibit
- * @typedef {ExhibitBase & { kind: "section", section: string, strip?: ExhibitStrip }} SectionExhibit
- *   renders an existing narrative section, unchanged, as its own chapter. a page closes on its
- *   Reflection section, or, with no Reflection text, on the section behind its last figma rail chapter.
- *   a strip given here opens the chapter above the prose.
+ * @typedef {ExhibitBase & { kind: "section", section: string }} SectionExhibit
+ *   a rail chapter with no exhibit. its eyebrow, heading and lede come from the page's prose mock
+ *   (.private/redesign-spec/prose.json); section names the narrative section that text comes from.
  * @typedef {HeroExhibit | StageExhibit | RowsExhibit | PairExhibit | JourneyExhibit | HeatmapExhibit | MatrixExhibit | CustomExhibit | SectionExhibit} Exhibit
  */
 export const caseStudies = [
@@ -607,6 +610,12 @@ export const caseStudies = [
     exhibits: /** @type {Exhibit[]} */ ([
       {
         kind: "hero", id: "overview", chapter: "Overview", figma: "61:946",
+        eyebrow: "OVERVIEW",
+        heading: "When the scan breaks, how does extraction change?",
+        lede: [
+          "Clinicians I interviewed during customer discovery, including at the MSF clinic in Monrovia, were filling out a near identical version of the MSF Aweil pediatric triage form. Paper, carbon copied, photographed under whatever light the room had. So the question I needed answered was not whether a language model can read a medical form. It was where the photo gets bad enough that the reading stops being worth trusting, and whether that point moves if you pay for a model instead of writing regex.",
+          "Most clinical NLP work reports one accuracy number with document quality buried inside it. Kairo pulls that variable back out. Clinical content stays fixed while the scan moves through five calibrated tiers, and a regex baseline and a zero shot language model read the same Tesseract output.",
+        ],
         visuals: [
           { src: "/images/work/kairo/kairo-rules-heatmap.png", width: 900, height: 1200, alt: "Regex field level F1 heatmap across noise tiers", rot: 6, at: { x: 13.4, y: 19.8, w: 30.5 } },
           { src: "/images/work/kairo/kairo-llm-heatmap.png", width: 900, height: 1200, alt: "Language model field level F1 heatmap across noise tiers", rot: -6, at: { x: 58.1, y: 20, w: 30.5 } },
@@ -621,6 +630,10 @@ export const caseStudies = [
       },
       {
         kind: "stage", id: "the-brief", chapter: "The brief", figma: "61:1002", size: "wide", ratio: "1116 / 680",
+        lede: [
+          "I modeled the dataset on the MSF Aweil pediatric triage form, the same document I had watched clinicians use. Every form carries plausible values across identifiers, free text, a checkbox triage class, and six numeric vitals.",
+          "A fixed seed generated thirty ground truth forms. Rendering each at five quality levels produced 150 documents and 2,100 field attempts. Synthetic data gave me exact ground truth on all fourteen fields with no privacy exposure. It also sets a ceiling. Real handwritten records would be harder for both methods, and nothing in this study measures that gap.",
+        ],
         eyebrow: "THE BRIEF",
         heading: "Thirty generated forms created a controlled clinical document set",
         visuals: [{ src: "/images/work/kairo/kairo-form-clean.png", width: 1700, height: 2200, alt: "One generated pediatric triage form at clean quality", at: { x: 29.2, y: 5.9, w: 41.6 } }],
@@ -637,6 +650,10 @@ export const caseStudies = [
       },
       {
         kind: "stage", id: "field-by-tier", chapter: "Field by tier", figma: "62:986", size: "wide", ratio: "1116 / 680",
+        lede: [
+          "The rules method applies fourteen label anchored patterns, tuned on clean OCR and left unchanged at every tier. No fuzzy fallbacks. That is the realistic deployment story for a rule based system. You write the rules once, and then the world sends you input you did not tune for.",
+          "Clean and moderate performance was statistically similar. At heavy noise the model reached F1 0.91 against 0.86 for rules, and at severe noise 0.67 against 0.58. A paired bootstrap with 1,000 resamples and an exact McNemar test confirm the gap at those two tiers and only those two.",
+        ],
         eyebrow: "FIELD BY TIER",
         heading: "A rules baseline and a zero shot model failed in different ways",
         visuals: [
@@ -656,6 +673,10 @@ export const caseStudies = [
       },
       {
         kind: "journey", id: "a-scans-journey", chapter: "A scan’s journey", figma: "63:951",
+        lede: [
+          "Document quality should pick the extraction path instead of one extractor handling every scan. Clean and moderate can take the cheaper deterministic route. Heavy scans go to the model with field level review. Severe and extreme should be rejected or escalated before anything downstream touches them.",
+          "At heavy noise McNemar produced p = 1.6 × 10⁻¹⁵. The two methods disagreed on 56 fields and the model was right on 55 of them. Across 2,100 attempts it hallucinated five times, all at severe or extreme noise. Those two numbers set both the benefit and the boundary.",
+        ],
         eyebrow: "A SCAN’S JOURNEY",
         heading: "Deployment routing turns document quality into a review decision",
         stages: ["01 Paper form", "02 Photo", "03 OCR", "04 Quality score", "05 Extraction", "06 Triage gate"],
@@ -699,7 +720,16 @@ export const caseStudies = [
           note: "The routing recommendation follows the observed performance break across five controlled OCR conditions. The triage field never commits on its own.",
         },
       },
-      { kind: "section", id: "reflection", chapter: "Reflection", section: "reflection" },
+      {
+        kind: "section", id: "reflection", chapter: "Reflection", section: "reflection",
+        eyebrow: "REFLECTION",
+        heading: "The useful finding was a workflow insight, not a winner",
+        lede: [
+          "Kairo set out to answer a comparison question, and the comparison turned out to be the less interesting half. The model does degrade more gracefully, significantly so at heavy and severe noise. But six of fourteen fields never needed it, one field should never commit on its own at any quality, and the pipeline has no way to tell which regime a given scan is in.",
+          "That last gap is what I would build next. A quality estimate at capture time would let a clinician be asked to retake a photo while the patient is still in front of them, instead of a value being quietly dropped downstream. A second check would flag any triage colour that contradicts the vitals extracted from the same form. I believe that cross check is the cheapest safeguard the data points at, and it is the one I never tested.",
+          "The average score showed the model holding up better as quality dropped. The direction of one field's errors did more to shape what I would actually ship.",
+        ],
+      },
     ]),
     metrics: [
       { value: "150", label: "synthetic documents" },

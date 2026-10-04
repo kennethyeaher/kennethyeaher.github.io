@@ -1,0 +1,21 @@
+---
+// chapter lede per figma 86:1343: one to three paragraphs between a section head and its exhibit, in
+// body/m. a paragraph is a string, or a list of sentences where any sentence marked newCopy is held
+// back until its wording is approved (see .private/redesign-spec/new-copy.md).
+type Sentence = string | { text: string; newCopy: true };
+interface Props {
+  paragraphs: (string | Sentence[])[];
+}
+const { paragraphs } = Astro.props;
+const shown = paragraphs
+  .map((paragraph) => (typeof paragraph === "string" ? paragraph : paragraph.filter((sentence) => typeof sentence === "string").join(" ")))
+  .filter(Boolean);
+---
+<div class="chapter-lede">
+  {shown.map((paragraph) => <p>{paragraph}</p>)}
+</div>
+<style>
+  .chapter-lede { max-width: 680px; margin-top: 32px; }
+  .chapter-lede p { margin: 0; color: var(--ink); font: 17px / 1.5 var(--body); }
+  .chapter-lede p + p { margin-top: 16px; }
+</style>
