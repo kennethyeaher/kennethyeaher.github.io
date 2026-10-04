@@ -15,6 +15,8 @@ const slugs = [
   "terpcare",
   "sohive",
 ];
+// pages already moved to the v2 exhibit layout; the older cover and media checks skip them.
+const exhibitPages = new Set(["kairo-health", "usm-venture-benchmark"]);
 const pages = new Map();
 
 before(() => {
@@ -80,7 +82,7 @@ test("public case studies keep caveats and future-improvement notes out of the r
 
 test("case-study covers show real exhibits with explicitly controlled motion", () => {
   for (const [slug, html] of pages) {
-    if (slug === "kairo-health") continue;
+    if (exhibitPages.has(slug)) continue;
     assert.match(html, /data-project-cover/);
     assert.match(html, /class="cover-motion"/);
     assert.doesNotMatch(html, /autoplay/);
@@ -99,13 +101,12 @@ test("the renamed capstone and expanded product evidence render publicly", () =>
   const usm = pages.get("usm-venture-benchmark");
 
   assert.match(usm, /USM Venture Benchmark/);
-  assert.match(usm, /638 data cells/);
+  assert.match(usm, /638 cells/);
   assert.match(usm, /zero field-level mismatches/);
   assert.match(usm, /brief-overview-redacted\.png/);
   assert.match(usm, /brief-vehicles-redacted\.png/);
   assert.match(usm, /brief-portfolio-redacted\.png/);
   assert.match(usm, /brief-deep-dive-redacted\.png/);
-  assert.match(usm, /data-media-layout="lead-grid"/);
   assert.doesNotMatch(usm, /figma\.com\/design\/Vi6MdEzxLKirckl6xpY2jJ/);
   assert.match(pages.get("college-park-capstone"), /Information Science Capstone/);
   assert.match(pages.get("terpcare"), /15-screen product system/);
@@ -117,7 +118,8 @@ test("previous and next project links wrap without dead ends", () => {
   const middle = pages.get("frontground");
   const last = pages.get("sohive");
 
-  assert.match(first, /href="\/work\/sohive"/);
+  // the v2 exhibit shell (figma 61:1059) closes on a next project link only, so previous is checked on the older layout.
+  if (!exhibitPages.has("usm-venture-benchmark")) assert.match(first, /href="\/work\/sohive"/);
   assert.match(first, /href="\/work\/ovara"/);
   assert.match(middle, /href="\/work\/college-park-capstone"/);
   assert.match(middle, /href="\/work\/terpcare"/);
@@ -168,4 +170,36 @@ test("Kairo renders the v2 exhibit layout from the approved spec", () => {
     assert.match(kairo, new RegExp(`<li id="${describedBy}"`));
   }
   assert.doesNotMatch(kairo, /data-cover-video|\.mp4/);
+});
+
+/** every annotation badge links to, and is described by, a note that exists on the page. */
+function assertBadgesResolve(html, count) {
+  const badges = [...html.matchAll(/<a class="annotation-badge[^"]*" href="#([^"]+)" aria-describedby="([^"]+)"/g)];
+  assert.equal(badges.length, count);
+  for (const [, href, describedBy] of badges) {
+    assert.equal(href, describedBy);
+    assert.match(html, new RegExp(`<li id="${describedBy}"`));
+  }
+}
+
+test("USM renders the v2 exhibit layout from the approved spec", () => {
+  const usm = pages.get("usm-venture-benchmark");
+  for (const id of ["overview", "the-brief-system", "validation-grid", "the-evidence-path"]) {
+    assert.match(usm, new RegExp(`<section[^>]*id="${id}"[^>]*data-case-section`));
+    assert.match(usm, new RegExp(`href="#${id}"`));
+  }
+  // usm has no reflection text in caseStudies.mjs, so the chapter is left out rather than invented.
+  assert.doesNotMatch(usm, /id="reflection"/);
+  assert.match(usm, /class="exhibit-stage stage-hero/);
+  assert.match(usm, /--stage-ratio: 1116 \/ 460/);
+  assert.match(usm, /left: 70\.8%; top: 71\.7%/);
+  assert.match(usm, /data-count-to="638"/);
+  assert.match(usm, /<table class="journey/);
+  assert.match(usm, /<th scope="col" class="is-accent[^"]*"[^>]*>[\s\S]*?Investment synthesis/);
+  assert.equal([...usm.matchAll(/class="is-mechanism/g)].length, 4);
+  assert.match(usm, /<span class="strip-commitment"[^>]*>HIGH CAPITAL AND GOVERNANCE<\/span>/);
+  assert.match(usm, /The mechanisms are generic\. Confidential institution findings and recommendations are omitted\./);
+  assert.match(usm, /href="\/work\/ovara"/);
+  assertBadgesResolve(usm, 6);
+  assert.doesNotMatch(usm, /data-cover-video|\.mp4/);
 });

@@ -50,7 +50,7 @@ function sectionFor(exhibit: any) {
           ))}
         </ExhibitStage>
         {hero.kpi && (
-          <div class="hero-kpi">
+          <div class="hero-kpi" style={hero.kpi.at && `left: ${hero.kpi.at.x}%; top: ${hero.kpi.at.y}%`}>
             <p class="kpi-eyebrow">{hero.kpi.eyebrow}</p>
             <p class="kpi-value">{hero.kpi.value}</p>
             <p class="kpi-label">{hero.kpi.label}</p>

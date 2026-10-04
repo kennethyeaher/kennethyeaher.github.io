@@ -24,13 +24,17 @@ const presets = {
 };
 const preset = size === "hero" ? presets.hero : presets.wide;
 const defaultRatio = { hero: "1116 / 600", wide: "1116 / 680", square: "1 / 1", pair: "534 / 560" }[size];
+// figma keeps the circles in place when a stage is shorter (brief system 68:1011 is 1116 by 460),
+// so vertical positions are measured against this stage's own height, not the preset's.
+const [ratioWidth, ratioHeight] = (ratio ?? defaultRatio).split("/").map(Number);
+const stageHeight = ratioWidth && ratioHeight ? (preset.width * ratioHeight) / ratioWidth : preset.height;
 
 /** turn one blurred figma circle into a radial gradient sized in stage widths (cqw). */
 function fieldLayer(circle: (typeof preset.circles)[number]): string {
   const colour = palette[circle.colour] ?? palette[palette.length - 1];
   const unit = (px: number) => `${((px / preset.width) * 100).toFixed(2)}cqw`;
   const spread = preset.sigma * 1.6;
-  const at = `${((circle.x / preset.width) * 100).toFixed(1)}% ${((circle.y / preset.height) * 100).toFixed(1)}%`;
+  const at = `${((circle.x / preset.width) * 100).toFixed(1)}% ${((circle.y / stageHeight) * 100).toFixed(1)}%`;
   const solid = `color-mix(in oklab, ${colour} ${Math.round(circle.alpha * 100)}%, transparent)`;
   const half = `color-mix(in oklab, ${colour} ${Math.round(circle.alpha * 50)}%, transparent)`;
   return `radial-gradient(circle at ${at} var(--in-oklab), ${solid} 0, ${solid} ${unit(Math.max(0, circle.r - spread))}, ${half} ${unit(circle.r)}, transparent ${unit(circle.r + spread)})`;

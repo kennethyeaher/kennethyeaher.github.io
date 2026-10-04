@@ -290,44 +290,69 @@ test("unknown slugs fail closed", () => {
   );
 });
 
-test("exhibits are optional and only Kairo opts in for now", () => {
+// pages on the v2 exhibit layout. each closes on its Reflection chapter when caseStudies.mjs has one.
+const exhibitSlugs = ["kairo-health", "usm-venture-benchmark"];
+
+test("exhibits are optional and only the converted pages opt in", () => {
   for (const project of projects) {
-    if (project.slug === "kairo-health") continue;
+    if (exhibitSlugs.includes(project.slug)) continue;
     assert.equal(project.exhibits, undefined, `${project.slug} should keep the current layout`);
   }
-  const kairo = getProjectBySlug("kairo-health");
-  assert.deepEqual(kairo.exhibits.map(({ kind }) => kind), ["hero", "stage", "stage", "journey", "section"]);
-  assert.ok(kairo.sections.some(({ id }) => id === "reflection"));
-  for (const exhibit of kairo.exhibits) {
-    for (const visual of exhibit.visuals ?? []) {
-      assert.ok(visual.alt && visual.width > 0 && visual.height > 0, `${exhibit.id} visual needs alt and size`);
-    }
-    for (const annotation of exhibit.annotations ?? []) {
-      assert.ok(exhibit.notes.some(({ n }) => n === annotation.num), `${exhibit.id} annotation ${annotation.num} needs a note`);
+  for (const slug of exhibitSlugs) {
+    const project = getProjectBySlug(slug);
+    const reflection = project.sections.find(({ id }) => id === "reflection");
+    const last = project.exhibits.at(-1);
+    if (reflection) assert.deepEqual([last.kind, last.section], ["section", "reflection"], `${slug} closes on Reflection`);
+    else assert.ok(!project.exhibits.some(({ kind }) => kind === "section"), `${slug} has no Reflection text, so no prose chapter`);
+    for (const exhibit of project.exhibits) {
+      for (const visual of exhibit.visuals ?? []) {
+        assert.ok(visual.alt && visual.width > 0 && visual.height > 0, `${slug} ${exhibit.id} visual needs alt and size`);
+      }
+      for (const annotation of exhibit.annotations ?? []) {
+        assert.ok(exhibit.notes.some(({ n }) => n === annotation.num), `${slug} ${exhibit.id} annotation ${annotation.num} needs a note`);
+      }
+      assert.ok((exhibit.annotations ?? []).length <= 4, `${slug} ${exhibit.id} carries at most four annotations`);
     }
   }
+  assert.deepEqual(getProjectBySlug("kairo-health").exhibits.map(({ kind }) => kind), ["hero", "stage", "stage", "journey", "section"]);
+  assert.deepEqual(getProjectBySlug("usm-venture-benchmark").exhibits.map(({ kind }) => kind), ["hero", "stage", "stage", "journey"]);
 });
 
-test("Kairo exhibit copy matches the approved spec word for word", { skip: !existsSync(specPath) && "spec export not present" }, () => {
-  const spec = JSON.parse(readFileSync(specPath, "utf8")).pages.find(({ slug }) => slug === "kairo-health");
-  const kairo = getProjectBySlug("kairo-health");
-  const [hero, brief, tiers, journey] = kairo.exhibits;
-  const [specHero, specBrief, specTiers, specJourney] = spec.sections;
+/** compare one converted page against its spec export: chapters, hero, and every exhibit's copy and boxes. */
+function assertMatchesSpec(slug) {
+  const spec = JSON.parse(readFileSync(specPath, "utf8")).pages.find((page) => page.slug === slug);
+  const project = getProjectBySlug(slug);
+  const [hero, ...rest] = project.exhibits;
+  const [specHero, ...specRest] = spec.sections;
 
   assert.deepEqual(hero.metrics.map(({ value, label }) => [value, label]), spec.metrics);
-  assert.deepEqual(hero.kpi, { eyebrow: specHero.kpi.eyebrow, value: specHero.kpi.value, label: specHero.kpi.label });
-  assert.deepEqual(kairo.exhibits.map(({ chapter }, index) => `0${index + 1} ${chapter}`), spec.chapters);
-  for (const [built, source] of [[brief, specBrief], [tiers, specTiers], [journey, specJourney]]) {
+  assert.deepEqual(
+    { eyebrow: hero.kpi.eyebrow, value: hero.kpi.value, label: hero.kpi.label },
+    { eyebrow: specHero.kpi.eyebrow, value: specHero.kpi.value, label: specHero.kpi.label },
+  );
+  assert.deepEqual(hero.visuals.map(({ rot, at }) => [rot, at]), specHero.visuals.map(({ rot, stagePct }) => [rot, stagePct]));
+  // a spec chapter with no exhibit behind it (usm's "05 The VC lens") is left out, so compare the built prefix.
+  const chapters = project.exhibits.map(({ chapter }, index) => `0${index + 1} ${chapter}`);
+  assert.deepEqual(chapters.filter((chapter) => !chapter.endsWith("Reflection")), spec.chapters.slice(0, specRest.length + 1));
+  for (const [built, source] of rest.filter(({ kind }) => kind !== "section").map((exhibit, index) => [exhibit, specRest[index]])) {
+    assert.equal(built.figma, source.id);
     assert.equal(built.eyebrow, source.eyebrow);
     assert.equal(built.heading, source.heading);
-    assert.equal(built.figma, source.id);
+    if (source.notes) assert.deepEqual(built.notes, source.notes);
+    if (source.annotations) {
+      assert.deepEqual(built.annotations.map(({ num, at }) => [num, at]), source.annotations.map(({ num, pct }) => [num, pct]));
+      assert.deepEqual(built.annotations.map(({ on }) => built.visuals[on] && source.visuals[on].id), source.annotations.map(({ on }) => on));
+    }
+    if (source.visuals && built.kind === "stage") assert.deepEqual(built.visuals.map(({ at }) => at), source.visuals.map(({ stagePct }) => stagePct));
+    if (source.journey) {
+      assert.deepEqual(built.stages, source.journey.stages);
+      assert.equal(built.accentStage, source.journey.accentStage);
+      assert.deepEqual(Object.fromEntries(built.rows.map(({ label, cells }) => [label, cells])), source.journey.rows);
+      assert.deepEqual(built.strip, source.strip);
+    }
   }
-  for (const [built, source] of [[brief, specBrief], [tiers, specTiers]]) {
-    assert.deepEqual(built.notes, source.notes);
-    assert.deepEqual(built.annotations.map(({ num, at }) => [num, at]), source.annotations.map(({ num, pct }) => [num, pct]));
-  }
-  assert.deepEqual(journey.stages, specJourney.journey.stages);
-  assert.equal(journey.accentStage, specJourney.journey.accentStage);
-  assert.deepEqual(Object.fromEntries(journey.rows.map(({ label, cells }) => [label, cells])), specJourney.journey.rows);
-  assert.deepEqual(journey.strip, specJourney.strip);
-});
+}
+
+for (const slug of exhibitSlugs) {
+  test(`${slug} exhibit copy matches the approved spec word for word`, { skip: !existsSync(specPath) && "spec export not present" }, () => assertMatchesSpec(slug));
+}

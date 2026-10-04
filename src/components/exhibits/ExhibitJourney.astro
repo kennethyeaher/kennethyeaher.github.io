@@ -1,12 +1,13 @@
 ---
 // journey map per figma 63:955: stage columns by labelled rows, one accent stage, then an optional
-// strip of cards (63:1021). it is tabular, so it renders as a real table that scrolls on small screens.
+// strip of cards: kairo's routing tiers (63:1021) carry a tier, a value and a route; usm's decision
+// framework (68:1126) carries a mechanism, what changes, its primary test and the commitment. it is tabular, so it renders as a real table that scrolls on small screens.
 interface Props {
   id: string;
   stages: string[];
   accentStage?: string;
   rows: { label: string; cells: string[] }[];
-  strip?: { label: string; highlight?: string; cards: [string, string, string][]; note?: string };
+  strip?: { label: string; highlight?: string; cards: ([string, string, string] | [string, string, string, string])[]; note?: string };
   caption: string;
 }
 const { id, stages, accentStage, rows, strip, caption } = Astro.props;
@@ -45,11 +46,12 @@ const tones = ["muted", "annotate", "accent"];
   <div class="journey-strip">
     <p class="strip-label">{strip.label}</p>
     <ul>
-      {strip.cards.map(([tier, value, route]) => (
-        <li class:list={[strip.highlight && tier.toLowerCase() === strip.highlight.toLowerCase() && "is-highlight"]}>
+      {strip.cards.map(([tier, value, route, commitment]) => (
+        <li class:list={[strip.highlight && tier.toLowerCase() === strip.highlight.toLowerCase() && "is-highlight", commitment && "is-mechanism"]}>
           <span class="strip-tier">{tier}</span>
           <span class="strip-value">{value}</span>
           <span class="strip-route">{route}</span>
+          {commitment && <span class="strip-commitment">{commitment}</span>}
         </li>
       ))}
     </ul>
@@ -84,5 +86,8 @@ const tones = ["muted", "annotate", "accent"];
   .is-highlight .strip-tier { color: var(--color-annotate); }
   .strip-value { color: var(--ink-strong); font: 400 24px / 1.2 var(--display); }
   .strip-route { color: var(--ink); font: 500 13px / 1.4 var(--ui); }
+  .journey-strip li.is-mechanism { align-content: start; gap: 6px; padding: 17px; }
+  .is-mechanism .strip-value { font-size: 20px; line-height: 23px; }
+  .strip-commitment { color: var(--muted); font: 10px / 1.3 var(--mono); letter-spacing: 0.08em; }
   .strip-note { max-width: 760px; margin: 14px 0 0; color: var(--secondary); font: 15px / 1.5 var(--body); }
 </style>

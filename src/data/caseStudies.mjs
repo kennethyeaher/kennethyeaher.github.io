@@ -21,13 +21,15 @@
  *   on is the index of the visual the box sits on; native targets name a row or cell instead.
  * @typedef {{ n: string, title: string, body: string }} ExhibitNote
  * @typedef {{ tag?: string, title: string, body: string }} ExhibitCaption
- * @typedef {{ eyebrow: string, value: string, label: string }} ExhibitKpi
+ * @typedef {{ eyebrow: string, value: string, label: string, at?: { x: number, y: number } }} ExhibitKpi
+ *   at is the card's top left corner as percentages of the hero stage; it defaults to kairo's spot.
  * @typedef {{ id: string, chapter: string, figma?: string, eyebrow?: string, heading?: string }} ExhibitBase
  * @typedef {ExhibitBase & { kind: "hero", visuals: ExhibitVisual[], kpi?: ExhibitKpi, metrics: { value: string, label: string }[] }} HeroExhibit
  * @typedef {ExhibitBase & { kind: "stage", size: "wide" | "square" | "pair", ratio?: string, visuals: ExhibitVisual[], annotations?: ExhibitAnnotation[], notes?: ExhibitNote[], captions?: ExhibitCaption[] }} StageExhibit
  * @typedef {ExhibitBase & { kind: "rows", visuals: ExhibitVisual[], captions: ExhibitCaption[], annotations?: ExhibitAnnotation[] }} RowsExhibit
  * @typedef {ExhibitBase & { kind: "pair", stages: StageExhibit[], captions: ExhibitCaption[] }} PairExhibit
- * @typedef {{ label: string, highlight?: string, cards: [string, string, string][], note?: string }} ExhibitStrip
+ * @typedef {{ label: string, highlight?: string, cards: ([string, string, string] | [string, string, string, string])[], note?: string }} ExhibitStrip
+ *   three part cards are a tier, a value and a route; four part cards add a commitment line.
  * @typedef {ExhibitBase & { kind: "journey", stages: string[], accentStage?: string, rows: { label: string, cells: string[] }[], strip?: ExhibitStrip }} JourneyExhibit
  * @typedef {ExhibitBase & { kind: "heatmap", panels: { label: string, columns: string[], rows: string[][] }[], annotations?: ExhibitAnnotation[], notes?: ExhibitNote[] }} HeatmapExhibit
  * @typedef {ExhibitBase & { kind: "matrix", label: string, columns: string[], rows: string[][], annotations?: ExhibitAnnotation[], notes?: ExhibitNote[] }} MatrixExhibit
@@ -68,6 +70,96 @@ export const caseStudies = [
       }),
       titlePlacement: "center",
     },
+    exhibits: /** @type {Exhibit[]} */ ([
+      {
+        kind: "hero", id: "overview", chapter: "Overview", figma: "68:974",
+        visuals: [
+          { src: "/images/work/usm-venture-benchmark/brief-vehicles-redacted.png", width: 1020, height: 1320, alt: "Redacted finished benchmark brief vehicle breakdown showing four stacked program cards", rot: 6, at: { x: 13.4, y: 12.4, w: 34.4 } },
+          { src: "/images/work/usm-venture-benchmark/brief-portfolio-redacted.png", width: 1020, height: 1320, alt: "Redacted benchmark brief portfolio page showing a three-by-three company-card grid", rot: -6, at: { x: 53.2, y: 15, w: 34.4 } },
+          { src: "/images/work/usm-venture-benchmark/brief-overview-redacted.png", width: 1020, height: 1320, alt: "Redacted finished benchmark brief overview showing the page hierarchy, metric row, executive summary, and chart column", rot: 0, at: { x: 31.3, y: 6.7, w: 37.5 } },
+        ],
+        kpi: { eyebrow: "FINAL MATRIX", value: "638 cells", label: "0 field-level mismatches after validation", at: { x: 70.8, y: 71.7 } },
+        metrics: [
+          { value: "29", label: "finalized institution profiles" },
+          { value: "22", label: "normalized comparison fields" },
+          { value: "638", label: "reconciled data cells" },
+        ],
+      },
+      {
+        kind: "stage", id: "the-brief-system", chapter: "The brief system", figma: "68:1009", size: "wide", ratio: "1116 / 460",
+        eyebrow: "THE BRIEF SYSTEM",
+        heading: "One structure for twenty-nine different ecosystems",
+        visuals: [
+          { src: "/images/work/usm-venture-benchmark/brief-overview-redacted.png", width: 1020, height: 1320, alt: "Redacted finished benchmark brief overview showing the page hierarchy, metric row, executive summary, and chart column", at: { x: 2.2, y: 14.1, w: 22.8 } },
+          { src: "/images/work/usm-venture-benchmark/brief-vehicles-redacted.png", width: 1020, height: 1320, alt: "Redacted finished benchmark brief vehicle breakdown showing four stacked program cards", at: { x: 26.4, y: 14.1, w: 22.8 } },
+          { src: "/images/work/usm-venture-benchmark/brief-portfolio-redacted.png", width: 1020, height: 1320, alt: "Redacted benchmark brief portfolio page showing a three-by-three company-card grid", at: { x: 50.7, y: 14.1, w: 22.8 } },
+          { src: "/images/work/usm-venture-benchmark/brief-deep-dive-redacted.png", width: 1020, height: 1320, alt: "Redacted benchmark brief deep-dive page showing a two-column program analysis, evidence table, and pipeline diagram", at: { x: 75, y: 14.1, w: 22.8 } },
+        ],
+        annotations: [
+          { type: "focus", num: "01", on: 0, at: { x: 5.5, y: 22.7, w: 89, h: 12.7 } },
+          { type: "focus", num: "02", on: 1, at: { x: 52.9, y: 22.7, w: 42.4, h: 12.1 } },
+          { type: "focus", num: "03", on: 2, at: { x: 5.5, y: 77.9, w: 89, h: 17 } },
+        ],
+        notes: [
+          { n: "01", title: "One six-page structure", body: "I used one six-page profile structure for every included institution, then mapped each claim into a twenty-two-field schema." },
+          { n: "02", title: "Fields stay separate", body: "Capital scale, check range, portfolio activity, student involvement, technology-transfer integration, and evergreen design stayed separate instead of collapsing into one headline score." },
+          { n: "03", title: "Findings stay confidential", body: "The briefs and recommendations are confidential, so the public version shows the method, visual system, and validation record rather than institution-level findings." },
+        ],
+      },
+      {
+        kind: "stage", id: "validation-grid", chapter: "Validation grid", figma: "68:1033", size: "wide", ratio: "1116 / 680",
+        eyebrow: "VALIDATION GRID",
+        heading: "The matrix was treated as a dataset, not an appendix",
+        visuals: [{ src: "/images/work/usm-venture-benchmark/validation-grid.png", width: 2400, height: 1400, alt: "A twenty-nine by twenty-two validation grid showing verified cells, corrected cells, and cells changed to not disclosed", at: { x: 4.3, y: 6.2, w: 91.4 } }],
+        annotations: [
+          { type: "focus", num: "01", on: 0, at: { x: 10, y: 34.5, w: 3.5, h: 3.7 } },
+          { type: "focus", num: "02", on: 0, at: { x: 43.6, y: 32.6, w: 3.5, h: 3.7 } },
+          { type: "focus", num: "03", on: 0, at: { x: 61.7, y: 71.1, w: 24.1, h: 15.1 } },
+        ],
+        notes: [
+          { n: "01", title: "41 cells corrected", body: "Each of the 638 cells was reconciled against the final briefs. Forty-one were corrected during the last pass." },
+          { n: "02", title: "Nine moved to n/d", body: "Nine cells were deliberately changed to n/d when the evidence did not support a value. Missing disclosure was never backfilled with a guess." },
+          { n: "03", title: "Nothing left unresolved", body: "Final validation closed with zero field-level mismatches and zero unresolved citation numbers." },
+        ],
+      },
+      {
+        kind: "journey", id: "the-evidence-path", chapter: "The evidence path", figma: "68:1058",
+        eyebrow: "THE EVIDENCE PATH",
+        heading: "A ranked list would have been tidy and wrong",
+        stages: ["01 Source evidence", "02 Normalized profile", "03 Comparison matrix", "04 Investment synthesis"],
+        accentStage: "04",
+        rows: [
+          { label: "WHAT HAPPENS", cells: [
+            "Briefs, public sources, and investment diligence, collected and cited.",
+            "Each claim maps into one six-page template and a twenty-two-field schema.",
+            "29 profiles across 22 comparable fields.",
+            "Mechanisms judged on how broadly they apply and the effort to adopt them.",
+          ] },
+          { label: "WHERE IT BREAKS", cells: [
+            "Programs differ in mandate, reporting standards, and level of disclosure.",
+            "Documents disagree, and some values are never disclosed.",
+            "Treating size as quality would hide the operating choices that matter.",
+            "What exists elsewhere is not the same as what could work here.",
+          ] },
+          { label: "DESIGN RESPONSE", cells: [
+            "A source hierarchy decides what controls when documents disagree.",
+            "Missing disclosure stays n/d. It is never backfilled with a guess.",
+            "Disclosed, approximate, and not-disclosed values stay visually distinct.",
+            "Operating changes that could be piloted are separated from structures that need new capital or decision rights.",
+          ] },
+        ],
+        strip: {
+          label: "DECISION FRAMEWORK  ·  FOUR MECHANISMS, FOUR COMMITMENTS",
+          cards: [
+            ["OPERATING POLICY", "Rules and decision rights", "Can it survive a leadership change?", "LOW CAPITAL, FOCUSED GOVERNANCE"],
+            ["SHARED SCREENING", "How opportunities move across partners", "Can teams use one process without slowing decisions?", "CROSS-TEAM COORDINATION"],
+            ["PROGRAM LAYER", "Services wrapped around investment", "Does it work at the current operating scale?", "ONGOING OPERATING CAPACITY"],
+            ["CAPITAL VEHICLE", "Structure and deployment authority", "Can the thesis be tested before new capital is committed?", "HIGH CAPITAL AND GOVERNANCE"],
+          ],
+          note: "The mechanisms are generic. Confidential institution findings and recommendations are omitted.",
+        },
+      },
+    ]),
     metrics: [
       { value: "29", label: "finalized institution profiles" },
       { value: "22", label: "normalized comparison fields" },
