@@ -291,7 +291,16 @@ test("unknown slugs fail closed", () => {
 });
 
 // pages on the v2 exhibit layout. each closes on its Reflection chapter when caseStudies.mjs has one.
-const exhibitSlugs = ["kairo-health", "usm-venture-benchmark"];
+const exhibitSlugs = ["kairo-health", "usm-venture-benchmark", "ovara"];
+
+// figma rails for pages whose spec export carries no chapter list, read from the frame's chapter rail.
+const figmaRails = {
+  ovara: ["01 Overview", "02 The dashboard", "03 The finding", "04 Corrections", "05 Design", "06 Reflection"],
+};
+// rail chapters with no exhibit in the frame that are not the closing chapter, so the narrative rule leaves them out.
+const omittedChapters = {
+  ovara: ["Design"],
+};
 
 test("exhibits are optional and only the converted pages opt in", () => {
   for (const project of projects) {
@@ -323,6 +332,7 @@ test("exhibits are optional and only the converted pages opt in", () => {
   }
   assert.deepEqual(getProjectBySlug("kairo-health").exhibits.map(({ kind }) => kind), ["hero", "stage", "stage", "journey", "section"]);
   assert.deepEqual(getProjectBySlug("usm-venture-benchmark").exhibits.map(({ kind }) => kind), ["hero", "stage", "stage", "journey", "section"]);
+  assert.deepEqual(getProjectBySlug("ovara").exhibits.map(({ kind }) => kind), ["hero", "rows", "stage", "custom", "section"]);
 });
 
 /** compare one converted page against its spec export: chapters, hero, and every exhibit's copy and boxes. */
@@ -333,15 +343,20 @@ function assertMatchesSpec(slug) {
   const [specHero, ...specRest] = spec.sections;
 
   assert.deepEqual(hero.metrics.map(({ value, label }) => [value, label]), spec.metrics);
-  assert.deepEqual(
-    { eyebrow: hero.kpi.eyebrow, value: hero.kpi.value, label: hero.kpi.label },
-    { eyebrow: specHero.kpi.eyebrow, value: specHero.kpi.value, label: specHero.kpi.label },
-  );
+  if (specHero.kpi) {
+    assert.deepEqual(
+      { eyebrow: hero.kpi.eyebrow, value: hero.kpi.value, label: hero.kpi.label },
+      { eyebrow: specHero.kpi.eyebrow, value: specHero.kpi.value, label: specHero.kpi.label },
+    );
+  } else assert.equal(hero.kpi, undefined);
   assert.deepEqual(hero.visuals.map(({ rot, at }) => [rot, at]), specHero.visuals.map(({ rot, stagePct }) => [rot, stagePct]));
-  // the rail matches figma; a Reflection chapter the figma rail does not list is the one allowed addition.
-  const chapters = project.exhibits.map(({ chapter }, index) => `0${index + 1} ${chapter}`);
-  const addsReflection = chapters.at(-1).endsWith(" Reflection") && !spec.chapters.at(-1).endsWith(" Reflection");
-  assert.deepEqual(addsReflection ? chapters.slice(0, -1) : chapters, spec.chapters);
+  // the rail matches figma, less any documented omission; a Reflection chapter the figma rail does not
+  // list is the one allowed addition.
+  const name = (chapter) => chapter.replace(/^\d+ /, "");
+  const rail = (spec.chapters ?? figmaRails[slug]).map(name).filter((chapter) => !(omittedChapters[slug] ?? []).includes(chapter));
+  const chapters = project.exhibits.map(({ chapter }) => chapter);
+  const addsReflection = chapters.at(-1) === "Reflection" && rail.at(-1) !== "Reflection";
+  assert.deepEqual(addsReflection ? chapters.slice(0, -1) : chapters, rail);
   for (const [built, source] of rest.filter(({ kind }) => kind !== "section").map((exhibit, index) => [exhibit, specRest[index]])) {
     assert.equal(built.figma, source.id);
     assert.equal(built.eyebrow, source.eyebrow);
@@ -352,6 +367,11 @@ function assertMatchesSpec(slug) {
       assert.deepEqual(built.annotations.map(({ on }) => built.visuals[on] && source.visuals[on].id), source.annotations.map(({ on }) => on));
     }
     if (source.visuals && built.kind === "stage") assert.deepEqual(built.visuals.map(({ at }) => at), source.visuals.map(({ stagePct }) => stagePct));
+    if (source.captions) {
+      assert.deepEqual(built.captions, source.captions);
+      assert.equal(built.visuals.length, source.visuals.length);
+    }
+    if (source.text) assert.deepEqual([built.text, built.footnote], [source.text, source.footnote]);
     if (source.journey) {
       assert.deepEqual(built.stages, source.journey.stages);
       assert.equal(built.accentStage, source.journey.accentStage);

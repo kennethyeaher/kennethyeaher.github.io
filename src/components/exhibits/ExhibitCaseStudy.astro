@@ -6,6 +6,8 @@ import ExhibitStage from "@/components/exhibits/ExhibitStage.astro";
 import ExhibitVisual from "@/components/exhibits/ExhibitVisual.astro";
 import ExhibitJourney from "@/components/exhibits/ExhibitJourney.astro";
 import ExhibitStrip from "@/components/exhibits/ExhibitStrip.astro";
+import ExhibitRows from "@/components/exhibits/ExhibitRows.astro";
+import ExhibitAuditCards from "@/components/exhibits/ExhibitAuditCards.astro";
 import ExhibitMetrics from "@/components/exhibits/ExhibitMetrics.astro";
 import NextProject from "@/components/exhibits/NextProject.astro";
 import Notes from "@/components/exhibits/Notes.astro";
@@ -19,7 +21,8 @@ const { project, next } = Astro.props;
 const exhibits: any[] = project.exhibits;
 const hero = exhibits.find((exhibit) => exhibit.kind === "hero");
 const chapters = exhibits.map((exhibit) => ({ id: exhibit.id, label: exhibit.chapter }));
-const palette: string[] = project.cover.palette;
+// stages paint from the exhibit palette when figma's stage colours differ from the cover's (ovara).
+const palette: string[] = project.stagePalette ?? project.cover.palette;
 
 /** width over height of a stage, from its css ratio string such as "1116 / 680". */
 function stageRatio(exhibit: any): number {
@@ -47,7 +50,7 @@ function sectionFor(exhibit: any) {
       <div class="hero-wrap" style={`view-transition-name: cover-${project.slug}`} data-project-cover>
         <ExhibitStage palette={palette} size="hero">
           {hero.visuals.map((visual: any, index: number) => (
-            <ExhibitVisual visual={visual} stageRatio={stageRatio(hero)} priority={index === hero.visuals.length - 1} />
+            <ExhibitVisual visual={visual} stageRatio={stageRatio(hero)} priority={visual.priority ?? index === hero.visuals.length - 1} />
           ))}
         </ExhibitStage>
         {hero.kpi && (
@@ -104,6 +107,12 @@ function sectionFor(exhibit: any) {
                 </ExhibitStage>
                 {exhibit.notes && <Notes notes={exhibit.notes} idPrefix={exhibit.id} />}
               </>
+            )}
+            {exhibit.kind === "rows" && (
+              <ExhibitRows palette={palette} visuals={exhibit.visuals} captions={exhibit.captions} fields={exhibit.fields} base={exhibit.base} />
+            )}
+            {exhibit.kind === "custom" && exhibit.graphic === "audit-cards" && (
+              <ExhibitAuditCards text={exhibit.text} footnote={exhibit.footnote} />
             )}
             {exhibit.kind === "journey" && (
               <ExhibitJourney id={exhibit.id} stages={exhibit.stages} accentStage={exhibit.accentStage} rows={exhibit.rows} strip={exhibit.strip} caption={exhibit.heading} />

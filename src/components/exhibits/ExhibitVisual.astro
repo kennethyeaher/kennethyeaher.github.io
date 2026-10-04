@@ -2,6 +2,7 @@
 // one visual on a stage: a sheet image, an iphone or a browser, optionally playing a loop.
 // spec positions (at) are the figma bounding box as percentages of the stage, which for a
 // rotated visual is larger than the visual itself, so the unrotated size is solved here.
+// a crop shows one region of the image (fractions of its width and height), the way figma crops a fill.
 import DeviceFrame from "@/components/DeviceFrame.astro";
 import ExhibitLoop from "@/components/exhibits/ExhibitLoop.astro";
 import AnnotationFocus from "@/components/exhibits/AnnotationFocus.astro";
@@ -12,22 +13,27 @@ interface Props {
   visual: {
     src: string; alt: string; width: number; height: number;
     frame?: "image" | "iphone" | "browser"; rot?: number; at?: Box; loop?: { src: string; poster: string };
+    url?: string; crop?: { x: number; y: number; w: number; h: number }; priority?: boolean;
   };
   stageRatio?: number;
   priority?: boolean;
   annotations?: { type: "focus" | "leader" | "leader-vertical"; num: string; label?: string; at?: Box }[];
   idPrefix?: string;
+  /** the stage's width as a share of the article column, for sizes; rows sit on a 600 of 1116 stage. */
+  stageWidth?: number;
   // overlay mode renders only the annotations, in the same box as the visual, so a page can emit
   // them in note order and keep keyboard focus order matching the numbers.
   overlay?: boolean;
 }
-const { visual, stageRatio, priority = false, annotations = [], idPrefix = "exhibit", overlay = false } = Astro.props;
+const { visual, stageRatio, priority = false, annotations = [], idPrefix = "exhibit", overlay = false, stageWidth } = Astro.props;
 const frame = visual.frame ?? "image";
 
 /** height over width of the whole visual, including any device bezel or browser chrome. */
 function aspect(): number {
   if (frame === "iphone") return 620 / 300;
-  if (frame === "browser") return (40 + (880 * visual.height) / visual.width) / 880;
+  // the browser screen is fixed at 880 by 550 under a 40 px bar (figma 50:541); the image fills it.
+  if (frame === "browser") return (40 + 550) / 880;
+  if (visual.crop) return (visual.crop.h * visual.height) / (visual.crop.w * visual.width);
   return visual.height / visual.width;
 }
 
@@ -49,22 +55,34 @@ const style = placement();
 const name = visual.src.split("/").pop()?.replace(/\.[^.]+$/, "");
 const srcset = [480, 960].map((width) => `/images/exhibits/sized/${name}-${width}.webp ${width}w`).join(", ");
 const share = visual.at ? (Number(style?.match(/width: ([\d.]+)%/)?.[1]) || visual.at.w) : 100;
-const sizes = `calc(min(1116px, 100vw - 48px) * ${(share / 100).toFixed(3)})`;
+// a crop shows a fraction of the image, so the full image has to be that much wider to stay sharp.
+const zoom = visual.crop ? 1 / visual.crop.w : 1;
+const sizes = `calc(min(1116px, 100vw - 48px) * ${((share / 100) * zoom * (stageWidth ?? 1)).toFixed(3)})`;
+const cropStyle = visual.crop && `width: ${(100 / visual.crop.w).toFixed(3)}%; left: ${(-100 * visual.crop.x / visual.crop.w).toFixed(3)}%; top: ${(-100 * visual.crop.y / visual.crop.h).toFixed(3)}%`;
+const eager = priority || visual.priority === true;
 ---
 <div class:list={["exhibit-visual", `visual-${frame}`, style && "is-placed", overlay && "is-overlay"]} style={overlay ? `${style}; aspect-ratio: 1 / ${aspect()}` : style} data-exhibit-visual={overlay ? undefined : ""}>
   {!overlay && frame === "image" && (
     visual.loop
       ? <div class="visual-sheet"><ExhibitLoop src={visual.loop.src} poster={visual.loop.poster} width={visual.width} height={visual.height} label={visual.alt} /></div>
-      : <picture>
+      : visual.crop
+        ? <div class="visual-sheet visual-crop" style={`aspect-ratio: 1 / ${aspect()}`}>
+            <picture>
+              <source type="image/webp" srcset={srcset} sizes={sizes} />
+              <img src={visual.src} alt={visual.alt} width={visual.width} height={visual.height} style={cropStyle}
+                loading={eager ? "eager" : "lazy"} decoding="async" />
+            </picture>
+          </div>
+        : <picture>
           <source type="image/webp" srcset={srcset} sizes={sizes} />
           <img class="visual-sheet" src={visual.src} alt={visual.alt} width={visual.width} height={visual.height}
-            loading={priority ? "eager" : "lazy"} fetchpriority={priority ? "high" : "auto"} decoding="async" />
+            loading={eager ? "eager" : "lazy"} fetchpriority={eager ? "high" : "auto"} decoding="async" />
         </picture>
   )}
   {!overlay && frame !== "image" && (
     visual.loop
-      ? <DeviceFrame frame={frame} src={visual.src} alt={visual.alt}><ExhibitLoop src={visual.loop.src} poster={visual.loop.poster} width={visual.width} height={visual.height} label={visual.alt} /></DeviceFrame>
-      : <DeviceFrame frame={frame} src={visual.src} alt={visual.alt} width={visual.width} height={visual.height} priority={priority} />
+      ? <DeviceFrame frame={frame} src={visual.src} alt={visual.alt} url={visual.url}><ExhibitLoop src={visual.loop.src} poster={visual.loop.poster} width={visual.width} height={visual.height} label={visual.alt} /></DeviceFrame>
+      : <DeviceFrame frame={frame} src={visual.src} alt={visual.alt} width={visual.width} height={visual.height} priority={eager} url={visual.url} srcset={srcset} sizes={sizes} />
   )}
   {annotations.filter((annotation) => annotation.at).map((annotation) => {
     const order = Number(annotation.num) - 1;
@@ -82,4 +100,7 @@ const sizes = `calc(min(1116px, 100vw - 48px) * ${(share / 100).toFixed(3)})`;
   .exhibit-visual picture { display: block; }
   .visual-sheet { display: block; width: 100%; height: auto; border-radius: 4px; box-shadow: 0 24px 48px rgb(3 13 26 / 45%); }
   .visual-sheet :global(video) { border-radius: 4px; }
+  /* figma 55:676: the cropped kpi floats with a softer, tinted shadow and a 10px radius. */
+  .visual-crop { position: relative; overflow: hidden; border-radius: 10px; box-shadow: 0 24px 48px -6px rgb(13 5 26 / 35%); }
+  .visual-crop img { position: absolute; max-width: none; height: auto; }
 </style>

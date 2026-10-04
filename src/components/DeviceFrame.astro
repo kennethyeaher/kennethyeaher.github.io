@@ -10,8 +10,11 @@ interface Props {
   priority?: boolean;
   decorative?: boolean;
   url?: string;
+  /** optional webp candidates for the screen image, with the sizes they are chosen against. */
+  srcset?: string;
+  sizes?: string;
 }
-const { frame = "tablet", src, alt, width, height, priority = false, decorative = false, url = "kennethyeaher.github.io" } = Astro.props;
+const { frame = "tablet", src, alt, width, height, priority = false, decorative = false, url = "kennethyeaher.github.io", srcset, sizes } = Astro.props;
 const hasScreen = Astro.slots.has("default");
 ---
 <div class:list={["device-frame", `frame-${frame}`]} data-device-frame={frame}>
@@ -34,14 +37,18 @@ const hasScreen = Astro.slots.has("default");
   </>}
   <div class="device-screen">
     {hasScreen ? <slot /> : (
-      <img src={src} alt={decorative ? "" : alt} width={width} height={height}
-        loading={priority ? "eager" : "lazy"} fetchpriority={priority ? "high" : "auto"} decoding="async" />
+      <picture>
+        {srcset && <source type="image/webp" srcset={srcset} sizes={sizes} />}
+        <img src={src} alt={decorative ? "" : alt} width={width} height={height}
+          loading={priority ? "eager" : "lazy"} fetchpriority={priority ? "high" : "auto"} decoding="async" />
+      </picture>
     )}
   </div>
 </div>
 <style>
   .device-frame { width: 100%; padding: 10px; border: 1px solid #48515d; border-radius: 24px; background: #18202a; box-shadow: 0 16px 36px rgb(0 0 0 / 18%); }
   .device-screen { overflow: hidden; border-radius: 15px; background: #fff; }
+  .device-screen picture { display: contents; }
   .device-screen img, .device-screen :global(video) { display: block; width: 100%; height: auto; }
   .frame-phone { max-width: 390px; margin-inline: auto; padding: 8px; border-radius: 28px; }
   .frame-phone .device-screen { border-radius: 20px; }
@@ -89,5 +96,9 @@ const hasScreen = Astro.slots.has("default");
   .browser-chrome { position: relative; display: flex; align-items: center; gap: 7px; height: 4.545cqw; padding-left: 1.818cqw; border-bottom: 1px solid rgb(0 0 0 / 7%); background: #f6f7f9; }
   .browser-light { width: max(6px, 1.25cqw); height: auto; }
   .browser-address { position: absolute; top: 50%; left: 50%; display: grid; place-items: center; width: 38.6cqw; height: 2.727cqw; translate: -50% -50%; border: 1px solid rgb(0 0 0 / 6%); border-radius: 6px; background: #fff; color: #6b7580; font: max(8px, 1.364cqw) / 1 var(--ui); white-space: nowrap; }
-  .frame-browser .device-screen { border-radius: 0; background: #edf0f2; }
+  /* figma 50:541 keeps the screen at 16:10 and lets the image fill it, so annotation boxes measured on
+     the frame land on the same pixels whatever the capture's own proportions. */
+  .frame-browser .device-screen { aspect-ratio: 880 / 550; border-radius: 0; background: #edf0f2; }
+  .frame-browser .device-screen img, .frame-browser .device-screen :global(video) { width: 100%; height: 100%; object-fit: cover; object-position: left top; }
+  .frame-browser .device-screen :global(.exhibit-loop) { height: 100%; }
 </style>

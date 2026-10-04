@@ -16,7 +16,7 @@ const slugs = [
   "sohive",
 ];
 // pages already moved to the v2 exhibit layout; the older cover and media checks skip them.
-const exhibitPages = new Set(["kairo-health", "usm-venture-benchmark"]);
+const exhibitPages = new Set(["kairo-health", "usm-venture-benchmark", "ovara"]);
 const pages = new Map();
 
 before(() => {
@@ -210,4 +210,32 @@ test("USM renders the v2 exhibit layout from the approved spec", () => {
   assert.match(usm, /href="\/work\/ovara"/);
   assertBadgesResolve(usm, 6);
   assert.doesNotMatch(usm, /data-cover-video|\.mp4/);
+});
+
+test("Ovara renders the v2 exhibit layout from the approved spec", () => {
+  const ovara = pages.get("ovara");
+  const sectionIds = [...ovara.matchAll(/<section[^>]*\bid="([^"]+)"[^>]*data-case-section/g)].map((match) => match[1]);
+  assert.deepEqual(sectionIds, ["overview", "the-dashboard", "the-finding", "corrections", "reflection"]);
+  assert.match(ovara, /The audit is the part I would defend in an interview/);
+  // the hero kpi is a crop of the live dashboard, not a coded card.
+  assert.match(ovara, /class="visual-sheet visual-crop"/);
+  assert.doesNotMatch(ovara, /class="hero-kpi"/);
+  assert.match(ovara, /<span class="browser-address"[^>]*>ovara · county level<\/span>/);
+  assert.match(ovara, /data-count-to="1029"[^>]*data-count-grouped/);
+  assert.match(ovara, /data-count-to="10.9" data-count-rest="M" data-count-decimals="1"/);
+  // three dashboard rows: two loops with posters, then the findings still.
+  assert.equal([...ovara.matchAll(/class="exhibit-row"/g)].length, 3);
+  for (const clip of ["ovara-state-loop", "ovara-county-loop"]) {
+    assert.match(ovara, new RegExp(`poster="/images/work/ovara/${clip}-poster\\.webp"`));
+    assert.match(ovara, new RegExp(`data-src="/images/work/ovara/${clip}\\.mp4"`));
+  }
+  assert.match(ovara, /ovara-dashboard-findings\.png/);
+  assert.doesNotMatch(ovara, /autoplay/);
+  // audit cards in html, every field from the spec text.
+  assert.equal([...ovara.matchAll(/<p class="audit-value"[^>]*>/g)].length, 3);
+  assert.match(ovara, /<p class="audit-value"[^>]*>\+0\.33 → \+0\.12<\/p>/);
+  assert.match(ovara, /<dt class="audit-heading is-guard"[^>]*>Guard<\/dt>/);
+  assert.match(ovara, /That is the number I would have quoted in an interview\./);
+  assert.match(ovara, /href="\/work\/kairo-health"/);
+  assertBadgesResolve(ovara, 3);
 });

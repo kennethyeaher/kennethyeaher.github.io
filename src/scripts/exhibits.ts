@@ -253,9 +253,11 @@ export function initializeAnnotationFallback(): void {
 export function initializeMetricCounters(): void {
   const counters = document.querySelectorAll<HTMLElement>("[data-count-to]");
   if (!counters.length || window.matchMedia("(prefers-reduced-motion: reduce)").matches || !("IntersectionObserver" in window)) return;
-  /** render one frame of a counter, keeping any text after the number. */
+  /** render one frame of a counter in the final value's format, keeping any text after the number. */
   function render(counter: HTMLElement, value: number): void {
-    counter.textContent = `${value}${counter.dataset.countRest ?? ""}`;
+    const decimals = Number(counter.dataset.countDecimals ?? 0);
+    const number = value.toLocaleString("en-US", { minimumFractionDigits: decimals, maximumFractionDigits: decimals, useGrouping: "countGrouped" in counter.dataset });
+    counter.textContent = `${number}${counter.dataset.countRest ?? ""}`;
   }
   /** ease the count from zero to its target over about a second. */
   function run(counter: HTMLElement): void {
@@ -265,7 +267,8 @@ export function initializeMetricCounters(): void {
     /** advance the count on each animation frame until it lands. */
     function step(now: number): void {
       const progress = Math.min(1, (now - start) / duration);
-      render(counter, Math.round(target * (1 - (1 - progress) ** 3)));
+      const scale = 10 ** Number(counter.dataset.countDecimals ?? 0);
+      render(counter, Math.round(target * (1 - (1 - progress) ** 3) * scale) / scale);
       if (progress < 1) requestAnimationFrame(step);
     }
     requestAnimationFrame(step);

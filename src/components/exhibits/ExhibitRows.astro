@@ -1,0 +1,40 @@
+---
+// rows per figma 55:681: a 600 square stage beside its caption, one screen per row. the device runs off
+// the stage's right and bottom edges, as in figma, and the media tag sits in the stage's corner.
+import Caption from "@/components/exhibits/Caption.astro";
+import ExhibitStage from "@/components/exhibits/ExhibitStage.astro";
+import ExhibitVisual from "@/components/exhibits/ExhibitVisual.astro";
+import MediaTag from "@/components/exhibits/MediaTag.astro";
+
+interface Props {
+  palette: string[];
+  visuals: any[];
+  captions: { tag?: string; title: string; body: string }[];
+  fields?: any[];
+  base?: string;
+}
+const { palette, visuals, captions, fields = [], base } = Astro.props;
+---
+<div class="exhibit-rows">
+  {visuals.map((visual, index) => (
+    <div class="exhibit-row">
+      <ExhibitStage palette={palette} size="square" field={fields[index]} base={base}>
+        <ExhibitVisual visual={visual} stageRatio={1} stageWidth={600 / 1116} />
+        {captions[index].tag && <span class="row-tag"><MediaTag text={captions[index].tag!} /></span>}
+      </ExhibitStage>
+      <div class="row-caption">
+        <Caption title={captions[index].title} body={captions[index].body} />
+      </div>
+    </div>
+  ))}
+</div>
+<style>
+  /* figma puts the first row 56px under the head; the exhibit body already adds 32. */
+  .exhibit-rows { display: grid; gap: 56px; margin-top: 24px; }
+  .exhibit-row { display: grid; grid-template-columns: minmax(0, 600px) minmax(0, 400px); align-items: end; gap: 56px; }
+  .row-tag { position: absolute; z-index: 4; top: 3%; left: 3%; }
+  .row-caption :global(.exhibit-caption) { max-width: 400px; }
+  @media (max-width: 760px) {
+    .exhibit-row { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  }
+</style>

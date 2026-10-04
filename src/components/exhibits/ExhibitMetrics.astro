@@ -6,22 +6,25 @@ interface Props {
 }
 const { metrics } = Astro.props;
 
-/** split a metric into its leading count and the text after it, such as 55 and " of 56". */
-function parts(value: string): { count?: number; rest: string } {
-  const match = value.match(/^(\d+)(.*)$/);
-  return match ? { count: Number(match[1]), rest: match[2] } : { rest: value };
+/** split a metric into its leading count and the text after it, such as 55 and " of 56", 1,029 (grouped)
+    or 10.9 and "M" (one decimal), so the counter can write each frame the way the final value reads. */
+function parts(value: string): { count?: number; rest: string; decimals?: number; grouped?: boolean } {
+  const match = value.match(/^(\d{1,3}(?:,\d{3})+|\d+(?:\.\d+)?)(.*)$/);
+  if (!match) return { rest: value };
+  const [, number, rest] = match;
+  return { count: Number(number.replaceAll(",", "")), rest, decimals: number.split(".")[1]?.length, grouped: number.includes(",") };
 }
 ---
 <dl class="exhibit-metrics" aria-label="Project evidence">
   {metrics.map((metric) => {
-    const { count, rest } = parts(metric.value);
+    const { count, rest, decimals, grouped } = parts(metric.value);
     return (
       <div class="metric">
         <dt>{metric.label}</dt>
         <dd>
           <span class="metric-value">{metric.value}</span>
           {count !== undefined && count > 0 && (
-            <span class="metric-count" aria-hidden="true" data-count-to={count} data-count-rest={rest}></span>
+            <span class="metric-count" aria-hidden="true" data-count-to={count} data-count-rest={rest} data-count-decimals={decimals} data-count-grouped={grouped ? "" : undefined}></span>
           )}
         </dd>
       </div>

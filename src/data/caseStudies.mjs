@@ -12,8 +12,11 @@
  *   a position as percentages of its host (stage or visual).
  * @typedef {{
  *   src: string, alt: string, width: number, height: number,
- *   frame?: "image" | "iphone" | "browser", rot?: number, at?: Box, loop?: { src: string, poster: string }
+ *   frame?: "image" | "iphone" | "browser", rot?: number, at?: Box, loop?: { src: string, poster: string },
+ *   url?: string, crop?: { x: number, y: number, w: number, h: number }, priority?: boolean
  * }} ExhibitVisual
+ *   url is the browser address; crop shows one region of the image as fractions of its size;
+ *   priority marks the lcp visual when it is not the hero's last one.
  * @typedef {{
  *   type: "focus" | "leader" | "leader-vertical", num: string, label?: string,
  *   on?: number, at?: Box, target?: string
@@ -26,7 +29,9 @@
  * @typedef {{ id: string, chapter: string, figma?: string, eyebrow?: string, heading?: string }} ExhibitBase
  * @typedef {ExhibitBase & { kind: "hero", visuals: ExhibitVisual[], kpi?: ExhibitKpi, metrics: { value: string, label: string }[] }} HeroExhibit
  * @typedef {ExhibitBase & { kind: "stage", size: "wide" | "square" | "pair", ratio?: string, visuals: ExhibitVisual[], annotations?: ExhibitAnnotation[], notes?: ExhibitNote[], captions?: ExhibitCaption[] }} StageExhibit
- * @typedef {ExhibitBase & { kind: "rows", visuals: ExhibitVisual[], captions: ExhibitCaption[], annotations?: ExhibitAnnotation[] }} RowsExhibit
+ * @typedef {{ width: number, height: number, sigma: number, circles: { x: number, y: number, r: number, colour: string, alpha: number }[] }} StageField
+ *   a stage's own colour field from figma, in that stage's pixels.
+ * @typedef {ExhibitBase & { kind: "rows", visuals: ExhibitVisual[], captions: ExhibitCaption[], annotations?: ExhibitAnnotation[], fields?: StageField[], base?: string }} RowsExhibit
  * @typedef {ExhibitBase & { kind: "pair", stages: StageExhibit[], captions: ExhibitCaption[] }} PairExhibit
  * @typedef {{ label: string, highlight?: string, cards: ([string, string, string] | [string, string, string, string])[], note?: string }} ExhibitStrip
  *   three part cards are a tier, a value and a route; four part cards add a commitment line.
@@ -327,6 +332,70 @@ export const caseStudies = [
       }),
       titlePlacement: "center",
     },
+    // figma's stage colours for ovara (55:663) run in a different order from the cover palette.
+    stagePalette: ["#17102C", "#2A1B55", "#6B4FBF", "#E87A3C"],
+    exhibits: /** @type {Exhibit[]} */ ([
+      {
+        kind: "hero", id: "overview", chapter: "Overview", figma: "55:662",
+        visuals: [
+          { src: "/images/work/ovara/ovara-dashboard-map-selected.png", width: 2880, height: 1800, alt: "Ovara county tier choropleth across 3,144 counties with a county tooltip, the five tier legend, and the selected county's detail bar", frame: "browser", url: "ovara · county level", priority: true, at: { x: 10.6, y: 12, w: 78.9 } },
+          { src: "/images/work/ovara/ovara-dashboard-county-overview.png", width: 2880, height: 1800, alt: "Access deserts KPI from the live Ovara dashboard", crop: { x: 0.26667, y: 0.30667, w: 0.22639, h: 0.12667 }, at: { x: 68.1, y: 68.3, w: 26.9 } },
+        ],
+        metrics: [
+          { value: "1,029", label: "counties with zero providers" },
+          { value: "10.9M", label: "residents in those counties" },
+          { value: "3", label: "published findings corrected" },
+        ],
+      },
+      {
+        kind: "rows", id: "the-dashboard", chapter: "The dashboard", figma: "55:677",
+        eyebrow: "THE DASHBOARD",
+        heading: "Two grains, one interface, and a reset that always works",
+        base: "#1e1538",
+        // each row's colour field from figma 55:683, 55:703 and 55:723, in the row stage's own pixels.
+        fields: [
+          { width: 600, height: 600, sigma: 45, circles: [{ x: 150, y: 150, r: 250, colour: "#2A1B55", alpha: 0.9 }, { x: 510, y: 510, r: 210, colour: "#6B4FBF", alpha: 0.9 }] },
+          { width: 600, height: 600, sigma: 45, circles: [{ x: 140, y: 500, r: 260, colour: "#6B4FBF", alpha: 0.9 }, { x: 550, y: 50, r: 170, colour: "#E87A3C", alpha: 0.9 }] },
+          { width: 600, height: 600, sigma: 45, circles: [{ x: 130, y: 50, r: 210, colour: "#C9A652", alpha: 0.9 }, { x: 540, y: 520, r: 240, colour: "#6B4FBF", alpha: 0.9 }] },
+        ],
+        visuals: [
+          { src: "/images/work/ovara/ovara-dashboard-state.jpg", width: 2000, height: 1153, alt: "Ovara state level dashboard showing per capita density KPIs and a ranked state chart", frame: "browser", url: "ovara", at: { x: 9.33, y: 16, w: 126.67 },
+            loop: { src: "/images/work/ovara/ovara-state-loop.mp4", poster: "/images/work/ovara/ovara-state-loop-poster.webp" } },
+          { src: "/images/work/ovara/ovara-dashboard-county-overview.png", width: 2880, height: 1800, alt: "Ovara county level dashboard switching from the access deserts KPI to the tier map", frame: "browser", url: "ovara", at: { x: 9.33, y: 16, w: 126.67 },
+            loop: { src: "/images/work/ovara/ovara-county-loop.mp4", poster: "/images/work/ovara/ovara-county-loop-poster.webp" } },
+          { src: "/images/work/ovara/ovara-dashboard-findings.png", width: 2880, height: 1800, alt: "Ovara findings card for a selected county above the five access risk tiers", frame: "browser", url: "ovara", at: { x: 9.33, y: 16, w: 126.67 } },
+        ],
+        captions: [
+          { tag: "RECORDED LIVE", title: "State level opens on observed density", body: "The state view opens on observed density per 100,000 and a rank. There is no predicted tier here any more." },
+          { tag: "LOOP · 6S", title: "County level swaps in the tier map", body: "Switching to county level swaps in the tier map across 3,144 counties, the tier distribution, and a findings card for whatever is selected." },
+          { tag: "LOOP · 6S", title: "The findings card writes a different sentence", body: "It branches on what the selected county actually holds, whether that is a desert, thin supply, or no shortage, and flags weak registry coverage." },
+        ],
+      },
+      {
+        kind: "stage", id: "the-finding", chapter: "The finding", figma: "56:708", size: "wide", ratio: "1116 / 640",
+        eyebrow: "THE FINDING",
+        heading: "1,029 counties have no reproductive health provider at all",
+        visuals: [{ src: "/images/work/ovara/ovara-dashboard-map-selected.png", width: 2880, height: 1800, alt: "Ovara county tier choropleth across 3,144 counties with a county tooltip, the five tier legend, and the selected county's detail bar", frame: "browser", url: "ovara · county level", at: { x: 13.3, y: 10, w: 73.5 } }],
+        annotations: [
+          { type: "focus", num: "01", on: 0, at: { x: 32.6, y: 22.7, w: 17.4, h: 16.5 } },
+          { type: "focus", num: "02", on: 0, at: { x: 89.6, y: 24.8, w: 8.3, h: 42.3 } },
+          { type: "focus", num: "03", on: 0, at: { x: 2.8, y: 85.6, w: 94.4, h: 15.5 } },
+        ],
+        notes: [
+          { n: "01", title: "Access deserts held out in coral", body: "The tier map reads the same four step purple ramp as every chart beside it, with access deserts held out in coral." },
+          { n: "02", title: "A ramp that holds on both grounds", body: "Lightness is pinned to roughly L 0.53 to 0.80 in OKLab, so the ramp stays readable on the light basemap and on the dark plum panel." },
+          { n: "03", title: "The findings card branches", body: "It writes a different sentence for a desert, thin supply, or no shortage, instead of one conclusion reused for every county." },
+        ],
+      },
+      {
+        kind: "custom", graphic: "audit-cards", id: "corrections", chapter: "Corrections", figma: "56:748",
+        eyebrow: "CORRECTIONS",
+        heading: "Three published numbers were wrong, and I found them by auditing my own work",
+        text: "01 · Connecticut | 9 of 9 | planning regions reported as access deserts with zero providers | Mechanism | The ZIP to county crosswalk came from the 2020 ZCTA relationship file, a different vintage from the county layer. | Guard | A check that raises on a vintage mismatch. || 02 · Denominator | ×29 | the Atlanta metro population added once per county row | Mechanism | State population summed a metro table that carries the whole metro population on every county row. | Guard | A plausibility range on every state denominator. || 03 · Target leakage | +0.33 → +0.12 | cross validated R² once the leaking feature came out | Mechanism | growth_per_100k divides recent providers by state population, and those providers are a strict subset of the target. | Guard | A test that fails if the feature returns.",
+        footnote: "The residents figure was overstated by 33 percent for as long as the Connecticut bug was live. That is the number I would have quoted in an interview.",
+      },
+      { kind: "section", id: "reflection", chapter: "Reflection", section: "reflection" },
+    ]),
     links: [{ label: "View source repository", href: "https://github.com/kennethyeaher/inst737-final-project-kenneth-yeaher" }],
     metrics: [
       { value: "1,029", label: "counties with zero providers" },
