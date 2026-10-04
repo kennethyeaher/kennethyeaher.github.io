@@ -25,6 +25,13 @@ export const caseStudies = [
       video: "/images/work/usm-venture-benchmark/cover-loop.mp4",
       poster: "/images/work/usm-venture-benchmark/cover-poster.png",
       palette: ["#111111", "#E21833", "#A61022", "#F2B8BE", "#F6F3EE", "#6A737B"],
+      exhibit: /** @type {const} */ ({
+        "src": "/images/work/usm-venture-benchmark/brief-overview-redacted.png",
+        "alt": "Redacted finished benchmark brief overview showing the page hierarchy, metric row, executive summary, and chart column",
+        "width": 1020,
+        "height": 1320,
+        "frame": "sheet"
+      }),
       titlePlacement: "center",
     },
     metrics: [
@@ -66,28 +73,28 @@ export const caseStudies = [
         ],
         media: [
           {
-            src: "/images/work/usm-venture-benchmark/research-system.png",
+            src: "/images/work/usm-venture-benchmark/research-system.png", width: 2400, height: 1400,
             alt: "Four-stage research system moving from source evidence to normalized profiles, a comparison matrix, and investment synthesis",
             caption: "The research system. Every recommendation keeps a visible path back through the matrix, profile, and source evidence.",
             wide: true,
           },
           {
-            src: "/images/work/usm-venture-benchmark/brief-overview-redacted.png",
+            src: "/images/work/usm-venture-benchmark/brief-overview-redacted.png", width: 1020, height: 1320,
             alt: "Redacted finished benchmark brief overview showing the page hierarchy, metric row, executive summary, and chart column",
             caption: "A finished profile overview. Institution names, financial figures, citations, and strategic findings are permanently redacted for the public portfolio.",
           },
           {
-            src: "/images/work/usm-venture-benchmark/brief-vehicles-redacted.png",
+            src: "/images/work/usm-venture-benchmark/brief-vehicles-redacted.png", width: 1020, height: 1320,
             alt: "Redacted finished benchmark brief vehicle breakdown showing four stacked program cards",
             caption: "The companion vehicle breakdown. Program names, values, citations, and analysis are permanently redacted.",
           },
           {
-            src: "/images/work/usm-venture-benchmark/brief-portfolio-redacted.png",
+            src: "/images/work/usm-venture-benchmark/brief-portfolio-redacted.png", width: 1020, height: 1320,
             alt: "Redacted benchmark brief portfolio page showing a three-by-three company-card grid",
             caption: "The portfolio evidence page. Company names, descriptions, financing values, citations, and conclusions are permanently redacted.",
           },
           {
-            src: "/images/work/usm-venture-benchmark/brief-deep-dive-redacted.png",
+            src: "/images/work/usm-venture-benchmark/brief-deep-dive-redacted.png", width: 1020, height: 1320,
             alt: "Redacted benchmark brief deep-dive page showing a two-column program analysis, evidence table, and pipeline diagram",
             caption: "The programmatic deep dive. Institution-specific mechanisms, values, company names, citations, and strategic findings are permanently redacted.",
           },
@@ -103,7 +110,7 @@ export const caseStudies = [
         ],
         media: [
           {
-            src: "/images/work/usm-venture-benchmark/comparison-model.png",
+            src: "/images/work/usm-venture-benchmark/comparison-model.png", width: 2400, height: 1400,
             alt: "An anonymized comparison model showing four lenses for evaluating university venture ecosystems",
             caption: "Four comparison lenses, shown with schematic profiles. The shape of the method is public; institution-level values are not.",
             wide: true,
@@ -120,7 +127,7 @@ export const caseStudies = [
         ],
         media: [
           {
-            src: "/images/work/usm-venture-benchmark/validation-grid.png",
+            src: "/images/work/usm-venture-benchmark/validation-grid.png", width: 2400, height: 1400,
             alt: "A twenty-nine by twenty-two validation grid showing verified cells, corrected cells, and cells changed to not disclosed",
             caption: "The final 29 × 22 matrix as a validation surface: 638 cells, 41 corrections, nine changes to n/d, and no remaining field mismatches.",
             wide: true,
@@ -149,7 +156,7 @@ export const caseStudies = [
         },
         media: [
           {
-            src: "/images/work/usm-venture-benchmark/transferability-lens.png",
+            src: "/images/work/usm-venture-benchmark/transferability-lens.png", width: 2400, height: 1400,
             alt: "Decision framework positioning operating policies, shared screening, program layers, and capital vehicles by transferability and effort",
             caption: "The transferability lens. It turns patterns into choices without exposing the confidential conclusions behind the original work.",
             wide: true,
@@ -180,6 +187,13 @@ export const caseStudies = [
       video: "/images/work/ovara/cover-gradient.mp4",
       poster: "/images/work/ovara/cover-gradient-poster.png",
       palette: ["#17102C", "#6B4FBF", "#E87A3C", "#5B9066", "#C9A652", "#F5EFE4"],
+      exhibit: /** @type {const} */ ({
+        "src": "/images/work/ovara/ovara-dashboard-map.jpg",
+        "alt": "Ovara county tier choropleth across 3,144 counties with the five tier legend in frame",
+        "width": 2000,
+        "height": 1153,
+        "frame": "laptop"
+      }),
       titlePlacement: "center",
     },
     links: [{ label: "View source repository", href: "https://github.com/kennethyeaher/inst737-final-project-kenneth-yeaher" }],
@@ -226,7 +240,7 @@ export const caseStudies = [
           "The pattern is not regional either. At least one access desert appears in 43 states.",
         ],
         media: [
-          { src: "/images/work/ovara/ovara-county-tiers.png", alt: "Counties and residents by access tier, shown as two bar charts side by side", caption: "The same five tiers counted two ways. Counting counties and counting people tell different stories, so the chart shows both.", wide: true },
+          { src: "/images/work/ovara/ovara-county-tiers.png", width: 2387, height: 1065, alt: "Counties and residents by access tier, shown as two bar charts side by side", caption: "The same five tiers counted two ways. Counting counties and counting people tell different stories, so the chart shows both.", wide: true },
         ],
       },
       {
@@ -251,8 +265,8 @@ export const caseStudies = [
           note: "The publish layer reads only what the analyze layer wrote. A figure and the dashboard cannot disagree, because neither one does its own arithmetic.",
         },
         media: [
-          { src: "/images/work/ovara/ovara-pipeline.png", alt: "Lineage diagram tracing 100,644 provider rows down to the 1,029 counties with no provider, naming the rows lost at every hop", caption: "The count falls at four points inside the pipeline, and every fall is a named filter or a failed join.", wide: true },
-          { src: "/images/work/ovara/ovara-taxonomy.png", alt: "Reproductive health provider counts by taxonomy code, grouped into OB/GYN, midwifery, and nurse practitioner categories", caption: "Who counts as a provider is a decision, so the chart shows the whole definition rather than a total." },
+          { src: "/images/work/ovara/ovara-pipeline.png", width: 1680, height: 1510, alt: "Lineage diagram tracing 100,644 provider rows down to the 1,029 counties with no provider, naming the rows lost at every hop", caption: "The count falls at four points inside the pipeline, and every fall is a named filter or a failed join.", wide: true },
+          { src: "/images/work/ovara/ovara-taxonomy.png", width: 2174, height: 1579, alt: "Reproductive health provider counts by taxonomy code, grouped into OB/GYN, midwifery, and nurse practitioner categories", caption: "Who counts as a provider is a decision, so the chart shows the whole definition rather than a total." },
         ],
       },
       {
@@ -268,8 +282,8 @@ export const caseStudies = [
           "The residents figure was overstated by 33 percent for as long as the Connecticut bug was live. That is the number I would have quoted in an interview.",
         ],
         media: [
-          { src: "/images/work/ovara/ovara-corrections.png", alt: "Three correction panels showing what was published, what was true, the failure mechanism, and the guard that now catches each one", caption: "The denominator was holding cross validated R2 at -0.39. Correcting it lifted the same model to +0.33, and that was the score that exposed the leak.", wide: true },
-          { src: "/images/work/ovara/ovara-density-by-state.png", alt: "Bar chart of reproductive health providers per 100,000 residents by state, thinnest states highlighted", caption: "The corrected per capita ranking. On the broken denominator this chart put New Jersey and Virginia at the thin end.", wide: true },
+          { src: "/images/work/ovara/ovara-corrections.png", width: 1680, height: 1842, alt: "Three correction panels showing what was published, what was true, the failure mechanism, and the guard that now catches each one", caption: "The denominator was holding cross validated R2 at -0.39. Correcting it lifted the same model to +0.33, and that was the score that exposed the leak.", wide: true },
+          { src: "/images/work/ovara/ovara-density-by-state.png", width: 1774, height: 2391, alt: "Bar chart of reproductive health providers per 100,000 residents by state, thinnest states highlighted", caption: "The corrected per capita ranking. On the broken denominator this chart put New Jersey and Virginia at the thin end.", wide: true },
         ],
       },
       {
@@ -305,8 +319,8 @@ export const caseStudies = [
           "The state view no longer offers a risk tier, because the model behind it was retired. It shows observed density and a rank, and it says so.",
         ],
         media: [
-          { src: "/images/work/ovara/ovara-dashboard-state.jpg", alt: "Ovara state level dashboard showing per capita density KPIs and a ranked state chart", caption: "The state view opens on observed density per 100,000 and a rank. There is no predicted tier here any more.", wide: true },
-          { src: "/images/work/ovara/ovara-dashboard-map.jpg", alt: "Ovara county tier choropleth across 3,144 counties with the five tier legend in frame", caption: "The county tier map reads the same four step purple ramp as every chart beside it, with access deserts held out in coral.", wide: true },
+          { src: "/images/work/ovara/ovara-dashboard-state.jpg", width: 2000, height: 1153, alt: "Ovara state level dashboard showing per capita density KPIs and a ranked state chart", caption: "The state view opens on observed density per 100,000 and a rank. There is no predicted tier here any more.", wide: true },
+          { src: "/images/work/ovara/ovara-dashboard-map.jpg", width: 2000, height: 1153, alt: "Ovara county tier choropleth across 3,144 counties with the five tier legend in frame", caption: "The county tier map reads the same four step purple ramp as every chart beside it, with access deserts held out in coral.", wide: true },
         ],
       },
       {
@@ -320,7 +334,7 @@ export const caseStudies = [
           "The findings card under the county map used to state a conclusion the data did not always support, because it was written for one case and reused for the rest. It now branches on what the selected county actually holds, whether that is a desert, thin supply, or no shortage, and it flags weak registry coverage for that state. I believe that is the part of this project that would matter most in a real policy or clinical setting. A correct number with the wrong sentence attached is worse than no number.",
         ],
         media: [
-          { src: "/images/work/ovara/ovara-dashboard-county.jpg", alt: "Ovara county view for Alabama with the findings card beneath the tier map", caption: "Alabama selected. The findings card writes a different sentence depending on what the selected area actually holds.", wide: true },
+          { src: "/images/work/ovara/ovara-dashboard-county.jpg", width: 2000, height: 1153, alt: "Ovara county view for Alabama with the findings card beneath the tier map", caption: "Alabama selected. The findings card writes a different sentence depending on what the selected area actually holds.", wide: true },
         ],
       },
       {
@@ -378,6 +392,13 @@ export const caseStudies = [
       video: "/images/work/kairo/cover-gradient.mp4",
       poster: "/images/work/kairo/cover-gradient-poster.png",
       palette: ["#071B2D", "#0D2E4D", "#2F80ED", "#8DD3F7", "#52697E"],
+      exhibit: /** @type {const} */ ({
+        "src": "/images/work/kairo/kairo-f1-by-noise.png",
+        "alt": "F1 comparison by noise tier",
+        "width": 1200,
+        "height": 750,
+        "frame": "sheet"
+      }),
       titlePlacement: "center",
     },
     links: [{ label: "View source repository", href: "https://github.com/kennethyeaher/kairoHealth" }],
@@ -409,7 +430,7 @@ export const caseStudies = [
           "Clinicians I interviewed during customer discovery, including at the MSF clinic in Monrovia, were filling out a near identical version of the MSF Aweil pediatric triage form. Paper, carbon copied, photographed under whatever light the room had. So the question I needed answered was not whether a language model can read a medical form. It was where the photo gets bad enough that the reading stops being worth trusting, and whether that point moves if you pay for a model instead of writing regex.",
           "Most clinical NLP work reports one accuracy number with document quality buried inside it. Kairo pulls that variable back out. Clinical content stays fixed while the scan moves through five calibrated tiers, and a regex baseline and a zero shot language model read the same Tesseract output.",
         ],
-        media: [{ src: "/images/work/kairo/kairo-framing-chain.png", alt: "Four rows mapping a field observation to an implication to a study requirement", caption: "Each row narrows one thing I saw in the clinic into one thing the study could measure.", wide: true }],
+        media: [{ src: "/images/work/kairo/kairo-framing-chain.png", width: 2332, height: 1554, alt: "Four rows mapping a field observation to an implication to a study requirement", caption: "Each row narrows one thing I saw in the clinic into one thing the study could measure.", wide: true }],
       },
       {
         id: "dataset",
@@ -419,7 +440,7 @@ export const caseStudies = [
           "I modeled the dataset on the MSF Aweil pediatric triage form, the same document I had watched clinicians use. Every form carries plausible values across identifiers, free text, a checkbox triage class, and six numeric vitals. Ages come from a pediatric distribution, vitals sit in ranges calibrated by age band, and the triage class stays consistent with the vitals on the same form.",
           "A fixed seed generated thirty ground truth forms. Rendering each at five quality levels produced 150 documents and 2,100 field attempts. Synthetic data gave me exact ground truth on all fourteen fields with no privacy exposure. It also sets a ceiling. Real handwritten records would be harder for both methods, and nothing in this study measures that gap.",
         ],
-        media: [{ src: "/images/work/kairo/kairo-form-clean.png", alt: "One generated pediatric triage form at clean quality", caption: "One generated form at full quality. Fourteen evaluated fields across identifiers, free text, a checkbox triage class, and six vitals." }],
+        media: [{ src: "/images/work/kairo/kairo-form-clean.png", width: 1700, height: 2200, alt: "One generated pediatric triage form at clean quality", caption: "One generated form at full quality. Fourteen evaluated fields across identifiers, free text, a checkbox triage class, and six vitals." }],
       },
       {
         id: "noise-engineering",
@@ -430,7 +451,7 @@ export const caseStudies = [
           "Raw character error rate, token sorted CER, and word error rate score each tier. Sorted CER is the cleaner measure, because it drops the penalty Tesseract earns for traversing a multi column form out of order.",
           "Two things about the ladder are worth saying plainly. Clean and moderate score 0.317 and 0.316, close enough to be one condition, so the study reports five tiers and delivers four. And severe noise still reads fine to a person while regex extraction has already fallen to 0.42 recall. The metric and human legibility come apart well before the document does.",
         ],
-        media: [{ src: "/images/work/kairo/kairo-noise-ladder.png", alt: "The same form header rendered at all five degradation tiers with its measured character error rate", caption: "The same header at all five tiers, with the measured error rate for each.", wide: true }],
+        media: [{ src: "/images/work/kairo/kairo-noise-ladder.png", width: 1008, height: 644, alt: "The same form header rendered at all five degradation tiers with its measured character error rate", caption: "The same header at all five tiers, with the measured error rate for each.", wide: true }],
       },
       {
         id: "ocr-pipeline",
@@ -440,7 +461,7 @@ export const caseStudies = [
           "The workflow renders PDFs, applies deterministic degradation, runs Tesseract with light grayscale and contrast preprocessing, then stores the raw OCR text and quality metrics for every document.",
           "Both extractors branch off that one stage. Keeping OCR upstream makes this a comparison of what reads the text, not a comparison of two input channels.",
         ],
-        media: [{ src: "/images/work/kairo/kairo-pipeline-diagram.png", alt: "Pipeline diagram showing generation, OCR, two parallel extractors, and evaluation", caption: "Both extractors branch off one OCR stage, so the only thing that differs between them is what reads the text.", wide: true }],
+        media: [{ src: "/images/work/kairo/kairo-pipeline-diagram.png", width: 2428, height: 1380, alt: "Pipeline diagram showing generation, OCR, two parallel extractors, and evaluation", caption: "Both extractors branch off one OCR stage, so the only thing that differs between them is what reads the text.", wide: true }],
       },
       {
         id: "extractors",
@@ -452,8 +473,8 @@ export const caseStudies = [
           "In scoring, a wrong value counts as both a false positive and a false negative. In a clinic a fabricated respiratory rate is more dangerous than a blank field, and the metric should say so. That choice is why precision stays high while recall collapses. Both methods mostly fail by going quiet.",
         ],
         media: [
-          { src: "/images/work/kairo/kairo-rules-heatmap.png", alt: "Regex field level F1 heatmap across noise tiers", caption: "Regex F1 by field and tier. Label dependent fields drop away as OCR structure breaks." },
-          { src: "/images/work/kairo/kairo-llm-heatmap.png", alt: "Language model field level F1 heatmap across noise tiers", caption: "The model holds more fields through heavy noise, and loses them all at once rather than one at a time." },
+          { src: "/images/work/kairo/kairo-rules-heatmap.png", width: 900, height: 1200, alt: "Regex field level F1 heatmap across noise tiers", caption: "Regex F1 by field and tier. Label dependent fields drop away as OCR structure breaks." },
+          { src: "/images/work/kairo/kairo-llm-heatmap.png", width: 900, height: 1200, alt: "Language model field level F1 heatmap across noise tiers", caption: "The model holds more fields through heavy noise, and loses them all at once rather than one at a time." },
         ],
       },
       {
@@ -466,8 +487,8 @@ export const caseStudies = [
           "The bootstrap resamples both methods on the same document indices each round, so document difficulty cancels out instead of inflating the interval.",
         ],
         media: [
-          { src: "/images/work/kairo/kairo-f1-by-noise.png", alt: "F1 comparison by noise tier", caption: "F1 separates comparable low noise performance from the gap at heavy and severe degradation." },
-          { src: "/images/work/kairo/kairo-recall-v2.png", alt: "Recall by noise tier for both methods with the significant tiers marked", caption: "Recall shows how long each method keeps recovering fields. Heavy and severe are where the difference survives a paired bootstrap.", wide: true },
+          { src: "/images/work/kairo/kairo-f1-by-noise.png", width: 1200, height: 750, alt: "F1 comparison by noise tier", caption: "F1 separates comparable low noise performance from the gap at heavy and severe degradation." },
+          { src: "/images/work/kairo/kairo-recall-v2.png", width: 1800, height: 919, alt: "Recall by noise tier for both methods with the significant tiers marked", caption: "Recall shows how long each method keeps recovering fields. Heavy and severe are where the difference survives a paired bootstrap.", wide: true },
         ],
       },
       {
@@ -479,7 +500,7 @@ export const caseStudies = [
           "Broken out by field at heavy noise, three of fourteen fields carry 91 percent of the advantage, and six are exact ties where regex is free and deterministic. The three that account for the difference are all checkbox fields: triage colour, sex, and AM or PM. Regex needs a legible mark next to a legible label, and rotation destroys that spatial relationship. The model recovers the mark from surrounding context.",
           "An aggregate score would have hidden every part of that.",
         ],
-        media: [{ src: "/images/work/kairo/kairo-field-errors.png", alt: "Errors per field at heavy noise for both methods, sorted by the model advantage", caption: "Errors per field at heavy noise, sorted by how much routing to the model buys. Three fields carry the difference and six are ties.", wide: true }],
+        media: [{ src: "/images/work/kairo/kairo-field-errors.png", width: 1800, height: 1120, alt: "Errors per field at heavy noise for both methods, sorted by the model advantage", caption: "Errors per field at heavy noise, sorted by how much routing to the model buys. Three fields carry the difference and six are ties.", wide: true }],
       },
       {
         id: "triage-safety",
@@ -490,7 +511,7 @@ export const caseStudies = [
           "At heavy noise the model got 25 of 30 right. Three of its five errors were over triage, GREEN predicted as YELLOW, which is the safe direction. The other two were under triage: children a clinician had marked RED came back YELLOW. Severe noise behaves differently and worse, with 12 of 30 correct, 13 forms left unclassified including four marked RED, and one RED classified GREEN.",
           "Regex is not the safe alternative here. It returned nothing for triage colour on 29 of 30 heavy noise forms, and a null triage colour does not announce itself. It becomes default routing further down the line. I think both failure modes rule out autonomous triage classification at any noise level, and the design response is not a better model. It is making sure this one field never commits without a person confirming it.",
         ],
-        media: [{ src: "/images/work/kairo/kairo-triage-safety.png", alt: "Confusion matrix of clinician triage class against model prediction at heavy and severe noise, coloured by clinical consequence", caption: "Colour carries the consequence rather than the count. Green correct, amber over triage, red under triage or an urgent child left unclassified.", wide: true }],
+        media: [{ src: "/images/work/kairo/kairo-triage-safety.png", width: 2200, height: 840, alt: "Confusion matrix of clinician triage class against model prediction at heavy and severe noise, coloured by clinical consequence", caption: "Colour carries the consequence rather than the count. Green correct, amber over triage, red under triage or an urgent child left unclassified.", wide: true }],
       },
       {
         id: "deployment-routing",
@@ -514,7 +535,7 @@ export const caseStudies = [
           ],
           note: "The routing recommendation follows the observed performance break across five controlled OCR conditions.",
         },
-        media: [{ src: "/images/work/kairo/kairo-routing-flow.png", alt: "Decision flow from a scanned form through OCR quality scoring to four extraction routes, with a triage review gate across all of them", caption: "The routing decision, with the constraint that applies to every branch. The triage field never commits on its own.", wide: true }],
+        media: [{ src: "/images/work/kairo/kairo-routing-flow.png", width: 2424, height: 1480, alt: "Decision flow from a scanned form through OCR quality scoring to four extraction routes, with a triage review gate across all of them", caption: "The routing decision, with the constraint that applies to every branch. The triage field never commits on its own.", wide: true }],
       },
       {
         id: "reproducibility",
@@ -570,6 +591,13 @@ export const caseStudies = [
       video: "/images/work/terpcarehub/cover-gradient.mp4",
       poster: "/images/work/terpcarehub/cover-gradient-poster.png",
       palette: ["#8A0B1E", "#C21230", "#E21833", "#FF6B80", "#FFD200"],
+      exhibit: /** @type {const} */ ({
+        "src": "/images/work/terpcarehub/mobile-find-care.png",
+        "alt": "Mobile find care screen",
+        "width": 321,
+        "height": 1100,
+        "frame": "phone"
+      }),
       titlePlacement: "center",
     },
     links: [
@@ -595,7 +623,7 @@ export const caseStudies = [
           "TerpCareHub started as an INFM600 group project, a centralized health hub for the University of Maryland. The team delivered a pitch and a working site. Neither one answered the question our problem research kept circling back to, which is what a student should actually do at the moment they need care.",
           "Five sources publish campus health information on their own: the Health Center, the Counseling Center, Prince George's County public health, student organization accounts, and emergency email. Different formats, no shared vocabulary, no agreement on what counts as urgent. I led this redesign, and it treats that split as a timing problem rather than a content problem.",
         ],
-        media: [{ src: "/images/work/terpcarehub/home-hero.png", alt: "TerpCareHub marketing hero in the university palette", caption: "The redesigned hero states the promise in the university's own colours, using the product's real interface language behind it." }],
+        media: [{ src: "/images/work/terpcarehub/home-hero.png", width: 1440, height: 700, alt: "TerpCareHub marketing hero in the university palette", caption: "The redesigned hero states the promise in the university's own colours, using the product's real interface language behind it." }],
       },
       {
         id: "measure",
@@ -618,7 +646,7 @@ export const caseStudies = [
           ],
           note: "The journey map is current-state. It describes the systems as they exist today, not a tested experience of the redesign.",
         },
-        media: [{ src: "/images/work/terpcarehub/journey-map.png", alt: "Current-state journey map across six stages with an emotion curve", caption: "Six stages, an emotion curve, and a friction and opportunity row underneath each one." }],
+        media: [{ src: "/images/work/terpcarehub/journey-map.png", width: 2400, height: 1171, alt: "Current-state journey map across six stages with an emotion curve", caption: "Six stages, an emotion curve, and a friction and opportunity row underneath each one." }],
       },
       {
         id: "users",
@@ -628,7 +656,7 @@ export const caseStudies = [
           "The product depends on three people, not one. A student in an acute moment, a wellness chair from a student organization who supplies the events, and a county health communications officer who supplies the advisories. A campus health hub without submitters and without a county feed is only a static page.",
           "These are proto-personas. I built them from the project's problem research, the Health Center and Counseling Center service pages, and county health communications. They are not drawn from interviews I ran. Each card states its assumption in the open and names the study that would confirm or kill it, so a reviewer can check the reasoning instead of taking it on trust.",
         ],
-        media: [{ src: "/images/work/terpcarehub/personas.png", alt: "Three proto-persona cards with goals, frustrations, design implications, and assumptions to test", caption: "Every persona ends in a design implication and an assumption to test rather than a portrait." }],
+        media: [{ src: "/images/work/terpcarehub/personas.png", width: 2400, height: 1148, alt: "Three proto-persona cards with goals, frustrations, design implications, and assumptions to test", caption: "Every persona ends in a design implication and an assumption to test rather than a portrait." }],
       },
       {
         id: "information-architecture",
@@ -652,7 +680,7 @@ export const caseStudies = [
           ],
           note: "Authentication sits as late as possible. Browsing, filtering and deciding stay open so an urgent decision never hits a login wall.",
         },
-        media: [{ src: "/images/work/terpcarehub/information-architecture.png", alt: "Three-tier sitemap with new, sign-in, and verified tags", caption: "Tags mark what is new to this redesign, what needs an account, and what passes verification." }],
+        media: [{ src: "/images/work/terpcarehub/information-architecture.png", width: 2400, height: 924, alt: "Three-tier sitemap with new, sign-in, and verified tags", caption: "Tags mark what is new to this redesign, what needs an account, and what passes verification." }],
       },
       {
         id: "flows",
@@ -663,8 +691,8 @@ export const caseStudies = [
           "The submission flow changed the most. An org leader who emails a staff member and hears nothing back will not try again, so review has a visible state, a rejection carries a reason, and a published event returns view and sign-up counts to the person who submitted it.",
         ],
         media: [
-          { src: "/images/work/terpcarehub/flow-find-care.png", alt: "Find same-day care task flow with a decision branch", caption: "Find care. Filters are preset, cost is visible before the click, and sign-in is required only to book." },
-          { src: "/images/work/terpcarehub/flow-submit-event.png", alt: "Publish a wellness event task flow with a verification branch", caption: "Publish an event. Verification is explicit, and a returned event keeps its content and states what to fix." },
+          { src: "/images/work/terpcarehub/flow-find-care.png", width: 2400, height: 517, alt: "Find same-day care task flow with a decision branch", caption: "Find care. Filters are preset, cost is visible before the click, and sign-in is required only to book." },
+          { src: "/images/work/terpcarehub/flow-submit-event.png", width: 2400, height: 580, alt: "Publish a wellness event task flow with a verification branch", caption: "Publish an event. Verification is explicit, and a returned event keeps its content and states what to fix." },
         ],
       },
       {
@@ -676,10 +704,10 @@ export const caseStudies = [
           "Alerts carry a severity tag applied at ingest, a source badge, and a timestamp. Those three travel together, so an advisory keeps its authority after someone screenshots it and reshares it outside the product. A high-severity alert has to be acknowledged rather than swiped away, and acknowledging it says where the alert went.",
         ],
         media: [
-          { src: "/images/work/terpcarehub/provider-card.png", alt: "Provider card showing status, next availability, plan acceptance, and cost", caption: "Provider card. Three facts answer the decision before any click." },
-          { src: "/images/work/terpcarehub/dashboard.png", alt: "Signed-in dashboard with notifications, forum, county alerts, events, and messages", caption: "Signed-in dashboard. Institutional alerts, peer conversation, and personal items are visually separated." },
-          { src: "/images/work/terpcarehub/alert-detail.png", alt: "Alert detail page with severity banner and source verification panel", caption: "Alert detail. What it is, who it affects, what to do, and where it came from." },
-          { src: "/images/work/terpcarehub/submit-an-event.png", alt: "Submit an event form with a live preview and review status timeline", caption: "Submit an event. The right rail previews the student-facing card and shows where the submission sits in review." },
+          { src: "/images/work/terpcarehub/provider-card.png", width: 665, height: 378, alt: "Provider card showing status, next availability, plan acceptance, and cost", caption: "Provider card. Three facts answer the decision before any click." },
+          { src: "/images/work/terpcarehub/dashboard.png", width: 786, height: 1600, alt: "Signed-in dashboard with notifications, forum, county alerts, events, and messages", caption: "Signed-in dashboard. Institutional alerts, peer conversation, and personal items are visually separated." },
+          { src: "/images/work/terpcarehub/alert-detail.png", width: 1489, height: 1600, alt: "Alert detail page with severity banner and source verification panel", caption: "Alert detail. What it is, who it affects, what to do, and where it came from." },
+          { src: "/images/work/terpcarehub/submit-an-event.png", width: 1074, height: 1600, alt: "Submit an event form with a live preview and review status timeline", caption: "Submit an event. The right rail previews the student-facing card and shows where the submission sits in review." },
         ],
       },
       {
@@ -691,10 +719,10 @@ export const caseStudies = [
           "The interface states are the part I would point a reviewer at first. An empty result proposes a specific fix and says what that fix will find. Loading names what is being checked. Degraded data is labelled rather than served quietly, which for a health product is the state that matters most. Mobile is designed rather than resized, because mobile-first was the primary need the original research named.",
         ],
         media: [
-          { src: "/images/work/terpcarehub/interface-states.png", alt: "Four interface states with the reasoning written under each", caption: "Empty, loading, degraded, and confirmation states, each annotated with why it behaves that way." },
-          { src: "/images/work/terpcarehub/mobile-find-care.png", alt: "Mobile find care screen", caption: "Find care on mobile. Availability keeps a full-width row; nothing is dropped." },
-          { src: "/images/work/terpcarehub/mobile-alert-detail.png", alt: "Mobile alert detail screen", caption: "Alert detail on mobile, with a persistent acknowledge bar." },
-          { src: "/images/work/terpcarehub/mobile-dashboard.png", alt: "Mobile dashboard screen", caption: "Dashboard on mobile, led by the alert that still needs acknowledgement." },
+          { src: "/images/work/terpcarehub/interface-states.png", width: 1810, height: 893, alt: "Four interface states with the reasoning written under each", caption: "Empty, loading, degraded, and confirmation states, each annotated with why it behaves that way." },
+          { src: "/images/work/terpcarehub/mobile-find-care.png", width: 321, height: 1100, kind: "device", frame: /** @type {const} */ ("phone"), alt: "Mobile find care screen", caption: "Find care on mobile. Availability keeps a full-width row; nothing is dropped." },
+          { src: "/images/work/terpcarehub/mobile-alert-detail.png", width: 390, height: 998, kind: "device", frame: /** @type {const} */ ("phone"), alt: "Mobile alert detail screen", caption: "Alert detail on mobile, with a persistent acknowledge bar." },
+          { src: "/images/work/terpcarehub/mobile-dashboard.png", width: 390, height: 1052, kind: "device", frame: /** @type {const} */ ("phone"), alt: "Mobile dashboard screen", caption: "Dashboard on mobile, led by the alert that still needs acknowledgement." },
         ],
       },
       {
@@ -731,6 +759,13 @@ export const caseStudies = [
       video: "/images/work/capstone/cover-gradient.mp4",
       poster: "/images/work/capstone/cover-gradient-poster.png",
       palette: ["#0F3D5E", "#1F6FA3", "#8DB8D9", "#E5B545", "#F4E8C1"],
+      exhibit: /** @type {const} */ ({
+        "src": "/images/work/capstone/capstone-surveys.png",
+        "alt": "Survey screens used with students and College Park residents",
+        "width": 1600,
+        "height": 900,
+        "frame": "sheet"
+      }),
       titlePlacement: "center",
     },
     links: [
@@ -764,7 +799,7 @@ export const caseStudies = [
         ],
         media: [
           {
-            src: "/images/work/capstone/capstone-intention.png",
+            src: "/images/work/capstone/capstone-intention.png", width: 1600, height: 900,
             alt: "Course slide titled Setting the Intention, showing a photograph of a board of handwritten sticky notes with an arrow labelled My sticky note pointing to one that reads Providing Social Impact",
             caption: "The class opened by writing down what we each wanted from the semester. Mine reads providing social impact. Most of the rest ask for hands on experience, which is a fair account of what a capstone is for.",
             wide: true,
@@ -790,7 +825,7 @@ export const caseStudies = [
         ],
         media: [
           {
-            src: "/images/work/capstone/capstone-fieldwork.png",
+            src: "/images/work/capstone/capstone-fieldwork.png", width: 1600, height: 900,
             alt: "Five photographs from College Park Day 2024: the printed hand fan, its reverse showing the Family Stage and Main Stage schedule over a site map, the inflatable welcome arch, a street of vendor tents, and families queuing at a bounce house",
             caption: "College Park Day 2024. The stage times and the site map were printed on the back of a hand fan, which is the kind of thing you only learn by standing there.",
           },
@@ -822,12 +857,12 @@ export const caseStudies = [
         },
         media: [
           {
-            src: "/images/work/capstone/capstone-surveys.png",
+            src: "/images/work/capstone/capstone-surveys.png", width: 1600, height: 900,
             alt: "Survey screens used with students and College Park residents",
             caption: "Separate survey paths let the team compare campus and resident perspectives without treating them as one audience.",
           },
           {
-            src: "/images/work/capstone/capstone-social-audit.png",
+            src: "/images/work/capstone/capstone-social-audit.png", width: 1600, height: 900,
             alt: "City of College Park social-media audit and recommendation summary",
             caption: "The channel audit converted research themes into changes the communications team could evaluate directly.",
           },
@@ -843,17 +878,17 @@ export const caseStudies = [
           "The channel rows sit closest to the survey data, though even those were measured by cohort rather than by person. Age, household, occupation, and the personality scales came out of contextual interviews and the team’s reading of them. That makes these a shared vocabulary for talking about residents, not a description of the population, and the difference matters the moment someone uses a persona to justify a decision.",
         ],
         media: [
-          { src: "/images/work/capstone/capstone-provenance.png", alt: "Provenance diagram in three hops. Hop one lists four evidence sources: student survey 24, resident survey 9, sixteen contextual interviews marked not transcribed, and three blocks of secondary figures marked partly sourced. Hop two audits the thirteen fields of a persona card, eleven marked no survey item, two marked cohort level, one marked authored. Hop three connects five personas to three journey maps, with Alex and Priya marked no journey map", caption: "Two of the thirteen fields on a persona card have any survey basis, and both only as a cohort total. The sixteen contextual interviews in the first row were counted but never transcribed, so nothing on a card is a participant's own words.", wide: true },
-          { src: "/images/work/capstone/persona-jessica.png", alt: "Jessica persona card with photo, the label Engaged Parent, age 34, stay at home mom working part time at a library, married with two children aged 6 and 10, eight years in College Park, a bio, and a seven axis personality scale", caption: "Jessica, the engaged parent, and the longest settled of the five at eight years in College Park.", wide: true },
-          { src: "/images/work/capstone/persona-jessica-detail.png", alt: "Jessica detail panel listing motivations, frustrations, goals, preferred communication channels and three quotes", caption: "Her channels are Facebook, Instagram, family newsletters and word of mouth from other parents. Her frustrations are time and shade, not information.", wide: true },
-          { src: "/images/work/capstone/persona-alex.png", alt: "Alex persona card with photo, the label Young adult in College Park, age 27, graphic designer, married with no children, three years in College Park, a bio, and a seven axis personality scale", caption: "Alex, twenty seven, married, no children, three years in. He wants adult social events and keeps finding family ones.", wide: true },
-          { src: "/images/work/capstone/persona-alex-detail.png", alt: "Alex detail panel listing motivations, frustrations, goals, preferred communication channels and two quotes", caption: "Instagram, Facebook, email newsletters and Eventbrite. His frustrations are parking near the university and events built around children.", wide: true },
-          { src: "/images/work/capstone/persona-priya.png", alt: "Priya persona card with photo, the label On Campus Student Leader, age 21, UMD Public Policy senior living in an on-campus dorm, three years in College Park dorms, a bio, and a seven axis personality scale", caption: "Priya, the on-campus student leader, and the only persona already trying to reach city officials.", wide: true },
-          { src: "/images/work/capstone/persona-priya-detail.png", alt: "Priya detail panel listing motivations, frustrations, goals, preferred communication channels and two quotes", caption: "She already follows the city on Instagram, Twitter and LinkedIn. Her frustration is that other students do not.", wide: true },
-          { src: "/images/work/capstone/persona-tyler.png", alt: "Tyler persona card with photo, the label Off-Campus College student, age 20, UMD junior studying Sociology, off-campus apartment in College Park, a bio, and a seven axis personality scale", caption: "Tyler, the off-campus junior. He lives in the city and hears about it last.", wide: true },
-          { src: "/images/work/capstone/persona-tyler-detail.png", alt: "Tyler detail panel listing motivations, frustrations, goals, preferred communication channels and two quotes", caption: "Instagram, Twitter, campus bulletins, flyers in his building, and his roommates. Four of those five are not the city’s to control.", wide: true },
-          { src: "/images/work/capstone/persona-maria.png", alt: "Maria persona card with photo, the label Spanish-Speaking Community Member, age 29, customer service representative, married with a four year old, Spanish first language with intermediate English, five years in College Park, a bio, and a seven axis personality scale", caption: "Maria, the Spanish speaking resident, and the only persona whose access problem is the language the city publishes in.", wide: true },
-          { src: "/images/work/capstone/persona-maria-detail.png", alt: "Maria detail panel listing motivations, frustrations, goals, preferred communication channels and three quotes", caption: "Facebook groups, WhatsApp, and flyers at local stores, schools and churches. Her stated goal is events that are bilingual, not events that were translated.", wide: true },
+          { src: "/images/work/capstone/capstone-provenance.png", width: 2400, height: 4186, alt: "Provenance diagram in three hops. Hop one lists four evidence sources: student survey 24, resident survey 9, sixteen contextual interviews marked not transcribed, and three blocks of secondary figures marked partly sourced. Hop two audits the thirteen fields of a persona card, eleven marked no survey item, two marked cohort level, one marked authored. Hop three connects five personas to three journey maps, with Alex and Priya marked no journey map", caption: "Two of the thirteen fields on a persona card have any survey basis, and both only as a cohort total. The sixteen contextual interviews in the first row were counted but never transcribed, so nothing on a card is a participant's own words.", wide: true },
+          { src: "/images/work/capstone/persona-jessica.png", width: 2393, height: 1332, alt: "Jessica persona card with photo, the label Engaged Parent, age 34, stay at home mom working part time at a library, married with two children aged 6 and 10, eight years in College Park, a bio, and a seven axis personality scale", caption: "Jessica, the engaged parent, and the longest settled of the five at eight years in College Park.", wide: true },
+          { src: "/images/work/capstone/persona-jessica-detail.png", width: 2384, height: 1299, alt: "Jessica detail panel listing motivations, frustrations, goals, preferred communication channels and three quotes", caption: "Her channels are Facebook, Instagram, family newsletters and word of mouth from other parents. Her frustrations are time and shade, not information.", wide: true },
+          { src: "/images/work/capstone/persona-alex.png", width: 2393, height: 1332, alt: "Alex persona card with photo, the label Young adult in College Park, age 27, graphic designer, married with no children, three years in College Park, a bio, and a seven axis personality scale", caption: "Alex, twenty seven, married, no children, three years in. He wants adult social events and keeps finding family ones.", wide: true },
+          { src: "/images/work/capstone/persona-alex-detail.png", width: 2384, height: 1070, alt: "Alex detail panel listing motivations, frustrations, goals, preferred communication channels and two quotes", caption: "Instagram, Facebook, email newsletters and Eventbrite. His frustrations are parking near the university and events built around children.", wide: true },
+          { src: "/images/work/capstone/persona-priya.png", width: 2393, height: 1332, alt: "Priya persona card with photo, the label On Campus Student Leader, age 21, UMD Public Policy senior living in an on-campus dorm, three years in College Park dorms, a bio, and a seven axis personality scale", caption: "Priya, the on-campus student leader, and the only persona already trying to reach city officials.", wide: true },
+          { src: "/images/work/capstone/persona-priya-detail.png", width: 2384, height: 1299, alt: "Priya detail panel listing motivations, frustrations, goals, preferred communication channels and two quotes", caption: "She already follows the city on Instagram, Twitter and LinkedIn. Her frustration is that other students do not.", wide: true },
+          { src: "/images/work/capstone/persona-tyler.png", width: 2393, height: 1332, alt: "Tyler persona card with photo, the label Off-Campus College student, age 20, UMD junior studying Sociology, off-campus apartment in College Park, a bio, and a seven axis personality scale", caption: "Tyler, the off-campus junior. He lives in the city and hears about it last.", wide: true },
+          { src: "/images/work/capstone/persona-tyler-detail.png", width: 2384, height: 1299, alt: "Tyler detail panel listing motivations, frustrations, goals, preferred communication channels and two quotes", caption: "Instagram, Twitter, campus bulletins, flyers in his building, and his roommates. Four of those five are not the city’s to control.", wide: true },
+          { src: "/images/work/capstone/persona-maria.png", width: 2393, height: 1332, alt: "Maria persona card with photo, the label Spanish-Speaking Community Member, age 29, customer service representative, married with a four year old, Spanish first language with intermediate English, five years in College Park, a bio, and a seven axis personality scale", caption: "Maria, the Spanish speaking resident, and the only persona whose access problem is the language the city publishes in.", wide: true },
+          { src: "/images/work/capstone/persona-maria-detail.png", width: 2384, height: 1299, alt: "Maria detail panel listing motivations, frustrations, goals, preferred communication channels and three quotes", caption: "Facebook groups, WhatsApp, and flyers at local stores, schools and churches. Her stated goal is events that are bilingual, not events that were translated.", wide: true },
         ],
       },
       {
@@ -877,9 +912,9 @@ export const caseStudies = [
           note: "Read from the three journey maps as drawn, not averaged across them. All three share the same six rows. The stage columns differ from map to map, so this table reports each map on its own stages.",
         },
         media: [
-          { src: "/images/work/capstone/journey-jessica.png", alt: "Jessica’s journey map across five stages, Awareness, Planning, Arrival, Experience and Post-Event, with rows for touchpoints, user actions, goals, feelings, pain points and opportunities", caption: "Jessica plans ahead. She reads the event map before she leaves, and her Arrival pain points are still that parking fills up and the entrance signage is unclear.", wide: true },
-          { src: "/images/work/capstone/journey-tyler.png", alt: "Tyler’s journey map across four stages, Curiosity, Exploration, Experience and Reflection, with rows for touchpoints, user actions, goals, feelings, pain points and opportunities", caption: "Tyler’s map has no Planning stage because Tyler did not plan. He was walking down Knox Road looking for a bar, heard music from City Hall, and followed it.", wide: true },
-          { src: "/images/work/capstone/journey-maria.png", alt: "Maria’s journey map across five stages, Curiosity, Planning, Arrival, Experience and Reflection, with rows for touchpoints, user actions, goals, feelings, pain points and opportunities", caption: "Maria’s map starts before the event, at whether the flyer is in Spanish. Her first recorded feeling is curious but hesitant.", wide: true },
+          { src: "/images/work/capstone/journey-jessica.png", width: 3551, height: 1649, alt: "Jessica’s journey map across five stages, Awareness, Planning, Arrival, Experience and Post-Event, with rows for touchpoints, user actions, goals, feelings, pain points and opportunities", caption: "Jessica plans ahead. She reads the event map before she leaves, and her Arrival pain points are still that parking fills up and the entrance signage is unclear.", wide: true },
+          { src: "/images/work/capstone/journey-tyler.png", width: 3574, height: 1638, alt: "Tyler’s journey map across four stages, Curiosity, Exploration, Experience and Reflection, with rows for touchpoints, user actions, goals, feelings, pain points and opportunities", caption: "Tyler’s map has no Planning stage because Tyler did not plan. He was walking down Knox Road looking for a bar, heard music from City Hall, and followed it.", wide: true },
+          { src: "/images/work/capstone/journey-maria.png", width: 3576, height: 1536, alt: "Maria’s journey map across five stages, Curiosity, Planning, Arrival, Experience and Reflection, with rows for touchpoints, user actions, goals, feelings, pain points and opportunities", caption: "Maria’s map starts before the event, at whether the flyer is in Spanish. Her first recorded feeling is curious but hesitant.", wide: true },
         ],
       },
       {
@@ -918,7 +953,7 @@ export const caseStudies = [
           "What the work does support is narrower and still worth something. Twenty two of twenty four students had never attended a City of College Park event, a gap large enough that the direction is not in doubt even if the exact share is. The journey maps are honest reconstructions of three specific paths through one kind of event. The personas gave the city a shared vocabulary it did not have before. None of that needs a bigger sample to be useful. It needs me to say which claims rest on measurement and which rest on judgment.",
         ],
         media: [
-          { src: "/images/work/capstone/capstone-sample.png", alt: "Sample diagram. Two cohort cards, 24 UMD students and 9 College Park residents, with resident tenure drawn as four bars: less than one year 2, one to three years 4, four to ten years 2, more than ten years 1. A gold panel marked not recorded covers how people were reached. Four cards below cover what the sample does not reach: language nothing asked, the screener not published, long tenure 1 of 9, event experience 2 of 33", caption: "Six of the nine residents had lived in College Park three years or less. Two people in the whole sample of thirty three had ever attended a city event.", wide: true },
+          { src: "/images/work/capstone/capstone-sample.png", width: 2400, height: 2205, alt: "Sample diagram. Two cohort cards, 24 UMD students and 9 College Park residents, with resident tenure drawn as four bars: less than one year 2, one to three years 4, four to ten years 2, more than ten years 1. A gold panel marked not recorded covers how people were reached. Four cards below cover what the sample does not reach: language nothing asked, the screener not published, long tenure 1 of 9, event experience 2 of 33", caption: "Six of the nine residents had lived in College Park three years or less. Two people in the whole sample of thirty three had ever attended a city event.", wide: true },
         ],
       },
       {
@@ -954,6 +989,13 @@ export const caseStudies = [
       video: "/images/work/frontground/cover-gradient.mp4",
       poster: "/images/work/frontground/cover-gradient-poster.png",
       palette: ["#002637", "#003F5D", "#145676", "#0C8B44", "#DDE7EB"],
+      exhibit: /** @type {const} */ ({
+        "src": "/images/work/frontground/frontground-patient-record.png",
+        "alt": "Frontground patient record showing profile, vitals grid, history, notes, medication, and lab results",
+        "width": 1920,
+        "height": 1080,
+        "frame": "tablet"
+      }),
       titlePlacement: "center",
     },
     links: [
@@ -1014,7 +1056,7 @@ export const caseStudies = [
         ],
         media: [
           {
-            src: "/images/work/frontground/frontground-pain-points.png",
+            src: "/images/work/frontground/frontground-pain-points.png", width: 1920, height: 1080,
             alt: "Six stage diagram of an outpatient visit showing what happens on paper, where the record breaks, and what the design does at each stage",
             caption: "The visit mapped as six stages. Red marks a stage where the record can be lost outright, amber marks a stage that costs time. Refiling is red for a reason.",
             wide: true,
@@ -1031,13 +1073,13 @@ export const caseStudies = [
         ],
         media: [
           {
-            src: "/images/work/frontground/frontground-dashboard.png",
+            src: "/images/work/frontground/frontground-dashboard.png", width: 1920, height: 1080, kind: "device", frame: /** @type {const} */ ("tablet"),
             alt: "Frontground clinical dashboard showing patient overview, schedule, open requests, and the patient order queue",
             caption: "The clinical dashboard. The queue and the outstanding requests are the working surface, and the chart is context.",
             wide: true,
           },
           {
-            src: "/images/work/frontground/frontground-patients.png",
+            src: "/images/work/frontground/frontground-patients.png", width: 1920, height: 1080, kind: "device", frame: /** @type {const} */ ("tablet"),
             alt: "Frontground patient list with a triage overview donut chart and an analysis panel",
             caption: "The patient list, with a triage breakdown for the day beside it.",
             wide: true,
@@ -1049,18 +1091,18 @@ export const caseStudies = [
         label: "The record",
         heading: "Three columns, three questions",
         body: [
-          "The patient record answers who they are, how they are, and what is pending, in that order and in three columns. Vitals get the largest type on the screen because they are read at a glance during rounds rather than studied.",
+          "The patient record answers who they are, how they are, and what needs attention, in that order and in three columns. Vitals get the largest type on the screen because they are read at a glance during rounds rather than studied.",
           "The assessment form follows the clinical order a nurse already works in rather than a database schema. Circulation, breathing, fluid status, and haematology, with tap to select options instead of free text so it can be completed at the bedside.",
         ],
         media: [
           {
-            src: "/images/work/frontground/frontground-patient-record.png",
+            src: "/images/work/frontground/frontground-patient-record.png", width: 1920, height: 1080, kind: "device", frame: /** @type {const} */ ("tablet"),
             alt: "Frontground patient record showing profile, vitals grid, history, notes, medication, and lab results",
             caption: "The patient record. History names the facility each entry came from, because patients in this network move between sites.",
             wide: true,
           },
           {
-            src: "/images/work/frontground/frontground-assessment.png",
+            src: "/images/work/frontground/frontground-assessment.png", width: 1920, height: 1080, kind: "device", frame: /** @type {const} */ ("tablet"),
             alt: "Frontground clinical assessment form with vitals, circulation, breathing, fluid status, and haematology panels",
             caption: "Page one of the assessment, ordered the way the examination is actually performed.",
             wide: true,
@@ -1077,13 +1119,13 @@ export const caseStudies = [
         ],
         media: [
           {
-            src: "/images/work/frontground/frontground-information-architecture.png",
+            src: "/images/work/frontground/frontground-information-architecture.png", width: 1920, height: 1080,
             alt: "Information architecture diagram showing one screen tree with coloured dots marking which of the three clinical credentials can reach each node",
             caption: "The information architecture. Dots on each node say which credential reaches it, which is what makes it one system rather than three.",
             wide: true,
           },
           {
-            src: "/images/work/frontground/frontground-design-system.png",
+            src: "/images/work/frontground/frontground-design-system.png", width: 1920, height: 1080,
             alt: "Frontground design system board showing navigation, buttons, form controls, triage badges, card anatomy, grid and spacing",
             caption: "The component board. Navigation, controls, status, and the grid, with the reasoning written beside each decision.",
             wide: true,
@@ -1134,6 +1176,13 @@ export const caseStudies = [
       video: "/images/work/terpcare/cover-gradient.mp4",
       poster: "/images/work/terpcare/cover-gradient-poster.png",
       palette: ["#211F20", "#E93C43", "#FFCC1E", "#A93C52", "#4B4848"],
+      exhibit: /** @type {const} */ ({
+        "src": "/images/work/terpcare/terpcare-mood-calendar.png",
+        "alt": "TerpCare mood calendar",
+        "width": 426,
+        "height": 932,
+        "frame": "phone"
+      }),
       titlePlacement: "center",
     },
     links: [
@@ -1172,7 +1221,7 @@ export const caseStudies = [
           "TerpCare began with a campus pattern: students may know support exists while still feeling unsure where to start, what is available, or how to ask for help. We explored how one university-specific product could make that first step feel more familiar.",
           "The concept connects resource discovery, mood reflection, peer discussion, events, and messages within one UMD-branded experience.",
         ],
-        media: [{ src: "/images/work/terpcare/terpcare-screen-set.png", alt: "Three TerpCare high-fidelity screens", caption: "The final concept brings campus context, conversation, and self-reflection into one mobile system." }],
+        media: [{ src: "/images/work/terpcare/terpcare-screen-set.png", width: 1600, height: 900, alt: "Three TerpCare high-fidelity screens", caption: "The final concept brings campus context, conversation, and self-reflection into one mobile system." }],
       },
       {
         id: "research",
@@ -1192,8 +1241,8 @@ export const caseStudies = [
           "That comparison led to a combined strategy: campus resources, communication options, peer discussion, and repeatable mood reflection in one interface.",
         ],
         media: [
-          { src: "/images/work/terpcare/terpcare-competitive-grid.png", alt: "TerpCare competitive-analysis matrix", caption: "The matrix compares therapy apps, university counseling, and awareness campaigns." },
-          { src: "/images/work/terpcare/terpcare-competitive-synthesis.png", alt: "TerpCare competitive synthesis", caption: "The synthesis points toward a university-specific, stigma-aware product direction." },
+          { src: "/images/work/terpcare/terpcare-competitive-grid.png", width: 1600, height: 900, alt: "TerpCare competitive-analysis matrix", caption: "The matrix compares therapy apps, university counseling, and awareness campaigns." },
+          { src: "/images/work/terpcare/terpcare-competitive-synthesis.png", width: 1600, height: 900, alt: "TerpCare competitive synthesis", caption: "The synthesis points toward a university-specific, stigma-aware product direction." },
         ],
       },
       {
@@ -1218,8 +1267,8 @@ export const caseStudies = [
           note: "The fifteen supplied screens map back to these five destinations, keeping a broad feature set anchored to a small navigation model.",
         },
         media: [
-          { src: "/images/work/terpcare/terpcare-lowfi-flows.png", alt: "Low-fidelity chat, resource, and campaign screens", caption: "Early flows placed chat, resources, events, and awareness content inside one navigation model." },
-          { src: "/images/work/terpcare/terpcare-lowfi-messaging.png", alt: "Low-fidelity discussion, notification, and message screens", caption: "Discussion, notification, and inbox sketches established the communication layer." },
+          { src: "/images/work/terpcare/terpcare-lowfi-flows.png", width: 1600, height: 900, alt: "Low-fidelity chat, resource, and campaign screens", caption: "Early flows placed chat, resources, events, and awareness content inside one navigation model." },
+          { src: "/images/work/terpcare/terpcare-lowfi-messaging.png", width: 1600, height: 900, alt: "Low-fidelity discussion, notification, and message screens", caption: "Discussion, notification, and inbox sketches established the communication layer." },
         ],
       },
       {
@@ -1230,7 +1279,7 @@ export const caseStudies = [
           "We sketched onboarding, profile setup, home, calendar, chat, campus resources, campaigns, discussion, notifications, and messaging before building in Figma. Seeing the screens together exposed repeated patterns and made navigation decisions easier to discuss.",
           "The low-fidelity set kept attention on content order: what a student needs first, what belongs one tap away, and which functions stay visible across the experience.",
         ],
-        media: [{ src: "/images/work/terpcare/terpcare-lowfi-overview.png", alt: "Low-fidelity onboarding, home, and calendar sketches", caption: "Onboarding, home, and calendar sketches established first-use and return-use rhythm." }],
+        media: [{ src: "/images/work/terpcare/terpcare-lowfi-overview.png", width: 1600, height: 900, alt: "Low-fidelity onboarding, home, and calendar sketches", caption: "Onboarding, home, and calendar sketches established first-use and return-use rhythm." }],
       },
       {
         id: "high-fidelity",
@@ -1241,15 +1290,15 @@ export const caseStudies = [
           "The full-resolution source exports below keep each interface readable, while the complete fifteen-screen inventory shows how onboarding, discovery, care, conversation, reflection, and account continuity fit together. I worked across research, wireframing, interface decisions, and prototype refinement, helping the team balance a broad feature set with a simple navigation model.",
         ],
         media: [
-          { src: "/images/work/terpcare/figma-campaign-news.png", alt: "TerpCare Campaign and News screen exported from Figma", caption: "Campaign & News — campus initiatives and timely stories share one editorial feed." },
-          { src: "/images/work/terpcare/figma-discussion-recents.png", alt: "TerpCare Discussion Board recents screen exported from Figma", caption: "Discussion recents — tagged posts make peer experiences easier to scan." },
-          { src: "/images/work/terpcare/figma-discussion-create.png", alt: "TerpCare Create Post screen exported from Figma", caption: "Create post — a focused composer supports topic, privacy, and support tagging." },
-          { src: "/images/work/terpcare/figma-resources-therapy.png", alt: "TerpCare Therapy Resources screen exported from Figma", caption: "Therapy resources — provider cards make campus and specialist options comparable." },
-          { src: "/images/work/terpcare/figma-book-appointment.png", alt: "TerpCare appointment booking screen exported from Figma", caption: "Book appointment — counselor context and calendar selection stay in one path." },
-          { src: "/images/work/terpcare/figma-login.png", alt: "TerpCare login screen exported from Figma", caption: "Log in — a quiet first-use screen keeps account entry straightforward." },
-          { src: "/images/work/terpcare/terpcare-home.png", alt: "TerpCare home screen", caption: "Home — campus news and events create a familiar, timely starting point." },
-          { src: "/images/work/terpcare/terpcare-discussion.png", alt: "TerpCare discussion board", caption: "Discussion — public and private posting paths organize peer conversation." },
-          { src: "/images/work/terpcare/terpcare-mood-calendar.png", alt: "TerpCare mood calendar", caption: "Mood calendar — a visual history makes reflection easy to revisit." },
+          { src: "/images/work/terpcare/figma-campaign-news.png", width: 430, height: 932, alt: "TerpCare Campaign and News screen exported from Figma", caption: "Campaign & News — campus initiatives and timely stories share one editorial feed." },
+          { src: "/images/work/terpcare/figma-discussion-recents.png", width: 430, height: 932, alt: "TerpCare Discussion Board recents screen exported from Figma", caption: "Discussion recents — tagged posts make peer experiences easier to scan." },
+          { src: "/images/work/terpcare/figma-discussion-create.png", width: 430, height: 932, alt: "TerpCare Create Post screen exported from Figma", caption: "Create post — a focused composer supports topic, privacy, and support tagging." },
+          { src: "/images/work/terpcare/figma-resources-therapy.png", width: 430, height: 932, alt: "TerpCare Therapy Resources screen exported from Figma", caption: "Therapy resources — provider cards make campus and specialist options comparable." },
+          { src: "/images/work/terpcare/figma-book-appointment.png", width: 430, height: 932, alt: "TerpCare appointment booking screen exported from Figma", caption: "Book appointment — counselor context and calendar selection stay in one path." },
+          { src: "/images/work/terpcare/figma-login.png", width: 430, height: 932, alt: "TerpCare login screen exported from Figma", caption: "Log in — a quiet first-use screen keeps account entry straightforward." },
+          { src: "/images/work/terpcare/terpcare-home.png", width: 426, height: 932, alt: "TerpCare home screen", caption: "Home — campus news and events create a familiar, timely starting point." },
+          { src: "/images/work/terpcare/terpcare-discussion.png", width: 430, height: 932, alt: "TerpCare discussion board", caption: "Discussion — public and private posting paths organize peer conversation." },
+          { src: "/images/work/terpcare/terpcare-mood-calendar.png", width: 426, height: 932, alt: "TerpCare mood calendar", caption: "Mood calendar — a visual history makes reflection easy to revisit." },
         ],
       },
       {
@@ -1285,6 +1334,13 @@ export const caseStudies = [
       video: "/images/work/sohive/cover-gradient.mp4",
       poster: "/images/work/sohive/cover-gradient-poster.png",
       palette: ["#000000", "#DC3545", "#0069D9", "#00A650", "#F99953"],
+      exhibit: /** @type {const} */ ({
+        "src": "/images/work/sohive/sohive-feed.png",
+        "alt": "Three sohive screens on black: the home feed with two colour coded event cards, the explore screen with category tiles, and search results",
+        "width": 900,
+        "height": 563,
+        "frame": "sheet"
+      }),
       titlePlacement: "center",
     },
     links: [
@@ -1335,7 +1391,7 @@ export const caseStudies = [
         },
         media: [
           {
-            src: "/images/work/sohive/sohive-process.png",
+            src: "/images/work/sohive/sohive-process.png", width: 3600, height: 2060,
             alt: "Process board showing the original WTM login artboard, the rename to sohive, the hexagon mark construction, the colour rationale, an inventory chart and six design decisions",
             caption: "The process board. The note on the left is the actual text left on the original login artboard.",
             wide: true,
@@ -1352,7 +1408,7 @@ export const caseStudies = [
         ],
         media: [
           {
-            src: "/images/work/sohive/sohive-identity.png",
+            src: "/images/work/sohive/sohive-identity.png", width: 1600, height: 1000,
             alt: "Identity board showing the sohive mark and wordmark, the hexagon construction in three stages, the colour palette with token names and the nine step Inter type ramp",
             caption: "The mark, built up one cell at a time, with the palette and type ramp it produced.",
             wide: true,
@@ -1369,7 +1425,7 @@ export const caseStudies = [
         ],
         media: [
           {
-            src: "/images/work/sohive/sohive-onboarding.png",
+            src: "/images/work/sohive/sohive-onboarding.png", width: 1600, height: 1000,
             alt: "Three sohive onboarding screens: the welcome screen, the school email step with an inline domain check, and the six digit email verification screen",
             caption: "Welcome, the school email step, and email verification. The progress bar is the promise that this ends.",
             wide: true,
@@ -1386,13 +1442,13 @@ export const caseStudies = [
         ],
         media: [
           {
-            src: "/images/work/sohive/sohive-feed.png",
+            src: "/images/work/sohive/sohive-feed.png", width: 900, height: 563,
             alt: "Three sohive screens on black: the home feed with two colour coded event cards, the explore screen with category tiles, and search results",
             caption: "The feed, explore and search. Colour is doing the wayfinding that a photograph normally would.",
             wide: true,
           },
           {
-            src: "/images/work/sohive/sohive-event-create.png",
+            src: "/images/work/sohive/sohive-event-create.png", width: 1600, height: 1000,
             alt: "Three sohive screens: an event detail page with a gradient hero and a fixed RSVP bar, the create sheet, and the new event form",
             caption: "Event detail, the create sheet, and the event form. RSVP sits in a fixed bar so it survives the scroll.",
             wide: true,
@@ -1409,7 +1465,7 @@ export const caseStudies = [
         ],
         media: [
           {
-            src: "/images/work/sohive/sohive-profiles-settings.png",
+            src: "/images/work/sohive/sohive-profiles-settings.png", width: 1600, height: 1000,
             alt: "Three sohive screens: a student profile with a gradient cover, an organisation profile, and the settings index grouped into account, preferences and support",
             caption: "A person, an organisation and the settings tree, all built from the same two components.",
             wide: true,
@@ -1426,19 +1482,19 @@ export const caseStudies = [
         ],
         media: [
           {
-            src: "/images/work/sohive/sohive-design-system.png",
+            src: "/images/work/sohive/sohive-design-system.png", width: 3200, height: 2072,
             alt: "The sohive component library showing brand and iconography, buttons and inputs, event and post cards, navigation chrome, feed components and profile headers",
             caption: "The component library, grouped by the job each set does.",
             wide: true,
           },
           {
-            src: "/images/work/sohive/sohive-style-guide.png",
+            src: "/images/work/sohive/sohive-style-guide.png", width: 3600, height: 2400,
             alt: "The sohive style guide showing brand rules, twenty four colour tokens with hex values and usage, the Inter type ramp, spacing and radius scales, the icon grid, a component index and a contrast table",
             caption: "The style guide. Every value on this board is a variable or a shared style in the file.",
             wide: true,
           },
           {
-            src: "/images/work/sohive/sohive-information-architecture.png",
+            src: "/images/work/sohive/sohive-information-architecture.png", width: 3400, height: 1740,
             alt: "The sohive information architecture diagram showing six colour coded flows, the signed in tab shell and dashed lines for cross flow jumps",
             caption: "The information architecture. Dashed lines are the jumps you can take from a card or an avatar rather than from a tab.",
             wide: true,
