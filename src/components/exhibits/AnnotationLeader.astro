@@ -37,9 +37,9 @@ const box = vertical
   .on-dark .leader-number { color: var(--color-annotate-on-stage); }
   .on-light .leader-number { color: var(--color-annotate-on-light-stage); }
   .on-light .leader-anchor { background: var(--color-annotate-on-light-stage); }
-  /* labels scale with the stage (13px on a 534 wide stage) so neighbours never collide, down to 10px. */
-  .leader-text { font: 500 max(10px, 2.43cqw) / 1.4 var(--ui); }
-  .leader-number { font-size: max(9px, 1.87cqw); }
+  /* labels keep figma's 13px, and shrink with a narrow stage (below 534 wide) so neighbours never collide, down to 10px. */
+  .leader-text { font: 500 clamp(10px, 2.43cqw, 13px) / 1.4 var(--ui); }
+  .leader-number { font-size: clamp(9px, 1.87cqw, 10px); }
   .on-light .leader-text { color: #273440; }
   .on-dark .leader-text { color: #fff; text-shadow: 0 1px 6px rgb(0 0 0 / 45%); }
 </style>

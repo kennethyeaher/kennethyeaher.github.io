@@ -23,7 +23,8 @@ const { palette, visuals, captions, fields = [], base, bases = [], veil = false 
     <div class="exhibit-row">
       <ExhibitStage palette={palette} size="square" field={fields[index]} base={bases[index] ?? base} veil={veil}>
         <ExhibitVisual visual={visual} stageRatio={1} stageWidth={600 / 1116} />
-        {captions[index].tag && <span class="row-tag"><MediaTag text={captions[index].tag!} /></span>}
+        {/* the media tag marks a stage that ships as a looping video (figma 50:584), so a still row shows none. */}
+        {captions[index].tag && visual.loop && <span class="row-tag"><MediaTag text={captions[index].tag!} /></span>}
       </ExhibitStage>
       <div class="row-caption">
         <Caption title={captions[index].title} body={captions[index].body} />

@@ -18,7 +18,7 @@ const slugs = [
   "sohive",
 ];
 // pages already moved to the v2 exhibit layout; the older cover and media checks skip them.
-const exhibitPages = new Set(["kairo-health", "usm-venture-benchmark", "ovara", "terpcarehub", "college-park-capstone"]);
+const exhibitPages = new Set(["kairo-health", "usm-venture-benchmark", "ovara", "terpcarehub", "college-park-capstone", "frontground"]);
 const pages = new Map();
 
 before(() => {
@@ -118,12 +118,13 @@ test("the renamed capstone and expanded product evidence render publicly", () =>
 test("previous and next project links wrap without dead ends", () => {
   const first = pages.get("usm-venture-benchmark");
   const middle = pages.get("frontground");
+  // frontground is on the exhibit layout, which ends on a next project link only.
   const last = pages.get("sohive");
 
   // the v2 exhibit shell (figma 61:1059) closes on a next project link only, so previous is checked on the older layout.
   if (!exhibitPages.has("usm-venture-benchmark")) assert.match(first, /href="\/work\/sohive"/);
   assert.match(first, /href="\/work\/ovara"/);
-  assert.match(middle, /href="\/work\/college-park-capstone"/);
+  if (!exhibitPages.has("frontground")) assert.match(middle, /href="\/work\/college-park-capstone"/);
   assert.match(middle, /href="\/work\/terpcare"/);
   assert.match(last, /href="\/work\/terpcare"/);
   assert.match(last, /href="\/work\/usm-venture-benchmark"/);
@@ -142,10 +143,11 @@ test("every case study has a unique social preview and reading progress", () => 
 });
 
 test("device exhibits preserve captions and source dimensions", () => {
-  for (const slug of ["frontground"]) {
+  // every page is on the exhibit layout now; device frames keep their source dimensions there.
+  for (const slug of ["frontground", "terpcarehub"]) {
     const html = pages.get(slug);
-    assert.match(html, /data-media-kind="device"/);
-    assert.match(html, /width="\d+" height="\d+"/);
+    assert.match(html, /data-device-frame="browser"/);
+    assert.match(html, /width="1919" height="1079"|width="1489" height="1600"/);
   }
 });
 
@@ -304,4 +306,29 @@ test("the Capstone renders the v2 exhibit layout from its prose mock", () => {
   assert.match(page, /TYLER’S JOURNEY MAP  ·  FOUR STAGES, NO PLANNING, NO ARRIVAL/);
   assert.match(page, /journey-tyler\.png/);
   assert.match(page, /href="\/work\/frontground"/);
+});
+
+test("Frontground renders the v2 exhibit layout from its prose mock", () => {
+  const page = pages.get("frontground");
+  const sectionIds = [...page.matchAll(/<section[^>]*\bid="([^"]+)"[^>]*data-case-section/g)].map((match) => match[1]);
+  assert.deepEqual(sectionIds, ["overview", "core-flows", "the-problem", "the-solution", "the-system", "where-it-stands"]);
+  assert.match(page, /Three columns, three questions/);
+  assert.match(page, /What the venture taught me and what I still owe it/);
+  // doctor and nurse rows are clean recorded loops; the admin row is a still with no loop tag.
+  for (const name of ["doctor", "nurse"]) {
+    assert.match(page, new RegExp(`data-src="/images/work/frontground/frontground-${name}-loop\\.mp4"`));
+    assert.match(page, new RegExp(`data-loop-name="${name} loop"`));
+  }
+  assert.equal([...page.matchAll(/class="row-tag"/g)].length, 2);
+  assert.match(page, /frontground-admin\.png/);
+  // the six stage visit graphic: html words over an svg rail, two legend categories.
+  assert.equal([...page.matchAll(/<li class="is-(care|time)"[^>]*>\s*<span class="stage-num"/g)].length, 6);
+  assert.equal([...page.matchAll(/<li class="is-time"[^>]*>\s*<span class="stage-num"/g)].length, 2);
+  assert.match(page, /<svg class="visit-rail"[^>]*aria-hidden="true"/);
+  assert.match(page, /Refiling is the one that matters most and gets the least attention\./);
+  // the solution: four leaders on the stage, two pointing in from the left, and the caption under it.
+  assert.equal([...page.matchAll(/class="annotation annotation-leader is-left/g)].length, 2);
+  assert.equal([...page.matchAll(/class="annotation annotation-leader is-vertical/g)].length, 1);
+  assert.match(page, /What the interviews put on the first screen/);
+  assert.match(page, /href="\/work\/terpcare"/);
 });

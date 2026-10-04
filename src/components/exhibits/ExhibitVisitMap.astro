@@ -1,0 +1,89 @@
+---
+// six stage visit graphic per figma 90:2322, built from the spec text: a label, then stages separated by
+// " || ", each "NN Name | Where it breaks: ... | What the design does: ...". each stage's legend category
+// comes from the mock's dot colours (loses or delays care, or costs time). the rail is svg; the words are html.
+interface Props {
+  text: string;
+  legend: [string, string];
+  categories: ("care" | "time")[];
+  footnote?: string;
+  label: string;
+}
+const { text, legend, categories, footnote, label } = Astro.props;
+const [first, ...rest] = text.split(" || ");
+const [heading, ...firstStage] = first.split(" | ");
+const stages = [firstStage, ...rest.map((stage) => stage.split(" | "))].map(([title, breaks, response], index) => {
+  const [num, ...name] = title.split(" ");
+  const [breaksLabel, ...breaksText] = breaks.split(": ");
+  const [responseLabel, ...responseText] = response.split(": ");
+  return { num, name: name.join(" "), breaksLabel, breaks: breaksText.join(": "), responseLabel, response: responseText.join(": "), category: categories[index] };
+});
+// rail geometry in the canvas's own pixels: columns every 175.2 from 40, the last stage marked larger.
+const dotX = stages.map((_, index) => 5.5 + index * 175.2);
+---
+<figure class="visit" aria-label={label}>
+  <div class="visit-scroll" role="region" aria-label="Visit graphic, scrolls sideways on small screens" tabindex="0">
+    <div class="visit-canvas">
+      <div class="visit-top">
+        <p class="visit-label">{heading}</p>
+        <ul class="visit-legend">
+          <li class="is-care">{legend[0]}</li>
+          <li class="is-time">{legend[1]}</li>
+        </ul>
+      </div>
+      <svg class="visit-rail" viewBox="0 0 1036 14" width="1036" height="14" aria-hidden="true" focusable="false">
+        <line x1="6" x2="894" y1="7" y2="7" class="rail-line" />
+        {dotX.map((x, index) => <circle cx={index === stages.length - 1 ? x + 1.5 : x} cy="7" r={index === stages.length - 1 ? 7 : 5.5} class={`rail-dot is-${stages[index].category}`} />)}
+      </svg>
+      <ol class="visit-stages">
+        {stages.map((stage) => (
+          <li class={`is-${stage.category}`}>
+            <span class="stage-num">{stage.num}</span>
+            <span class="stage-name">{stage.name}</span>
+            <span class="stage-label is-breaks">{stage.breaksLabel}</span>
+            <span class="stage-breaks">{stage.breaks}</span>
+            <span class="stage-label is-response">{stage.responseLabel}</span>
+            <span class="stage-response">{stage.response}</span>
+          </li>
+        ))}
+      </ol>
+      {footnote && <blockquote class="visit-quote"><p>{footnote}</p></blockquote>}
+    </div>
+  </div>
+</figure>
+<style>
+  /* category colours keep the mock's hues at 4.5:1 or better on each theme's surface. */
+  .visit { --care: #d23c2e; --time: #9a5b0a; --response: #0c7a3e; margin: 0; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); }
+  :global(:root[data-theme="dark"]) .visit { --care: #ff8a7a; --time: #f0b04a; --response: #5fd08f; }
+  @media (prefers-color-scheme: dark) { :global(:root:not([data-theme="light"])) .visit { --care: #ff8a7a; --time: #f0b04a; --response: #5fd08f; } }
+  .visit-scroll { overflow-x: auto; border-radius: inherit; }
+  .visit-scroll:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .visit-canvas { position: relative; width: 1116px; padding: 35px 40px 30px; }
+  .visit-canvas p { margin: 0; }
+  .visit-top { display: flex; justify-content: space-between; align-items: center; }
+  .visit-label { color: var(--muted); font: 11px / 1.3 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; }
+  .visit-legend { display: flex; gap: 24px; margin: 0 70px 0 0; padding: 0; list-style: none; color: var(--muted); font: 500 12px / 1.3 var(--ui); }
+  .visit-legend li { display: flex; align-items: center; gap: 6px; }
+  .visit-legend li::before { width: 8px; height: 8px; border-radius: 50%; content: ""; }
+  .visit-legend .is-care::before { background: var(--care); }
+  .visit-legend .is-time::before { background: var(--time); }
+  .visit-rail { position: absolute; top: 133px; left: 40px; overflow: visible; }
+  .rail-line { stroke: var(--rule); stroke-width: 1; }
+  .rail-dot.is-care { fill: var(--care); }
+  .rail-dot.is-time { fill: var(--time); }
+  .visit-stages { display: grid; grid-template-columns: repeat(6, 160px); column-gap: 15.2px; margin: 34px 0 0; padding: 0; list-style: none; }
+  /* offsets from figma 90:2322, measured from each stage number: name +16, rail +56, breaks label +84,
+     breaks +102, response label +206, response +224. */
+  .visit-stages li { display: flex; flex-direction: column; }
+  .stage-num { color: var(--muted); font: 10px / 13px var(--mono); letter-spacing: 0.06em; }
+  .stage-name { margin-top: 3px; color: var(--ink-strong); font: 500 15px / 20px var(--ui); }
+  .stage-label { font: 10px / 13px var(--mono); letter-spacing: 0.06em; text-transform: uppercase; }
+  .stage-label.is-breaks { margin-top: 48px; }
+  .is-care .is-breaks { color: var(--care); }
+  .is-time .is-breaks { color: var(--time); }
+  .stage-label.is-response { color: var(--response); }
+  .stage-breaks { min-height: 104px; padding-top: 5px; color: var(--ink-strong); font: 15px / 21px var(--body); }
+  .stage-response { padding-top: 5px; color: var(--secondary); font: 15px / 21px var(--body); }
+  .visit-quote { margin: 40px 0 0; padding-left: 20px; border-left: 2px solid var(--care); max-width: 920px; }
+  .visit-quote p { color: var(--ink-strong); font: 400 20px / 28px var(--display); letter-spacing: -0.01em; }
+</style>

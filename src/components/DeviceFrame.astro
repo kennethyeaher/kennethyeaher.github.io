@@ -27,6 +27,8 @@ const hasScreen = Astro.slots.has("default");
       <img class="browser-light" src="/images/exhibits/browser-light-red.svg" alt="" width="11" height="11" />
       <img class="browser-light" src="/images/exhibits/browser-light-yellow.svg" alt="" width="11" height="11" />
       <img class="browser-light" src="/images/exhibits/browser-light-green.svg" alt="" width="11" height="11" />
+      {/* a browser drawn faded behind another (frontground 90:2269) keeps its address bar but no address,
+           since its text could not reach a readable contrast. */}
       <span class="browser-address">{url}</span>
     </div>
   )}

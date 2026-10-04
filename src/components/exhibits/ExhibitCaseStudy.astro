@@ -11,6 +11,9 @@ import ExhibitAuditCards from "@/components/exhibits/ExhibitAuditCards.astro";
 import ExhibitHeatmap from "@/components/exhibits/ExhibitHeatmap.astro";
 import ExhibitPair from "@/components/exhibits/ExhibitPair.astro";
 import ExhibitStates from "@/components/exhibits/ExhibitStates.astro";
+import ExhibitVisitMap from "@/components/exhibits/ExhibitVisitMap.astro";
+import AnnotationLeader from "@/components/exhibits/AnnotationLeader.astro";
+import Caption from "@/components/exhibits/Caption.astro";
 import ExhibitTimeline from "@/components/exhibits/ExhibitTimeline.astro";
 import ExhibitMetrics from "@/components/exhibits/ExhibitMetrics.astro";
 import NextProject from "@/components/exhibits/NextProject.astro";
@@ -107,13 +110,17 @@ function sectionFor(exhibit: any) {
           <div class="exhibit-body">
             {exhibit.kind === "stage" && (
               <>
-                <ExhibitStage palette={palette} size={exhibit.size} ratio={exhibit.ratio}>
+                <ExhibitStage palette={palette} size={exhibit.size} ratio={exhibit.ratio} field={exhibit.field} base={exhibit.base}>
                   {exhibit.visuals.map((visual: any) => <ExhibitVisual visual={visual} stageRatio={stageRatio(exhibit)} />)}
                   {[...(exhibit.annotations ?? [])].sort((a: any, b: any) => Number(a.num) - Number(b.num)).map((annotation: any) => (
-                    <ExhibitVisual visual={exhibit.visuals[annotation.on]} stageRatio={stageRatio(exhibit)} idPrefix={exhibit.id} annotations={[annotation]} overlay />
+                    annotation.on === undefined
+                      // a leader placed on the stage itself (frontground 90:2382), its box a share of the stage.
+                      ? <AnnotationLeader num={annotation.num} label={annotation.label} at={annotation.at} order={Number(annotation.num) - 1} vertical={annotation.type === "leader-vertical"} direction={annotation.direction} />
+                      : <ExhibitVisual visual={exhibit.visuals[annotation.on]} stageRatio={stageRatio(exhibit)} idPrefix={exhibit.id} annotations={[annotation]} overlay />
                   ))}
                 </ExhibitStage>
                 {exhibit.notes && <Notes notes={exhibit.notes} idPrefix={exhibit.id} />}
+                {exhibit.captions && <div class="stage-caption">{exhibit.captions.map((caption: any) => <Caption title={caption.title} body={caption.body} />)}</div>}
               </>
             )}
             {exhibit.kind === "rows" && (
@@ -129,6 +136,9 @@ function sectionFor(exhibit: any) {
             )}
             {exhibit.kind === "pair" && (
               <ExhibitPair id={exhibit.id} palette={palette} stages={exhibit.stages} captions={exhibit.captions} />
+            )}
+            {exhibit.kind === "custom" && exhibit.graphic === "visit-map" && (
+              <ExhibitVisitMap text={exhibit.text} legend={exhibit.legend} categories={exhibit.categories} footnote={exhibit.footnote} label={exhibit.heading} />
             )}
             {exhibit.kind === "custom" && exhibit.graphic === "timeline" && (
               <ExhibitTimeline text={exhibit.text} label={exhibit.heading} />
@@ -163,6 +173,9 @@ function sectionFor(exhibit: any) {
   .exhibit-chapter + .exhibit-chapter { margin-top: 96px; }
   /* figma 86:1339: the overview gets its own head and lede after the metrics, a chapter's distance below. */
   .overview-chapter { margin-top: 96px; }
+  /* figma 90:2386: a stage's caption sits 32 under it and runs 720 wide. */
+  .stage-caption { margin-top: 32px; }
+  .stage-caption :global(.exhibit-caption) { max-width: 720px; }
   .exhibit-eyebrow { margin: 0; color: var(--muted); font: 11px / 1.4 var(--mono); letter-spacing: 0.04em; text-transform: uppercase; }
   .exhibit-header h1 { margin: 16px 0 0; color: var(--ink-strong); font: 400 clamp(46px, 5.6vw, 72px) / 1 var(--display); letter-spacing: -0.03em; }
   .exhibit-summary { max-width: 820px; margin: 16px 0 0; color: var(--ink); font: 19px / 1.55 var(--body); }

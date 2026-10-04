@@ -19,9 +19,10 @@
  *   priority marks the lcp visual when it is not the hero's last one.
  * @typedef {{
  *   type: "focus" | "leader" | "leader-vertical", num: string, label?: string,
- *   on?: number, at?: Box, target?: string
+ *   on?: number, at?: Box, target?: string, direction?: "left" | "right", theme?: "on-dark" | "on-light"
  * }} ExhibitAnnotation
- *   on is the index of the visual the box sits on; native targets name a row or cell instead.
+ *   on is the index of the visual the box sits on; native targets name a row or cell instead; with
+ *   neither, the box is a share of the stage itself.
  * @typedef {{ n: string, title: string, body: string }} ExhibitNote
  * @typedef {{ tag?: string, title: string, body: string }} ExhibitCaption
  * @typedef {{ eyebrow: string, value: string, label: string, at?: { x: number, y: number } }} ExhibitKpi
@@ -44,7 +45,7 @@
  * @typedef {ExhibitBase & { kind: "heatmap", base?: string, panels: { label: string, columns: string[], rows: string[][] }[], annotations?: ExhibitAnnotation[], notes?: ExhibitNote[] }} HeatmapExhibit
  *   annotations here carry the spec's target ("PANEL, Row row" or "PANEL, Column column ...") instead of a box.
  * @typedef {ExhibitBase & { kind: "matrix", label: string, columns: string[], rows: string[][], annotations?: ExhibitAnnotation[], notes?: ExhibitNote[] }} MatrixExhibit
- * @typedef {ExhibitBase & { kind: "custom", graphic: "timeline" | "visit-map" | "audit-cards" | "artboard-count" | "states-grid", text: string, footnote?: string, tiles?: ExhibitVisual[], captions?: ExhibitCaption[] }} CustomExhibit
+ * @typedef {ExhibitBase & { kind: "custom", graphic: "timeline" | "visit-map" | "audit-cards" | "artboard-count" | "states-grid", text: string, footnote?: string, tiles?: ExhibitVisual[], captions?: ExhibitCaption[], legend?: [string, string], categories?: string[] }} CustomExhibit
  * @typedef {ExhibitBase & { kind: "section", section: string }} SectionExhibit
  *   a rail chapter with no exhibit. its eyebrow, heading and lede come from the page's prose mock
  *   (.private/redesign-spec/prose.json); section names the narrative section that text comes from.
@@ -1650,6 +1651,115 @@ export const caseStudies = [
       }),
       titlePlacement: "center",
     },
+    exhibits: /** @type {Exhibit[]} */ ([
+      {
+        kind: "hero", id: "overview", chapter: "Overview", figma: "56:783",
+        eyebrow: "OVERVIEW",
+        heading: "I started this because of where I am from",
+        lede: [
+          "I was born in Monrovia, Liberia, and most of my family is still there. When someone I know goes to a clinic, their history is a paper folder on a shelf, and whether that folder is found is closer to luck than to process. Files get misplaced, water damaged, or taken to another room and never returned.",
+          "Frontground is the company I founded to work on that. It is an electronic health record designed for facilities where paper is the default and the paper itself is not preserved well. I led it from concept through go to market between 2022 and 2024, and I raised $25K in non dilutive funding along the way, including the Social Impact Award and $10K at the Pitch Dingman Competition.",
+        ],
+        base: "#002637",
+        field: { width: 1116, height: 600, sigma: 55, circles: [{ x: 110, y: 150, r: 310, colour: "#145676", alpha: 0.9 }, { x: 990, y: 550, r: 210, colour: "#0C8B44", alpha: 0.9 }, { x: 680, y: 380, r: 260, colour: "#003F5D", alpha: 0.9 }, { x: 1050, y: -110, r: 150, colour: "#DDE7EB", alpha: 0.9 }] },
+        visuals: [
+          { src: "/images/work/frontground/frontground-nurse.png", width: 1919, height: 1079, alt: "Frontground patient record showing profile, vitals grid, history, notes, medication, and lab results", frame: "browser", url: "frontground · nurse", screen: { w: 700, h: 394 }, opacity: 0.55, at: { x: 29.6, y: 6.7, w: 62.7 } },
+          { src: "/images/work/frontground/frontground-doctor.png", width: 1919, height: 1079, alt: "Frontground clinical dashboard showing patient overview, schedule, open requests, and the patient order queue", frame: "browser", url: "frontground · doctor", screen: { w: 840, h: 472 }, priority: true, at: { x: 8.6, y: 19.7, w: 75.3 } },
+        ],
+        metrics: [
+          { value: "$25K", label: "non dilutive funding raised" },
+          { value: "60+", label: "provider interviews in Liberia" },
+          { value: "19", label: "screens across three clinical credentials" },
+        ],
+      },
+      {
+        kind: "rows", id: "core-flows", chapter: "Core flows", figma: "56:807",
+        lede: [
+          "The original files held three near identical copies of the whole flow, one per clinical credential, because the tool I built them in had no components. Every fix had to be made three times and they drifted apart anyway. The fourth nav item was labelled Med on some screens and Orders on others.",
+          "Rebuilding it as one screen tree with role gates fixed that. A doctor and a nurse see the same screen and the same wording. Only settings and the admin section actually differ, and the sidebar grows a sixth item to say so.",
+        ],
+        eyebrow: "CORE FLOWS",
+        heading: "One tree with three doors, not three products",
+        base: "#012e42",
+        // row stages from the prose mock (90:2297, 90:2305, 90:2313).
+        fields: [
+          { width: 600, height: 600, sigma: 45, circles: [{ x: 160, y: 140, r: 260, colour: "#145676", alpha: 0.9 }, { x: 550, y: 510, r: 190, colour: "#0C8B44", alpha: 0.9 }] },
+          { width: 600, height: 600, sigma: 45, circles: [{ x: 140, y: 540, r: 280, colour: "#003F5D", alpha: 0.9 }, { x: 570, y: 90, r: 210, colour: "#145676", alpha: 0.9 }] },
+          { width: 600, height: 600, sigma: 45, circles: [{ x: 130, y: 50, r: 210, colour: "#0C8B44", alpha: 0.9 }, { x: 540, y: 520, r: 240, colour: "#003F5D", alpha: 0.9 }] },
+        ],
+        visuals: [
+          { src: "/images/work/frontground/frontground-doctor.png", width: 1919, height: 1079, alt: "Frontground clinical dashboard showing patient overview, schedule, open requests, and the patient order queue", frame: "browser", url: "frontground", screen: { w: 780, h: 439 }, at: { x: 9.33, y: 25, w: 130 },
+            loop: { src: "/images/work/frontground/frontground-doctor-loop.mp4", poster: "/images/work/frontground/frontground-doctor-loop-poster.webp", name: "doctor" } },
+          { src: "/images/work/frontground/frontground-nurse.png", width: 1919, height: 1079, alt: "Frontground patient record showing profile, vitals grid, history, notes, medication, and lab results", frame: "browser", url: "frontground", screen: { w: 780, h: 439 }, at: { x: 9.33, y: 25, w: 130 },
+            loop: { src: "/images/work/frontground/frontground-nurse-loop.mp4", poster: "/images/work/frontground/frontground-nurse-loop-poster.webp", name: "nurse" } },
+          // no recorded admin flow exists, so this row is a still and shows no loop tag.
+          { src: "/images/work/frontground/frontground-admin.png", width: 1919, height: 1079, alt: "Frontground admin dashboard showing patient and physician overviews, the staff roster, and the day's schedule", frame: "browser", url: "frontground", screen: { w: 780, h: 439 }, at: { x: 9.33, y: 25, w: 130 } },
+        ],
+        captions: [
+          { tag: "LOOP · 6S", title: "Doctor: build for the queue", body: "The first screen answers who is in front of me right now. Arrivals, acuity and open requests get the space, and the trend chart sits to the side." },
+          { tag: "LOOP · 6S", title: "Nurse: the same screen, the same words", body: "A doctor and a nurse see the same screen and the same wording. Fixes are made once instead of three times." },
+          { tag: "LOOP · 6S", title: "Admin: one more door", body: "Only settings and the admin section actually differ between credentials, and the sidebar grows a sixth item to say so." },
+        ],
+      },
+      {
+        kind: "custom", graphic: "visit-map", id: "the-problem", chapter: "The problem", figma: "56:871",
+        lede: [
+          "The research ran across Liberian healthcare facilities, and the two sites I spent the most time on were JFK Medical Center and the MSF clinic in Monrovia. I spoke to physicians, nurses, and administrators. I deliberately did not ask what features they wanted. I asked them to walk me through a single outpatient visit end to end, and I asked where it usually goes wrong.",
+          "That framing is the reason the product looks the way it does. When you ask about features you get a list of things people have seen in other software. When you ask about a visit you get the shelf, the runner, the missing slip, and the folder that never came back. Those are the things that actually decide whether a record survives.",
+          "Refiling is the one that matters most and gets the least attention. Every other stage depends on that last step being done correctly every single day, by whoever is on shift, for years. A system that only digitises the consultation still hands the record back to the shelf at the end.",
+        ],
+        eyebrow: "THE PROBLEM",
+        heading: "The record does not fail once, it fails at six points",
+        text: "Field research · one outpatient visit in Monrovia | 01 Arrival | Where it breaks: Nothing links the ledger line to the file. | What the design does: One record per person, searchable by name or ID. || 02 Find the file | Where it breaks: The longest single delay providers described. | What the design does: The record opens from the patient list. There is no file to lose. || 03 Triage | Where it breaks: Acuity is written on the card but never aggregated. | What the design does: Triage is a coded field, counted in the overview. || 04 Consultation | Where it breaks: Prior visits at another facility are not there at all. | What the design does: History names the facility each entry came from. || 05 Orders | Where it breaks: Slips travel with the patient and go missing. | What the design does: Orders carry a status, so a request stays visible. || 06 Refile | Where it breaks: This is where the record disappears. | What the design does: There is no refile step. The record saves when the visit ends.",
+        legend: ["Loses or delays care", "Costs time"],
+        // each stage's legend category, read from the dot colours in figma 90:2322.
+        categories: ["care", "care", "time", "care", "time", "care"],
+        footnote: "Refiling is the one that matters most and gets the least attention. Every other stage depends on that last step being done correctly every day.",
+      },
+      {
+        kind: "stage", id: "the-solution", chapter: "The solution", figma: "57:782", size: "wide", ratio: "1116 / 640",
+        lede: [
+          "I designed against what they told me, brought it back, and changed it. The triage colours, the split of the exam form into two pages, and the decision to keep orders on their own screen all came out of that loop rather than out of my first draft. I am still in contact with a couple of the providers I met, which is the part of this I am most glad about.",
+          "The first screen a clinician sees answers who is in front of me right now. Arrivals, acuity, and open requests get the space. The trend chart is context and it sits to the side. That ordering came straight out of the interviews, where nobody described their day in terms of analytics and everybody described it in terms of the waiting room.",
+        ],
+        eyebrow: "THE SOLUTION",
+        heading: "Build for the queue, not for the chart",
+        base: "#002637",
+        field: { width: 1116, height: 640, sigma: 60, circles: [{ x: 120, y: 520, r: 320, colour: "#145676", alpha: 0.9 }, { x: 1070, y: 30, r: 190, colour: "#0C8B44", alpha: 0.9 }, { x: 680, y: 560, r: 260, colour: "#003F5D", alpha: 0.9 }] },
+        visuals: [{ src: "/images/work/frontground/frontground-doctor.png", width: 1919, height: 1079, alt: "Frontground clinical dashboard showing patient overview, schedule, open requests, and the patient order queue", frame: "browser", url: "frontground · doctor", screen: { w: 720, h: 405 }, at: { x: 20.4, y: 8.8, w: 64.5 } }],
+        // leaders sit on the stage (spec stagePct), pointing into the screen from outside it.
+        annotations: [
+          { type: "leader", num: "01", label: "Chart is context", direction: "left", at: { x: 2.2, y: 31.8, w: 29.8, h: 5.2 } },
+          { type: "leader", num: "02", label: "Queue is the working surface", direction: "left", at: { x: 2.2, y: 43.2, w: 26.5, h: 5.2 } },
+          { type: "leader", num: "03", label: "Requests keep a status", at: { x: 83.4, y: 27.1, w: 14.8, h: 5.2 } },
+          { type: "leader-vertical", num: "04", label: "Triage carries a letter, not only a colour", at: { x: 46.2, y: 74.7, w: 21.1, h: 15.8 } },
+        ],
+        captions: [
+          { title: "What the interviews put on the first screen", body: "Nobody described their day in terms of analytics, and everybody described it in terms of the queue. Triage carries a letter as well as a colour, because colour alone fails for colour blind clinicians and on the low cost monitors these facilities run." },
+        ],
+      },
+      {
+        kind: "section", id: "the-system", chapter: "The system", section: "record",
+        eyebrow: "THE SYSTEM",
+        heading: "Three columns, three questions",
+        lede: [
+          "The patient record answers who they are, how they are, and what needs attention, in that order and in three columns. Vitals get the largest type on the screen because they are read at a glance during rounds rather than studied.",
+          "The assessment form follows the clinical order a nurse already works in rather than a database schema. Circulation, breathing, fluid status, and haematology, with tap to select options instead of free text so it can be completed at the bedside.",
+          "Underneath sits a real system, twenty one colour tokens, a type scale that pairs Figtree for language with IBM Plex Mono for identifiers and dosages, and components with variants so the sidebar is edited once.",
+        ],
+      },
+      {
+        kind: "section", id: "where-it-stands", chapter: "Where it stands", section: "reflection",
+        eyebrow: "WHERE IT STANDS",
+        heading: "What the venture taught me and what I still owe it",
+        lede: [
+          "Raising money for this meant standing in front of judges who had never been inside a Liberian clinic and getting them to the point fast. What worked was not the interface. It was the six stage map. Once someone sees that a record can be lost at six separate moments inside a single visit, the case for the product makes itself, and every screen afterwards reads as an answer rather than as a feature.",
+          "Frontground got further than a prototype. It raised $25K without giving up equity, it won the Social Impact Award at Pitch Dingman, and it put me in front of judges and audiences enough times to learn how to defend a decision quickly. The research is the piece I value most, because it is the reason the product had a shape at all.",
+          "The honest position is that this never reached a live deployment in a clinic, so nothing here has been measured against real use. Everything in these screens is a decision defended by an interview rather than by an outcome. I would rather say that plainly than dress a design file up as a shipped product.",
+          "The work also did not stop when the company did. The MSF triage form I saw in Monrovia became the seed for my clinical natural language processing research, which is elsewhere in this portfolio, and the providers I still speak to are the reason I keep coming back to this problem.",
+        ],
+      },
+    ]),
     links: [
       { label: "Open Figma file", href: "https://www.figma.com/design/5Yl8NmDe5vohtqxAs4zHou" },
     ],
