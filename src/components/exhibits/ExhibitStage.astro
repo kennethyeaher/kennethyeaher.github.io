@@ -10,8 +10,10 @@ interface Props {
       (the 600 square dashboard rows on ovara, 55:683). colours here are hex, not palette indices. */
   field?: { width: number; height: number; sigma: number; circles: { x: number; y: number; r: number; colour: string; alpha: number }[] };
   base?: string;
+  /** figma 90:1694: a white 10% to black 18% wash over the field, under the device. */
+  veil?: boolean;
 }
-const { palette, size, ratio, label, field: ownField, base } = Astro.props;
+const { palette, size, ratio, label, field: ownField, base, veil = false } = Astro.props;
 
 // circles lifted from the figma colour fields (hero 61:947, wide 61:1005), in 1116 wide stage pixels.
 const presets = {
@@ -47,7 +49,8 @@ const field = (preset.circles as { x: number; y: number; r: number; colour: numb
 ---
 <div class:list={["exhibit-stage", `stage-${size}`]} style={`--stage-ratio: ${ratio ?? defaultRatio}; --stage-base: ${base ?? palette[0]}`}
   role={label ? "group" : undefined} aria-label={label}>
-  <span class="stage-field" style={`background-image: ${field}`} aria-hidden="true"></span>
+  <span class="stage-field" style={field ? `background-image: ${field}` : undefined} aria-hidden="true"></span>
+  {veil && <span class="stage-veil" aria-hidden="true"></span>}
   <slot />
 </div>
 <style>
@@ -71,4 +74,5 @@ const field = (preset.circles as { x: number; y: number; r: number; colour: numb
     pointer-events: none;
   }
   .stage-field { position: absolute; z-index: 0; inset: 0; }
+  .stage-veil { position: absolute; z-index: 0; inset: 0; background: linear-gradient(rgb(255 255 255 / 10%), rgb(0 0 0 / 18%)); }
 </style>

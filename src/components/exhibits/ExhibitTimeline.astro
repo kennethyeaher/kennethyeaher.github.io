@@ -1,0 +1,87 @@
+---
+// minute 22 timeline per figma 90:1720, built from the spec text. fields run in a fixed order: the label,
+// the overnight wait, the appointment (time, title, line), the start time, five steps (number, title,
+// line), the marker label, and the closing line. the rail is svg; every word is html.
+interface Props {
+  text: string;
+  label: string;
+}
+const { text, label } = Astro.props;
+const parts = text.split(" | ");
+const [heading, wait, endTime, endTitle, endBody, startTime] = parts;
+const steps = [0, 1, 2, 3, 4].map((index) => {
+  const [num, title, body] = parts.slice(6 + index * 3, 9 + index * 3);
+  return { num, title, body };
+});
+const [marker, quote] = parts.slice(21);
+// rail geometry in the figma frame's pixels: steps every 165 from 56, the gap at 716, the end at 1062.
+const stepX = [56, 221, 386, 551, 716];
+---
+<figure class="timeline" aria-label={label}>
+  <div class="timeline-scroll" role="region" aria-label="Timeline, scrolls sideways on small screens" tabindex="0">
+    <div class="timeline-canvas">
+      <p class="timeline-label">{heading}</p>
+      <p class="timeline-time is-start">{startTime}</p>
+      <p class="timeline-marker">{marker}</p>
+      <p class="timeline-time is-end">{endTime}</p>
+      <p class="timeline-wait">{wait}</p>
+      <svg class="timeline-rail" viewBox="0 0 1116 24" width="1116" height="24" aria-hidden="true" focusable="false">
+        <defs>
+          <linearGradient id="timeline-rail-gradient" x1="56" x2="716" y1="0" y2="0" gradientUnits="userSpaceOnUse">
+            <stop offset="0" style="stop-color: var(--ink-strong)" />
+            <stop offset="1" style="stop-color: var(--color-annotate)" />
+          </linearGradient>
+        </defs>
+        <rect x="56" y="10" width="660" height="4" rx="2" fill="url(#timeline-rail-gradient)" />
+        <line x1="746" x2="1050" y1="12" y2="12" class="rail-wait" />
+        <line x1="716" x2="716" y1="-30" y2="5" class="rail-tick" />
+        {stepX.slice(0, 4).map((x) => <circle cx={x} cy="12" r="5" class="rail-step" />)}
+        <circle cx="716" cy="12" r="7" class="rail-step is-marked" />
+        <circle cx="1062" cy="12" r="6" class="rail-step" />
+      </svg>
+      <ol class="timeline-steps">
+        {steps.map((step, index) => (
+          <li class:list={[index === 4 && "is-marked"]} style={`left: ${stepX[index] - 6}px`}>
+            <span class="step-num">{step.num}</span>
+            <span class="step-title">{step.title}</span>
+            <span class="step-body">{step.body}</span>
+          </li>
+        ))}
+      </ol>
+      <div class="timeline-end">
+        <span class="step-title">{endTitle}</span>
+        <span class="step-body">{endBody}</span>
+      </div>
+      <blockquote class="timeline-quote"><p>{quote}</p></blockquote>
+    </div>
+  </div>
+</figure>
+<style>
+  .timeline { margin: 0; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); }
+  .timeline-scroll { overflow-x: auto; border-radius: inherit; }
+  .timeline-scroll:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  /* the canvas keeps figma's 1116 by 480 geometry and scrolls sideways when the column is narrower. */
+  .timeline-canvas { position: relative; width: 1116px; height: 480px; }
+  .timeline-canvas p { margin: 0; }
+  .timeline-label, .timeline-wait, .timeline-marker { position: absolute; font: 11px / 1.3 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; }
+  .timeline-label { top: 39px; left: 47px; color: var(--muted); }
+  .timeline-time { position: absolute; top: 111px; color: var(--ink-strong); font: 12px / 1.3 var(--mono); }
+  .timeline-time.is-start { left: 49px; }
+  .timeline-time.is-end { right: 48px; text-align: right; }
+  .timeline-marker { top: 105px; left: 635px; width: 160px; color: var(--color-annotate); text-align: center; }
+  .timeline-wait { top: 141px; left: 745px; width: 304px; color: var(--muted); text-align: center; }
+  .timeline-rail { position: absolute; top: 158px; left: 0; overflow: visible; }
+  .rail-wait { stroke: var(--rule); stroke-width: 2; stroke-dasharray: 4 5; }
+  .rail-tick { stroke: var(--color-annotate); stroke-width: 1; }
+  .rail-step { fill: var(--ink-strong); stroke: var(--surface); stroke-width: 3; }
+  .rail-step.is-marked { fill: var(--color-annotate); }
+  .timeline-steps { margin: 0; padding: 0; list-style: none; }
+  .timeline-steps li { position: absolute; top: 193px; display: grid; gap: 6px; width: 140px; }
+  .step-num { color: var(--muted); font: 10px / 1.3 var(--mono); letter-spacing: 0.06em; }
+  .step-title { color: var(--ink-strong); font: 500 13px / 1.4 var(--ui); }
+  .step-body { color: var(--secondary); font: 14px / 20px var(--body); }
+  .is-marked .step-num, .is-marked .step-title { color: var(--color-annotate); }
+  .timeline-end { position: absolute; top: 211px; right: 48px; display: grid; gap: 6px; width: 200px; text-align: right; }
+  .timeline-quote { position: absolute; top: 349px; left: 47px; width: 880px; margin: 0; padding-left: 20px; border-left: 2px solid var(--color-annotate); }
+  .timeline-quote p { color: var(--ink-strong); font: 400 22px / 30px var(--display); letter-spacing: -0.01em; }
+</style>

@@ -18,7 +18,7 @@ const slugs = [
   "sohive",
 ];
 // pages already moved to the v2 exhibit layout; the older cover and media checks skip them.
-const exhibitPages = new Set(["kairo-health", "usm-venture-benchmark", "ovara"]);
+const exhibitPages = new Set(["kairo-health", "usm-venture-benchmark", "ovara", "terpcarehub"]);
 const pages = new Map();
 
 before(() => {
@@ -142,7 +142,7 @@ test("every case study has a unique social preview and reading progress", () => 
 });
 
 test("device exhibits preserve captions and source dimensions", () => {
-  for (const slug of ["frontground", "terpcarehub"]) {
+  for (const slug of ["frontground"]) {
     const html = pages.get(slug);
     assert.match(html, /data-media-kind="device"/);
     assert.match(html, /width="\d+" height="\d+"/);
@@ -233,7 +233,7 @@ test("Ovara renders the v2 exhibit layout from the approved spec", () => {
     assert.match(ovara, new RegExp(`poster="/images/work/ovara/ovara-${name}-loop-poster\\.webp"`));
     assert.match(ovara, new RegExp(`data-src="/images/work/ovara/ovara-${name}-loop\\.mp4"`));
     assert.match(ovara, new RegExp(`data-loop-name="${name} loop"`));
-    assert.match(ovara, new RegExp(`data-loop-toggle hidden[^>]*>Pause ${name} loop</button>`));
+    assert.match(ovara, new RegExp(`data-loop-toggle hidden[^>]*><span data-loop-action[^>]*>Pause</span><span class="loop-name"[^>]*> ${name} loop</span></button>`));
   }
   assert.doesNotMatch(ovara, /autoplay/);
   // audit cards in html, every field from the spec text.
@@ -254,4 +254,32 @@ test("new lede sentences stay off the page until their wording is approved", () 
   assert.equal([...kairo.matchAll(/class="chapter-lede"/g)].length, 5);
   assert.match(kairo, /<p class="section-eyebrow"[^>]*>OVERVIEW<\/p>/);
   assert.match(kairo, /When the scan breaks, how does extraction change\?/);
+});
+
+test("TerpCareHub renders the v2 exhibit layout from its prose mock", () => {
+  const page = pages.get("terpcarehub");
+  const sectionIds = [...page.matchAll(/<section[^>]*\bid="([^"]+)"[^>]*data-case-section/g)].map((match) => match[1]);
+  assert.deepEqual(sectionIds, ["overview", "core-flows", "the-measure", "where-it-landed", "design-system", "reflection"]);
+  assert.match(page, /What I would test first/);
+  // three iphone rows, each a cropped screen loop with its own named control.
+  assert.equal([...page.matchAll(/class="exhibit-row"/g)].length, 3);
+  for (const [clip, name] of [["find-care", "same-day care"], ["alert", "alert"], ["dashboard", "own items"]]) {
+    assert.match(page, new RegExp(`data-src="/images/work/terpcarehub/terpcarehub-${clip}-loop\\.mp4"`));
+    assert.match(page, new RegExp(`data-loop-toggle hidden[^>]*><span data-loop-action[^>]*>Pause</span><span class="loop-name"[^>]*> ${name} loop</span></button>`));
+  }
+  assert.equal([...page.matchAll(/class="stage-veil"/g)].length, 3);
+  // the minute 22 timeline is html over an svg rail.
+  assert.match(page, /<ol class="timeline-steps"/);
+  assert.equal([...page.matchAll(/<li[^>]*class="is-marked"[^>]*>/g)].length, 1);
+  assert.match(page, /<svg class="timeline-rail"[^>]*aria-hidden="true"/);
+  assert.match(page, /Minute 22 · 11:24 PM/);
+  // the pair: three leaders on the card, three focus markers on the alert, captions instead of notes.
+  assert.equal([...page.matchAll(/class="annotation annotation-leader is-vertical on-light"/g)].length, 3);
+  assert.equal([...page.matchAll(/<span class="annotation-badge"[^>]*aria-hidden="true"/g)].length, 3);
+  assert.doesNotMatch(page, /class="annotation-badge"[^>]*href=/);
+  assert.match(page, /<span class="browser-address"[^>]*>terpcarehub · alert<\/span>/);
+  // four interface states, each with its name and line.
+  assert.equal([...page.matchAll(/<p class="state-name"/g)].length, 4);
+  assert.match(page, /interface-state-degraded\.png/);
+  assert.match(page, /href="\/work\/college-park-capstone"/);
 });

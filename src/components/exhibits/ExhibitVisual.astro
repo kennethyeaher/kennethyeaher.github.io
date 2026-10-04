@@ -14,10 +14,13 @@ interface Props {
     src: string; alt: string; width: number; height: number;
     frame?: "image" | "iphone" | "browser"; rot?: number; at?: Box; loop?: { src: string; poster: string; name?: string };
     url?: string; crop?: { x: number; y: number; w: number; h: number }; priority?: boolean;
+    rounded?: number; screen?: { w: number; h: number };
   };
   stageRatio?: number;
   priority?: boolean;
-  annotations?: { type: "focus" | "leader" | "leader-vertical"; num: string; label?: string; at?: Box }[];
+  annotations?: { type: "focus" | "leader" | "leader-vertical"; num: string; label?: string; at?: Box; theme?: "on-dark" | "on-light" }[];
+  /** false when the exhibit has captions rather than notes, so focus badges have nothing to link to. */
+  linkNotes?: boolean;
   idPrefix?: string;
   /** the stage's width as a share of the article column, for sizes; rows sit on a 600 of 1116 stage. */
   stageWidth?: number;
@@ -25,14 +28,14 @@ interface Props {
   // them in note order and keep keyboard focus order matching the numbers.
   overlay?: boolean;
 }
-const { visual, stageRatio, priority = false, annotations = [], idPrefix = "exhibit", overlay = false, stageWidth } = Astro.props;
+const { visual, stageRatio, priority = false, annotations = [], idPrefix = "exhibit", overlay = false, stageWidth, linkNotes = true } = Astro.props;
 const frame = visual.frame ?? "image";
 
 /** height over width of the whole visual, including any device bezel or browser chrome. */
 function aspect(): number {
   if (frame === "iphone") return 620 / 300;
-  // the browser screen is fixed at 880 by 550 under a 40 px bar (figma 50:541); the image fills it.
-  if (frame === "browser") return (40 + 550) / 880;
+  // the browser screen is 880 by 550 under a 40 px bar (figma 50:541) unless an instance is resized; the image fills it.
+  if (frame === "browser") return (40 + (visual.screen?.h ?? 550)) / (visual.screen?.w ?? 880);
   if (visual.crop) return (visual.crop.h * visual.height) / (visual.crop.w * visual.width);
   return visual.height / visual.width;
 }
@@ -75,20 +78,20 @@ const eager = priority || visual.priority === true;
           </div>
         : <picture>
           <source type="image/webp" srcset={srcset} sizes={sizes} />
-          <img class="visual-sheet" src={visual.src} alt={visual.alt} width={visual.width} height={visual.height}
+          <img class="visual-sheet" src={visual.src} alt={visual.alt} width={visual.width} height={visual.height} style={visual.rounded ? `border-radius: ${visual.rounded}px` : undefined}
             loading={eager ? "eager" : "lazy"} fetchpriority={eager ? "high" : "auto"} decoding="async" />
         </picture>
   )}
   {!overlay && frame !== "image" && (
     visual.loop
-      ? <DeviceFrame frame={frame} src={visual.src} alt={visual.alt} url={visual.url}><ExhibitLoop src={visual.loop.src} poster={visual.loop.poster} width={visual.width} height={visual.height} label={visual.alt} name={visual.loop.name} /></DeviceFrame>
-      : <DeviceFrame frame={frame} src={visual.src} alt={visual.alt} width={visual.width} height={visual.height} priority={eager} url={visual.url} srcset={srcset} sizes={sizes} />
+      ? <DeviceFrame frame={frame} src={visual.src} alt={visual.alt} url={visual.url} screen={visual.screen}><ExhibitLoop src={visual.loop.src} poster={visual.loop.poster} width={visual.width} height={visual.height} label={visual.alt} name={visual.loop.name} /></DeviceFrame>
+      : <DeviceFrame frame={frame} src={visual.src} alt={visual.alt} width={visual.width} height={visual.height} priority={eager} url={visual.url} srcset={srcset} sizes={sizes} screen={visual.screen} />
   )}
   {annotations.filter((annotation) => annotation.at).map((annotation) => {
     const order = Number(annotation.num) - 1;
     return annotation.type === "focus"
-      ? <AnnotationFocus num={annotation.num} at={annotation.at!} order={order} noteId={`${idPrefix}-note-${annotation.num}`} />
-      : <AnnotationLeader num={annotation.num} label={annotation.label ?? ""} at={annotation.at!} order={order} vertical={annotation.type === "leader-vertical"} />;
+      ? <AnnotationFocus num={annotation.num} at={annotation.at!} order={order} noteId={linkNotes ? `${idPrefix}-note-${annotation.num}` : undefined} />
+      : <AnnotationLeader num={annotation.num} label={annotation.label ?? ""} at={annotation.at!} order={order} vertical={annotation.type === "leader-vertical"} theme={annotation.theme} />;
   })}
   <slot />
 </div>

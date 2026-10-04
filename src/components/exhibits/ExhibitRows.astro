@@ -12,13 +12,16 @@ interface Props {
   captions: { tag?: string; title: string; body: string }[];
   fields?: any[];
   base?: string;
+  /** a base colour per row, where figma gives each row stage its own (terpcarehub 90:1689, 90:1699, 90:1709). */
+  bases?: string[];
+  veil?: boolean;
 }
-const { palette, visuals, captions, fields = [], base } = Astro.props;
+const { palette, visuals, captions, fields = [], base, bases = [], veil = false } = Astro.props;
 ---
 <div class="exhibit-rows">
   {visuals.map((visual, index) => (
     <div class="exhibit-row">
-      <ExhibitStage palette={palette} size="square" field={fields[index]} base={base}>
+      <ExhibitStage palette={palette} size="square" field={fields[index]} base={bases[index] ?? base} veil={veil}>
         <ExhibitVisual visual={visual} stageRatio={1} stageWidth={600 / 1116} />
         {captions[index].tag && <span class="row-tag"><MediaTag text={captions[index].tag!} /></span>}
       </ExhibitStage>

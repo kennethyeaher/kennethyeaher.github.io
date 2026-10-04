@@ -1,16 +1,19 @@
 ---
 // focus annotation per figma 50:575: an outlined region with a numbered corner badge.
 // the badge is a link to its note, described by it, so keyboard and screen reader users reach the same text.
+// where an exhibit carries captions instead of notes, the number is a visual marker and the caption says it.
 interface Props {
   num: string;
   at: { x: number; y: number; w: number; h?: number };
-  noteId: string;
+  noteId?: string;
   order: number;
 }
 const { num, at, noteId, order } = Astro.props;
 ---
 <span class="annotation annotation-focus" style={`left: ${at.x}%; top: ${at.y}%; width: ${at.w}%; height: ${at.h ?? 6}%; --order: ${order}`} data-annotation>
-  <a class="annotation-badge" href={`#${noteId}`} aria-describedby={noteId}><span class="sr-only">Note </span>{num}</a>
+  {noteId
+    ? <a class="annotation-badge" href={`#${noteId}`} aria-describedby={noteId}><span class="sr-only">Note </span>{num}</a>
+    : <span class="annotation-badge" aria-hidden="true">{num}</span>}
 </span>
 <style>
   .annotation-focus { position: absolute; z-index: 3; border: 1.5px solid var(--color-annotate); border-radius: 10px; }

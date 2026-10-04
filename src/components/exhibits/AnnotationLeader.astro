@@ -35,7 +35,11 @@ const box = vertical
   .is-vertical .leader-label { padding: 10px 0 0; justify-items: center; text-align: center; }
   .leader-number { color: var(--color-annotate); font: 10px / 1.3 var(--mono); letter-spacing: 0.06em; }
   .on-dark .leader-number { color: var(--color-annotate-on-stage); }
-  .leader-text { font: 500 13px / 18px var(--ui); }
+  .on-light .leader-number { color: var(--color-annotate-on-light-stage); }
+  .on-light .leader-anchor { background: var(--color-annotate-on-light-stage); }
+  /* labels scale with the stage (13px on a 534 wide stage) so neighbours never collide, down to 10px. */
+  .leader-text { font: 500 max(10px, 2.43cqw) / 1.4 var(--ui); }
+  .leader-number { font-size: max(9px, 1.87cqw); }
   .on-light .leader-text { color: #273440; }
   .on-dark .leader-text { color: #fff; text-shadow: 0 1px 6px rgb(0 0 0 / 45%); }
 </style>

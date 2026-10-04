@@ -194,8 +194,9 @@ export function initializeExhibitLoops(): void {
     function updateButton(): void {
       if (!button || !video) return;
       button.hidden = motion.matches;
-      // the visible label is the accessible name, and it names the loop so each control is distinct.
-      button.textContent = `${video.paused ? "Play" : "Pause"} ${loop.dataset.loopName ?? "loop"}`;
+      // only the action changes; the loop's name after it keeps each control's accessible name distinct.
+      const action = button.querySelector("[data-loop-action]");
+      if (action) action.textContent = video.paused ? "Play" : "Pause";
     }
     /** start or stop playback from visibility, the visitor's choice, and the motion preference. */
     function synchronize(): void {

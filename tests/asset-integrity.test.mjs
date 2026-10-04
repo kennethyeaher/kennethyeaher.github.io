@@ -74,11 +74,15 @@ test("exhibit kit assets from the figma components ship as real files", () => {
 test("every exhibit image ships its sized webp copies", () => {
   for (const project of projects) {
     for (const exhibit of project.exhibits ?? []) {
-      for (const visual of exhibit.visuals ?? []) {
+      for (const visual of [...(exhibit.visuals ?? []), ...(exhibit.stages ?? []).flatMap((stage) => stage.visuals ?? []), ...(exhibit.tiles ?? [])]) {
         const name = visual.src.split("/").pop().replace(/\.[^.]+$/, "");
         for (const width of [480, 960]) {
           const path = publicFile(`/images/exhibits/sized/${name}-${width}.webp`);
           assert.ok(existsSync(path) && statSync(path).size > 0, `${name}-${width}.webp is missing`);
+        }
+        // every exhibit image and loop file is a real file in public.
+        for (const file of [visual.src, visual.loop?.src, visual.loop?.poster].filter(Boolean)) {
+          assert.ok(existsSync(publicFile(file)) && statSync(publicFile(file)).size > 0, `${file} is missing`);
         }
       }
     }

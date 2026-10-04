@@ -61,6 +61,8 @@
   --on-annotate: #ffffff;
   /* the same colour lifted for small text that sits straight on a dark stage. */
   --color-annotate-on-stage: #fb8a5c;
+  /* a pale stage stays pale in both themes, so annotations on it keep the light value. */
+  --color-annotate-on-light-stage: #c2410c;
   --display: "Fraunces", "Fraunces Fallback Iowan", "Fraunces Fallback Georgia", "Iowan Old Style", Baskerville, Georgia, serif;
   --body: "Newsreader", "Newsreader Fallback Iowan", "Newsreader Fallback Georgia", "Iowan Old Style", Georgia, serif;
   --mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;

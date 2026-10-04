@@ -17,7 +17,7 @@ const loopName = name ? `${name} loop` : "loop";
   <video muted loop playsinline preload="none" poster={poster} width={width} height={height} aria-label={label}>
     <source data-src={src} type="video/mp4" />
   </video>
-  <button class="loop-toggle" type="button" data-loop-toggle hidden>Pause {loopName}</button>
+  <button class="loop-toggle" type="button" data-loop-toggle hidden><span data-loop-action>Pause</span><span class="loop-name"> {loopName}</span></button>
 </div>
 <style>
   .exhibit-loop { position: relative; }
@@ -37,5 +37,8 @@ const loopName = name ? `${name} loop` : "loop";
     letter-spacing: 0.04em;
   }
   .loop-toggle[hidden] { display: none; }
+  /* on a phone screen the control shows only its action; the loop's name stays in the accessible name,
+     which still starts with the visible word. */
+  :global(.frame-iphone) .loop-name { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   .loop-toggle:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 </style>

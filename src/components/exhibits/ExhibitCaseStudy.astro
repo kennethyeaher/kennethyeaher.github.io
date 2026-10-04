@@ -8,6 +8,9 @@ import ExhibitJourney from "@/components/exhibits/ExhibitJourney.astro";
 import ChapterLede from "@/components/exhibits/ChapterLede.astro";
 import ExhibitRows from "@/components/exhibits/ExhibitRows.astro";
 import ExhibitAuditCards from "@/components/exhibits/ExhibitAuditCards.astro";
+import ExhibitPair from "@/components/exhibits/ExhibitPair.astro";
+import ExhibitStates from "@/components/exhibits/ExhibitStates.astro";
+import ExhibitTimeline from "@/components/exhibits/ExhibitTimeline.astro";
 import ExhibitMetrics from "@/components/exhibits/ExhibitMetrics.astro";
 import NextProject from "@/components/exhibits/NextProject.astro";
 import Notes from "@/components/exhibits/Notes.astro";
@@ -48,7 +51,7 @@ function sectionFor(exhibit: any) {
       </header>
 
       <div class="hero-wrap" style={`view-transition-name: cover-${project.slug}`} data-project-cover>
-        <ExhibitStage palette={palette} size="hero">
+        <ExhibitStage palette={palette} size="hero" field={hero.field} base={hero.base}>
           {hero.visuals.map((visual: any, index: number) => (
             <ExhibitVisual visual={visual} stageRatio={stageRatio(hero)} priority={visual.priority ?? index === hero.visuals.length - 1} />
           ))}
@@ -113,7 +116,16 @@ function sectionFor(exhibit: any) {
               </>
             )}
             {exhibit.kind === "rows" && (
-              <ExhibitRows palette={palette} visuals={exhibit.visuals} captions={exhibit.captions} fields={exhibit.fields} base={exhibit.base} />
+              <ExhibitRows palette={palette} visuals={exhibit.visuals} captions={exhibit.captions} fields={exhibit.fields} base={exhibit.base} bases={exhibit.bases} veil={exhibit.veil} />
+            )}
+            {exhibit.kind === "pair" && (
+              <ExhibitPair id={exhibit.id} palette={palette} stages={exhibit.stages} captions={exhibit.captions} />
+            )}
+            {exhibit.kind === "custom" && exhibit.graphic === "timeline" && (
+              <ExhibitTimeline text={exhibit.text} label={exhibit.heading} />
+            )}
+            {exhibit.kind === "custom" && exhibit.graphic === "states-grid" && (
+              <ExhibitStates text={exhibit.text} tiles={exhibit.tiles} caption={exhibit.captions?.[0]} />
             )}
             {exhibit.kind === "custom" && exhibit.graphic === "audit-cards" && (
               <ExhibitAuditCards text={exhibit.text} footnote={exhibit.footnote} />

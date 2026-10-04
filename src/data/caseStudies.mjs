@@ -36,13 +36,14 @@
  * @typedef {{ width: number, height: number, sigma: number, circles: { x: number, y: number, r: number, colour: string, alpha: number }[] }} StageField
  *   a stage's own colour field from figma, in that stage's pixels.
  * @typedef {ExhibitBase & { kind: "rows", visuals: ExhibitVisual[], captions: ExhibitCaption[], annotations?: ExhibitAnnotation[], fields?: StageField[], base?: string }} RowsExhibit
- * @typedef {ExhibitBase & { kind: "pair", stages: StageExhibit[], captions: ExhibitCaption[] }} PairExhibit
+ * @typedef {ExhibitBase & { kind: "pair", stages: { ratio?: string, base?: string, field?: StageField, visuals: ExhibitVisual[], annotations?: ExhibitAnnotation[] }[], captions: ExhibitCaption[] }} PairExhibit
+ *   two stages side by side, each captioned; annotation theme on-light suits a pale stage.
  * @typedef {{ label: string, highlight?: string, cards: ([string, string, string] | [string, string, string, string])[], note?: string }} ExhibitStrip
  *   three part cards are a tier, a value and a route; four part cards add a commitment line.
  * @typedef {ExhibitBase & { kind: "journey", stages: string[], accentStage?: string, rows: { label: string, cells: string[] }[], strip?: ExhibitStrip }} JourneyExhibit
  * @typedef {ExhibitBase & { kind: "heatmap", panels: { label: string, columns: string[], rows: string[][] }[], annotations?: ExhibitAnnotation[], notes?: ExhibitNote[] }} HeatmapExhibit
  * @typedef {ExhibitBase & { kind: "matrix", label: string, columns: string[], rows: string[][], annotations?: ExhibitAnnotation[], notes?: ExhibitNote[] }} MatrixExhibit
- * @typedef {ExhibitBase & { kind: "custom", graphic: "timeline" | "visit-map" | "audit-cards" | "artboard-count", text: string, footnote?: string }} CustomExhibit
+ * @typedef {ExhibitBase & { kind: "custom", graphic: "timeline" | "visit-map" | "audit-cards" | "artboard-count" | "states-grid", text: string, footnote?: string, tiles?: ExhibitVisual[], captions?: ExhibitCaption[] }} CustomExhibit
  * @typedef {ExhibitBase & { kind: "section", section: string }} SectionExhibit
  *   a rail chapter with no exhibit. its eyebrow, heading and lede come from the page's prose mock
  *   (.private/redesign-spec/prose.json); section names the narrative section that text comes from.
@@ -992,6 +993,134 @@ export const caseStudies = [
       }),
       titlePlacement: "center",
     },
+    exhibits: /** @type {Exhibit[]} */ ([
+      {
+        kind: "hero", id: "overview", chapter: "Overview", figma: "90:1660",
+        eyebrow: "OVERVIEW",
+        heading: "Campus health information is published in five places at once",
+        lede: [
+          "TerpCareHub started as an INFM600 group project, a centralized health hub for the University of Maryland. The team delivered a pitch and a working site. Neither one answered the question our problem research kept circling back to, which is what a student should actually do at the moment they need care.",
+          "Five sources publish campus health information on their own: the Health Center, the Counseling Center, Prince George's County public health, student organization accounts, and emergency email. Different formats, no shared vocabulary, no agreement on what counts as urgent. I led this redesign, and it treats that split as a timing problem rather than a content problem.",
+        ],
+        // figma 90:1660 paints this hero with a warm gradient and no colour field.
+        base: "linear-gradient(144.4deg, #fff1c4 0%, #ffc24d 30%, #f0563a 55.7%, #c21230 71.4%)",
+        field: { width: 1116, height: 600, sigma: 0, circles: [] },
+        visuals: [
+          { src: "/images/work/terpcarehub/mobile-find-care.png", width: 321, height: 1100, alt: "Mobile find care screen", frame: "iphone", rot: 0, priority: true, at: { x: 26.9, y: 10.7, w: 26.9 } },
+          { src: "/images/work/terpcarehub/provider-card.png", width: 665, height: 378, alt: "Provider card showing status, next availability, plan acceptance, and cost", rot: 0, rounded: 16, at: { x: 49.1, y: 32.7, w: 40.9 } },
+        ],
+        metrics: [
+          { value: "9h 38m", label: "mapped symptom-to-appointment delay" },
+          { value: "15", label: "screens and interface states" },
+          { value: "9", label: "components on a shared token system" },
+        ],
+      },
+      {
+        kind: "rows", id: "core-flows", chapter: "Core flows", figma: "51:682",
+        lede: [
+          "The three are finding same-day care, publishing a wellness event, and moving a county advisory to a student who acts on it. I annotated each flow with the reason it is shaped that way, because the reasoning is the part worth reviewing.",
+          "The submission flow changed the most. An org leader who emails a staff member and hears nothing back will not try again, so review has a visible state, a rejection carries a reason, and a published event returns view and sign-up counts to the person who submitted it.",
+        ],
+        eyebrow: "CORE FLOWS",
+        heading: "Three flows carry the product",
+        // row stages from the prose mock (90:1689, 90:1699, 90:1709): their own base, field and veil.
+        bases: ["#b3122a", "#8a0b1e", "#e9a23b"],
+        veil: true,
+        fields: [
+          { width: 600, height: 600, sigma: 45, circles: [{ x: 180, y: 140, r: 260, colour: "#FFD24D", alpha: 0.9 }, { x: 530, y: 490, r: 230, colour: "#FF7A45", alpha: 0.9 }, { x: 590, y: 50, r: 210, colour: "#7A0718", alpha: 0.9 }] },
+          { width: 600, height: 600, sigma: 45, circles: [{ x: 160, y: 560, r: 280, colour: "#E21833", alpha: 0.9 }, { x: 550, y: 50, r: 190, colour: "#FFB547", alpha: 0.9 }, { x: 470, y: 590, r: 210, colour: "#3D0410", alpha: 0.9 }] },
+          { width: 600, height: 600, sigma: 45, circles: [{ x: 140, y: 180, r: 280, colour: "#FFF1C4", alpha: 0.9 }, { x: 620, y: 580, r: 260, colour: "#E21833", alpha: 0.9 }, { x: 270, y: 270, r: 150, colour: "#FF8A3D", alpha: 0.9 }] },
+        ],
+        visuals: [
+          { src: "/images/work/terpcarehub/mobile-find-care.png", width: 321, height: 1100, alt: "Mobile find care screen", frame: "iphone", at: { x: 29, y: 7.6, w: 42 },
+            loop: { src: "/images/work/terpcarehub/terpcarehub-find-care-loop.mp4", poster: "/images/work/terpcarehub/terpcarehub-find-care-loop-poster.webp", name: "same-day care" } },
+          { src: "/images/work/terpcarehub/mobile-alert-detail.png", width: 390, height: 998, alt: "Mobile alert detail screen", frame: "iphone", at: { x: 29, y: 7.6, w: 42 },
+            loop: { src: "/images/work/terpcarehub/terpcarehub-alert-loop.mp4", poster: "/images/work/terpcarehub/terpcarehub-alert-loop-poster.webp", name: "alert" } },
+          { src: "/images/work/terpcarehub/mobile-dashboard.png", width: 390, height: 1052, alt: "Mobile dashboard screen", frame: "iphone", at: { x: 29, y: 7.6, w: 42 },
+            loop: { src: "/images/work/terpcarehub/terpcarehub-dashboard-loop.mp4", poster: "/images/work/terpcarehub/terpcarehub-dashboard-loop-poster.webp", name: "own items" } },
+        ],
+        captions: [
+          { tag: "LOOP · 6S", title: "Find same-day care", body: "Filters are preset, cost is visible before the click, and sign-in is required only to book." },
+          { tag: "LOOP · 6S", title: "Read an alert with its source attached", body: "A severity tag, a source badge and a timestamp travel together, so an advisory keeps its authority after someone reshares it." },
+          { tag: "LOOP · 6S", title: "Keep your own items apart", body: "Institutional alerts, peer conversation and personal items are visually separated, led by the alert that still needs acknowledgement." },
+        ],
+      },
+      {
+        kind: "custom", graphic: "timeline", id: "the-measure", chapter: "The measure", figma: "52:582",
+        lede: [
+          "I mapped one student's Sunday night across the systems that exist today. A fever starts at 11:02 PM. She checks four sources over twenty-two minutes and reaches no decision, gives up, and takes an appointment at 2:40 PM the next afternoon. She misses a lecture to do it.",
+          "The worst moment on that map is not the overnight wait. It is minute twenty-two, when the search ends and she still does not know what to do. I argued every later design decision against that moment instead of against a feature list.",
+        ],
+        eyebrow: "THE MEASURE",
+        heading: "Time to awareness, mapped minute by minute",
+        text: "Current state · one student, one Sunday night | Overnight wait | 2:40 PM next day | Appointment taken | She misses a lecture to do it. | 11:02 PM | 01 | Symptom onset | No triage guidance exists anywhere on campus | 02 | First search | Hours and services live on separate pages | 03 | Source hopping | Four formats, no shared vocabulary, no verification | 04 | Dead end | Cost is the real blocker and the least visible fact | 05 | Gives up | Twenty-two minutes spent, no decision reached | Minute 22 · 11:24 PM | The worst moment on that map is not the overnight wait. It is minute twenty-two, when the search ends and she still does not know what to do.",
+      },
+      {
+        kind: "pair", id: "where-it-landed", chapter: "Where it landed", figma: "53:610",
+        lede: [
+          "The provider card carries the decision. Availability, plan acceptance, and expected cost sit on the card itself. Cost was the blocker that ended the search in the journey map, and pushing it to a detail page would rebuild the same dead end one screen further in.",
+          "Alerts carry a severity tag applied at ingest, a source badge, and a timestamp. Those three travel together, so an advisory keeps its authority after someone screenshots it and reshares it outside the product. A high-severity alert has to be acknowledged rather than swiped away, and acknowledging it says where the alert went.",
+        ],
+        eyebrow: "WHERE IT LANDED",
+        heading: "Insight 1: The decision moves onto the card",
+        stages: [
+          {
+            ratio: "534 / 560", base: "#f6c453",
+            field: { width: 534, height: 560, sigma: 45, circles: [{ x: 140, y: 120, r: 260, colour: "#FFF4D6", alpha: 0.9 }, { x: 520, y: 520, r: 220, colour: "#FF9A3D", alpha: 0.9 }, { x: 350, y: 90, r: 150, colour: "#F5D77E", alpha: 0.9 }] },
+            visuals: [{ src: "/images/work/terpcarehub/provider-card.png", width: 665, height: 378, alt: "Provider card showing status, next availability, plan acceptance, and cost", rounded: 12, at: { x: 8.8, y: 15.36, w: 82.4 } }],
+            annotations: [
+              { type: "leader-vertical", num: "01", label: "Availability", on: 0, theme: "on-light", at: { x: 11, y: 54, w: 15.2, h: 90.9 } },
+              { type: "leader-vertical", num: "02", label: "Plan acceptance", on: 0, theme: "on-light", at: { x: 38.3, y: 54, w: 23.2, h: 90.9 } },
+              { type: "leader-vertical", num: "03", label: "Expected cost", on: 0, theme: "on-light", at: { x: 71.2, y: 54, w: 20, h: 90.9 } },
+            ],
+          },
+          {
+            ratio: "534 / 560", base: "#8a0b1e",
+            field: { width: 534, height: 560, sigma: 45, circles: [{ x: 160, y: 520, r: 260, colour: "#E21833", alpha: 0.9 }, { x: 510, y: 30, r: 190, colour: "#FF7A45", alpha: 0.9 }, { x: 510, y: 570, r: 210, colour: "#4A0512", alpha: 0.9 }] },
+            visuals: [{ src: "/images/work/terpcarehub/alert-detail.png", width: 1489, height: 1600, alt: "Alert detail page with severity banner and source verification panel", frame: "browser", url: "terpcarehub · alert", screen: { w: 640, h: 520 }, at: { x: 7.49, y: 11.43, w: 119.85 } }],
+            annotations: [
+              { type: "focus", num: "01", on: 0, at: { x: 4.6, y: 20.3, w: 90.8, h: 6.1 } },
+              { type: "focus", num: "02", on: 0, at: { x: 4.6, y: 37.1, w: 37.5, h: 7.1 } },
+              { type: "focus", num: "03", on: 0, at: { x: 64.1, y: 69, w: 32.6, h: 15.9 } },
+            ],
+          },
+        ],
+        captions: [
+          { title: "Three facts answer the decision", body: "Availability, plan acceptance and expected cost sit on the card itself. Cost ended the search in the journey map, so pushing it to a detail page would rebuild the same dead end one screen further in." },
+          { title: "An alert keeps its authority when it travels", body: "Severity, source and timestamp are applied at ingest and travel together, so an advisory still says where it came from after it is reshared. A high-severity alert has to be acknowledged rather than swiped away." },
+        ],
+      },
+      {
+        kind: "custom", graphic: "states-grid", id: "design-system", chapter: "Design system", figma: "54:629",
+        lede: [
+          "The original file had no components, no text styles, and three font families competing across five pages. I rebuilt it on a token collection for colour, spacing, and radius, a ten-step type ramp, and nine components. Each component carries a written description of the decision it encodes.",
+          "The interface states are the part I would point a reviewer at first. An empty result proposes a specific fix and says what that fix will find. Loading names what is being checked. Degraded data is labelled rather than served quietly, which for a health product is the state that matters most. Mobile is designed rather than resized, because mobile-first was the primary need the original research named.",
+        ],
+        eyebrow: "DESIGN SYSTEM",
+        heading: "Insight 2: The states most concepts skip",
+        text: "Empty · no results | Proposes the fix and says what it will find. | Loading · skeleton | Names what is being checked. | Degraded · stale source | Labelled, not served quietly. | Confirmation · acknowledged | Says where the alert went.",
+        // crops of interface-states.png exported at 2x from figma 54:636, 54:641, 54:646 and 54:651.
+        tiles: [
+          { src: "/images/work/terpcarehub/interface-state-empty.png", width: 388, height: 597, alt: "Empty state: no clinics match all three filters, with a button to widen the search to 5 miles" },
+          { src: "/images/work/terpcarehub/interface-state-loading.png", width: 388, height: 597, alt: "Loading state: skeleton rows while availability is checked at six clinics" },
+          { src: "/images/work/terpcarehub/interface-state-degraded.png", width: 388, height: 597, alt: "Degraded state: a banner saying county data was last verified six hours ago, with a retry button" },
+          { src: "/images/work/terpcarehub/interface-state-confirmation.png", width: 388, height: 597, alt: "Confirmation state: alert acknowledged, with buttons back to the dashboard and to all alerts" },
+        ],
+        captions: [
+          { title: "Degraded is the state that matters most", body: "An empty result proposes a specific fix. Loading names what is being checked. Degraded data is labelled rather than served quietly, which for a health product is the state that matters most." },
+        ],
+      },
+      {
+        kind: "section", id: "reflection", chapter: "Reflection", section: "reflection",
+        eyebrow: "REFLECTION",
+        heading: "What I would test first",
+        lede: [
+          "This project taught me to design against a measurement instead of a feature list. Naming time to awareness early made the arguments concrete. It decided where authentication sits, which three facts earn space on a card, and why an empty state has to propose a next move rather than apologize.",
+          "The honest limit is that this redesign has not met a user yet, and I know what that costs. The sixty-plus physician interviews behind Frontground and the two survey cohorts in my College Park capstone are both in this portfolio, and both changed decisions I would otherwise have gotten wrong. Research is the part of this work I most want to keep doing.",
+          "The plan for that is specific. A five-participant task test on one instruction, find somewhere you could be seen today, with a target of under ninety seconds and no more than one wrong turn. Interviews with three organization wellness chairs about how long publishing an event really takes them today. A feasibility conversation with county communications about whether an institutional feed would clear their approval process at all. I think those three studies would confirm or kill most of what this file assumes, and every persona card already names which one applies to it.",
+        ],
+      },
+    ]),
     links: [
       { label: "Open Figma file", href: "https://www.figma.com/design/He7UGi0QBLQNXkCCeRmkDH/TerpCareHub.com" },
     ],

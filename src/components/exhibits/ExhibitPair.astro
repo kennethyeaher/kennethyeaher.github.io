@@ -1,0 +1,37 @@
+---
+// pair per figma 90:1757: two 534 by 560 stages side by side, each with its own colour field and a caption
+// underneath. annotations sit on their visual; with captions rather than notes, focus badges are markers.
+import Caption from "@/components/exhibits/Caption.astro";
+import ExhibitStage from "@/components/exhibits/ExhibitStage.astro";
+import ExhibitVisual from "@/components/exhibits/ExhibitVisual.astro";
+
+interface Props {
+  id: string;
+  palette: string[];
+  stages: any[];
+  captions: { title: string; body: string }[];
+}
+const { id, palette, stages, captions } = Astro.props;
+const ratio = (stage: any) => { const [w, h] = (stage.ratio ?? "534 / 560").split("/").map(Number); return w / h; };
+---
+<div class="exhibit-pair">
+  {stages.map((stage, index) => (
+    <figure>
+      <ExhibitStage palette={palette} size="pair" ratio={stage.ratio} field={stage.field} base={stage.base}>
+        {stage.visuals.map((visual: any) => <ExhibitVisual visual={visual} stageRatio={ratio(stage)} stageWidth={534 / 1116} />)}
+        {[...(stage.annotations ?? [])].sort((a: any, b: any) => Number(a.num) - Number(b.num)).map((annotation: any) => (
+          <ExhibitVisual visual={stage.visuals[annotation.on]} stageRatio={ratio(stage)} idPrefix={`${id}-${index}`} annotations={[annotation]} overlay linkNotes={false} />
+        ))}
+      </ExhibitStage>
+      <figcaption><Caption title={captions[index].title} body={captions[index].body} /></figcaption>
+    </figure>
+  ))}
+</div>
+<style>
+  .exhibit-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 48px; }
+  .exhibit-pair figure { display: grid; gap: 24px; margin: 0; }
+  .exhibit-pair figcaption :global(.exhibit-caption) { max-width: none; }
+  @media (max-width: 760px) {
+    .exhibit-pair { grid-template-columns: minmax(0, 1fr); gap: 40px; }
+  }
+</style>

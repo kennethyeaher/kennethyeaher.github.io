@@ -1,0 +1,44 @@
+---
+// interface states per figma 90:1782: four tiles in a row, each a state crop on a sunken tile with its
+// name and one line under it, from the spec text (name | line | name | line ...). wraps to two by two.
+import Caption from "@/components/exhibits/Caption.astro";
+
+interface Props {
+  text: string;
+  tiles: { src: string; alt: string; width: number; height: number }[];
+  caption?: { title: string; body: string };
+}
+const { text, tiles, caption } = Astro.props;
+const parts = text.split(" | ");
+const named = tiles.map((tile, index) => ({ ...tile, name: parts[index * 2], line: parts[index * 2 + 1] }));
+const webp = (src: string, width: number) => `/images/exhibits/sized/${src.split("/").pop()?.replace(/\.[^.]+$/, "")}-${width}.webp`;
+---
+<ul class="exhibit-states">
+  {named.map((tile) => (
+    <li>
+      <div class="state-tile">
+        <picture>
+          <source type="image/webp" srcset={`${webp(tile.src, 480)} 480w`} sizes="195px" />
+          <img src={tile.src} alt={tile.alt} width={tile.width} height={tile.height} loading="lazy" decoding="async" />
+        </picture>
+      </div>
+      <p class="state-name">{tile.name}</p>
+      <p class="state-line">{tile.line}</p>
+    </li>
+  ))}
+</ul>
+{caption && <div class="states-caption"><Caption title={caption.title} body={caption.body} /></div>}
+<style>
+  .exhibit-states { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; margin: 0; padding: 0; list-style: none; }
+  .exhibit-states li { display: grid; align-content: start; gap: 12px; }
+  .state-tile { display: grid; place-items: center; aspect-ratio: 261 / 330; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface-sunken); }
+  /* figma 90:1785: the state is 195 of the tile's 261 wide. */
+  .state-tile picture { display: block; width: 74.7%; }
+  .state-tile img { display: block; width: 100%; height: auto; border-radius: 10px; box-shadow: 0 8px 20px -4px rgb(0 0 0 / 8%); }
+  .exhibit-states p { margin: 0; }
+  .state-name { color: var(--muted); font: 10px / 1.3 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; }
+  .state-line { color: var(--secondary); font: 15px / 21px var(--body); }
+  .states-caption { margin-top: 32px; }
+  .states-caption :global(.exhibit-caption) { max-width: 640px; }
+  @media (max-width: 900px) { .exhibit-states { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+</style>

@@ -291,11 +291,12 @@ test("unknown slugs fail closed", () => {
 });
 
 // pages on the v2 exhibit layout.
-const exhibitSlugs = ["kairo-health", "usm-venture-benchmark", "ovara"];
+const exhibitSlugs = ["kairo-health", "usm-venture-benchmark", "ovara", "terpcarehub"];
 
 // figma rails for pages whose spec export carries no chapter list, read from the frame's chapter rail.
 const figmaRails = {
   ovara: ["01 Overview", "02 The dashboard", "03 The finding", "04 Corrections", "05 Design", "06 Reflection"],
+  terpcarehub: ["01 Overview", "02 Core flows", "03 The measure", "04 Where it landed", "05 Design system", "06 Reflection"],
 };
 
 
@@ -320,11 +321,16 @@ test("exhibits are optional and only the converted pages opt in", () => {
         assert.ok(exhibit.notes.some(({ n }) => n === annotation.num), `${slug} ${exhibit.id} annotation ${annotation.num} needs a note`);
       }
       assert.ok((exhibit.annotations ?? []).length <= 4, `${slug} ${exhibit.id} carries at most four annotations`);
+      for (const stage of exhibit.kind === "pair" ? exhibit.stages : []) {
+        assert.ok((stage.annotations ?? []).length <= 4, `${slug} ${exhibit.id} stage carries at most four annotations`);
+        for (const visual of stage.visuals) assert.ok(visual.alt && visual.width > 0 && visual.height > 0, `${slug} ${exhibit.id} stage visual needs alt and size`);
+      }
     }
   }
   assert.deepEqual(getProjectBySlug("kairo-health").exhibits.map(({ kind }) => kind), ["hero", "stage", "stage", "journey", "section"]);
   assert.deepEqual(getProjectBySlug("usm-venture-benchmark").exhibits.map(({ kind }) => kind), ["hero", "stage", "stage", "journey", "section"]);
   assert.deepEqual(getProjectBySlug("ovara").exhibits.map(({ kind }) => kind), ["hero", "rows", "stage", "custom", "section", "section"]);
+  assert.deepEqual(getProjectBySlug("terpcarehub").exhibits.map(({ kind }) => kind), ["hero", "rows", "custom", "pair", "custom", "section"]);
 });
 
 /** split prose into sentences, keeping decimals such as 0.91 and initials inside one sentence. */
@@ -333,7 +339,7 @@ function sentences(text) {
 }
 
 // pages built from their prose mock (figma section 07); every page joins as it is built.
-const ledeSlugs = ["kairo-health", "usm-venture-benchmark", "ovara"];
+const ledeSlugs = ["kairo-health", "usm-venture-benchmark", "ovara", "terpcarehub"];
 
 /** every lede sentence of a chapter; a prose chapter with no lede of its own reads its section text. */
 function ledeSentences(project, exhibit) {
@@ -361,7 +367,7 @@ test("every lede sentence on a converted page is that page's own copy", () => {
 // the "+ prose (mock)" frames in figma section 07, exported to .private/redesign-spec/prose.json, set each
 // page's rail, chapter heads and ledes.
 const prosePath = new URL("../.private/redesign-spec/prose.json", import.meta.url);
-const mockSlugs = ["kairo-health", "usm-venture-benchmark", "ovara"];
+const mockSlugs = ["kairo-health", "usm-venture-benchmark", "ovara", "terpcarehub"];
 
 test("converted pages follow their prose mock word for word", { skip: !existsSync(prosePath) && "prose export not present" }, () => {
   const mocks = JSON.parse(readFileSync(prosePath, "utf8"));
@@ -393,7 +399,8 @@ function assertMatchesSpec(slug) {
   } else assert.equal(hero.kpi, undefined);
   assert.deepEqual(hero.visuals.map(({ rot, at }) => [rot, at]), specHero.visuals.map(({ rot, stagePct }) => [rot, stagePct]));
   // figma's rail is the chapter list: every rail chapter renders, numbered as figma numbers it.
-  const rail = (spec.chapters ?? figmaRails[slug]).map((chapter) => chapter.replace(/\s+/g, " "));
+  // some spec pages point at the frame's rail instead of listing chapters; those rails live in figmaRails.
+  const rail = (Array.isArray(spec.chapters) ? spec.chapters : figmaRails[slug]).map((chapter) => chapter.replace(/\s+/g, " "));
   assert.deepEqual(project.exhibits.map(({ chapter }, index) => `0${index + 1} ${chapter}`), rail);
   for (const [built, source] of rest.filter(({ kind }) => kind !== "section").map((exhibit, index) => [exhibit, specRest[index]])) {
     assert.equal(built.figma, source.id);
@@ -401,13 +408,17 @@ function assertMatchesSpec(slug) {
     assert.equal(built.heading, source.heading);
     if (source.notes) assert.deepEqual(built.notes, source.notes);
     if (source.annotations) {
-      assert.deepEqual(built.annotations.map(({ num, at }) => [num, at]), source.annotations.map(({ num, pct }) => [num, pct]));
-      assert.deepEqual(built.annotations.map(({ on }) => built.visuals[on] && source.visuals[on].id), source.annotations.map(({ on }) => on));
+      // a pair carries its annotations per stage; stage i holds the spec's visual i.
+      const annotations = built.annotations?.map((annotation) => ({ ...annotation, host: source.visuals[annotation.on].id }))
+        ?? built.stages.flatMap((stage, index) => stage.annotations.map((annotation) => ({ ...annotation, host: source.visuals[index].id })));
+      assert.deepEqual(annotations.map(({ num, at }) => [num, at]), source.annotations.map(({ num, pct }) => [num, pct]));
+      assert.deepEqual(annotations.map(({ host }) => host), source.annotations.map(({ on }) => on));
+      assert.deepEqual(annotations.map(({ label }) => label), source.annotations.map(({ label }) => label));
     }
     if (source.visuals && built.kind === "stage") assert.deepEqual(built.visuals.map(({ at }) => at), source.visuals.map(({ stagePct }) => stagePct));
     if (source.captions) {
       assert.deepEqual(built.captions, source.captions);
-      assert.equal(built.visuals.length, source.visuals.length);
+      if (source.visuals) assert.equal((built.visuals ?? built.stages).length, source.visuals.length);
     }
     if (source.text) assert.deepEqual([built.text, built.footnote], [source.text, source.footnote]);
     if (source.journey) {
