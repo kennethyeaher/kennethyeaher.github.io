@@ -19,14 +19,48 @@ interface Props {
 const { project, priority = false, size = "card" } = Astro.props;
 // home cards show only the gradient and the project name; the hero keeps its exhibit until phase 2.
 const exhibit = size === "hero" ? project.cover.exhibit : undefined;
+
+/** relative luminance of a #rrggbb colour, used to order the gradient fields from dark to pale. */
+function luminance(hex: string): number {
+  const [r, g, b] = [1, 3, 5].map((start) => {
+    const channel = parseInt(hex.slice(start, start + 2), 16) / 255;
+    return channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+/** pick up to four soft fields from the palette, dropping near whites so the white title keeps its contrast. */
+function gradientFields(palette: string[]): string[] {
+  const rest = palette.slice(1);
+  const coloured = rest.filter((hex) => luminance(hex) <= 0.85);
+  const chosen = (coloured.length >= 3 ? coloured : rest).slice(0, 4);
+  return chosen.sort((a, b) => luminance(a) - luminance(b));
+}
+
+// field slots run from the title side to the far edge, so the darkest colour sits nearest the text.
+const slots = [
+  { x: 34, y: 30, size: 70, phase: 0 },
+  { x: 56, y: 78, size: 86, phase: 90 },
+  { x: 74, y: 28, size: 92, phase: 200 },
+  { x: 90, y: 74, size: 72, phase: 300 },
+];
+const fields = size === "card" ? gradientFields(project.cover.palette).map((colour, index) => ({ colour, ...slots[index] })) : [];
 ---
 <div class:list={["project-cover", `cover-${project.cover.variant}`, `is-${size}`, exhibit && "has-exhibit"]}
   data-project-cover data-cover-variant={project.cover.variant}
   data-cover-palette={project.cover.palette.join(",")}
-  style={`--cover-poster: url("${project.cover.poster}"); view-transition-name: cover-${project.slug}`}>
-  <video class="cover-motion" muted loop playsinline preload="none" poster={project.cover.poster} aria-hidden="true" data-cover-video>
-    <source data-src={project.cover.video} type="video/mp4" />
-  </video>
+  style={`--cover-poster: url("${project.cover.poster}"); --cover-base: ${project.cover.palette[0]}; view-transition-name: cover-${project.slug}`}>
+  {size === "card" ? (
+    <div class="cover-gradient" aria-hidden="true" data-cover-gradient>
+      {fields.map((field) => (
+        <span class="cover-field" style={`--field: ${field.colour}; --field-x: ${field.x}%; --field-y: ${field.y}%; --field-size: ${field.size}%; --field-phase: ${field.phase}deg`}></span>
+      ))}
+    </div>
+  ) : (
+    <video class="cover-motion" muted loop playsinline preload="none" poster={project.cover.poster} aria-hidden="true" data-cover-video>
+      <source data-src={project.cover.video} type="video/mp4" />
+    </video>
+  )}
   <span class="cover-scrim" aria-hidden="true"></span>
   <div class="cover-label"><span>{project.cardTitle}</span><small>{project.category}</small></div>
   {exhibit && <div class:list={["cover-exhibit", `exhibit-${exhibit.frame}`, exhibit.frame === "sheet" && exhibit.height > exhibit.width && "exhibit-portrait"]} style={`--exhibit-ratio: ${exhibit.width} / ${exhibit.height}`} aria-hidden="true">
@@ -50,6 +84,42 @@ const exhibit = size === "hero" ? project.cover.exhibit : undefined;
   .exhibit-portrait :global(.device-frame), .exhibit-portrait :global(.device-screen) { height: 100%; }
   .exhibit-portrait :global(img) { height: 100%; object-fit: contain; }
   .is-hero .cover-label span { font-size: clamp(28px, 4vw, 56px); }
+
+  /* live gradient for home cards. the poster stays the fallback when scripts are off. */
+  .is-card { background-image: none; background-color: var(--cover-base, #17344f); }
+  .cover-gradient { position: absolute; z-index: 0; inset: 0; overflow: hidden; }
+  .cover-field {
+    position: absolute;
+    top: var(--field-y);
+    left: var(--field-x);
+    width: var(--field-size);
+    aspect-ratio: 1;
+    margin: calc(var(--field-size) / -2) 0 0 calc(var(--field-size) / -2);
+    border-radius: 50%;
+    background: radial-gradient(closest-side var(--in-oklab), var(--field), color-mix(in oklab, var(--field) 62%, transparent) 50%, transparent);
+    opacity: calc(0.88 + var(--cover-energy, 0) * 0.12);
+    translate:
+      calc(cos(var(--drift-a, 0deg) + var(--field-phase)) * 16% + cos(var(--drift-b, 0deg) + var(--field-phase)) * 7%)
+      calc(sin(var(--drift-a, 0deg) + var(--field-phase)) * 11% + sin(var(--drift-b, 0deg) + var(--field-phase)) * 5%);
+    scale: calc(1 + var(--cover-energy, 0) * 0.06);
+  }
+  @media (scripting: none) {
+    .is-card { background-image: var(--cover-poster); }
+    .is-card .cover-gradient { display: none; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .cover-gradient {
+      animation: cover-drift-a 72s linear infinite, cover-drift-b 26s linear infinite;
+      animation-play-state: paused, paused;
+      transition: --cover-energy 700ms var(--ease-out);
+    }
+    .cover-gradient.is-live { animation-play-state: running, paused; }
+    .cover-gradient.is-live .cover-field { will-change: translate; }
+    :global(.project-card:is(:hover, :focus-visible)) .cover-gradient { --cover-energy: 1; }
+    :global(.project-card:is(:hover, :focus-visible)) .cover-gradient.is-live { animation-play-state: running, running; }
+  }
+  @keyframes cover-drift-a { to { --drift-a: 360deg; } }
+  @keyframes cover-drift-b { to { --drift-b: 360deg; } }
   @media (max-width: 620px) {
     .cover-label span { font-size: clamp(18px, 5vw, 28px); }
     .cover-label small { margin-top: 8px; font-size: 9px; }

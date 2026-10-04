@@ -1,4 +1,4 @@
-import { initializeTheme, initializeCoverMotion, initializeCoverDepth, initializeReadingProgress, initializeMediaControls } from "./exhibits";
+import { initializeTheme, initializeCoverMotion, initializeCoverGradients, initializeCoverDepth, initializeReadingProgress, initializeMediaControls } from "./exhibits";
 
 /**
  * Initialize navigation, theme choice, motion, and exhibit controls.
@@ -6,6 +6,7 @@ import { initializeTheme, initializeCoverMotion, initializeCoverDepth, initializ
 function initializeSite(): void {
   initializeTheme();
   initializeCoverMotion();
+  initializeCoverGradients();
   initializeCoverDepth();
   initializeReadingProgress();
   initializeMediaControls();

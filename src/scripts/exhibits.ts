@@ -170,3 +170,13 @@ export function initializeMediaControls(): void {
     window.matchMedia("(prefers-reduced-motion: reduce)").addEventListener("change", pause);
   });
 }
+
+/** run each home cover gradient only while it is on screen, so off screen cards stop animating. */
+export function initializeCoverGradients(): void {
+  const gradients = document.querySelectorAll<HTMLElement>("[data-cover-gradient]");
+  if (!gradients.length || !("IntersectionObserver" in window)) return;
+  const observer = new IntersectionObserver((entries) => {
+    for (const entry of entries) entry.target.classList.toggle("is-live", entry.isIntersecting);
+  });
+  gradients.forEach((gradient) => observer.observe(gradient));
+}

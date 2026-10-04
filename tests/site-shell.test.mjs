@@ -52,3 +52,10 @@ test("reveal targets stay visible until the fallback observer opts in", () => {
   assert.match(globalCss, /\.reveal-ready \.section-rule\[data-reveal\] \{/);
   assert.doesNotMatch(globalCss, /^\.section-rule\[data-reveal\] \{/m);
 });
+
+test("the home cover gradient registers its animated properties", () => {
+  for (const name of ["--drift-a", "--drift-b", "--cover-energy"]) {
+    assert.match(globalCss, new RegExp(`@property ${name} \\{`));
+  }
+  assert.match(globalCss, /@supports \(background: linear-gradient\(in oklab/);
+});

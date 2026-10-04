@@ -385,6 +385,17 @@ button {
   }
 }
 
+/* gradient interpolation space, left empty where gradients cannot take one. */
+:root { --in-oklab: ; }
+@supports (background: linear-gradient(in oklab, white, black)) {
+  :root { --in-oklab: in oklab; }
+}
+
+/* registered so the home cover gradient can animate and ease between states. */
+@property --drift-a { syntax: "<angle>"; inherits: true; initial-value: 0deg; }
+@property --drift-b { syntax: "<angle>"; inherits: true; initial-value: 0deg; }
+@property --cover-energy { syntax: "<number>"; inherits: true; initial-value: 0; }
+
 /* a system palette remains available until the visitor chooses an explicit theme. */
 :root[data-theme="dark"] {
   color-scheme: dark;
