@@ -302,8 +302,15 @@ test("exhibits are optional and only the converted pages opt in", () => {
     const project = getProjectBySlug(slug);
     const reflection = project.sections.find(({ id }) => id === "reflection");
     const last = project.exhibits.at(-1);
+    // a page closes on its Reflection text; with none, it may close on the prose behind its last figma rail
+    // chapter (checked against the rail in the spec test), and no other prose chapter renders.
+    const prose = project.exhibits.filter(({ kind }) => kind === "section");
     if (reflection) assert.deepEqual([last.kind, last.section], ["section", "reflection"], `${slug} closes on Reflection`);
-    else assert.ok(!project.exhibits.some(({ kind }) => kind === "section"), `${slug} has no Reflection text, so no prose chapter`);
+    else if (prose.length) assert.equal(last.kind, "section", `${slug} closes on its last rail chapter's prose`);
+    assert.ok(prose.length <= 1 && (!prose.length || prose[0] === last), `${slug} renders at most one prose chapter, last`);
+    for (const { section } of prose) {
+      assert.ok(project.sections.find(({ id }) => id === section)?.body.length, `${slug} closing chapter ${section} needs prose in the data`);
+    }
     for (const exhibit of project.exhibits) {
       for (const visual of exhibit.visuals ?? []) {
         assert.ok(visual.alt && visual.width > 0 && visual.height > 0, `${slug} ${exhibit.id} visual needs alt and size`);
@@ -315,7 +322,7 @@ test("exhibits are optional and only the converted pages opt in", () => {
     }
   }
   assert.deepEqual(getProjectBySlug("kairo-health").exhibits.map(({ kind }) => kind), ["hero", "stage", "stage", "journey", "section"]);
-  assert.deepEqual(getProjectBySlug("usm-venture-benchmark").exhibits.map(({ kind }) => kind), ["hero", "stage", "stage", "journey"]);
+  assert.deepEqual(getProjectBySlug("usm-venture-benchmark").exhibits.map(({ kind }) => kind), ["hero", "stage", "stage", "journey", "section"]);
 });
 
 /** compare one converted page against its spec export: chapters, hero, and every exhibit's copy and boxes. */
@@ -331,9 +338,10 @@ function assertMatchesSpec(slug) {
     { eyebrow: specHero.kpi.eyebrow, value: specHero.kpi.value, label: specHero.kpi.label },
   );
   assert.deepEqual(hero.visuals.map(({ rot, at }) => [rot, at]), specHero.visuals.map(({ rot, stagePct }) => [rot, stagePct]));
-  // a spec chapter with no exhibit behind it (usm's "05 The VC lens") is left out, so compare the built prefix.
+  // the rail matches figma; a Reflection chapter the figma rail does not list is the one allowed addition.
   const chapters = project.exhibits.map(({ chapter }, index) => `0${index + 1} ${chapter}`);
-  assert.deepEqual(chapters.filter((chapter) => !chapter.endsWith("Reflection")), spec.chapters.slice(0, specRest.length + 1));
+  const addsReflection = chapters.at(-1).endsWith(" Reflection") && !spec.chapters.at(-1).endsWith(" Reflection");
+  assert.deepEqual(addsReflection ? chapters.slice(0, -1) : chapters, spec.chapters);
   for (const [built, source] of rest.filter(({ kind }) => kind !== "section").map((exhibit, index) => [exhibit, specRest[index]])) {
     assert.equal(built.figma, source.id);
     assert.equal(built.eyebrow, source.eyebrow);
@@ -348,7 +356,9 @@ function assertMatchesSpec(slug) {
       assert.deepEqual(built.stages, source.journey.stages);
       assert.equal(built.accentStage, source.journey.accentStage);
       assert.deepEqual(Object.fromEntries(built.rows.map(({ label, cells }) => [label, cells])), source.journey.rows);
-      assert.deepEqual(built.strip, source.strip);
+      // a strip may open the closing chapter instead (usm's decision framework).
+      const strip = built.strip ?? project.exhibits.find((exhibit) => exhibit.kind === "section" && exhibit.strip)?.strip;
+      assert.deepEqual(strip, source.strip);
     }
   }
 }

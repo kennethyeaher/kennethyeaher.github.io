@@ -5,6 +5,7 @@ import CaseStudyNav from "@/components/CaseStudyNav.astro";
 import ExhibitStage from "@/components/exhibits/ExhibitStage.astro";
 import ExhibitVisual from "@/components/exhibits/ExhibitVisual.astro";
 import ExhibitJourney from "@/components/exhibits/ExhibitJourney.astro";
+import ExhibitStrip from "@/components/exhibits/ExhibitStrip.astro";
 import ExhibitMetrics from "@/components/exhibits/ExhibitMetrics.astro";
 import NextProject from "@/components/exhibits/NextProject.astro";
 import Notes from "@/components/exhibits/Notes.astro";
@@ -77,10 +78,15 @@ function sectionFor(exhibit: any) {
     {exhibits.filter((exhibit) => exhibit.kind !== "hero").map((exhibit) => {
       if (exhibit.kind === "section") {
         const section = sectionFor(exhibit);
+        // a closing chapter can open on a strip (usm's decision framework, 68:1126), anchored where the strip
+        // sits in figma, with the section's own prose under it.
         return (
-          <section id={exhibit.id} class="exhibit-chapter" data-case-section aria-labelledby={`${exhibit.id}-heading`}>
-            <SectionHead id={`${exhibit.id}-heading`} eyebrow={section.label} heading={section.heading} />
-            <div class="exhibit-prose">{section.body.map((paragraph: string) => <p>{paragraph}</p>)}</div>
+          <section id={exhibit.id} class:list={["exhibit-chapter", exhibit.strip && "opens-on-strip"]} data-case-section aria-labelledby={`${exhibit.id}-heading`}>
+            {exhibit.strip && <ExhibitStrip strip={exhibit.strip} />}
+            <div class:list={[exhibit.strip && "closing-prose"]}>
+              <SectionHead id={`${exhibit.id}-heading`} eyebrow={section.label} heading={section.heading} />
+              <div class="exhibit-prose">{section.body.map((paragraph: string) => <p>{paragraph}</p>)}</div>
+            </div>
           </section>
         );
       }
@@ -121,6 +127,9 @@ function sectionFor(exhibit: any) {
   .exhibit-case { min-width: 0; padding-bottom: 40px; }
   .exhibit-chapter { scroll-margin-top: 32px; }
   .exhibit-chapter + .exhibit-chapter { margin-top: 96px; }
+  /* figma keeps the strip 32px under the journey map it follows, even though it starts a new chapter. */
+  .exhibit-chapter + .exhibit-chapter.opens-on-strip { margin-top: 32px; }
+  .closing-prose { margin-top: 72px; }
   .exhibit-eyebrow { margin: 0; color: var(--muted); font: 11px / 1.4 var(--mono); letter-spacing: 0.04em; text-transform: uppercase; }
   .exhibit-header h1 { margin: 16px 0 0; color: var(--ink-strong); font: 400 clamp(46px, 5.6vw, 72px) / 1 var(--display); letter-spacing: -0.03em; }
   .exhibit-summary { max-width: 820px; margin: 16px 0 0; color: var(--ink); font: 19px / 1.55 var(--body); }

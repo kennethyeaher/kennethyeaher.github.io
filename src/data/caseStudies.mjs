@@ -34,8 +34,10 @@
  * @typedef {ExhibitBase & { kind: "heatmap", panels: { label: string, columns: string[], rows: string[][] }[], annotations?: ExhibitAnnotation[], notes?: ExhibitNote[] }} HeatmapExhibit
  * @typedef {ExhibitBase & { kind: "matrix", label: string, columns: string[], rows: string[][], annotations?: ExhibitAnnotation[], notes?: ExhibitNote[] }} MatrixExhibit
  * @typedef {ExhibitBase & { kind: "custom", graphic: "timeline" | "visit-map" | "audit-cards" | "artboard-count", text: string, footnote?: string }} CustomExhibit
- * @typedef {ExhibitBase & { kind: "section", section: string }} SectionExhibit
- *   renders an existing narrative section, unchanged, as its own chapter.
+ * @typedef {ExhibitBase & { kind: "section", section: string, strip?: ExhibitStrip }} SectionExhibit
+ *   renders an existing narrative section, unchanged, as its own chapter. a page closes on its
+ *   Reflection section, or, with no Reflection text, on the section behind its last figma rail chapter.
+ *   a strip given here opens the chapter above the prose.
  * @typedef {HeroExhibit | StageExhibit | RowsExhibit | PairExhibit | JourneyExhibit | HeatmapExhibit | MatrixExhibit | CustomExhibit | SectionExhibit} Exhibit
  */
 export const caseStudies = [
@@ -148,6 +150,9 @@ export const caseStudies = [
             "Operating changes that could be piloted are separated from structures that need new capital or decision rights.",
           ] },
         ],
+      },
+      {
+        kind: "section", id: "the-vc-lens", chapter: "The VC lens", section: "vc-lens",
         strip: {
           label: "DECISION FRAMEWORK  ·  FOUR MECHANISMS, FOUR COMMITMENTS",
           cards: [

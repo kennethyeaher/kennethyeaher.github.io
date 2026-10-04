@@ -184,12 +184,20 @@ function assertBadgesResolve(html, count) {
 
 test("USM renders the v2 exhibit layout from the approved spec", () => {
   const usm = pages.get("usm-venture-benchmark");
-  for (const id of ["overview", "the-brief-system", "validation-grid", "the-evidence-path"]) {
-    assert.match(usm, new RegExp(`<section[^>]*id="${id}"[^>]*data-case-section`));
-    assert.match(usm, new RegExp(`href="#${id}"`));
-  }
-  // usm has no reflection text in caseStudies.mjs, so the chapter is left out rather than invented.
+  const chapters = ["overview", "the-brief-system", "validation-grid", "the-evidence-path", "the-vc-lens"];
+  const sectionIds = [...usm.matchAll(/<section[^>]*\bid="([^"]+)"[^>]*data-case-section/g)].map((match) => match[1]);
+  assert.deepEqual(sectionIds, chapters);
+  for (const id of chapters) assert.match(usm, new RegExp(`href="#${id}"`));
+  assert.match(usm, /<span class="chapter-number"[^>]*>05<\/span>\s*The VC lens/);
+  // no reflection text exists, so the closing chapter is the vc-lens prose behind figma's last rail chapter.
   assert.doesNotMatch(usm, /id="reflection"/);
+  const closing = usm.slice(usm.indexOf('id="the-vc-lens"'), usm.indexOf("data-project-pager"));
+  assert.ok(closing.indexOf("DECISION FRAMEWORK") < closing.indexOf("The useful question was what could work here"), "the strip opens chapter 05");
+  assert.match(closing, /The last step moved from what exists elsewhere to what might transfer\./);
+  assert.match(closing, /It is also the part of venture work I value most: synthesis is useful when it produces a better investment question\./);
+  assert.doesNotMatch(usm, /transferability-lens/);
+  const evidencePath = usm.slice(usm.indexOf('id="the-evidence-path"'), usm.indexOf('id="the-vc-lens"'));
+  assert.doesNotMatch(evidencePath, /journey-strip/);
   assert.match(usm, /class="exhibit-stage stage-hero/);
   assert.match(usm, /--stage-ratio: 1116 \/ 460/);
   assert.match(usm, /left: 70\.8%; top: 71\.7%/);
