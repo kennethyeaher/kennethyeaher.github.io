@@ -7,14 +7,17 @@ interface Props {
   width: number;
   height: number;
   label: string;
+  /** what tells this loop apart from others on the page, from its caption: "state" gives "Pause state loop". */
+  name?: string;
 }
-const { src, poster, width, height, label } = Astro.props;
+const { src, poster, width, height, label, name } = Astro.props;
+const loopName = name ? `${name} loop` : "loop";
 ---
-<div class="exhibit-loop" data-exhibit-loop>
+<div class="exhibit-loop" data-exhibit-loop data-loop-name={loopName}>
   <video muted loop playsinline preload="none" poster={poster} width={width} height={height} aria-label={label}>
     <source data-src={src} type="video/mp4" />
   </video>
-  <button class="loop-toggle" type="button" data-loop-toggle hidden>Pause loop</button>
+  <button class="loop-toggle" type="button" data-loop-toggle hidden>Pause {loopName}</button>
 </div>
 <style>
   .exhibit-loop { position: relative; }

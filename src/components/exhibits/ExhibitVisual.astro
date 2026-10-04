@@ -12,7 +12,7 @@ interface Box { x: number; y: number; w: number; h?: number }
 interface Props {
   visual: {
     src: string; alt: string; width: number; height: number;
-    frame?: "image" | "iphone" | "browser"; rot?: number; at?: Box; loop?: { src: string; poster: string };
+    frame?: "image" | "iphone" | "browser"; rot?: number; at?: Box; loop?: { src: string; poster: string; name?: string };
     url?: string; crop?: { x: number; y: number; w: number; h: number }; priority?: boolean;
   };
   stageRatio?: number;
@@ -64,7 +64,7 @@ const eager = priority || visual.priority === true;
 <div class:list={["exhibit-visual", `visual-${frame}`, style && "is-placed", overlay && "is-overlay"]} style={overlay ? `${style}; aspect-ratio: 1 / ${aspect()}` : style} data-exhibit-visual={overlay ? undefined : ""}>
   {!overlay && frame === "image" && (
     visual.loop
-      ? <div class="visual-sheet"><ExhibitLoop src={visual.loop.src} poster={visual.loop.poster} width={visual.width} height={visual.height} label={visual.alt} /></div>
+      ? <div class="visual-sheet"><ExhibitLoop src={visual.loop.src} poster={visual.loop.poster} width={visual.width} height={visual.height} label={visual.alt} name={visual.loop.name} /></div>
       : visual.crop
         ? <div class="visual-sheet visual-crop" style={`aspect-ratio: 1 / ${aspect()}`}>
             <picture>
@@ -81,7 +81,7 @@ const eager = priority || visual.priority === true;
   )}
   {!overlay && frame !== "image" && (
     visual.loop
-      ? <DeviceFrame frame={frame} src={visual.src} alt={visual.alt} url={visual.url}><ExhibitLoop src={visual.loop.src} poster={visual.loop.poster} width={visual.width} height={visual.height} label={visual.alt} /></DeviceFrame>
+      ? <DeviceFrame frame={frame} src={visual.src} alt={visual.alt} url={visual.url}><ExhibitLoop src={visual.loop.src} poster={visual.loop.poster} width={visual.width} height={visual.height} label={visual.alt} name={visual.loop.name} /></DeviceFrame>
       : <DeviceFrame frame={frame} src={visual.src} alt={visual.alt} width={visual.width} height={visual.height} priority={eager} url={visual.url} srcset={srcset} sizes={sizes} />
   )}
   {annotations.filter((annotation) => annotation.at).map((annotation) => {

@@ -12,10 +12,10 @@
  *   a position as percentages of its host (stage or visual).
  * @typedef {{
  *   src: string, alt: string, width: number, height: number,
- *   frame?: "image" | "iphone" | "browser", rot?: number, at?: Box, loop?: { src: string, poster: string },
+ *   frame?: "image" | "iphone" | "browser", rot?: number, at?: Box, loop?: { src: string, poster: string, name?: string },
  *   url?: string, crop?: { x: number, y: number, w: number, h: number }, priority?: boolean
  * }} ExhibitVisual
- *   url is the browser address; crop shows one region of the image as fractions of its size;
+ *   loop.name tells loop controls apart ("Play state loop"); url is the browser address; crop shows one region of the image as fractions of its size;
  *   priority marks the lcp visual when it is not the hero's last one.
  * @typedef {{
  *   type: "focus" | "leader" | "leader-vertical", num: string, label?: string,
@@ -360,10 +360,11 @@ export const caseStudies = [
         ],
         visuals: [
           { src: "/images/work/ovara/ovara-dashboard-state.jpg", width: 2000, height: 1153, alt: "Ovara state level dashboard showing per capita density KPIs and a ranked state chart", frame: "browser", url: "ovara", at: { x: 9.33, y: 16, w: 126.67 },
-            loop: { src: "/images/work/ovara/ovara-state-loop.mp4", poster: "/images/work/ovara/ovara-state-loop-poster.webp" } },
+            loop: { src: "/images/work/ovara/ovara-state-loop.mp4", poster: "/images/work/ovara/ovara-state-loop-poster.webp", name: "state" } },
           { src: "/images/work/ovara/ovara-dashboard-county-overview.png", width: 2880, height: 1800, alt: "Ovara county level dashboard switching from the access deserts KPI to the tier map", frame: "browser", url: "ovara", at: { x: 9.33, y: 16, w: 126.67 },
-            loop: { src: "/images/work/ovara/ovara-county-loop.mp4", poster: "/images/work/ovara/ovara-county-loop-poster.webp" } },
-          { src: "/images/work/ovara/ovara-dashboard-findings.png", width: 2880, height: 1800, alt: "Ovara findings card for a selected county above the five access risk tiers", frame: "browser", url: "ovara", at: { x: 9.33, y: 16, w: 126.67 } },
+            loop: { src: "/images/work/ovara/ovara-county-loop.mp4", poster: "/images/work/ovara/ovara-county-loop-poster.webp", name: "county" } },
+          { src: "/images/work/ovara/ovara-dashboard-findings.png", width: 2880, height: 1800, alt: "Ovara county map selecting a county, then scrolling to its findings card above the five access risk tiers", frame: "browser", url: "ovara", at: { x: 9.33, y: 16, w: 126.67 },
+            loop: { src: "/images/work/ovara/ovara-findings-loop.mp4", poster: "/images/work/ovara/ovara-findings-loop-poster.webp", name: "findings" } },
         ],
         captions: [
           { tag: "RECORDED LIVE", title: "State level opens on observed density", body: "The state view opens on observed density per 100,000 and a rank. There is no predicted tier here any more." },
@@ -394,6 +395,7 @@ export const caseStudies = [
         text: "01 · Connecticut | 9 of 9 | planning regions reported as access deserts with zero providers | Mechanism | The ZIP to county crosswalk came from the 2020 ZCTA relationship file, a different vintage from the county layer. | Guard | A check that raises on a vintage mismatch. || 02 · Denominator | ×29 | the Atlanta metro population added once per county row | Mechanism | State population summed a metro table that carries the whole metro population on every county row. | Guard | A plausibility range on every state denominator. || 03 · Target leakage | +0.33 → +0.12 | cross validated R² once the leaking feature came out | Mechanism | growth_per_100k divides recent providers by state population, and those providers are a strict subset of the target. | Guard | A test that fails if the feature returns.",
         footnote: "The residents figure was overstated by 33 percent for as long as the Connecticut bug was live. That is the number I would have quoted in an interview.",
       },
+      { kind: "section", id: "design", chapter: "Design", section: "design" },
       { kind: "section", id: "reflection", chapter: "Reflection", section: "reflection" },
     ]),
     links: [{ label: "View source repository", href: "https://github.com/kennethyeaher/inst737-final-project-kenneth-yeaher" }],

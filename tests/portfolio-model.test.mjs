@@ -297,10 +297,7 @@ const exhibitSlugs = ["kairo-health", "usm-venture-benchmark", "ovara"];
 const figmaRails = {
   ovara: ["01 Overview", "02 The dashboard", "03 The finding", "04 Corrections", "05 Design", "06 Reflection"],
 };
-// rail chapters with no exhibit in the frame that are not the closing chapter, so the narrative rule leaves them out.
-const omittedChapters = {
-  ovara: ["Design"],
-};
+
 
 test("exhibits are optional and only the converted pages opt in", () => {
   for (const project of projects) {
@@ -309,14 +306,9 @@ test("exhibits are optional and only the converted pages opt in", () => {
   }
   for (const slug of exhibitSlugs) {
     const project = getProjectBySlug(slug);
-    const reflection = project.sections.find(({ id }) => id === "reflection");
-    const last = project.exhibits.at(-1);
-    // a page closes on its Reflection text; with none, it may close on the prose behind its last figma rail
-    // chapter (checked against the rail in the spec test), and no other prose chapter renders.
+    // figma's rail is the chapter list (checked in the spec test). a rail chapter with no exhibit shows its
+    // existing prose, so every prose chapter needs text in the data; sections off the rail do not render.
     const prose = project.exhibits.filter(({ kind }) => kind === "section");
-    if (reflection) assert.deepEqual([last.kind, last.section], ["section", "reflection"], `${slug} closes on Reflection`);
-    else if (prose.length) assert.equal(last.kind, "section", `${slug} closes on its last rail chapter's prose`);
-    assert.ok(prose.length <= 1 && (!prose.length || prose[0] === last), `${slug} renders at most one prose chapter, last`);
     for (const { section } of prose) {
       assert.ok(project.sections.find(({ id }) => id === section)?.body.length, `${slug} closing chapter ${section} needs prose in the data`);
     }
@@ -332,7 +324,7 @@ test("exhibits are optional and only the converted pages opt in", () => {
   }
   assert.deepEqual(getProjectBySlug("kairo-health").exhibits.map(({ kind }) => kind), ["hero", "stage", "stage", "journey", "section"]);
   assert.deepEqual(getProjectBySlug("usm-venture-benchmark").exhibits.map(({ kind }) => kind), ["hero", "stage", "stage", "journey", "section"]);
-  assert.deepEqual(getProjectBySlug("ovara").exhibits.map(({ kind }) => kind), ["hero", "rows", "stage", "custom", "section"]);
+  assert.deepEqual(getProjectBySlug("ovara").exhibits.map(({ kind }) => kind), ["hero", "rows", "stage", "custom", "section", "section"]);
 });
 
 /** compare one converted page against its spec export: chapters, hero, and every exhibit's copy and boxes. */
@@ -350,13 +342,9 @@ function assertMatchesSpec(slug) {
     );
   } else assert.equal(hero.kpi, undefined);
   assert.deepEqual(hero.visuals.map(({ rot, at }) => [rot, at]), specHero.visuals.map(({ rot, stagePct }) => [rot, stagePct]));
-  // the rail matches figma, less any documented omission; a Reflection chapter the figma rail does not
-  // list is the one allowed addition.
-  const name = (chapter) => chapter.replace(/^\d+ /, "");
-  const rail = (spec.chapters ?? figmaRails[slug]).map(name).filter((chapter) => !(omittedChapters[slug] ?? []).includes(chapter));
-  const chapters = project.exhibits.map(({ chapter }) => chapter);
-  const addsReflection = chapters.at(-1) === "Reflection" && rail.at(-1) !== "Reflection";
-  assert.deepEqual(addsReflection ? chapters.slice(0, -1) : chapters, rail);
+  // figma's rail is the chapter list: every rail chapter renders, numbered as figma numbers it.
+  const rail = (spec.chapters ?? figmaRails[slug]).map((chapter) => chapter.replace(/\s+/g, " "));
+  assert.deepEqual(project.exhibits.map(({ chapter }, index) => `0${index + 1} ${chapter}`), rail);
   for (const [built, source] of rest.filter(({ kind }) => kind !== "section").map((exhibit, index) => [exhibit, specRest[index]])) {
     assert.equal(built.figma, source.id);
     assert.equal(built.eyebrow, source.eyebrow);

@@ -215,7 +215,9 @@ test("USM renders the v2 exhibit layout from the approved spec", () => {
 test("Ovara renders the v2 exhibit layout from the approved spec", () => {
   const ovara = pages.get("ovara");
   const sectionIds = [...ovara.matchAll(/<section[^>]*\bid="([^"]+)"[^>]*data-case-section/g)].map((match) => match[1]);
-  assert.deepEqual(sectionIds, ["overview", "the-dashboard", "the-finding", "corrections", "reflection"]);
+  assert.deepEqual(sectionIds, ["overview", "the-dashboard", "the-finding", "corrections", "design", "reflection"]);
+  // 05 design has no exhibit in figma, so it shows the design section's own text.
+  assert.match(ovara, /The interface has to make the uncertainty visible, not smooth it over/);
   assert.match(ovara, /The audit is the part I would defend in an interview/);
   // the hero kpi is a crop of the live dashboard, not a coded card.
   assert.match(ovara, /class="visual-sheet visual-crop"/);
@@ -223,13 +225,14 @@ test("Ovara renders the v2 exhibit layout from the approved spec", () => {
   assert.match(ovara, /<span class="browser-address"[^>]*>ovara · county level<\/span>/);
   assert.match(ovara, /data-count-to="1029"[^>]*data-count-grouped/);
   assert.match(ovara, /data-count-to="10.9" data-count-rest="M" data-count-decimals="1"/);
-  // three dashboard rows: two loops with posters, then the findings still.
+  // three dashboard rows, each a recorded loop with a poster and its own named control.
   assert.equal([...ovara.matchAll(/class="exhibit-row"/g)].length, 3);
-  for (const clip of ["ovara-state-loop", "ovara-county-loop"]) {
-    assert.match(ovara, new RegExp(`poster="/images/work/ovara/${clip}-poster\\.webp"`));
-    assert.match(ovara, new RegExp(`data-src="/images/work/ovara/${clip}\\.mp4"`));
+  for (const name of ["state", "county", "findings"]) {
+    assert.match(ovara, new RegExp(`poster="/images/work/ovara/ovara-${name}-loop-poster\\.webp"`));
+    assert.match(ovara, new RegExp(`data-src="/images/work/ovara/ovara-${name}-loop\\.mp4"`));
+    assert.match(ovara, new RegExp(`data-loop-name="${name} loop"`));
+    assert.match(ovara, new RegExp(`data-loop-toggle hidden[^>]*>Pause ${name} loop</button>`));
   }
-  assert.match(ovara, /ovara-dashboard-findings\.png/);
   assert.doesNotMatch(ovara, /autoplay/);
   // audit cards in html, every field from the spec text.
   assert.equal([...ovara.matchAll(/<p class="audit-value"[^>]*>/g)].length, 3);
