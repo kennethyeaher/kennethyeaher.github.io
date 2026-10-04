@@ -3,8 +3,8 @@
 </p>
 
 <p align="center">
-  <strong>A light-mode editorial portfolio for Kenneth Yeaher’s product, data, venture, and human-computer interaction work.</strong><br>
-  The site is built with Astro and TypeScript and uses one verified content model for the Work page and five case studies.
+  <strong>An editorial portfolio for Kenneth Yeaher’s product, data, venture, and human-computer interaction work.</strong><br>
+  The site is built with Astro and TypeScript and uses one verified content model for the Work page and eight case studies.
 </p>
 
 <p align="center">
@@ -32,7 +32,7 @@
 <p align="center"><img src="docs/assets/home-375.png" alt="The home page at 375px wide. The header collapses to the name and a Menu button, the headline wraps over four lines, and the experience list stacks each role under its organization." width="320"></p>
 </details>
 
-<sub>The published site, captured October 3, 2026.</sub>
+<sub>The published site before the current local redesign, captured October 3, 2026.</sub>
 
 ## My contribution
 
@@ -63,13 +63,15 @@ npm run build
 
 - `npm test` checks the content model, navigation shell, Work and About pages, case-study routes, factual guardrails, media references, and résumé integrity.
 - `npm run check` runs Astro and TypeScript diagnostics.
-- `npm run build` produces the static site in `dist/`.
+- `npm run build` generates eight project social cards, then produces the static site in `dist/`.
+
+Project covers show existing interface screens or research artifacts. Cover motion loads on hover or focus; case-study heroes provide a playback control. Theme choice follows the operating system until a visitor chooses light or dark. Page transitions, reveals, and cover depth respect reduced motion. Native navigation and content remain available without JavaScript.
 
 ## Current routes
 
 | Route | Purpose |
 |---|---|
-| `/` | Work page with the editorial introduction, experience, and five featured projects |
+| `/` | Work page with the editorial introduction, experience, and eight featured projects |
 | `/about` | HCI-focused biography, identity lanes, and the real-photo-only gallery |
 | `/work/[slug]` | Reusable evidence-led case-study page |
 | `/resume/kyresume.pdf` | Byte-for-byte copy of the supplied master résumé PDF |
@@ -124,3 +126,7 @@ University of Maryland, College Park
 [![LinkedIn: Kenneth Yeaher](https://img.shields.io/badge/LinkedIn-Kenneth_Yeaher-0A66C2?style=flat)](https://www.linkedin.com/in/kennethyeaher/)
 
 `Astro` · `TypeScript` · `Portfolio Design`
+
+## Deferred content
+
+Fun and Coursework remain deferred until their content and artifacts are assembled. Their pages and navigation entries are not part of this update. Annotation, comparison, and recorded video exhibits are supported by the media renderer; publish them only when the matching source material and authored explanation are available.
