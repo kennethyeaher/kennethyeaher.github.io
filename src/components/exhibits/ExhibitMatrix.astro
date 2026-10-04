@@ -1,0 +1,70 @@
+---
+// competitive matrix per figma 90:3020: a white card on the stage holding one real table, its first column
+// naming each row and one accent column (terpcare's opportunity) with a red header over pale cells.
+// the spec's red header (#e93c43) carries white 10px text at 4.04:1, so it deepens to #dc3139 (4.62:1).
+// annotations name a cell ("Weakness cell, Therapy apps row"); each box sits 2px inside that cell, and
+// its badge links to the note, so keyboard order follows the numbers down the column.
+import AnnotationFocus from "@/components/exhibits/AnnotationFocus.astro";
+
+interface Props {
+  id: string;
+  label: string;
+  columns: string[];
+  rows: string[][];
+  accent?: string;
+  /** column widths in figma pixels; the table is fixed so the card keeps figma's proportions. */
+  widths: number[];
+  annotations?: { num: string; target: string }[];
+}
+const { id, label, columns, rows, accent, widths, annotations = [] } = Astro.props;
+
+/** match "Weakness cell, Therapy apps row" to a column index and the row whose label holds that name. */
+const targets = annotations.map((annotation) => {
+  const [, column, row] = annotation.target.match(/^(.+?) cell, (.+) row$/)!;
+  const rowIndex = rows.findIndex(([name]) => name.toLowerCase().includes(row.toLowerCase()));
+  return { ...annotation, column: columns.findIndex((name) => name === column), row: rowIndex };
+});
+const noteFor = (row: number, column: number) => targets.find((target) => target.row === row && target.column === column);
+const accentIndex = columns.findIndex((name) => name === accent);
+---
+<div class="matrix-scroll" role="region" aria-labelledby={`${id}-matrix-label`} tabindex="0">
+  <div class="matrix-card">
+    <table class="matrix" style={`width: ${widths.reduce((sum, width) => sum + width, 0)}px`}>
+      <caption id={`${id}-matrix-label`}>{label}</caption>
+      <colgroup>{widths.map((width) => <col style={`width: ${width}px`} />)}</colgroup>
+      <thead>
+        <tr>{columns.map((column, index) => <th scope="col" class:list={[index === accentIndex && "is-accent"]}>{column}</th>)}</tr>
+      </thead>
+      <tbody>
+        {rows.map(([name, ...cells], rowIndex) => (
+          <tr>
+            <th scope="row">{name}</th>
+            {cells.map((cell, cellIndex) => {
+              const note = noteFor(rowIndex, cellIndex + 1);
+              return (
+                <td class:list={[cellIndex + 1 === accentIndex && "is-accent"]}>
+                  {cell}
+                  {note && <AnnotationFocus num={note.num} order={Number(note.num) - 1} onLight noteId={`${id}-note-${note.num}`} place="left: 2px; top: 2px; width: calc(100% - 4px); height: calc(100% - 4px)" />}
+                </td>
+              );
+            })}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</div>
+<style>
+  .matrix-scroll { overflow-x: auto; max-width: 100%; border-radius: 14px; }
+  .matrix-scroll:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+  /* the card keeps figma's colours in both themes: it is a white object on a dark stage. */
+  .matrix-card { width: max-content; padding: 28px; border-radius: 14px; background: #fff; box-shadow: 0 24px 48px rgb(3 13 26 / 40%); }
+  .matrix { border-collapse: collapse; table-layout: fixed; }
+  .matrix caption { padding-bottom: 16px; color: #6b6567; font: 10px / 13px var(--mono); letter-spacing: 0.08em; text-align: left; white-space: pre; }
+  .matrix th, .matrix td { position: relative; border-bottom: 1px solid #e6e1e2; text-align: left; vertical-align: top; }
+  .matrix thead th { padding: 10px 14px; background: #2e2b2c; color: #fff; font: 400 10px / 13px var(--mono); letter-spacing: 0.08em; text-transform: uppercase; }
+  .matrix thead th.is-accent { background: #dc3139; }
+  .matrix tbody th { padding: 16px 14px; color: #211f20; font: 500 14px / 1.4 var(--ui); }
+  .matrix tbody td { padding: 16px 14px; color: #3a3536; font: 15px / 1.4 var(--body); }
+  .matrix tbody td.is-accent { background: #fdf0f0; }
+</style>

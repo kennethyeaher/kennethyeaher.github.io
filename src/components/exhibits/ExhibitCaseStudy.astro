@@ -9,6 +9,7 @@ import ChapterLede from "@/components/exhibits/ChapterLede.astro";
 import ExhibitRows from "@/components/exhibits/ExhibitRows.astro";
 import ExhibitAuditCards from "@/components/exhibits/ExhibitAuditCards.astro";
 import ExhibitHeatmap from "@/components/exhibits/ExhibitHeatmap.astro";
+import ExhibitMatrix from "@/components/exhibits/ExhibitMatrix.astro";
 import ExhibitPair from "@/components/exhibits/ExhibitPair.astro";
 import ExhibitStates from "@/components/exhibits/ExhibitStates.astro";
 import ExhibitVisitMap from "@/components/exhibits/ExhibitVisitMap.astro";
@@ -130,6 +131,14 @@ function sectionFor(exhibit: any) {
               <>
                 <ExhibitStage palette={palette} size="wide" fit base={exhibit.base}>
                   <ExhibitHeatmap id={exhibit.id} panels={exhibit.panels} annotations={exhibit.annotations} />
+                </ExhibitStage>
+                {exhibit.notes && <Notes notes={exhibit.notes} idPrefix={exhibit.id} />}
+              </>
+            )}
+            {exhibit.kind === "matrix" && (
+              <>
+                <ExhibitStage palette={palette} size="wide" fit pad={exhibit.pad} base={exhibit.base} field={exhibit.field}>
+                  <ExhibitMatrix id={exhibit.id} label={exhibit.label} columns={exhibit.columns} rows={exhibit.rows} accent={exhibit.accent} widths={exhibit.widths} annotations={exhibit.annotations} />
                 </ExhibitStage>
                 {exhibit.notes && <Notes notes={exhibit.notes} idPrefix={exhibit.id} />}
               </>

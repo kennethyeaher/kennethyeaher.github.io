@@ -18,7 +18,7 @@ const slugs = [
   "sohive",
 ];
 // pages already moved to the v2 exhibit layout; the older cover and media checks skip them.
-const exhibitPages = new Set(["kairo-health", "usm-venture-benchmark", "ovara", "terpcarehub", "college-park-capstone", "frontground"]);
+const exhibitPages = new Set(["kairo-health", "usm-venture-benchmark", "ovara", "terpcarehub", "college-park-capstone", "frontground", "terpcare"]);
 const pages = new Map();
 
 before(() => {
@@ -331,4 +331,24 @@ test("Frontground renders the v2 exhibit layout from its prose mock", () => {
   assert.equal([...page.matchAll(/class="annotation annotation-leader is-vertical/g)].length, 1);
   assert.match(page, /What the interviews put on the first screen/);
   assert.match(page, /href="\/work\/terpcare"/);
+});
+
+test("TerpCare renders the v2 exhibit layout from its prose mock", () => {
+  const page = pages.get("terpcare");
+  const sectionIds = [...page.matchAll(/<section[^>]*\bid="([^"]+)"[^>]*data-case-section/g)].map((match) => match[1]);
+  assert.deepEqual(sectionIds, ["overview", "the-gap", "five-destinations", "core-flows", "reflection"]);
+  assert.match(page, /The strongest design move was connecting scattered moments/);
+  // the competitive matrix is one real table, its opportunity column accented, three weakness cells boxed.
+  assert.equal([...page.matchAll(/<table class="matrix"/g)].length, 1);
+  assert.match(page, /<th scope="col" class="is-accent"[^>]*>Opportunity<\/th>/);
+  assert.equal([...page.matchAll(/<td class="is-accent"/g)].length, 3);
+  for (const n of ["01", "02", "03"]) assert.match(page, new RegExp(`<li id="the-gap-note-${n}"`));
+  // the five destinations grid is a table with no accent stage, closed by its label and note, no cards.
+  assert.equal([...page.matchAll(/<th scope="col"[^>]*>\s*<span class="journey-number"/g)].length, 5);
+  assert.doesNotMatch(page, /<th scope="col" class="is-accent"[^>]*>\s*<span class="journey-number"/);
+  assert.match(page, /PERSISTENT BOTTOM NAVIGATION  ·  NOTIFICATIONS AND PROFILE SUPPORT CONTINUITY/);
+  // core flows: four phones, four boxes, every badge resolving to its note (three on the matrix, four here).
+  assert.equal([...page.matchAll(/data-device-frame="iphone"/g)].length, 7);
+  assertBadgesResolve(page, 7);
+  assert.match(page, /href="\/work\/sohive"/);
 });

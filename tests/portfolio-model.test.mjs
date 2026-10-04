@@ -291,7 +291,7 @@ test("unknown slugs fail closed", () => {
 });
 
 // pages on the v2 exhibit layout.
-const exhibitSlugs = ["kairo-health", "usm-venture-benchmark", "ovara", "terpcarehub", "college-park-capstone", "frontground"];
+const exhibitSlugs = ["kairo-health", "usm-venture-benchmark", "ovara", "terpcarehub", "college-park-capstone", "frontground", "terpcare"];
 
 // figma rails for pages whose spec export carries no chapter list, read from the frame's chapter rail.
 const figmaRails = {
@@ -335,6 +335,7 @@ test("exhibits are optional and only the converted pages opt in", () => {
   assert.deepEqual(getProjectBySlug("terpcarehub").exhibits.map(({ kind }) => kind), ["hero", "rows", "custom", "pair", "custom", "section"]);
   assert.deepEqual(getProjectBySlug("college-park-capstone").exhibits.map(({ kind }) => kind), ["hero", "heatmap", "stage", "journey", "section"]);
   assert.deepEqual(getProjectBySlug("frontground").exhibits.map(({ kind }) => kind), ["hero", "rows", "custom", "stage", "section", "section"]);
+  assert.deepEqual(getProjectBySlug("terpcare").exhibits.map(({ kind }) => kind), ["hero", "matrix", "journey", "stage", "section"]);
 });
 
 /** split prose into sentences, keeping decimals such as 0.91 and initials inside one sentence. */
@@ -343,7 +344,7 @@ function sentences(text) {
 }
 
 // pages built from their prose mock (figma section 07); every page joins as it is built.
-const ledeSlugs = ["kairo-health", "usm-venture-benchmark", "ovara", "terpcarehub", "college-park-capstone", "frontground"];
+const ledeSlugs = ["kairo-health", "usm-venture-benchmark", "ovara", "terpcarehub", "college-park-capstone", "frontground", "terpcare"];
 
 /** every lede sentence of a chapter; a prose chapter with no lede of its own reads its section text. */
 function ledeSentences(project, exhibit) {
@@ -371,7 +372,7 @@ test("every lede sentence on a converted page is that page's own copy", () => {
 // the "+ prose (mock)" frames in figma section 07, exported to .private/redesign-spec/prose.json, set each
 // page's rail, chapter heads and ledes.
 const prosePath = new URL("../.private/redesign-spec/prose.json", import.meta.url);
-const mockSlugs = ["kairo-health", "usm-venture-benchmark", "ovara", "terpcarehub", "college-park-capstone", "frontground"];
+const mockSlugs = ["kairo-health", "usm-venture-benchmark", "ovara", "terpcarehub", "college-park-capstone", "frontground", "terpcare"];
 
 test("converted pages follow their prose mock word for word", { skip: !existsSync(prosePath) && "prose export not present" }, () => {
   const mocks = JSON.parse(readFileSync(prosePath, "utf8"));
@@ -429,6 +430,7 @@ function assertMatchesSpec(slug) {
     }
     if (source.text) assert.deepEqual([built.text, built.footnote], [source.text, source.footnote]);
     if (source.captions && built.kind === "stage") assert.deepEqual(built.captions, source.captions);
+    if (source.matrix) assert.deepEqual({ label: built.label, columns: built.columns, rows: built.rows }, source.matrix);
     if (source.heatmap) assert.deepEqual(Object.fromEntries(built.panels.map(({ label, columns, rows }) => [label, { columns, rows }])), source.heatmap);
     if (source.figure) assert.deepEqual([built.figure.label, built.figure.caption, built.figure.src.endsWith("journey-tyler.png")], [source.figure.label, source.figure.caption, true]);
     if (source.journey) {

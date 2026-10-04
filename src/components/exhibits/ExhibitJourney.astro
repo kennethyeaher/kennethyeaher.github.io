@@ -6,9 +6,9 @@ import ExhibitStrip from "@/components/exhibits/ExhibitStrip.astro";
 interface Props {
   id: string;
   stages: string[];
-  accentStage?: string;
+  accentStage?: string | null;
   rows: { label: string; cells: string[] }[];
-  strip?: { label: string; highlight?: string; cards: string[][]; note?: string };
+  strip?: { label: string; highlight?: string; cards?: string[][]; note?: string };
   caption: string;
   /** label tones per row; names (capstone 90:2133) all read muted. */
   tones?: string[];

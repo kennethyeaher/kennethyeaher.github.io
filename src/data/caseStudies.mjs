@@ -39,12 +39,13 @@
  * @typedef {ExhibitBase & { kind: "rows", visuals: ExhibitVisual[], captions: ExhibitCaption[], annotations?: ExhibitAnnotation[], fields?: StageField[], base?: string }} RowsExhibit
  * @typedef {ExhibitBase & { kind: "pair", stages: { ratio?: string, base?: string, field?: StageField, visuals: ExhibitVisual[], annotations?: ExhibitAnnotation[] }[], captions: ExhibitCaption[] }} PairExhibit
  *   two stages side by side, each captioned; annotation theme on-light suits a pale stage.
- * @typedef {{ label: string, highlight?: string, cards: ([string, string, string] | [string, string, string, string])[], note?: string }} ExhibitStrip
- *   three part cards are a tier, a value and a route; four part cards add a commitment line.
- * @typedef {ExhibitBase & { kind: "journey", stages: string[], accentStage?: string, rows: { label: string, cells: string[] }[], strip?: ExhibitStrip, tones?: string[], figure?: ExhibitVisual & { label: string, caption: string } }} JourneyExhibit
+ * @typedef {{ label: string, highlight?: string, cards?: ([string, string, string] | [string, string, string, string])[], note?: string }} ExhibitStrip
+ *   three part cards are a tier, a value and a route; four part cards add a commitment line; a strip with no cards is a label and a note.
+ * @typedef {ExhibitBase & { kind: "journey", stages: string[], accentStage?: string | null, rows: { label: string, cells: string[] }[], strip?: ExhibitStrip, tones?: string[], figure?: ExhibitVisual & { label: string, caption: string } }} JourneyExhibit
  * @typedef {ExhibitBase & { kind: "heatmap", base?: string, panels: { label: string, columns: string[], rows: string[][] }[], annotations?: ExhibitAnnotation[], notes?: ExhibitNote[] }} HeatmapExhibit
  *   annotations here carry the spec's target ("PANEL, Row row" or "PANEL, Column column ...") instead of a box.
- * @typedef {ExhibitBase & { kind: "matrix", label: string, columns: string[], rows: string[][], annotations?: ExhibitAnnotation[], notes?: ExhibitNote[] }} MatrixExhibit
+ * @typedef {ExhibitBase & { kind: "matrix", label: string, columns: string[], rows: string[][], accent?: string, widths: number[], pad?: [number, number], base?: string, field?: StageField, annotations?: ExhibitAnnotation[], notes?: ExhibitNote[] }} MatrixExhibit
+ *   a table on a white card on a stage; accent names the highlighted column, widths are figma's column widths.
  * @typedef {ExhibitBase & { kind: "custom", graphic: "timeline" | "visit-map" | "audit-cards" | "artboard-count" | "states-grid", text: string, footnote?: string, tiles?: ExhibitVisual[], captions?: ExhibitCaption[], legend?: [string, string], categories?: string[] }} CustomExhibit
  * @typedef {ExhibitBase & { kind: "section", section: string }} SectionExhibit
  *   a rail chapter with no exhibit. its eyebrow, heading and lede come from the page's prose mock
@@ -1947,6 +1948,127 @@ export const caseStudies = [
       }),
       titlePlacement: "center",
     },
+    exhibits: /** @type {Exhibit[]} */ ([
+      {
+        kind: "hero", id: "overview", chapter: "Overview", figma: "74:1036",
+        eyebrow: "OVERVIEW",
+        heading: "A campus-specific entry point for finding mental-health support",
+        lede: [
+          "TerpCare began with a campus pattern: students may know support exists while still feeling unsure where to start, what is available, or how to ask for help. We explored how one university-specific product could make that first step feel more familiar.",
+          "The concept connects resource discovery, mood reflection, peer discussion, events, and messages within one UMD-branded experience.",
+          "We reviewed student stories, campus reporting, public conversations, counseling information, and mental-health product patterns. Three themes repeated: difficulty finding resources, concern about stigma, and the value of open discussion.",
+        ],
+        // figma 90:2979: red, gold and plum over the charcoal base.
+        base: "#211f20",
+        field: { width: 1116, height: 600, sigma: 55, circles: [{ x: 150, y: 110, r: 310, colour: "#E93C43", alpha: 0.7 }, { x: 1030, y: 570, r: 210, colour: "#FFCC1E", alpha: 0.4 }, { x: 750, y: 150, r: 250, colour: "#A93C52", alpha: 0.8 }] },
+        visuals: [
+          { src: "/images/work/terpcare/figma-discussion-recents.png", width: 430, height: 932, alt: "TerpCare discussion board on Recents, with peer posts tagged Need Support", frame: "iphone", rot: 6, at: { x: 15.2, y: 11.6, w: 27.3 } },
+          { src: "/images/work/terpcare/terpcare-mood-calendar.png", width: 426, height: 932, alt: "TerpCare mood calendar for April 2024, with today’s mood faces and a notes field", frame: "iphone", rot: -6, at: { x: 57.8, y: 11.7, w: 27.3 } },
+          { src: "/images/work/terpcare/terpcare-home.png", width: 426, height: 932, alt: "TerpCare home screen with a Good Morning, Terp greeting, important news, and upcoming events", frame: "iphone", rot: 0, at: { x: 38.7, y: 6.7, w: 22.6 } },
+        ],
+        kpi: { eyebrow: "PRODUCT SYSTEM", value: "15 screens", label: "mapped to five persistent destinations", at: { x: 5.4, y: 73.3 } },
+        metrics: [
+          { value: "15", label: "high-fidelity screens" },
+          { value: "5", label: "persistent product destinations" },
+          { value: "3", label: "support layers connected" },
+        ],
+      },
+      {
+        kind: "matrix", id: "the-gap", chapter: "The gap", figma: "74:1071",
+        eyebrow: "THE GAP",
+        heading: "The opportunity sat between therapy apps and campus information sites",
+        lede: [
+          "Focusing on University of Maryland students ages eighteen to twenty-two gave the team a concrete setting for decisions about language, visual familiarity, and the relationship between campus and outside support.",
+          "That comparison led to a combined strategy: campus resources, communication options, peer discussion, and repeatable mood reflection in one interface.",
+        ],
+        // figma 90:3015: a 1000 wide card 107 down and 58 in on a 1116 by 600 stage.
+        base: "#211f20",
+        field: { width: 1116, height: 600, sigma: 60, circles: [{ x: 120, y: 620, r: 320, colour: "#E93C43", alpha: 0.65 }, { x: 1100, y: 0, r: 200, colour: "#FFCC1E", alpha: 0.35 }, { x: 650, y: 450, r: 250, colour: "#A93C52", alpha: 0.75 }] },
+        pad: [9.59, 5.2],
+        label: "BRIEF COMPETITIVE ANALYSIS  ·  THREE KINDS OF SUPPORT STUDENTS ALREADY HAVE",
+        columns: ["Competitors", "Strengths", "Weakness", "Opportunity"],
+        accent: "Opportunity",
+        widths: [200, 230, 250, 264],
+        rows: [
+          ["Therapy apps", "Convenience and accessibility", "Lack of university specific resources, high costs", "Integrate university specific resources"],
+          ["UMD counseling centers", "Direct access to professional support", "Limited availability, potential stigma", "Complement in-person services with online resources, market these services to more UMD students"],
+          ["Mental health awareness campaigns", "Supports raising awareness", "Lack of continuous support, limited interactive features", "Offer an ongoing platform for discussions complementing awareness campaigns"],
+        ],
+        // native annotations name a cell of the rendered table rather than a box.
+        annotations: [
+          { type: "focus", num: "01", target: "Weakness cell, Therapy apps row" },
+          { type: "focus", num: "02", target: "Weakness cell, UMD counseling centers row" },
+          { type: "focus", num: "03", target: "Weakness cell, awareness campaigns row" },
+        ],
+        notes: [
+          { n: "01", title: "Convenient, but not campus", body: "Generic therapy apps offered convenience but lacked university context." },
+          { n: "02", title: "Support behind scattered paths", body: "Counseling centers offered institutional support while spreading information across service pages and appointment pathways." },
+          { n: "03", title: "Awareness without a relationship", body: "Awareness campaigns normalized conversation without creating an ongoing product relationship." },
+        ],
+      },
+      {
+        kind: "journey", id: "five-destinations", chapter: "Five destinations", figma: "74:1194",
+        eyebrow: "FIVE DESTINATIONS",
+        heading: "Five recurring destinations made support feel navigable",
+        lede: [
+          "The structure centers a home feed, campus resources, discussion, messages, and mood tracking. Persistent bottom navigation keeps destinations stable, while notifications and profile settings support continuity.",
+          "Home combines timely campus news and events with a welcome state, giving the product a recognizable daily entry point.",
+          "We sketched onboarding, profile setup, home, calendar, chat, campus resources, campaigns, discussion, notifications, and messaging before building in Figma. Seeing the screens together exposed repeated patterns and made navigation decisions easier to discuss.",
+        ],
+        // figma 90:3077 has no accent destination and reads every row label muted.
+        stages: ["01 Home", "02 Resources", "03 Discussion", "04 Messages", "05 Mood"],
+        accentStage: null,
+        tones: ["muted", "muted", "muted"],
+        rows: [
+          { label: "PRIMARY NEED", cells: ["Orient quickly", "Find support", "Hear from peers", "Continue privately", "Reflect over time"] },
+          { label: "CORE SURFACES", cells: ["News, campaigns, events", "Therapy, events, booking", "Recents, tags, create post", "Inbox, chat, notifications", "Calendar, mood, notes"] },
+          { label: "RETURN VALUE", cells: ["A timely campus starting point", "A path from discovery to action", "Shared language around experience", "Conversation continuity", "A personal pattern to revisit"] },
+        ],
+        strip: {
+          label: "PERSISTENT BOTTOM NAVIGATION  ·  NOTIFICATIONS AND PROFILE SUPPORT CONTINUITY",
+          note: "The fifteen supplied screens map back to these five destinations, keeping a broad feature set anchored to a small navigation model.",
+        },
+      },
+      {
+        kind: "stage", id: "core-flows", chapter: "Core flows", figma: "74:1169", size: "wide", ratio: "1116 / 620",
+        eyebrow: "CORE FLOWS",
+        heading: "The 15-screen product system turned the structure into a recognizable UMD product",
+        lede: [
+          "The collaborative prototype uses university colors, editorial imagery, and a consistent mobile frame. Home surfaces campus content; discussion gives peer conversation a place; the mood calendar turns reflection into a repeatable action.",
+          "I worked across research, wireframing, interface decisions, and prototype refinement, helping the team balance a broad feature set with a simple navigation model.",
+        ],
+        // figma 90:3139: the gap's field on a 620 tall stage.
+        base: "#211f20",
+        field: { width: 1116, height: 620, sigma: 60, circles: [{ x: 120, y: 620, r: 320, colour: "#E93C43", alpha: 0.65 }, { x: 1100, y: 0, r: 200, colour: "#FFCC1E", alpha: 0.35 }, { x: 650, y: 450, r: 250, colour: "#A93C52", alpha: 0.75 }] },
+        visuals: [
+          { src: "/images/work/terpcare/figma-discussion-recents.png", width: 430, height: 932, alt: "TerpCare discussion board on Recents, with peer posts tagged Need Support", frame: "iphone", at: { x: 2.7, y: 9, w: 22 } },
+          { src: "/images/work/terpcare/figma-discussion-create.png", width: 430, height: 932, alt: "TerpCare create discussion composer open over the discussion board, with a Tags control and a Post button", frame: "iphone", at: { x: 26.9, y: 9, w: 22 } },
+          { src: "/images/work/terpcare/figma-resources-therapy.png", width: 430, height: 932, alt: "TerpCare campus resources on the Therapy tab, with provider cards showing specialty, rating, and a link to availability", frame: "iphone", at: { x: 51.1, y: 9.7, w: 22 } },
+          { src: "/images/work/terpcare/figma-book-appointment.png", width: 430, height: 932, alt: "TerpCare booking screen showing a counselor’s photo, specialty, reviews, and an availability calendar", frame: "iphone", at: { x: 75.3, y: 9.7, w: 22 } },
+        ],
+        annotations: [
+          { type: "focus", num: "01", on: 0, at: { x: 8.9, y: 40.5, w: 18.7, h: 3.9 } },
+          { type: "focus", num: "02", on: 1, at: { x: 8.5, y: 35.2, w: 77.6, h: 31.5 } },
+          { type: "focus", num: "03", on: 2, at: { x: 8.9, y: 32.8, w: 81.7, h: 18.7 } },
+          { type: "focus", num: "04", on: 3, at: { x: 6.1, y: 66.1, w: 87.8, h: 25.6 } },
+        ],
+        notes: [
+          { n: "01", title: "Tags make posts scannable", body: "Tagged posts make peer experiences easier to scan." },
+          { n: "02", title: "A focused composer", body: "A focused composer supports topic, privacy, and support tagging." },
+          { n: "03", title: "Comparable provider cards", body: "Provider cards make campus and specialist options comparable." },
+          { n: "04", title: "One booking path", body: "Counselor context and calendar selection stay in one path." },
+        ],
+      },
+      {
+        kind: "section", id: "reflection", chapter: "Reflection", section: "reflection",
+        eyebrow: "REFLECTION",
+        heading: "The strongest design move was connecting scattered moments",
+        lede: [
+          "TerpCare taught me that a product opportunity can come from coordination rather than novelty. The value was in making separate campus resources, conversations, and routines feel like one understandable experience.",
+          "Working with three teammates sharpened how I explain rationale, negotiate ideas, and use a prototype as a shared object for decisions.",
+        ],
+      },
+    ]),
     links: [
       { label: "Open Figma design", href: "https://www.figma.com/design/msVNMnw3Pyj8Zzcpz3buRy/TerpCare?node-id=0-1&t=Dqkv1PrIWxuUQ1ab-1" },
       { label: "Open Figma prototype", href: "https://www.figma.com/proto/msVNMnw3Pyj8Zzcpz3buRy/TerpCare?content-scaling=fixed&kind=proto&node-id=79-129&scaling=scale-down&starting-point-node-id=79%3A129&t=QJ3fl96fAEi9nIuB-1" },
