@@ -2,6 +2,40 @@
  * Source-backed case-study narratives and media selected from Kenneth's
  * supplied decks, reports, research artifacts, code outputs, and Figma files.
  */
+
+/**
+ * v2 exhibit model. a case study with an exhibits array renders the exhibit
+ * layout; one without it renders exactly as before. copy inside exhibits is
+ * taken verbatim from .private/redesign-spec/v2-pages.json.
+ *
+ * @typedef {{ x: number, y: number, w: number, h?: number }} Box
+ *   a position as percentages of its host (stage or visual).
+ * @typedef {{
+ *   src: string, alt: string, width: number, height: number,
+ *   frame?: "image" | "iphone" | "browser", rot?: number, at?: Box, loop?: { src: string, poster: string }
+ * }} ExhibitVisual
+ * @typedef {{
+ *   type: "focus" | "leader" | "leader-vertical", num: string, label?: string,
+ *   on?: number, at?: Box, target?: string
+ * }} ExhibitAnnotation
+ *   on is the index of the visual the box sits on; native targets name a row or cell instead.
+ * @typedef {{ n: string, title: string, body: string }} ExhibitNote
+ * @typedef {{ tag?: string, title: string, body: string }} ExhibitCaption
+ * @typedef {{ eyebrow: string, value: string, label: string }} ExhibitKpi
+ * @typedef {{ id: string, chapter: string, figma?: string, eyebrow?: string, heading?: string }} ExhibitBase
+ * @typedef {ExhibitBase & { kind: "hero", visuals: ExhibitVisual[], kpi?: ExhibitKpi, metrics: { value: string, label: string }[] }} HeroExhibit
+ * @typedef {ExhibitBase & { kind: "stage", size: "wide" | "square" | "pair", ratio?: string, visuals: ExhibitVisual[], annotations?: ExhibitAnnotation[], notes?: ExhibitNote[], captions?: ExhibitCaption[] }} StageExhibit
+ * @typedef {ExhibitBase & { kind: "rows", visuals: ExhibitVisual[], captions: ExhibitCaption[], annotations?: ExhibitAnnotation[] }} RowsExhibit
+ * @typedef {ExhibitBase & { kind: "pair", stages: StageExhibit[], captions: ExhibitCaption[] }} PairExhibit
+ * @typedef {{ label: string, highlight?: string, cards: [string, string, string][], note?: string }} ExhibitStrip
+ * @typedef {ExhibitBase & { kind: "journey", stages: string[], accentStage?: string, rows: { label: string, cells: string[] }[], strip?: ExhibitStrip }} JourneyExhibit
+ * @typedef {ExhibitBase & { kind: "heatmap", panels: { label: string, columns: string[], rows: string[][] }[], annotations?: ExhibitAnnotation[], notes?: ExhibitNote[] }} HeatmapExhibit
+ * @typedef {ExhibitBase & { kind: "matrix", label: string, columns: string[], rows: string[][], annotations?: ExhibitAnnotation[], notes?: ExhibitNote[] }} MatrixExhibit
+ * @typedef {ExhibitBase & { kind: "custom", graphic: "timeline" | "visit-map" | "audit-cards" | "artboard-count", text: string, footnote?: string }} CustomExhibit
+ * @typedef {ExhibitBase & { kind: "section", section: string }} SectionExhibit
+ *   renders an existing narrative section, unchanged, as its own chapter.
+ * @typedef {HeroExhibit | StageExhibit | RowsExhibit | PairExhibit | JourneyExhibit | HeatmapExhibit | MatrixExhibit | CustomExhibit | SectionExhibit} Exhibit
+ */
 export const caseStudies = [
   {
     slug: "usm-venture-benchmark",
@@ -402,6 +436,103 @@ export const caseStudies = [
       titlePlacement: "center",
     },
     links: [{ label: "View source repository", href: "https://github.com/kennethyeaher/kairoHealth" }],
+    exhibits: /** @type {Exhibit[]} */ ([
+      {
+        kind: "hero", id: "overview", chapter: "Overview", figma: "61:946",
+        visuals: [
+          { src: "/images/work/kairo/kairo-rules-heatmap.png", width: 900, height: 1200, alt: "Regex field level F1 heatmap across noise tiers", rot: 6, at: { x: 13.4, y: 19.8, w: 30.5 } },
+          { src: "/images/work/kairo/kairo-llm-heatmap.png", width: 900, height: 1200, alt: "Language model field level F1 heatmap across noise tiers", rot: -6, at: { x: 58.1, y: 20, w: 30.5 } },
+          { src: "/images/work/kairo/kairo-form-clean.png", width: 1700, height: 2200, alt: "One generated pediatric triage form at clean quality", rot: 0, at: { x: 32.1, y: 8.7, w: 35.8 } },
+        ],
+        kpi: { eyebrow: "F1 AT HEAVY NOISE", value: "0.91 vs 0.86", label: "Model against regex, same Tesseract output" },
+        metrics: [
+          { value: "150", label: "synthetic documents" },
+          { value: "55 of 56", label: "disagreements the model won at heavy noise" },
+          { value: "0", label: "API calls needed to reproduce the results" },
+        ],
+      },
+      {
+        kind: "stage", id: "the-brief", chapter: "The brief", figma: "61:1002", size: "wide", ratio: "1116 / 680",
+        eyebrow: "THE BRIEF",
+        heading: "Thirty generated forms created a controlled clinical document set",
+        visuals: [{ src: "/images/work/kairo/kairo-form-clean.png", width: 1700, height: 2200, alt: "One generated pediatric triage form at clean quality", at: { x: 29.2, y: 5.9, w: 41.6 } }],
+        annotations: [
+          { type: "focus", num: "01", on: 0, at: { x: 8.2, y: 66.3, w: 69.4, h: 5.3 } },
+          { type: "focus", num: "02", on: 0, at: { x: 7.3, y: 36, w: 87.1, h: 7.7 } },
+          { type: "focus", num: "03", on: 0, at: { x: 52.2, y: 8.3, w: 39.7, h: 6.3 } },
+        ],
+        notes: [
+          { n: "01", title: "Triage colour decides the next four hours", body: "It decides whether a child goes to resuscitation now or waits four hours. An error rate does not describe that field. The direction of the error does." },
+          { n: "02", title: "Six vitals, calibrated by age band", body: "Ages come from a pediatric distribution, vitals sit in ranges calibrated by age band, and the triage class stays consistent with the vitals on the same form." },
+          { n: "03", title: "Checkbox fields carry the gap", body: "Triage colour, sex, and AM or PM carry 91 percent of the model’s advantage at heavy noise. Regex needs a legible mark next to a legible label, and rotation breaks that." },
+        ],
+      },
+      {
+        kind: "stage", id: "field-by-tier", chapter: "Field by tier", figma: "62:986", size: "wide", ratio: "1116 / 680",
+        eyebrow: "FIELD BY TIER",
+        heading: "A rules baseline and a zero shot model failed in different ways",
+        visuals: [
+          { src: "/images/work/kairo/kairo-rules-heatmap.png", width: 900, height: 1200, alt: "Regex field level F1 heatmap across noise tiers", at: { x: 10.6, y: 8.8, w: 37.6 } },
+          { src: "/images/work/kairo/kairo-llm-heatmap.png", width: 900, height: 1200, alt: "Language model field level F1 heatmap across noise tiers", at: { x: 51.8, y: 8.8, w: 37.6 } },
+        ],
+        annotations: [
+          { type: "focus", num: "01", on: 0, at: { x: 62.1, y: 3.9, w: 11.4, h: 89.3 } },
+          { type: "focus", num: "02", on: 1, at: { x: 72.1, y: 3.9, w: 11.4, h: 89.3 } },
+          { type: "focus", num: "03", on: 0, at: { x: 31.4, y: 47.9, w: 52.4, h: 7.5 } },
+        ],
+        notes: [
+          { n: "01", title: "Regex loses fields one at a time", body: "Label dependent fields drop away as OCR structure breaks. The patterns were tuned on clean OCR and left unchanged at every tier." },
+          { n: "02", title: "The model loses them all at once", body: "It holds more fields through heavy noise, then loses them all at once rather than one at a time." },
+          { n: "03", title: "A null triage colour is silent", body: "Regex returned nothing for triage colour on 29 of 30 heavy noise forms. A null does not announce itself. It becomes default routing further down the line." },
+        ],
+      },
+      {
+        kind: "journey", id: "a-scans-journey", chapter: "A scan’s journey", figma: "63:951",
+        eyebrow: "A SCAN’S JOURNEY",
+        heading: "Deployment routing turns document quality into a review decision",
+        stages: ["01 Paper form", "02 Photo", "03 OCR", "04 Quality score", "05 Extraction", "06 Triage gate"],
+        accentStage: "06",
+        rows: [
+          { label: "WHAT HAPPENS", cells: [
+            "A clinician fills the MSF Aweil pediatric triage form. Paper, carbon copied.",
+            "Photographed under whatever light the room had.",
+            "Tesseract reads the image after light grayscale and contrast preprocessing.",
+            "OCR quality scoring places the scan in a tier.",
+            "Regex patterns and a zero shot model each return fourteen fields.",
+            "Triage colour decides resuscitation now or a four hour wait.",
+          ] },
+          { label: "WHERE IT BREAKS", cells: [
+            "A photo of a paper form is a picture. Nobody can query it or chart a trend across it.",
+            "Rotation, blur, contrast loss, tint, and smudges. Five calibrated tiers model them.",
+            "Heavy images break labels and reading order.",
+            "The pipeline has no way to tell which regime a given scan is in.",
+            "From clean to heavy, regex recall fell from 0.90 to 0.77. The model held at 0.90.",
+            "At heavy noise two children marked RED came back YELLOW. Regex returned nothing on 29 of 30.",
+          ] },
+          { label: "DESIGN RESPONSE", cells: [
+            "Thirty generated forms give exact ground truth on all fourteen fields.",
+            "Next: a quality estimate at capture time, so a retake can happen while the patient is still there.",
+            "Both extractors read the same OCR output, so only the reader differs.",
+            "Document quality picks the extraction path, not one extractor for every scan.",
+            "Six tied fields stay on regex: deterministic, auditable, and offline. The other eight go to the model.",
+            "This one field never commits without a person confirming it.",
+          ] },
+        ],
+        strip: {
+          label: "ROUTING BY TIER  ·  F1, RULES / MODEL",
+          highlight: "Heavy",
+          cards: [
+            ["CLEAN", "0.93 / 0.91", "Rules-first extraction"],
+            ["MODERATE", "0.92 / 0.91", "Rules-first extraction"],
+            ["HEAVY", "0.86 / 0.91", "LLM extraction + field review"],
+            ["SEVERE", "0.58 / 0.67", "Manual review required"],
+            ["EXTREME", "0.00 / 0.02", "Reject or rescan"],
+          ],
+          note: "The routing recommendation follows the observed performance break across five controlled OCR conditions. The triage field never commits on its own.",
+        },
+      },
+      { kind: "section", id: "reflection", chapter: "Reflection", section: "reflection" },
+    ]),
     metrics: [
       { value: "150", label: "synthetic documents" },
       { value: "2 of 30", label: "heavy-noise under-triage errors" },

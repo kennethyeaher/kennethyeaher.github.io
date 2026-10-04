@@ -1,3 +1,4 @@
+import { existsSync, readFileSync } from "node:fs";
 import test from "node:test";
 import assert from "node:assert/strict";
 
@@ -9,6 +10,8 @@ import {
   profile,
   projects,
 } from "../src/data/portfolio.mjs";
+
+const specPath = new URL("../.private/redesign-spec/v2-pages.json", import.meta.url);
 
 const expectedOrder = [
   "usm-venture-benchmark",
@@ -285,4 +288,46 @@ test("unknown slugs fail closed", () => {
     () => getAdjacentProject("not-a-project", "next"),
     /Unknown project slug/,
   );
+});
+
+test("exhibits are optional and only Kairo opts in for now", () => {
+  for (const project of projects) {
+    if (project.slug === "kairo-health") continue;
+    assert.equal(project.exhibits, undefined, `${project.slug} should keep the current layout`);
+  }
+  const kairo = getProjectBySlug("kairo-health");
+  assert.deepEqual(kairo.exhibits.map(({ kind }) => kind), ["hero", "stage", "stage", "journey", "section"]);
+  assert.ok(kairo.sections.some(({ id }) => id === "reflection"));
+  for (const exhibit of kairo.exhibits) {
+    for (const visual of exhibit.visuals ?? []) {
+      assert.ok(visual.alt && visual.width > 0 && visual.height > 0, `${exhibit.id} visual needs alt and size`);
+    }
+    for (const annotation of exhibit.annotations ?? []) {
+      assert.ok(exhibit.notes.some(({ n }) => n === annotation.num), `${exhibit.id} annotation ${annotation.num} needs a note`);
+    }
+  }
+});
+
+test("Kairo exhibit copy matches the approved spec word for word", { skip: !existsSync(specPath) && "spec export not present" }, () => {
+  const spec = JSON.parse(readFileSync(specPath, "utf8")).pages.find(({ slug }) => slug === "kairo-health");
+  const kairo = getProjectBySlug("kairo-health");
+  const [hero, brief, tiers, journey] = kairo.exhibits;
+  const [specHero, specBrief, specTiers, specJourney] = spec.sections;
+
+  assert.deepEqual(hero.metrics.map(({ value, label }) => [value, label]), spec.metrics);
+  assert.deepEqual(hero.kpi, { eyebrow: specHero.kpi.eyebrow, value: specHero.kpi.value, label: specHero.kpi.label });
+  assert.deepEqual(kairo.exhibits.map(({ chapter }, index) => `0${index + 1} ${chapter}`), spec.chapters);
+  for (const [built, source] of [[brief, specBrief], [tiers, specTiers], [journey, specJourney]]) {
+    assert.equal(built.eyebrow, source.eyebrow);
+    assert.equal(built.heading, source.heading);
+    assert.equal(built.figma, source.id);
+  }
+  for (const [built, source] of [[brief, specBrief], [tiers, specTiers]]) {
+    assert.deepEqual(built.notes, source.notes);
+    assert.deepEqual(built.annotations.map(({ num, at }) => [num, at]), source.annotations.map(({ num, pct }) => [num, pct]));
+  }
+  assert.deepEqual(journey.stages, specJourney.journey.stages);
+  assert.equal(journey.accentStage, specJourney.journey.accentStage);
+  assert.deepEqual(Object.fromEntries(journey.rows.map(({ label, cells }) => [label, cells])), specJourney.journey.rows);
+  assert.deepEqual(journey.strip, specJourney.strip);
 });
