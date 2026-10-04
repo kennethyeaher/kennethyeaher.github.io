@@ -333,7 +333,7 @@ function sentences(text) {
 }
 
 // pages built from their prose mock (figma section 07); every page joins as it is built.
-const ledeSlugs = ["kairo-health", "usm-venture-benchmark"];
+const ledeSlugs = ["kairo-health", "usm-venture-benchmark", "ovara"];
 
 /** every lede sentence of a chapter; a prose chapter with no lede of its own reads its section text. */
 function ledeSentences(project, exhibit) {
@@ -361,7 +361,7 @@ test("every lede sentence on a converted page is that page's own copy", () => {
 // the "+ prose (mock)" frames in figma section 07, exported to .private/redesign-spec/prose.json, set each
 // page's rail, chapter heads and ledes.
 const prosePath = new URL("../.private/redesign-spec/prose.json", import.meta.url);
-const mockSlugs = ["kairo-health", "usm-venture-benchmark"];
+const mockSlugs = ["kairo-health", "usm-venture-benchmark", "ovara"];
 
 test("converted pages follow their prose mock word for word", { skip: !existsSync(prosePath) && "prose export not present" }, () => {
   const mocks = JSON.parse(readFileSync(prosePath, "utf8"));

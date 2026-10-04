@@ -363,6 +363,12 @@ export const caseStudies = [
     exhibits: /** @type {Exhibit[]} */ ([
       {
         kind: "hero", id: "overview", chapter: "Overview", figma: "55:662",
+        eyebrow: "OVERVIEW",
+        heading: "Patients were driving past closer options to reach a surgery center",
+        lede: [
+          "I worked as a healthcare data analyst for a consulting company that ran minimally invasive gynecologic surgery centers across several East Coast metros. The centers stayed full. Patients travelled in from well outside the metro, and specialty referrals were a normal part of the operating day. I wanted to know whether that was a local business pattern or a piece of something wider.",
+          "The data to answer it already exists. It sits in a federal provider registry of roughly eight million records, Census population tables, ZIP to county crosswalks, and HRSA shortage designations, and none of those sources agree on geography without work. Ovara is the pipeline I built to join them and the dashboard I built to read the result.",
+        ],
         visuals: [
           { src: "/images/work/ovara/ovara-dashboard-map-selected.png", width: 2880, height: 1800, alt: "Ovara county tier choropleth across 3,144 counties with a county tooltip, the five tier legend, and the selected county's detail bar", frame: "browser", url: "ovara · county level", priority: true, at: { x: 10.6, y: 12, w: 78.9 } },
           { src: "/images/work/ovara/ovara-dashboard-county-overview.png", width: 2880, height: 1800, alt: "Access deserts KPI from the live Ovara dashboard", crop: { x: 0.26667, y: 0.30667, w: 0.22639, h: 0.12667 }, at: { x: 68.1, y: 68.3, w: 26.9 } },
@@ -375,6 +381,10 @@ export const caseStudies = [
       },
       {
         kind: "rows", id: "the-dashboard", chapter: "The dashboard", figma: "55:677",
+        lede: [
+          "The reader I built this for is the person I used to hand analysis to, someone deciding where a multi site women's health group opens next. That person needs to compare two candidate counties, not admire a national pattern. The interface only partly serves them. It shows where supply is thin and leaves the ranking, the confidence, and the what if to the reader.",
+          "The pipeline runs in seventeen ordered stages, from pulling the NPPES weekly release through writing the dashboard exports. Critical stages abort the run so a later stage never reads a stale input, and reporting stages warn and continue so a chart bug does not look like a pipeline failure. Each stage writes a named artifact with a data dictionary beside it, so any figure on the dashboard can be traced back through the transformations to the federal file it came from.",
+        ],
         eyebrow: "THE DASHBOARD",
         heading: "Two grains, one interface, and a reset that always works",
         base: "#1e1538",
@@ -400,6 +410,11 @@ export const caseStudies = [
       },
       {
         kind: "stage", id: "the-finding", chapter: "The finding", figma: "56:708", size: "wide", ratio: "1116 / 640",
+        lede: [
+          "1,029 of 3,144 US counties have zero providers in any of the thirteen reproductive health taxonomy codes I track, and 10,917,875 people live in them. That is a direct count of registered providers against ACS county population, sorted into five tiers by fixed density thresholds. No model produces this number, and none of the three failures described later touch it.",
+          "The split matters as much as the count. Access deserts are 33 percent of counties and 3 percent of the population, which is what you would expect when the empty counties are rural. I think that is the honest way to state the finding. A headline that only says 1,029 counties invites the reader to picture a third of the country cut off from care, and the population column corrects that on sight.",
+          "The pattern is not regional either. At least one access desert appears in 43 states.",
+        ],
         eyebrow: "THE FINDING",
         heading: "1,029 counties have no reproductive health provider at all",
         visuals: [{ src: "/images/work/ovara/ovara-dashboard-map-selected.png", width: 2880, height: 1800, alt: "Ovara county tier choropleth across 3,144 counties with a county tooltip, the five tier legend, and the selected county's detail bar", frame: "browser", url: "ovara · county level", at: { x: 13.3, y: 10, w: 73.5 } }],
@@ -416,13 +431,38 @@ export const caseStudies = [
       },
       {
         kind: "custom", graphic: "audit-cards", id: "corrections", chapter: "Corrections", figma: "56:748",
+        lede: [
+          "I went back through this project to recompute every number I had already published. Three were wrong. Each one invalidated the fix before it, so they had to be worked in order.",
+          "Workforce composition does not explain state level provider density. Once the leaking feature was removed, cross validated R2 fell from +0.3253 to +0.1244 on a single feature, taxonomy diversity. The residual based state risk tiers this project started from have been retired. Ranking states by how far they fall below a prediction is not defensible when the prediction explains almost nothing.",
+          "Each of the three now has a test or a runtime guard that fails if it comes back.",
+        ],
         eyebrow: "CORRECTIONS",
         heading: "Three published numbers were wrong, and I found them by auditing my own work",
         text: "01 · Connecticut | 9 of 9 | planning regions reported as access deserts with zero providers | Mechanism | The ZIP to county crosswalk came from the 2020 ZCTA relationship file, a different vintage from the county layer. | Guard | A check that raises on a vintage mismatch. || 02 · Denominator | ×29 | the Atlanta metro population added once per county row | Mechanism | State population summed a metro table that carries the whole metro population on every county row. | Guard | A plausibility range on every state denominator. || 03 · Target leakage | +0.33 → +0.12 | cross validated R² once the leaking feature came out | Mechanism | growth_per_100k divides recent providers by state population, and those providers are a strict subset of the target. | Guard | A test that fails if the feature returns.",
         footnote: "The residents figure was overstated by 33 percent for as long as the Connecticut bug was live. That is the number I would have quoted in an interview.",
       },
-      { kind: "section", id: "design", chapter: "Design", section: "design" },
-      { kind: "section", id: "reflection", chapter: "Reflection", section: "reflection" },
+      {
+        kind: "section", id: "design", chapter: "Design", section: "design",
+        eyebrow: "DESIGN",
+        heading: "The interface has to make the uncertainty visible, not smooth it over",
+        lede: [
+          "A dashboard that presents a shaky model with the same visual confidence as a direct count is misleading by construction. Most of the interface decisions here came out of that one problem.",
+          "Colour carries the tier meaning, so it is defined once and shared. Access tiers use a single four step purple ramp that has to stay readable on the light basemap and on the dark plum panel, which pins its lightness window to roughly L 0.53 to 0.80 in OKLab and holds a minimum contrast of 1.78 on the light ground and 3.03 on the dark. Coral is reserved for one meaning, the access desert tier, so a reader who learns it on the map reads it correctly on every chart.",
+          "Colour alone was not enough in one case. Checking the taxonomy chart under simulated deuteranopia, two of the three category hues came out at a Delta E of 0.4, which is not a distinguishable difference. I regrouped the bars by category with spacing and a legend, so the grouping survives without colour at all. The tier chart carries the same redundancy in position and label.",
+          "The findings card under the county map used to state a conclusion the data did not always support, because it was written for one case and reused for the rest. It now branches on what the selected county actually holds, whether that is a desert, thin supply, or no shortage, and it flags weak registry coverage for that state. I believe that is the part of this project that would matter most in a real policy or clinical setting. A correct number with the wrong sentence attached is worse than no number.",
+        ],
+      },
+      {
+        kind: "section", id: "reflection", chapter: "Reflection", section: "reflection",
+        eyebrow: "REFLECTION",
+        heading: "The audit is the part I would defend in an interview",
+        lede: [
+          "The version of this project I submitted was wrong in three places, and it looked finished. All three defects passed a run, produced plausible output, and rendered cleanly. What caught them was recomputing published numbers from source instead of trusting the README, and asking of each feature whether it could contain the answer.",
+          "The lesson I took is narrower and more useful than being careful. A number needs a guard, not a comment. Connecticut was fixed by a check that raises on a vintage mismatch, the denominator by a plausibility range, and the leak by a test that fails if the feature returns. Those three guards are why I would put my name on the current numbers.",
+          "I also changed what I think a good result looks like here. The regression was the assignment, and it does not work. The count does, and it is the finding that has held through every correction. Reporting the model as a negative result and putting the county count in the headline is the version of this project I would want an analyst to inherit.",
+          "One gap I would not defend. I never put this in front of the person it was built for. Everything above is my judgment checked against data rather than against a user, and the difference shows in the product half of the project. There is no ranked shortlist, no confidence marker on a county where a single provider swings the rate, and no way to ask what two more providers would change. I would run that conversation before I added another chart.",
+        ],
+      },
     ]),
     links: [{ label: "View source repository", href: "https://github.com/kennethyeaher/inst737-final-project-kenneth-yeaher" }],
     metrics: [
