@@ -45,7 +45,7 @@ const { artifact } = Astro.props;
     margin: 42px 0 0;
     padding: clamp(22px, 3vw, 34px);
     border: 1px solid var(--rule);
-    background: #ffffff;
+    background: var(--surface);
   }
 
   figcaption p {
@@ -106,13 +106,13 @@ const { artifact } = Astro.props;
   }
 
   tbody td {
-    color: #596773;
+    color: var(--secondary);
     font-size: 14px;
     line-height: 1.4;
   }
 
   tbody tr:hover {
-    background: color-mix(in srgb, var(--accent-soft) 42%, #ffffff);
+    background: color-mix(in srgb, var(--accent-soft) 42%, var(--surface));
   }
 
   .artifact-note {
