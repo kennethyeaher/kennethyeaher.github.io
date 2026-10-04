@@ -16,8 +16,8 @@ export default {
       },
       fontFamily: {
         // editorial pairing with personality, not Inter or Roboto.
-        display: ['"Fraunces"', "Georgia", "serif"],
-        body: ['"Newsreader"', "Georgia", "serif"],
+        display: ['"Fraunces"', '"Fraunces Fallback Iowan"', '"Fraunces Fallback Georgia"', "Georgia", "serif"],
+        body: ['"Newsreader"', '"Newsreader Fallback Iowan"', '"Newsreader Fallback Georgia"', "Georgia", "serif"],
         mono: ['"JetBrains Mono"', "ui-monospace", "monospace"],
       },
       maxWidth: { prose: "68ch" },

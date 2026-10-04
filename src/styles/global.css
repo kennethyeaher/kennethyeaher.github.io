@@ -1,5 +1,42 @@
 @import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&family=JetBrains+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap");
 
+/* metric-matched fallbacks, so text keeps its line breaks when the web fonts swap in. widths were
+   measured in chrome over the site's own copy (newsreader at 18px, fraunces at 48px, where the
+   reflowing text sits) against each system serif; ascent and descent come from the font files' hhea
+   tables, divided by size-adjust. each face only applies where its local font is installed. */
+@font-face {
+  font-family: "Newsreader Fallback Iowan";
+  src: local("Iowan Old Style");
+  size-adjust: 89.56%;
+  ascent-override: 82.07%;
+  descent-override: 29.59%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: "Newsreader Fallback Georgia";
+  src: local("Georgia");
+  size-adjust: 90.83%;
+  ascent-override: 80.92%;
+  descent-override: 29.17%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: "Fraunces Fallback Iowan";
+  src: local("Iowan Old Style");
+  size-adjust: 99.92%;
+  ascent-override: 97.88%;
+  descent-override: 25.52%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: "Fraunces Fallback Georgia";
+  src: local("Georgia");
+  size-adjust: 101.34%;
+  ascent-override: 96.50%;
+  descent-override: 25.16%;
+  line-gap-override: 0%;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -24,8 +61,8 @@
   --on-annotate: #ffffff;
   /* the same colour lifted for small text that sits straight on a dark stage. */
   --color-annotate-on-stage: #fb8a5c;
-  --display: "Fraunces", "Iowan Old Style", Baskerville, Georgia, serif;
-  --body: "Newsreader", "Iowan Old Style", Georgia, serif;
+  --display: "Fraunces", "Fraunces Fallback Iowan", "Fraunces Fallback Georgia", "Iowan Old Style", Baskerville, Georgia, serif;
+  --body: "Newsreader", "Newsreader Fallback Iowan", "Newsreader Fallback Georgia", "Iowan Old Style", Georgia, serif;
   --mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
   --page-gutter: 24px;
   --content-max: 1800px;
