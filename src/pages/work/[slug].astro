@@ -1,9 +1,11 @@
 ---
 // Static, evidence-led case studies generated from one verified project model.
+// projects with an exhibits array use the v2 exhibit layout; the rest render as before.
 import Base from "@/layouts/Base.astro";
 import CaseStudyArtifact from "@/components/CaseStudyArtifact.astro";
 import CaseStudyMedia from "@/components/CaseStudyMedia.astro";
 import CaseStudyNav from "@/components/CaseStudyNav.astro";
+import ExhibitCaseStudy from "@/components/exhibits/ExhibitCaseStudy.astro";
 import ProjectCover from "@/components/ProjectCover.astro";
 import ProjectPager from "@/components/ProjectPager.astro";
 import {
@@ -32,6 +34,7 @@ const next = getAdjacentProject(project.slug, "next");
 
 <Base title={project.title} description={project.summary} image={`/images/social/${project.slug}.png`} imageAlt={`${project.title}, ${project.role}, ${project.year}`}>
   <div class="reading-progress" data-reading-progress aria-hidden="true" style={`--reading-accent: ${project.cover.palette[1]}`}><span></span></div>
+  {"exhibits" in project && project.exhibits ? <ExhibitCaseStudy project={project} next={next} /> : (
   <div class="case-shell">
     <CaseStudyNav chapters={project.sections} />
 
@@ -138,6 +141,7 @@ const next = getAdjacentProject(project.slug, "next");
       <ProjectPager previous={previous} next={next} />
     </article>
   </div>
+  )}
 </Base>
 
 <style>

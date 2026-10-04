@@ -17,8 +17,11 @@ interface Props {
   priority?: boolean;
   annotations?: { type: "focus" | "leader" | "leader-vertical"; num: string; label?: string; at?: Box }[];
   idPrefix?: string;
+  // overlay mode renders only the annotations, in the same box as the visual, so a page can emit
+  // them in note order and keep keyboard focus order matching the numbers.
+  overlay?: boolean;
 }
-const { visual, stageRatio, priority = false, annotations = [], idPrefix = "exhibit" } = Astro.props;
+const { visual, stageRatio, priority = false, annotations = [], idPrefix = "exhibit", overlay = false } = Astro.props;
 const frame = visual.frame ?? "image";
 
 /** height over width of the whole visual, including any device bezel or browser chrome. */
@@ -41,15 +44,24 @@ function placement(): string | undefined {
   return `left: ${centreX.toFixed(2)}%; top: ${centreY.toFixed(2)}%; width: ${width.toFixed(2)}%; rotate: ${-(visual.rot ?? 0)}deg`;
 }
 const style = placement();
+
+// webp copies at 480 and 960 wide come from scripts/build-exhibit-images.mjs; the png stays the fallback.
+const name = visual.src.split("/").pop()?.replace(/\.[^.]+$/, "");
+const srcset = [480, 960].map((width) => `/images/exhibits/sized/${name}-${width}.webp ${width}w`).join(", ");
+const share = visual.at ? (Number(style?.match(/width: ([\d.]+)%/)?.[1]) || visual.at.w) : 100;
+const sizes = `calc(min(1116px, 100vw - 48px) * ${(share / 100).toFixed(3)})`;
 ---
-<div class:list={["exhibit-visual", `visual-${frame}`, style && "is-placed"]} style={style} data-exhibit-visual>
-  {frame === "image" && (
+<div class:list={["exhibit-visual", `visual-${frame}`, style && "is-placed", overlay && "is-overlay"]} style={overlay ? `${style}; aspect-ratio: 1 / ${aspect()}` : style} data-exhibit-visual={overlay ? undefined : ""}>
+  {!overlay && frame === "image" && (
     visual.loop
       ? <div class="visual-sheet"><ExhibitLoop src={visual.loop.src} poster={visual.loop.poster} width={visual.width} height={visual.height} label={visual.alt} /></div>
-      : <img class="visual-sheet" src={visual.src} alt={visual.alt} width={visual.width} height={visual.height}
-          loading={priority ? "eager" : "lazy"} fetchpriority={priority ? "high" : "auto"} decoding="async" />
+      : <picture>
+          <source type="image/webp" srcset={srcset} sizes={sizes} />
+          <img class="visual-sheet" src={visual.src} alt={visual.alt} width={visual.width} height={visual.height}
+            loading={priority ? "eager" : "lazy"} fetchpriority={priority ? "high" : "auto"} decoding="async" />
+        </picture>
   )}
-  {frame !== "image" && (
+  {!overlay && frame !== "image" && (
     visual.loop
       ? <DeviceFrame frame={frame} src={visual.src} alt={visual.alt}><ExhibitLoop src={visual.loop.src} poster={visual.loop.poster} width={visual.width} height={visual.height} label={visual.alt} /></DeviceFrame>
       : <DeviceFrame frame={frame} src={visual.src} alt={visual.alt} width={visual.width} height={visual.height} priority={priority} />
@@ -65,6 +77,9 @@ const style = placement();
 <style>
   .exhibit-visual { position: relative; z-index: 1; }
   .exhibit-visual.is-placed { position: absolute; translate: -50% -50%; }
+  .exhibit-visual.is-overlay { z-index: 3; pointer-events: none; }
+  .is-overlay :global(.annotation-badge) { pointer-events: auto; }
+  .exhibit-visual picture { display: block; }
   .visual-sheet { display: block; width: 100%; height: auto; border-radius: 4px; box-shadow: 0 24px 48px rgb(3 13 26 / 45%); }
   .visual-sheet :global(video) { border-radius: 4px; }
 </style>

@@ -70,3 +70,17 @@ test("exhibit kit assets from the figma components ship as real files", () => {
     assert.match(svg, /<svg[^>]*width="11"/);
   }
 });
+
+test("every exhibit image ships its sized webp copies", () => {
+  for (const project of projects) {
+    for (const exhibit of project.exhibits ?? []) {
+      for (const visual of exhibit.visuals ?? []) {
+        const name = visual.src.split("/").pop().replace(/\.[^.]+$/, "");
+        for (const width of [480, 960]) {
+          const path = publicFile(`/images/exhibits/sized/${name}-${width}.webp`);
+          assert.ok(existsSync(path) && statSync(path).size > 0, `${name}-${width}.webp is missing`);
+        }
+      }
+    }
+  }
+});

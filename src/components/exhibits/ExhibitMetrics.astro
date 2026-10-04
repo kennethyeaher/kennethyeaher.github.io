@@ -1,0 +1,40 @@
+---
+// metric cards per figma 61:966. the leading number counts up once on first view; the final value
+// is what the server renders, so readers without scripts, or who prefer less motion, see it directly.
+interface Props {
+  metrics: { value: string; label: string }[];
+}
+const { metrics } = Astro.props;
+
+/** split a metric into its leading count and the text after it, such as 55 and " of 56". */
+function parts(value: string): { count?: number; rest: string } {
+  const match = value.match(/^(\d+)(.*)$/);
+  return match ? { count: Number(match[1]), rest: match[2] } : { rest: value };
+}
+---
+<dl class="exhibit-metrics" aria-label="Project evidence">
+  {metrics.map((metric) => {
+    const { count, rest } = parts(metric.value);
+    return (
+      <div class="metric">
+        <dt>{metric.label}</dt>
+        <dd>
+          <span class="metric-value">{metric.value}</span>
+          {count !== undefined && count > 0 && (
+            <span class="metric-count" aria-hidden="true" data-count-to={count} data-count-rest={rest}></span>
+          )}
+        </dd>
+      </div>
+    );
+  })}
+</dl>
+<style>
+  .exhibit-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; margin: 40px 0 0; padding: 0; }
+  .metric { display: flex; flex-direction: column-reverse; gap: 6px; padding: 20px; border: 1px solid var(--rule); background: var(--surface); }
+  .metric dt { color: var(--muted); font: 12px / 1.3 var(--mono); letter-spacing: -0.02em; text-transform: uppercase; }
+  .metric dd { position: relative; margin: 0; color: var(--ink-strong); font: 400 48px / 1.02 var(--display); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+  /* the counter sits over the final value, which keeps holding the space, so nothing shifts. */
+  .metric-count { position: absolute; inset: 0; }
+  .metric-count:empty { display: none; }
+  .metric dd:has(.metric-count:not(:empty)) .metric-value { visibility: hidden; }
+</style>

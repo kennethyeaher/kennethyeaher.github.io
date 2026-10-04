@@ -79,7 +79,8 @@ test("public case studies keep caveats and future-improvement notes out of the r
 });
 
 test("case-study covers show real exhibits with explicitly controlled motion", () => {
-  for (const html of pages.values()) {
+  for (const [slug, html] of pages) {
+    if (slug === "kairo-health") continue;
     assert.match(html, /data-project-cover/);
     assert.match(html, /class="cover-motion"/);
     assert.doesNotMatch(html, /autoplay/);
@@ -142,4 +143,29 @@ test("device exhibits preserve captions and source dimensions", () => {
     assert.match(html, /data-media-kind="device"/);
     assert.match(html, /width="\d+" height="\d+"/);
   }
+});
+
+test("Kairo renders the v2 exhibit layout from the approved spec", () => {
+  const kairo = pages.get("kairo-health");
+  for (const id of ["overview", "the-brief", "field-by-tier", "a-scans-journey", "reflection"]) {
+    assert.match(kairo, new RegExp(`<section[^>]*id="${id}"[^>]*data-case-section`));
+    assert.match(kairo, new RegExp(`href="#${id}"`));
+  }
+  assert.match(kairo, /view-transition-name: cover-kairo-health/);
+  assert.match(kairo, /view-transition-name: title-kairo-health/);
+  assert.match(kairo, /class="exhibit-stage stage-hero/);
+  assert.match(kairo, /0\.91 vs 0\.86/);
+  assert.match(kairo, /data-count-to="150"/);
+  assert.match(kairo, /data-count-to="55" data-count-rest=" of 56"/);
+  assert.match(kairo, /<table class="journey/);
+  assert.match(kairo, /<th scope="col" class="is-accent[^"]*"/);
+  assert.match(kairo, /href="\/work\/terpcarehub"/);
+  assert.match(kairo, /The useful finding was a workflow insight, not a winner/);
+  const badges = [...kairo.matchAll(/<a class="annotation-badge[^"]*" href="#([^"]+)" aria-describedby="([^"]+)"/g)];
+  assert.equal(badges.length, 6);
+  for (const [, href, describedBy] of badges) {
+    assert.equal(href, describedBy);
+    assert.match(kairo, new RegExp(`<li id="${describedBy}"`));
+  }
+  assert.doesNotMatch(kairo, /data-cover-video|\.mp4/);
 });

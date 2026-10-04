@@ -7,13 +7,18 @@ interface Chapter {
 
 interface Props {
   chapters: Chapter[];
+  variant?: "default" | "exhibit";
 }
 
-const { chapters } = Astro.props;
+const { chapters, variant = "default" } = Astro.props;
+// the exhibit rail (figma 61:921) numbers each chapter and marks the active one with a longer dash.
+const numbered = variant === "exhibit";
 ---
 
-<aside class="case-rail" aria-label="Case study navigation" data-case-nav>
-  <a class="back-link" href="/">Back to Work</a>
+<aside class:list={["case-rail", numbered && "is-numbered"]} aria-label="Case study navigation" data-case-nav>
+  {numbered
+    ? <a class="back-link" href="/" aria-label="Back to Work"><span aria-hidden="true">← </span>Back</a>
+    : <a class="back-link" href="/">Back to Work</a>}
   <ol>
     {
       chapters.map((chapter, index) => (
@@ -23,6 +28,7 @@ const { chapters } = Astro.props;
             data-section-link={chapter.id}
             aria-current={index === 0 ? "location" : undefined}
           >
+            {numbered && <span class="chapter-number">{String(index + 1).padStart(2, "0")}</span>}
             {chapter.label}
           </a>
         </li>
@@ -94,6 +100,24 @@ const { chapters } = Astro.props;
   .case-mobile-nav {
     display: none;
   }
+
+  .is-numbered .back-link { font-size: 12px; letter-spacing: -0.02em; }
+  .is-numbered ol { gap: 14px; margin-top: 22px; }
+  .is-numbered li a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--muted);
+    font: 12px / 1.3 var(--mono);
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+  }
+  .is-numbered li a::before { flex: none; width: 8px; height: 1.5px; content: ""; background: var(--rule); transition: width 240ms var(--ease-out), background-color 240ms ease; }
+  .is-numbered .chapter-number { margin-right: 6px; }
+  .is-numbered li a:hover,
+  .is-numbered li a:focus-visible,
+  .is-numbered li a[aria-current="location"] { transform: none; color: var(--ink-strong); }
+  .is-numbered li a[aria-current="location"]::before { width: 18px; background: var(--accent); }
 
   @media (max-width: 980px) {
     .case-rail {

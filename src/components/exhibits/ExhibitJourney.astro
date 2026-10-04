@@ -1,0 +1,88 @@
+---
+// journey map per figma 63:955: stage columns by labelled rows, one accent stage, then an optional
+// strip of cards (63:1021). it is tabular, so it renders as a real table that scrolls on small screens.
+interface Props {
+  id: string;
+  stages: string[];
+  accentStage?: string;
+  rows: { label: string; cells: string[] }[];
+  strip?: { label: string; highlight?: string; cards: [string, string, string][]; note?: string };
+  caption: string;
+}
+const { id, stages, accentStage, rows, strip, caption } = Astro.props;
+const columns = stages.map((stage) => {
+  const [number, ...name] = stage.split(" ");
+  return { number, name: name.join(" "), accent: number === accentStage };
+});
+// row labels in figma run muted, annotate, accent; further rows stay muted.
+const tones = ["muted", "annotate", "accent"];
+---
+<div class="journey-scroll" role="region" aria-label="Journey map, scrolls sideways on small screens" tabindex="0">
+  <table class="journey">
+    <caption id={`${id}-caption`} class="sr-only">{caption}</caption>
+    <thead>
+      <tr>
+        <td class="journey-corner"></td>
+        {columns.map((column) => (
+          <th scope="col" class:list={[column.accent && "is-accent"]}>
+            <span class="journey-number">{column.number}</span>
+            <span class="journey-stage">{column.name}</span>
+          </th>
+        ))}
+      </tr>
+    </thead>
+    <tbody>
+      {rows.map((row, index) => (
+        <tr>
+          <th scope="row" class={`tone-${tones[index] ?? "muted"}`}>{row.label}</th>
+          {row.cells.map((cell) => <td>{cell}</td>)}
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+{strip && (
+  <div class="journey-strip">
+    <p class="strip-label">{strip.label}</p>
+    <ul>
+      {strip.cards.map(([tier, value, route]) => (
+        <li class:list={[strip.highlight && tier.toLowerCase() === strip.highlight.toLowerCase() && "is-highlight"]}>
+          <span class="strip-tier">{tier}</span>
+          <span class="strip-value">{value}</span>
+          <span class="strip-route">{route}</span>
+        </li>
+      ))}
+    </ul>
+    {strip.note && <p class="strip-note">{strip.note}</p>}
+  </div>
+)}
+<style>
+  .journey-scroll { overflow-x: auto; border: 1px solid var(--rule); border-radius: 10px; background: var(--surface); box-shadow: 0 1px 2px rgb(13 20 31 / 4%); }
+  .journey-scroll:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .journey { width: 100%; min-width: 820px; border-collapse: collapse; table-layout: fixed; }
+  .journey th, .journey td { padding: 18px 16px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); text-align: left; vertical-align: top; }
+  .journey tr > :last-child { border-right: 0; }
+  .journey tbody tr:last-child > * { border-bottom: 0; }
+  .journey-corner, .journey thead th, .journey tbody th { background: var(--surface-sunken); }
+  .journey-corner { width: 116px; }
+  .journey thead th { font-weight: 400; }
+  .journey thead th.is-accent { box-shadow: inset 0 3px 0 var(--color-annotate); }
+  .journey-number { display: block; color: var(--muted); font: 10px / 1.3 var(--mono); letter-spacing: 0.08em; }
+  .is-accent .journey-number { color: var(--color-annotate); }
+  .journey-stage { display: block; margin-top: 8px; color: var(--ink-strong); font: 500 15px / 1.3 var(--ui); }
+  .journey tbody th { font: 400 10px / 1.5 var(--mono); letter-spacing: 0.08em; }
+  .tone-muted { color: var(--muted); }
+  .tone-annotate { color: var(--color-annotate); }
+  .tone-accent { color: var(--accent); }
+  .journey tbody td { color: var(--ink); font: 14px / 1.45 var(--body); }
+  .journey-strip { margin-top: 32px; }
+  .strip-label { margin: 0; color: var(--muted); font: 10px / 1.3 var(--mono); letter-spacing: 0.08em; white-space: pre-wrap; }
+  .journey-strip ul { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 14px 0 0; padding: 0; list-style: none; }
+  .journey-strip li { display: grid; gap: 6px; padding: 16px; border: 1px solid var(--rule); border-radius: 10px; background: var(--surface); }
+  .journey-strip li.is-highlight { padding: 15.5px; border: 1.5px solid var(--color-annotate); }
+  .strip-tier { color: var(--muted); font: 10px / 1.3 var(--mono); letter-spacing: 0.08em; }
+  .is-highlight .strip-tier { color: var(--color-annotate); }
+  .strip-value { color: var(--ink-strong); font: 400 24px / 1.2 var(--display); }
+  .strip-route { color: var(--ink); font: 500 13px / 1.4 var(--ui); }
+  .strip-note { max-width: 760px; margin: 14px 0 0; color: var(--secondary); font: 15px / 1.5 var(--body); }
+</style>

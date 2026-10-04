@@ -248,3 +248,37 @@ export function initializeAnnotationFallback(): void {
     observer.observe(stage);
   });
 }
+
+/** count each metric up once on first view; reduced motion and no script both keep the final value. */
+export function initializeMetricCounters(): void {
+  const counters = document.querySelectorAll<HTMLElement>("[data-count-to]");
+  if (!counters.length || window.matchMedia("(prefers-reduced-motion: reduce)").matches || !("IntersectionObserver" in window)) return;
+  /** render one frame of a counter, keeping any text after the number. */
+  function render(counter: HTMLElement, value: number): void {
+    counter.textContent = `${value}${counter.dataset.countRest ?? ""}`;
+  }
+  /** ease the count from zero to its target over about a second. */
+  function run(counter: HTMLElement): void {
+    const target = Number(counter.dataset.countTo);
+    const start = performance.now();
+    const duration = 900;
+    /** advance the count on each animation frame until it lands. */
+    function step(now: number): void {
+      const progress = Math.min(1, (now - start) / duration);
+      render(counter, Math.round(target * (1 - (1 - progress) ** 3)));
+      if (progress < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+  const observer = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      observer.unobserve(entry.target);
+      run(entry.target as HTMLElement);
+    }
+  }, { threshold: 0.6 });
+  counters.forEach((counter) => {
+    render(counter, 0);
+    observer.observe(counter);
+  });
+}
