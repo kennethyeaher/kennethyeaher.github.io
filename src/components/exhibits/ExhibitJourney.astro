@@ -10,14 +10,19 @@ interface Props {
   rows: { label: string; cells: string[] }[];
   strip?: { label: string; highlight?: string; cards: string[][]; note?: string };
   caption: string;
+  /** label tones per row; names (capstone 90:2133) all read muted. */
+  tones?: string[];
+  /** a full width image under the map with a label above and a line under it (capstone 90:2166). */
+  figure?: { src: string; alt: string; width: number; height: number; label: string; caption: string };
 }
-const { id, stages, accentStage, rows, strip, caption } = Astro.props;
+const { id, stages, accentStage, rows, strip, caption, tones: rowTones, figure } = Astro.props;
 const columns = stages.map((stage) => {
   const [number, ...name] = stage.split(" ");
   return { number, name: name.join(" "), accent: number === accentStage };
 });
 // row labels in figma run muted, annotate, accent; further rows stay muted.
-const tones = ["muted", "annotate", "accent"];
+const tones = rowTones ?? ["muted", "annotate", "accent"];
+const figureName = figure?.src.split("/").pop()?.replace(/\.[^.]+$/, "");
 ---
 <div class="journey-scroll" role="region" aria-label="Journey map, scrolls sideways on small screens" tabindex="0">
   <table class="journey">
@@ -44,7 +49,21 @@ const tones = ["muted", "annotate", "accent"];
   </table>
 </div>
 {strip && <ExhibitStrip strip={strip} />}
+{figure && (
+  <figure class="journey-figure">
+    <p class="figure-label">{figure.label}</p>
+    <picture>
+      <source type="image/webp" srcset={`/images/exhibits/sized/${figureName}-960.webp 960w`} sizes="min(1116px, 100vw - 48px)" />
+      <img src={figure.src} alt={figure.alt} width={figure.width} height={figure.height} loading="lazy" decoding="async" />
+    </picture>
+    <figcaption>{figure.caption}</figcaption>
+  </figure>
+)}
 <style>
+  .journey-figure { margin: 32px 0 0; }
+  .figure-label { margin: 0; color: var(--muted); font: 10px / 1.3 var(--mono); letter-spacing: 0.08em; white-space: pre-wrap; }
+  .journey-figure img { display: block; width: 100%; height: auto; margin-top: 14px; border: 1px solid var(--rule); border-radius: 6px; }
+  .journey-figure figcaption { max-width: 760px; margin-top: 14px; color: var(--secondary); font: 15px / 1.5 var(--body); }
   .journey-scroll { overflow-x: auto; border: 1px solid var(--rule); border-radius: 10px; background: var(--surface); box-shadow: 0 1px 2px rgb(13 20 31 / 4%); }
   .journey-scroll:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
   .journey { width: 100%; min-width: 820px; border-collapse: collapse; table-layout: fixed; }

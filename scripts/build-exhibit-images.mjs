@@ -14,7 +14,7 @@ function exhibitSources() {
   for (const project of caseStudies) {
     for (const exhibit of project.exhibits ?? []) {
       // visuals sit on the exhibit itself, on each stage of a pair, or are the tiles of a states grid.
-      const visuals = [...(exhibit.visuals ?? []), ...(exhibit.stages ?? []).flatMap((stage) => stage.visuals ?? []), ...(exhibit.tiles ?? [])];
+      const visuals = [...(exhibit.visuals ?? []), ...(exhibit.stages ?? []).flatMap((stage) => stage.visuals ?? []), ...(exhibit.tiles ?? []), ...(exhibit.figure ? [exhibit.figure] : [])];
       for (const visual of visuals) sources.add(visual.src);
     }
   }

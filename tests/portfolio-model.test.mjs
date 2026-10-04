@@ -291,7 +291,7 @@ test("unknown slugs fail closed", () => {
 });
 
 // pages on the v2 exhibit layout.
-const exhibitSlugs = ["kairo-health", "usm-venture-benchmark", "ovara", "terpcarehub"];
+const exhibitSlugs = ["kairo-health", "usm-venture-benchmark", "ovara", "terpcarehub", "college-park-capstone"];
 
 // figma rails for pages whose spec export carries no chapter list, read from the frame's chapter rail.
 const figmaRails = {
@@ -331,6 +331,7 @@ test("exhibits are optional and only the converted pages opt in", () => {
   assert.deepEqual(getProjectBySlug("usm-venture-benchmark").exhibits.map(({ kind }) => kind), ["hero", "stage", "stage", "journey", "section"]);
   assert.deepEqual(getProjectBySlug("ovara").exhibits.map(({ kind }) => kind), ["hero", "rows", "stage", "custom", "section", "section"]);
   assert.deepEqual(getProjectBySlug("terpcarehub").exhibits.map(({ kind }) => kind), ["hero", "rows", "custom", "pair", "custom", "section"]);
+  assert.deepEqual(getProjectBySlug("college-park-capstone").exhibits.map(({ kind }) => kind), ["hero", "heatmap", "stage", "journey", "section"]);
 });
 
 /** split prose into sentences, keeping decimals such as 0.91 and initials inside one sentence. */
@@ -339,7 +340,7 @@ function sentences(text) {
 }
 
 // pages built from their prose mock (figma section 07); every page joins as it is built.
-const ledeSlugs = ["kairo-health", "usm-venture-benchmark", "ovara", "terpcarehub"];
+const ledeSlugs = ["kairo-health", "usm-venture-benchmark", "ovara", "terpcarehub", "college-park-capstone"];
 
 /** every lede sentence of a chapter; a prose chapter with no lede of its own reads its section text. */
 function ledeSentences(project, exhibit) {
@@ -367,7 +368,7 @@ test("every lede sentence on a converted page is that page's own copy", () => {
 // the "+ prose (mock)" frames in figma section 07, exported to .private/redesign-spec/prose.json, set each
 // page's rail, chapter heads and ledes.
 const prosePath = new URL("../.private/redesign-spec/prose.json", import.meta.url);
-const mockSlugs = ["kairo-health", "usm-venture-benchmark", "ovara", "terpcarehub"];
+const mockSlugs = ["kairo-health", "usm-venture-benchmark", "ovara", "terpcarehub", "college-park-capstone"];
 
 test("converted pages follow their prose mock word for word", { skip: !existsSync(prosePath) && "prose export not present" }, () => {
   const mocks = JSON.parse(readFileSync(prosePath, "utf8"));
@@ -409,11 +410,13 @@ function assertMatchesSpec(slug) {
     if (source.notes) assert.deepEqual(built.notes, source.notes);
     if (source.annotations) {
       // a pair carries its annotations per stage; stage i holds the spec's visual i.
-      const annotations = built.annotations?.map((annotation) => ({ ...annotation, host: source.visuals[annotation.on].id }))
+      // a native annotation names a row or column of a rendered table; the rest sit on a visual.
+      const annotations = built.annotations?.map((annotation) => ({ ...annotation, host: annotation.target ? "native" : source.visuals[annotation.on].id }))
         ?? built.stages.flatMap((stage, index) => stage.annotations.map((annotation) => ({ ...annotation, host: source.visuals[index].id })));
       assert.deepEqual(annotations.map(({ num, at }) => [num, at]), source.annotations.map(({ num, pct }) => [num, pct]));
       assert.deepEqual(annotations.map(({ host }) => host), source.annotations.map(({ on }) => on));
       assert.deepEqual(annotations.map(({ label }) => label), source.annotations.map(({ label }) => label));
+      assert.deepEqual(annotations.map(({ target }) => target), source.annotations.map(({ target }) => target));
     }
     if (source.visuals && built.kind === "stage") assert.deepEqual(built.visuals.map(({ at }) => at), source.visuals.map(({ stagePct }) => stagePct));
     if (source.captions) {
@@ -421,6 +424,8 @@ function assertMatchesSpec(slug) {
       if (source.visuals) assert.equal((built.visuals ?? built.stages).length, source.visuals.length);
     }
     if (source.text) assert.deepEqual([built.text, built.footnote], [source.text, source.footnote]);
+    if (source.heatmap) assert.deepEqual(Object.fromEntries(built.panels.map(({ label, columns, rows }) => [label, { columns, rows }])), source.heatmap);
+    if (source.figure) assert.deepEqual([built.figure.label, built.figure.caption, built.figure.src.endsWith("journey-tyler.png")], [source.figure.label, source.figure.caption, true]);
     if (source.journey) {
       assert.deepEqual(built.stages, source.journey.stages);
       assert.equal(built.accentStage, source.journey.accentStage);

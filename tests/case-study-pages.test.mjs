@@ -18,7 +18,7 @@ const slugs = [
   "sohive",
 ];
 // pages already moved to the v2 exhibit layout; the older cover and media checks skip them.
-const exhibitPages = new Set(["kairo-health", "usm-venture-benchmark", "ovara", "terpcarehub"]);
+const exhibitPages = new Set(["kairo-health", "usm-venture-benchmark", "ovara", "terpcarehub", "college-park-capstone"]);
 const pages = new Map();
 
 before(() => {
@@ -282,4 +282,26 @@ test("TerpCareHub renders the v2 exhibit layout from its prose mock", () => {
   assert.equal([...page.matchAll(/<p class="state-name"/g)].length, 4);
   assert.match(page, /interface-state-degraded\.png/);
   assert.match(page, /href="\/work\/college-park-capstone"/);
+});
+
+test("the Capstone renders the v2 exhibit layout from its prose mock", () => {
+  const page = pages.get("college-park-capstone");
+  const sectionIds = [...page.matchAll(/<section[^>]*\bid="([^"]+)"[^>]*data-case-section/g)].map((match) => match[1]);
+  assert.deepEqual(sectionIds, ["overview", "the-survey", "the-persona", "three-journeys", "evidence"]);
+  assert.match(page, /What this research supports, and what it does not/);
+  // the heatmap is two real tables from the spec numbers, shaded by share.
+  assert.equal([...page.matchAll(/<table class="heatmap"/g)].length, 2);
+  assert.match(page, /<th scope="col"[^>]*>[\s\S]*?Students[\s\S]*?N = 23/);
+  assert.match(page, /<td[^>]*style="background: #3c82b1; color: #05101a"[^>]*>20 of 23<\/td>/);
+  assert.match(page, /<td class="is-empty"[^>]*>n\/a<\/td>/);
+  // native annotations sit on the row or column they name, and that header is described by its note.
+  assert.match(page, /<th scope="row" aria-describedby="the-survey-note-01"[^>]*>\s*Social media/);
+  assert.match(page, /<th scope="row" aria-describedby="the-survey-note-02"[^>]*>\s*None/);
+  assert.match(page, /<th scope="col" aria-describedby="the-survey-note-03"[^>]*>\s*<span class="heatmap-col"[^>]*>Residents/);
+  for (const n of ["01", "02", "03"]) assert.match(page, new RegExp(`<li id="the-survey-note-${n}"`));
+  // the persona keeps linked badges; the journey grid closes on tyler's map.
+  assertBadgesResolve(page, 3);
+  assert.match(page, /TYLER’S JOURNEY MAP  ·  FOUR STAGES, NO PLANNING, NO ARRIVAL/);
+  assert.match(page, /journey-tyler\.png/);
+  assert.match(page, /href="\/work\/frontground"/);
 });

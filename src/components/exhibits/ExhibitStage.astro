@@ -12,8 +12,10 @@ interface Props {
   base?: string;
   /** figma 90:1694: a white 10% to black 18% wash over the field, under the device. */
   veil?: boolean;
+  /** size to the content instead of a fixed ratio, padded as figma pads a card on a stage (73:1201). */
+  fit?: boolean;
 }
-const { palette, size, ratio, label, field: ownField, base, veil = false } = Astro.props;
+const { palette, size, ratio, label, field: ownField, base, veil = false, fit = false } = Astro.props;
 
 // circles lifted from the figma colour fields (hero 61:947, wide 61:1005), in 1116 wide stage pixels.
 const presets = {
@@ -47,7 +49,7 @@ function fieldLayer(circle: { x: number; y: number; r: number; colour: number | 
 }
 const field = (preset.circles as { x: number; y: number; r: number; colour: number | string; alpha: number }[]).map(fieldLayer).join(", ");
 ---
-<div class:list={["exhibit-stage", `stage-${size}`]} style={`--stage-ratio: ${ratio ?? defaultRatio}; --stage-base: ${base ?? palette[0]}`}
+<div class:list={["exhibit-stage", `stage-${size}`, fit && "stage-fit"]} style={`--stage-ratio: ${ratio ?? defaultRatio}; --stage-base: ${base ?? palette[0]}`}
   role={label ? "group" : undefined} aria-label={label}>
   <span class="stage-field" style={field ? `background-image: ${field}` : undefined} aria-hidden="true"></span>
   {veil && <span class="stage-veil" aria-hidden="true"></span>}
@@ -74,5 +76,8 @@ const field = (preset.circles as { x: number; y: number; r: number; colour: numb
     pointer-events: none;
   }
   .stage-field { position: absolute; z-index: 0; inset: 0; }
+  /* figma 90:2000 sits a 972 by 410 card 72 in and 115 down a 1116 stage; padding in % keeps that ratio. */
+  .stage-fit { display: grid; place-items: center; aspect-ratio: auto; padding: max(20px, 10.3%) max(12px, 6.45%); }
+  .stage-fit > :global(:not(.stage-field, .stage-veil)) { position: relative; z-index: 1; max-width: 100%; }
   .stage-veil { position: absolute; z-index: 0; inset: 0; background: linear-gradient(rgb(255 255 255 / 10%), rgb(0 0 0 / 18%)); }
 </style>

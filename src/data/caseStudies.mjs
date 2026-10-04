@@ -40,8 +40,9 @@
  *   two stages side by side, each captioned; annotation theme on-light suits a pale stage.
  * @typedef {{ label: string, highlight?: string, cards: ([string, string, string] | [string, string, string, string])[], note?: string }} ExhibitStrip
  *   three part cards are a tier, a value and a route; four part cards add a commitment line.
- * @typedef {ExhibitBase & { kind: "journey", stages: string[], accentStage?: string, rows: { label: string, cells: string[] }[], strip?: ExhibitStrip }} JourneyExhibit
- * @typedef {ExhibitBase & { kind: "heatmap", panels: { label: string, columns: string[], rows: string[][] }[], annotations?: ExhibitAnnotation[], notes?: ExhibitNote[] }} HeatmapExhibit
+ * @typedef {ExhibitBase & { kind: "journey", stages: string[], accentStage?: string, rows: { label: string, cells: string[] }[], strip?: ExhibitStrip, tones?: string[], figure?: ExhibitVisual & { label: string, caption: string } }} JourneyExhibit
+ * @typedef {ExhibitBase & { kind: "heatmap", base?: string, panels: { label: string, columns: string[], rows: string[][] }[], annotations?: ExhibitAnnotation[], notes?: ExhibitNote[] }} HeatmapExhibit
+ *   annotations here carry the spec's target ("PANEL, Row row" or "PANEL, Column column ...") instead of a box.
  * @typedef {ExhibitBase & { kind: "matrix", label: string, columns: string[], rows: string[][], annotations?: ExhibitAnnotation[], notes?: ExhibitNote[] }} MatrixExhibit
  * @typedef {ExhibitBase & { kind: "custom", graphic: "timeline" | "visit-map" | "audit-cards" | "artboard-count" | "states-grid", text: string, footnote?: string, tiles?: ExhibitVisual[], captions?: ExhibitCaption[] }} CustomExhibit
  * @typedef {ExhibitBase & { kind: "section", section: string }} SectionExhibit
@@ -1289,6 +1290,136 @@ export const caseStudies = [
       }),
       titlePlacement: "center",
     },
+    // figma's stage colours for the capstone (90:1996): deep navy under blue, gold and light blue.
+    stagePalette: ["#0B2C44", "#8DB8D9", "#1F6FA3", "#E5B545"],
+    exhibits: /** @type {Exhibit[]} */ ([
+      {
+        kind: "hero", id: "overview", chapter: "Overview", figma: "73:1005",
+        eyebrow: "OVERVIEW",
+        heading: "Making city communication easier to enter",
+        lede: [
+          "The City of College Park serves families, students, long-time residents, and bilingual households through many separate channels. Our capstone team studied how people discovered city programs, where communication lost momentum, and what would make participation feel more relevant.",
+          "As project manager, I led the client relationship with Assistant City Manager Bill Gardiner, coordinated our institutional advisors, and kept research, synthesis, and presentation work aligned with the city’s goals. The client team also included Katherine Garcia, the bilingual communications coordinator, and Ryna Quinones, the communications and events manager. Garcia’s title is the reason the bilingual access thread in this project was never incidental. The city already had someone responsible for it.",
+          "The engagement covered field research, a social-media audit, five personas, three journey maps, a final report, and an executive presentation. I translated that broad scope into weekly decisions, clarified ownership, and made sure each artifact answered a question the city could use.",
+        ],
+        visuals: [
+          { src: "/images/work/capstone/journey-jessica.png", width: 3551, height: 1649, alt: "Jessica’s journey map across five stages, Awareness, Planning, Arrival, Experience and Post-Event, with rows for touchpoints, user actions, goals, feelings, pain points and opportunities", rot: 5, at: { x: 3.6, y: 7.2, w: 50.2 } },
+          { src: "/images/work/capstone/journey-tyler.png", width: 3574, height: 1638, alt: "Tyler’s journey map across four stages, Curiosity, Exploration, Experience and Reflection, with rows for touchpoints, user actions, goals, feelings, pain points and opportunities", rot: -5, at: { x: 48.2, y: 50, w: 50.1 } },
+          { src: "/images/work/capstone/persona-maria.png", width: 2393, height: 1332, alt: "Maria persona card with photo, the label Spanish-Speaking Community Member, age 29, customer service representative, married with a four year old, Spanish first language with intermediate English, five years in College Park, a bio, and a seven axis personality scale", rot: 0, at: { x: 21.3, y: 20.3, w: 57.3 } },
+        ],
+        kpi: { eyebrow: "STUDENT SURVEY", value: "17 of 24", label: "followed none of the city’s accounts", at: { x: 5.4, y: 73.3 } },
+        metrics: [
+          { value: "17 of 24", label: "students followed no city channel" },
+          { value: "5", label: "personas from 33 responses and field interviews" },
+          { value: "3", label: "resident journey maps" },
+        ],
+      },
+      {
+        kind: "heatmap", id: "the-survey", chapter: "The survey", figma: "73:1067",
+        lede: [
+          "We combined the two surveys with contextual interviews at three city events: College Park Day, Good Neighbor Day, and Friday Night LIVE. Observing the experience in context showed the distance between publishing information and helping a resident act on it.",
+          "Interest was real and it was not universal. Fourteen students said they were somewhat interested in hearing more and two said very interested. Eight said they were not interested at all. That is a third of the cohort, and it puts a ceiling on what better communication alone can do.",
+          "The social media audit ran alongside the surveys and closed on six recommendations: accessibility, interactivity and community pride, broader and more balanced content, visual storytelling, cross promotion, and measurement.",
+        ],
+        eyebrow: "THE SURVEY",
+        heading: "Most students had never attended, and most followed nothing the city posts",
+        base: "#0b2c44",
+        panels: [
+          { label: "PREFERRED UPDATES", columns: ["Students · N = 23", "Residents · N = 9"], rows: [
+            ["Social media", "20 of 23", "3 of 9"],
+            ["Email", "9 of 23", "6 of 9"],
+            ["Text", "9 of 23", "5 of 9"],
+            ["Bulletins", "6 of 23", "4 of 9"],
+            ["Campus calendar", "4 of 23", "n/a"],
+          ] },
+          { label: "CHANNELS FOLLOWED", columns: ["Students · N = 24", "Residents · N = 9"], rows: [
+            ["None", "17 of 24", "4 of 9"],
+            ["Instagram", "7 of 24", "2 of 9"],
+            ["Twitter", "2 of 24", "2 of 9"],
+            ["Facebook", "1 of 24", "3 of 9"],
+          ] },
+        ],
+        // native annotations name a row or column of the rendered table rather than a box.
+        annotations: [
+          { type: "focus", num: "01", target: "PREFERRED UPDATES, Social media row" },
+          { type: "focus", num: "02", target: "CHANNELS FOLLOWED, None row" },
+          { type: "focus", num: "03", target: "PREFERRED UPDATES, Residents column including its header" },
+        ],
+        notes: [
+          { n: "01", title: "Two cohorts, opposite habits", body: "Twenty of twenty three students chose social media. The nine residents inverted it: six chose email, five text, three social. One channel strategy was never going to serve both groups." },
+          { n: "02", title: "Publishing where students are not", body: "Seventeen of twenty four students followed none of the city’s accounts. The city was publishing into a place these students were not standing." },
+          { n: "03", title: "Nine answers, not a rate", body: "Nine residents was enough to tell us which questions were worth asking. It is not enough to estimate how common an answer is across College Park." },
+        ],
+      },
+      {
+        kind: "stage", id: "the-persona", chapter: "The persona", figma: "73:1040", size: "wide", ratio: "1116 / 800",
+        lede: [
+          "Jessica, Alex, Priya, Tyler, and Maria stand for five different relationships to College Park: an engaged parent eight years in, a married graphic designer three years in with no children, an on-campus student leader, an off-campus junior, and a Spanish speaking mother of a four year old.",
+          "Each profile has two frames. The first carries the photograph, the basics, and a seven axis personality scale. The second carries motivations, frustrations, goals, preferred communication channels, and quotes. Both are on this page, because the second frame is where the research actually sits and showing only the first one would have been the flattering choice.",
+        ],
+        eyebrow: "THE PERSONA",
+        heading: "Five personas built from two surveys and a semester of conversations",
+        visuals: [
+          { src: "/images/work/capstone/persona-maria.png", width: 2393, height: 1332, alt: "Maria persona card with photo, the label Spanish-Speaking Community Member, age 29, customer service representative, married with a four year old, Spanish first language with intermediate English, five years in College Park, a bio, and a seven axis personality scale", at: { x: 21.3, y: 5, w: 57.3 } },
+          { src: "/images/work/capstone/persona-maria-detail.png", width: 2384, height: 1299, alt: "Maria detail panel listing motivations, frustrations, goals, preferred communication channels and three quotes", at: { x: 21.3, y: 51.5, w: 57.3 } },
+        ],
+        annotations: [
+          { type: "focus", num: "01", on: 0, at: { x: 56.6, y: 7.3, w: 40.3, h: 83.7 } },
+          { type: "focus", num: "02", on: 1, at: { x: 62.8, y: 14.3, w: 28.7, h: 7.4 } },
+          { type: "focus", num: "03", on: 1, at: { x: 60.3, y: 48.1, w: 36.9, h: 48.7 } },
+        ],
+        notes: [
+          { n: "01", title: "Not survey outputs", body: "Age, occupation, household, and the personality scales came from sixteen contextual interviews and the team’s reading of them, not from either survey." },
+          { n: "02", title: "A channel no survey offered", body: "Channel lists sit closest to the survey data, but only as cohort totals. Maria’s reaches past them: she prefers WhatsApp, which neither survey offered as an option." },
+          { n: "03", title: "Not a participant’s own words", body: "The sixteen contextual interviews were counted but never transcribed, so nothing on a card is a participant’s own words." },
+        ],
+      },
+      {
+        kind: "journey", id: "three-journeys", chapter: "Three journeys", figma: "73:1091",
+        lede: [
+          "All three maps carry the same six rows: touchpoints, user actions, goals, feelings, pain points, and opportunities. The stage columns are not shared. Jessica’s map runs Awareness, Planning, Arrival, Experience, Post-Event. Maria’s opens on Curiosity and closes on Reflection. Tyler’s has no Planning stage and no Arrival stage at all.",
+          "The opportunity rows converge even though the stages do not. Jessica’s asks for parking maps and activity schedules published on the event page. Tyler’s asks for posters, digital boards, and student newsletters on campus. Maria’s asks for promotional materials in Spanish, distributed through community hubs. Three residents, three versions of one request: make it findable before I am standing in front of it.",
+        ],
+        eyebrow: "THREE JOURNEYS",
+        heading: "Three residents, three different routes into the same kind of event",
+        stages: ["01 Stages on the map", "02 Where the journey starts", "03 First pain point", "04 Opportunity"],
+        accentStage: "04",
+        tones: ["muted", "muted", "muted"],
+        rows: [
+          { label: "JESSICA", cells: [
+            "Awareness, Planning, Arrival, Experience, Post-Event",
+            "A Facebook event page, a flyer at a local daycare, a friend",
+            "No detailed information about parking or an event schedule",
+            "Parking maps and activity schedules published on the event page",
+          ] },
+          { label: "TYLER", cells: [
+            "Curiosity, Exploration, Experience, Reflection",
+            "Music from City Hall, heard while walking down Knox Road",
+            "No central source. Unaware of the event until he stumbled onto it",
+            "Posters, digital boards, and student newsletters on campus",
+          ] },
+          { label: "MARIA", cells: [
+            "Curiosity, Planning, Arrival, Experience, Reflection",
+            "A flyer at her child’s school and a social media post in Spanish",
+            "Uncertainty about whether the event welcomed Spanish speaking families",
+            "Promotional materials in Spanish, distributed through community hubs",
+          ] },
+        ],
+        figure: { src: "/images/work/capstone/journey-tyler.png", width: 3574, height: 1638, alt: "Tyler’s journey map across four stages, Curiosity, Exploration, Experience and Reflection, with rows for touchpoints, user actions, goals, feelings, pain points and opportunities", label: "TYLER’S JOURNEY MAP  ·  FOUR STAGES, NO PLANNING, NO ARRIVAL", caption: "Tyler’s map has no Planning stage because Tyler did not plan. Three residents, three versions of one request: make it findable before I am standing in front of it." },
+      },
+      {
+        kind: "section", id: "evidence", chapter: "Evidence", section: "evidence",
+        eyebrow: "EVIDENCE",
+        heading: "What this research supports, and what it does not",
+        lede: [
+          "Twenty four students answered the campus survey and nine residents answered the resident one. Nine is small enough that I want to be precise about what it carries. It was enough to tell us which questions were worth asking. It is not enough to estimate how common an answer is across College Park, so the resident channel preferences on this page should be read as nine people’s answers rather than a rate.",
+          "Those nine also skew new. Four had lived in College Park between one and three years, two for less than a year, two for four to ten, and one for more than ten. The resident sample is mostly recent arrivals, which means it says least about the residents who have been here longest.",
+          "The personas rest on a narrower base than the word persona usually implies. The surveys measured channel preference by cohort, not by person, so no profile’s channel list is a respondent’s answer. The lists are consistent with the cohort totals, and one reaches past them: Maria prefers WhatsApp, which neither survey offered as an option. Age, occupation, household, and the personality scales are not survey outputs either. They came from sixteen contextual interviews at College Park Day, Good Neighbor Day, and Friday Night LIVE, none of which we transcribed. The count belongs in the report and it is not there.",
+          "The bigger gap is that none of this went back to the people it describes. We built five personas and three journey maps, presented them to the city, and handed them over. No resident ever saw the profile meant to represent them. Maria is the one I would fix first. She carries the project’s argument about bilingual access, her journey map is the most detailed of the three, and the resident survey never asked a single question about language. Katherine Garcia, the city’s bilingual communications coordinator, sat on the client team. Checking Maria against her reading was available to us and we did not do it.",
+          "What the work does support is narrower and still worth something. Twenty two of twenty four students had never attended a City of College Park event, a gap large enough that the direction is not in doubt even if the exact share is. The journey maps are honest reconstructions of three specific paths through one kind of event. The personas gave the city a shared vocabulary it did not have before. None of that needs a bigger sample to be useful. It needs me to say which claims rest on measurement and which rest on judgment.",
+        ],
+      },
+    ]),
     links: [
       {
         label: "Personas in FigJam",

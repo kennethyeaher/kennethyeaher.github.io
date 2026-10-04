@@ -74,7 +74,7 @@ test("exhibit kit assets from the figma components ship as real files", () => {
 test("every exhibit image ships its sized webp copies", () => {
   for (const project of projects) {
     for (const exhibit of project.exhibits ?? []) {
-      for (const visual of [...(exhibit.visuals ?? []), ...(exhibit.stages ?? []).flatMap((stage) => stage.visuals ?? []), ...(exhibit.tiles ?? [])]) {
+      for (const visual of [...(exhibit.visuals ?? []), ...(exhibit.stages ?? []).flatMap((stage) => stage.visuals ?? []), ...(exhibit.tiles ?? []), ...(exhibit.figure ? [exhibit.figure] : [])]) {
         const name = visual.src.split("/").pop().replace(/\.[^.]+$/, "");
         for (const width of [480, 960]) {
           const path = publicFile(`/images/exhibits/sized/${name}-${width}.webp`);

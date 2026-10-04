@@ -1,0 +1,109 @@
+---
+// survey heatmap per figma 90:2000, built in html from the spec numbers: one table per panel, each cell shaded
+// by its share on the cream, light blue, blue ramp (#f4e8c1, #8db8d9, #1f6fa3). the spec asks for white text
+// above 55 percent; each cell instead takes the first ink that reaches 4.5:1 on its shade.
+// annotations name a row or a column, so each box is drawn on that row's or column's header cell, and the
+// header is described by its note; the badge is a marker, which keeps keyboard order free of out of order numbers.
+import AnnotationFocus from "@/components/exhibits/AnnotationFocus.astro";
+
+interface Props {
+  id: string;
+  panels: { label: string; columns: string[]; rows: string[][] }[];
+  annotations?: { num: string; target: string }[];
+}
+const { id, panels, annotations = [] } = Astro.props;
+
+const stops: [number, number[]][] = [[0, [0xf4, 0xe8, 0xc1]], [0.5, [0x8d, 0xb8, 0xd9]], [1, [0x1f, 0x6f, 0xa3]]];
+/** the ramp colour for a share between 0 and 1, interpolated between the three figma stops. */
+function shade(share: number): string {
+  const upper = stops.findIndex(([at]) => at >= share);
+  const [a, from] = stops[Math.max(0, upper - 1)];
+  const [b, to] = stops[upper];
+  const k = b === a ? 0 : (share - a) / (b - a);
+  return `#${from.map((c, i) => Math.round(c + (to[i] - c) * k).toString(16).padStart(2, "0")).join("")}`;
+}
+/** relative luminance of a hex colour, per wcag. */
+function luminance(hex: string): number {
+  const channel = (i: number) => { const c = parseInt(hex.slice(1 + i * 2, 3 + i * 2), 16) / 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; };
+  return 0.2126 * channel(0) + 0.7152 * channel(1) + 0.0722 * channel(2);
+}
+/** the first ink that reaches 4.5:1 on a shade: white, the card's ink, then a deeper ink of the same hue. */
+function ink(shade: string): string {
+  const contrast = (a: string, b: string) => { const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x); return (hi + 0.05) / (lo + 0.05); };
+  return ["#ffffff", "#0f2233", "#05101a"].find((colour) => contrast(colour, shade) >= 4.5) ?? "#05101a";
+}
+/** read "20 of 23" as a share; anything else ("n/a") has none. */
+function share(value: string): number | undefined {
+  const match = value.match(/^(\d+) of (\d+)$/);
+  return match ? Number(match[1]) / Number(match[2]) : undefined;
+}
+/** match a spec target such as "PREFERRED UPDATES, Social media row" or "... Residents column including its header". */
+const targets = annotations.map((annotation) => {
+  const row = annotation.target.match(/^(.+?), (.+) row$/);
+  const column = annotation.target.match(/^(.+?), (\w+) column/);
+  return { ...annotation, panel: (row ?? column)![1], row: row?.[2], column: column?.[2] };
+});
+const rowNote = (panel: string, row: string) => targets.find((target) => target.panel === panel && target.row === row);
+const columnNote = (panel: string, column: string) => targets.find((target) => target.panel === panel && target.column === column);
+// rows are 49 tall with 8 between them under a 32 tall header; a column box covers the header and every row.
+const columnHeight = (rows: number) => 32 + rows * 57 + 4;
+---
+<div class="heatmap-scroll" role="region" aria-label="Survey heatmap, scrolls sideways on small screens" tabindex="0">
+  <div class="heatmap-card">
+    {panels.map((panel) => (
+      <table class="heatmap">
+        <caption>{panel.label}</caption>
+        <colgroup><col style="width: 130px" />{panel.columns.map(() => <col style="width: 140px" />)}</colgroup>
+        <thead>
+          <tr>
+            <td></td>
+            {panel.columns.map((column) => {
+              const [name, count] = column.split(" · ");
+              const note = columnNote(panel.label, name);
+              return (
+                <th scope="col" aria-describedby={note && `${id}-note-${note.num}`}>
+                  <span class="heatmap-col">{name}</span><span class="heatmap-n">{count}</span>
+                  {note && <AnnotationFocus num={note.num} order={Number(note.num) - 1} onLight place={`left: -6px; top: -6px; width: calc(100% + 12px); height: ${columnHeight(panel.rows.length)}px`} />}
+                </th>
+              );
+            })}
+          </tr>
+        </thead>
+        <tbody>
+          {panel.rows.map(([label, ...values]) => {
+            const note = rowNote(panel.label, label);
+            return (
+              <tr>
+                <th scope="row" aria-describedby={note && `${id}-note-${note.num}`}>
+                  {label}
+                  {note && <AnnotationFocus num={note.num} order={Number(note.num) - 1} onLight place={`left: -6px; top: -6px; width: ${130 + values.length * 146 + 12}px; height: calc(100% + 12px)`} />}
+                </th>
+                {values.map((value) => {
+                  const part = share(value);
+                  return part === undefined
+                    ? <td class="is-empty">{value}</td>
+                    : <td style={`background: ${shade(part)}; color: ${ink(shade(part))}`}>{value}</td>;
+                })}
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    ))}
+  </div>
+</div>
+<style>
+  .heatmap-scroll { overflow-x: auto; max-width: 100%; border-radius: 14px; }
+  .heatmap-scroll:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+  /* the card keeps figma's colours in both themes: it is a white object on a dark stage. */
+  .heatmap-card { display: flex; gap: 48px; width: max-content; padding: 36px 40px; border-radius: 14px; background: #fff; box-shadow: 0 24px 48px rgb(3 13 26 / 40%); }
+  .heatmap { width: 422px; margin: -8px -6px; border-collapse: separate; border-spacing: 6px 8px; table-layout: fixed; }
+  .heatmap caption { padding: 0 6px; color: #5d6b78; font: 10px / 1.3 var(--mono); letter-spacing: 0.08em; text-align: left; }
+  .heatmap th, .heatmap td { position: relative; padding: 0; text-align: left; }
+  .heatmap thead th { height: 32px; vertical-align: bottom; font-weight: 400; }
+  .heatmap-col { display: block; color: #0f2233; font: 500 13px / 1.3 var(--ui); }
+  .heatmap-n { display: block; margin-top: 2px; color: #5d6b78; font: 10px / 1.3 var(--mono); letter-spacing: 0.04em; }
+  .heatmap tbody th { height: 49px; color: #0f2233; font: 500 13px / 1.3 var(--ui); vertical-align: middle; }
+  .heatmap tbody td { height: 49px; padding: 0 12px; border-radius: 6px; color: #0f2233; font: 400 20px / 25px var(--display); }
+  .heatmap tbody td.is-empty { background: #eef2f4; color: #5d6b78; font: 11px / 1.3 var(--mono); }
+</style>

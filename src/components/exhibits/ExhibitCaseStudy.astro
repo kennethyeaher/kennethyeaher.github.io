@@ -8,6 +8,7 @@ import ExhibitJourney from "@/components/exhibits/ExhibitJourney.astro";
 import ChapterLede from "@/components/exhibits/ChapterLede.astro";
 import ExhibitRows from "@/components/exhibits/ExhibitRows.astro";
 import ExhibitAuditCards from "@/components/exhibits/ExhibitAuditCards.astro";
+import ExhibitHeatmap from "@/components/exhibits/ExhibitHeatmap.astro";
 import ExhibitPair from "@/components/exhibits/ExhibitPair.astro";
 import ExhibitStates from "@/components/exhibits/ExhibitStates.astro";
 import ExhibitTimeline from "@/components/exhibits/ExhibitTimeline.astro";
@@ -118,6 +119,14 @@ function sectionFor(exhibit: any) {
             {exhibit.kind === "rows" && (
               <ExhibitRows palette={palette} visuals={exhibit.visuals} captions={exhibit.captions} fields={exhibit.fields} base={exhibit.base} bases={exhibit.bases} veil={exhibit.veil} />
             )}
+            {exhibit.kind === "heatmap" && (
+              <>
+                <ExhibitStage palette={palette} size="wide" fit base={exhibit.base}>
+                  <ExhibitHeatmap id={exhibit.id} panels={exhibit.panels} annotations={exhibit.annotations} />
+                </ExhibitStage>
+                {exhibit.notes && <Notes notes={exhibit.notes} idPrefix={exhibit.id} />}
+              </>
+            )}
             {exhibit.kind === "pair" && (
               <ExhibitPair id={exhibit.id} palette={palette} stages={exhibit.stages} captions={exhibit.captions} />
             )}
@@ -131,7 +140,7 @@ function sectionFor(exhibit: any) {
               <ExhibitAuditCards text={exhibit.text} footnote={exhibit.footnote} />
             )}
             {exhibit.kind === "journey" && (
-              <ExhibitJourney id={exhibit.id} stages={exhibit.stages} accentStage={exhibit.accentStage} rows={exhibit.rows} strip={exhibit.strip} caption={exhibit.heading} />
+              <ExhibitJourney id={exhibit.id} stages={exhibit.stages} accentStage={exhibit.accentStage} rows={exhibit.rows} strip={exhibit.strip} caption={exhibit.heading} tones={exhibit.tones} figure={exhibit.figure} />
             )}
           </div>
         </section>
