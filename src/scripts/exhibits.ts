@@ -180,3 +180,52 @@ export function initializeCoverGradients(): void {
   });
   gradients.forEach((gradient) => observer.observe(gradient));
 }
+
+/** play each exhibit loop only while it is in view; a visitor pause sticks, and reduced motion keeps the poster. */
+export function initializeExhibitLoops(): void {
+  const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  document.querySelectorAll<HTMLElement>("[data-exhibit-loop]").forEach((loop) => {
+    const video = loop.querySelector("video");
+    const button = loop.querySelector<HTMLButtonElement>("[data-loop-toggle]");
+    if (!video || !button) return;
+    let visible = false;
+    let pausedByVisitor = false;
+    /** keep the control label in step with playback; the label alone carries the state. */
+    function updateButton(): void {
+      if (!button || !video) return;
+      button.hidden = motion.matches;
+      button.textContent = video.paused ? "Play loop" : "Pause loop";
+    }
+    /** start or stop playback from visibility, the visitor's choice, and the motion preference. */
+    function synchronize(): void {
+      if (!video) return;
+      if (!visible || pausedByVisitor || motion.matches || document.hidden) {
+        video.pause();
+        updateButton();
+        return;
+      }
+      const source = video.querySelector<HTMLSourceElement>("source[data-src]");
+      if (source && !source.hasAttribute("src")) {
+        source.src = source.dataset.src ?? "";
+        video.load();
+      }
+      video.play().catch(() => undefined).finally(updateButton);
+    }
+    button.addEventListener("click", () => {
+      pausedByVisitor = !video.paused;
+      if (!pausedByVisitor) visible = true;
+      synchronize();
+    });
+    video.addEventListener("play", updateButton);
+    video.addEventListener("pause", updateButton);
+    document.addEventListener("visibilitychange", synchronize);
+    motion.addEventListener("change", synchronize);
+    updateButton();
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver((entries) => {
+        visible = entries[0]?.isIntersecting ?? false;
+        synchronize();
+      }, { threshold: 0.35 }).observe(loop);
+    }
+  });
+}

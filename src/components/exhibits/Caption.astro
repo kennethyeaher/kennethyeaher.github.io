@@ -1,0 +1,21 @@
+---
+// exhibit caption per figma 50:578, with an optional media tag above the title.
+import MediaTag from "@/components/exhibits/MediaTag.astro";
+
+interface Props {
+  title: string;
+  body: string;
+  tag?: string;
+}
+const { title, body, tag } = Astro.props;
+---
+<div class="exhibit-caption">
+  {tag && <MediaTag text={tag} />}
+  <p class="caption-title">{title}</p>
+  <p class="caption-body">{body}</p>
+</div>
+<style>
+  .exhibit-caption { display: grid; justify-items: start; gap: 10px; max-width: 320px; }
+  .caption-title { margin: 0; color: var(--ink-strong); font: 400 24px / 30px var(--display); letter-spacing: -0.01em; }
+  .caption-body { margin: 0; color: var(--secondary); font: 16px / 24px var(--body); }
+</style>

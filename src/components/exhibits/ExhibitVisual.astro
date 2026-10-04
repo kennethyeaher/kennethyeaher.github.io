@@ -1,0 +1,60 @@
+---
+// one visual on a stage: a sheet image, an iphone or a browser, optionally playing a loop.
+// spec positions (at) are the figma bounding box as percentages of the stage, which for a
+// rotated visual is larger than the visual itself, so the unrotated size is solved here.
+import DeviceFrame from "@/components/DeviceFrame.astro";
+import ExhibitLoop from "@/components/exhibits/ExhibitLoop.astro";
+
+interface Box { x: number; y: number; w: number; h?: number }
+interface Props {
+  visual: {
+    src: string; alt: string; width: number; height: number;
+    frame?: "image" | "iphone" | "browser"; rot?: number; at?: Box; loop?: { src: string; poster: string };
+  };
+  stageRatio?: number;
+  priority?: boolean;
+}
+const { visual, stageRatio, priority = false } = Astro.props;
+const frame = visual.frame ?? "image";
+
+/** height over width of the whole visual, including any device bezel or browser chrome. */
+function aspect(): number {
+  if (frame === "iphone") return 620 / 300;
+  if (frame === "browser") return (40 + (880 * visual.height) / visual.width) / 880;
+  return visual.height / visual.width;
+}
+
+/** solve the unrotated box from the rotated figma bounding box and return inline placement styles. */
+function placement(): string | undefined {
+  if (!visual.at || !stageRatio) return undefined;
+  const turn = (Math.abs(visual.rot ?? 0) * Math.PI) / 180;
+  const ratio = aspect();
+  const width = visual.at.w / (Math.cos(turn) + ratio * Math.sin(turn));
+  const boundsHeight = width * (Math.sin(turn) + ratio * Math.cos(turn)) * stageRatio;
+  const centreX = visual.at.x + visual.at.w / 2;
+  const centreY = visual.at.y + boundsHeight / 2;
+  // figma measures rotation counterclockwise, css clockwise, so the sign flips.
+  return `left: ${centreX.toFixed(2)}%; top: ${centreY.toFixed(2)}%; width: ${width.toFixed(2)}%; rotate: ${-(visual.rot ?? 0)}deg`;
+}
+const style = placement();
+---
+<div class:list={["exhibit-visual", `visual-${frame}`, style && "is-placed"]} style={style} data-exhibit-visual>
+  {frame === "image" && (
+    visual.loop
+      ? <div class="visual-sheet"><ExhibitLoop src={visual.loop.src} poster={visual.loop.poster} width={visual.width} height={visual.height} label={visual.alt} /></div>
+      : <img class="visual-sheet" src={visual.src} alt={visual.alt} width={visual.width} height={visual.height}
+          loading={priority ? "eager" : "lazy"} fetchpriority={priority ? "high" : "auto"} decoding="async" />
+  )}
+  {frame !== "image" && (
+    visual.loop
+      ? <DeviceFrame frame={frame} src={visual.src} alt={visual.alt}><ExhibitLoop src={visual.loop.src} poster={visual.loop.poster} width={visual.width} height={visual.height} label={visual.alt} /></DeviceFrame>
+      : <DeviceFrame frame={frame} src={visual.src} alt={visual.alt} width={visual.width} height={visual.height} priority={priority} />
+  )}
+  <slot />
+</div>
+<style>
+  .exhibit-visual { position: relative; z-index: 1; }
+  .exhibit-visual.is-placed { position: absolute; translate: -50% -50%; }
+  .visual-sheet { display: block; width: 100%; height: auto; border-radius: 4px; box-shadow: 0 24px 48px rgb(3 13 26 / 45%); }
+  .visual-sheet :global(video) { border-radius: 4px; }
+</style>

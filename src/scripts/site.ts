@@ -1,4 +1,4 @@
-import { initializeTheme, initializeCoverMotion, initializeCoverGradients, initializeCoverDepth, initializeReadingProgress, initializeMediaControls } from "./exhibits";
+import { initializeTheme, initializeCoverMotion, initializeCoverGradients, initializeExhibitLoops, initializeCoverDepth, initializeReadingProgress, initializeMediaControls } from "./exhibits";
 
 /**
  * Initialize navigation, theme choice, motion, and exhibit controls.
@@ -10,6 +10,7 @@ function initializeSite(): void {
   initializeCoverDepth();
   initializeReadingProgress();
   initializeMediaControls();
+  initializeExhibitLoops();
 
   const toggle = document.querySelector<HTMLButtonElement>("[data-nav-toggle]");
   const links = document.querySelector<HTMLElement>("[data-nav-links]");

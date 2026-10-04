@@ -1,0 +1,25 @@
+---
+// the notes row under a stage. each note carries an id so its annotation badge can point at it.
+interface Props {
+  notes: { n: string; title: string; body: string }[];
+  idPrefix: string;
+}
+const { notes, idPrefix } = Astro.props;
+---
+<ol class="exhibit-notes">
+  {notes.map((note) => (
+    <li id={`${idPrefix}-note-${note.n}`}>
+      <span class="note-number">{note.n}</span>
+      <span class="note-title">{note.title}</span>
+      <p class="note-body">{note.body}</p>
+    </li>
+  ))}
+</ol>
+<style>
+  .exhibit-notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px 40px; margin: 32px 0 0; padding: 0; list-style: none; }
+  .exhibit-notes li { display: grid; align-content: start; gap: 6px; }
+  .note-number { color: var(--color-annotate); font: 10px / 1.3 var(--mono); letter-spacing: 0.06em; }
+  .note-title { color: var(--ink-strong); font: 500 15px / 20px var(--ui); }
+  .note-body { margin: 0; color: var(--secondary); font: 15px / 22px var(--body); }
+  .exhibit-notes li:target .note-title { text-decoration: underline; text-decoration-color: var(--color-annotate); text-underline-offset: 3px; }
+</style>

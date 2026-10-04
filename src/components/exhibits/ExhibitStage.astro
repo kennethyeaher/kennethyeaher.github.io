@@ -1,0 +1,66 @@
+---
+// exhibit stage per figma note 58:1100: a colour field from the project palette, a 1px inner hairline
+// and a 6px radius. the field is radial gradient falloff, not a filter blur, so it costs nothing to paint.
+interface Props {
+  palette: string[];
+  size: "hero" | "wide" | "square" | "pair";
+  ratio?: string;
+  label?: string;
+}
+const { palette, size, ratio, label } = Astro.props;
+
+// circles lifted from the figma colour fields (hero 61:947, wide 61:1005), in 1116 wide stage pixels.
+const presets = {
+  hero: { width: 1116, height: 600, sigma: 55, circles: [
+    { x: 150, y: 110, r: 310, colour: 2, alpha: 0.9 },
+    { x: 1030, y: 570, r: 210, colour: 3, alpha: 0.55 },
+    { x: 750, y: 150, r: 250, colour: 1, alpha: 0.9 },
+  ] },
+  wide: { width: 1116, height: 680, sigma: 60, circles: [
+    { x: 120, y: 620, r: 320, colour: 2, alpha: 0.85 },
+    { x: 1100, y: 0, r: 200, colour: 3, alpha: 0.5 },
+    { x: 650, y: 450, r: 250, colour: 1, alpha: 0.85 },
+  ] },
+};
+const preset = size === "hero" ? presets.hero : presets.wide;
+const defaultRatio = { hero: "1116 / 600", wide: "1116 / 680", square: "1 / 1", pair: "534 / 560" }[size];
+
+/** turn one blurred figma circle into a radial gradient sized in stage widths (cqw). */
+function fieldLayer(circle: (typeof preset.circles)[number]): string {
+  const colour = palette[circle.colour] ?? palette[palette.length - 1];
+  const unit = (px: number) => `${((px / preset.width) * 100).toFixed(2)}cqw`;
+  const spread = preset.sigma * 1.6;
+  const at = `${((circle.x / preset.width) * 100).toFixed(1)}% ${((circle.y / preset.height) * 100).toFixed(1)}%`;
+  const solid = `color-mix(in oklab, ${colour} ${Math.round(circle.alpha * 100)}%, transparent)`;
+  const half = `color-mix(in oklab, ${colour} ${Math.round(circle.alpha * 50)}%, transparent)`;
+  return `radial-gradient(circle at ${at} var(--in-oklab), ${solid} 0, ${solid} ${unit(Math.max(0, circle.r - spread))}, ${half} ${unit(circle.r)}, transparent ${unit(circle.r + spread)})`;
+}
+const field = preset.circles.map(fieldLayer).join(", ");
+---
+<div class:list={["exhibit-stage", `stage-${size}`]} style={`--stage-ratio: ${ratio ?? defaultRatio}; --stage-base: ${palette[0]}`}
+  role={label ? "group" : undefined} aria-label={label}>
+  <span class="stage-field" style={`background-image: ${field}`} aria-hidden="true"></span>
+  <slot />
+</div>
+<style>
+  .exhibit-stage {
+    position: relative;
+    container-type: inline-size;
+    overflow: hidden;
+    width: 100%;
+    aspect-ratio: var(--stage-ratio);
+    border-radius: 6px;
+    background: var(--stage-base);
+    isolation: isolate;
+  }
+  .exhibit-stage::after {
+    position: absolute;
+    z-index: 10;
+    inset: 0;
+    content: "";
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 10%);
+    pointer-events: none;
+  }
+  .stage-field { position: absolute; z-index: 0; inset: 0; }
+</style>

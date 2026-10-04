@@ -1,26 +1,48 @@
 ---
+// one frame system for every device: the older phone, tablet, laptop and sheet frames,
+// plus the v2 iphone (figma 50:533) and browser (figma 50:541) frames used on exhibit stages.
 interface Props {
-  frame?: "phone" | "tablet" | "laptop" | "sheet";
+  frame?: "phone" | "tablet" | "laptop" | "sheet" | "iphone" | "browser";
   src: string;
   alt: string;
   width?: number;
   height?: number;
   priority?: boolean;
   decorative?: boolean;
+  url?: string;
 }
-const { frame = "tablet", src, alt, width, height, priority = false, decorative = false } = Astro.props;
+const { frame = "tablet", src, alt, width, height, priority = false, decorative = false, url = "kennethyeaher.github.io" } = Astro.props;
+const hasScreen = Astro.slots.has("default");
 ---
 <div class:list={["device-frame", `frame-${frame}`]} data-device-frame={frame}>
   {frame === "laptop" && <div class="device-toolbar" aria-hidden="true"><i></i><i></i><i></i></div>}
+  {frame === "browser" && (
+    <div class="browser-chrome" aria-hidden="true">
+      <img class="browser-light" src="/images/exhibits/browser-light-red.svg" alt="" width="11" height="11" />
+      <img class="browser-light" src="/images/exhibits/browser-light-yellow.svg" alt="" width="11" height="11" />
+      <img class="browser-light" src="/images/exhibits/browser-light-green.svg" alt="" width="11" height="11" />
+      <span class="browser-address">{url}</span>
+    </div>
+  )}
+  {frame === "iphone" && <>
+    <span class="iphone-island" aria-hidden="true"></span>
+    <span class="iphone-button is-action" aria-hidden="true"></span>
+    <span class="iphone-button is-up" aria-hidden="true"></span>
+    <span class="iphone-button is-down" aria-hidden="true"></span>
+    <span class="iphone-button is-side" aria-hidden="true"></span>
+    <span class="iphone-home" aria-hidden="true"></span>
+  </>}
   <div class="device-screen">
-    <img src={src} alt={decorative ? "" : alt} width={width} height={height}
-      loading={priority ? "eager" : "lazy"} fetchpriority={priority ? "high" : "auto"} decoding="async" />
+    {hasScreen ? <slot /> : (
+      <img src={src} alt={decorative ? "" : alt} width={width} height={height}
+        loading={priority ? "eager" : "lazy"} fetchpriority={priority ? "high" : "auto"} decoding="async" />
+    )}
   </div>
 </div>
 <style>
   .device-frame { width: 100%; padding: 10px; border: 1px solid #48515d; border-radius: 24px; background: #18202a; box-shadow: 0 16px 36px rgb(0 0 0 / 18%); }
   .device-screen { overflow: hidden; border-radius: 15px; background: #fff; }
-  .device-screen img { display: block; width: 100%; height: auto; }
+  .device-screen img, .device-screen :global(video) { display: block; width: 100%; height: auto; }
   .frame-phone { max-width: 390px; margin-inline: auto; padding: 8px; border-radius: 28px; }
   .frame-phone .device-screen { border-radius: 20px; }
   .frame-laptop { padding: 7px; border-radius: 12px; }
@@ -29,4 +51,43 @@ const { frame = "tablet", src, alt, width, height, priority = false, decorative 
   .device-toolbar i { width: 5px; height: 5px; border-radius: 50%; background: #8792a0; }
   .frame-sheet { padding: 0; border-radius: 3px; border-color: var(--rule); background: var(--surface); }
   .frame-sheet .device-screen { border-radius: 2px; }
+
+  /* iphone, 300 by 620 in figma. inner lengths are shares of the frame width (cqw) so it scales;
+     the frame's own radius uses percentages because cqw there would read an ancestor. */
+  .frame-iphone {
+    position: relative;
+    container-type: inline-size;
+    aspect-ratio: 300 / 620;
+    padding: 0;
+    border: 1.5px solid #3d424a;
+    border-radius: 16.667% / 8.065%;
+    background: #0d0f12;
+    box-shadow: none;
+    filter: drop-shadow(0 2px 3px rgb(0 0 0 / 14%)) drop-shadow(0 28px 28px rgb(0 0 0 / 22%));
+  }
+  .frame-iphone .device-screen { position: absolute; inset: 2.5cqw; border-radius: 14cqw; background: #edf0f2; }
+  .frame-iphone .device-screen img, .frame-iphone .device-screen :global(video) { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+  .iphone-island { position: absolute; z-index: 1; top: 5.333cqw; left: 50%; width: 28cqw; height: 8cqw; translate: -50% 0; border-radius: 4cqw; background: #000; }
+  .iphone-home { position: absolute; z-index: 1; bottom: 6cqw; left: 50%; width: 32cqw; height: 1.333cqw; translate: -50% 0; border-radius: 1cqw; background: #000; opacity: 0.55; }
+  .iphone-button { position: absolute; width: 1cqw; border-radius: 0.5cqw; background: #333840; }
+  .iphone-button.is-action { top: 39cqw; left: -1.667cqw; height: 9.333cqw; }
+  .iphone-button.is-up { top: 55cqw; left: -1.667cqw; height: 17.333cqw; }
+  .iphone-button.is-down { top: 75.667cqw; left: -1.667cqw; height: 17.333cqw; }
+  .iphone-button.is-side { top: 59cqw; right: -0.667cqw; height: 28cqw; }
+
+  /* browser, a 40 px chrome bar over an 880 by 550 screen in figma. */
+  .frame-browser {
+    position: relative;
+    container-type: inline-size;
+    overflow: hidden;
+    padding: 0;
+    border: 1px solid rgb(0 0 0 / 10%);
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 1px 3px rgb(0 0 0 / 10%), 0 30px 60px -10px rgb(13 20 31 / 20%);
+  }
+  .browser-chrome { position: relative; display: flex; align-items: center; gap: 7px; height: 4.545cqw; padding-left: 1.818cqw; border-bottom: 1px solid rgb(0 0 0 / 7%); background: #f6f7f9; }
+  .browser-light { width: max(6px, 1.25cqw); height: auto; }
+  .browser-address { position: absolute; top: 50%; left: 50%; display: grid; place-items: center; width: 38.6cqw; height: 2.727cqw; translate: -50% -50%; border: 1px solid rgb(0 0 0 / 6%); border-radius: 6px; background: #fff; color: #6b7580; font: max(8px, 1.364cqw) / 1 var(--ui); white-space: nowrap; }
+  .frame-browser .device-screen { border-radius: 0; background: #edf0f2; }
 </style>

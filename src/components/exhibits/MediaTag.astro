@@ -1,0 +1,24 @@
+---
+// media tag per figma 50:584, marking a stage that ships as a looping muted clip.
+interface Props {
+  text: string;
+}
+const { text } = Astro.props;
+---
+<span class="media-tag"><img src="/images/exhibits/media-tag-dot.svg" alt="" width="6" height="6" />{text}</span>
+<style>
+  .media-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px 5px 8px;
+    border-radius: 999px;
+    background: rgb(0 0 0 / 45%);
+    backdrop-filter: blur(6px);
+    color: #fff;
+    font: 10px / 1 var(--mono);
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+  .media-tag img { display: block; }
+</style>

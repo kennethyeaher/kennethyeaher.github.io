@@ -59,3 +59,8 @@ test("the home cover gradient registers its animated properties", () => {
   }
   assert.match(globalCss, /@supports \(background: linear-gradient\(in oklab/);
 });
+
+test("one annotation colour is defined for light and both dark theme paths", () => {
+  assert.equal((globalCss.match(/--color-annotate:/g) ?? []).length, 3);
+  assert.equal((globalCss.match(/--on-annotate:/g) ?? []).length, 3);
+});

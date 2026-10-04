@@ -63,3 +63,10 @@ test("published social cards use the required dimensions and cover exhibits reta
     assert.ok(project.sections.some((section) => section.media?.some((item) => item.src === exhibit.src)), `${project.slug} cover must use a documented exhibit`);
   }
 });
+
+test("exhibit kit assets from the figma components ship as real files", () => {
+  for (const name of ["browser-light-red", "browser-light-yellow", "browser-light-green", "media-tag-dot"]) {
+    const svg = readFileSync(publicFile(`/images/exhibits/${name}.svg`), "utf8");
+    assert.match(svg, /<svg[^>]*width="(11|6)"/);
+  }
+});
