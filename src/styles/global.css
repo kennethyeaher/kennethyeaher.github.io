@@ -21,6 +21,8 @@
   /* the one annotation colour, figma color/annotate darkened so small badge and note text pass aa. */
   --color-annotate: #c2410c;
   --on-annotate: #ffffff;
+  /* the same colour lifted for small text that sits straight on a dark stage. */
+  --color-annotate-on-stage: #fb8a5c;
   --display: "Fraunces", "Iowan Old Style", Baskerville, Georgia, serif;
   --body: "Newsreader", "Iowan Old Style", Georgia, serif;
   --mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
@@ -454,3 +456,36 @@ button {
   html:not(.nav-ready) .menu-toggle { display: none; }
   html:not(.nav-ready) .primary-links { position: static; display: flex; min-height: 0; flex-direction: row; padding: 8px 0; font: 12px var(--mono); }
 }
+
+/* exhibit annotations, per figma note 58:1100: the dot scales in, the line draws, the label rises 6px,
+   staggered by number; focus outlines fade in and never pulse. scroll driven where supported, an
+   observer fallback otherwise, and nothing moves under reduced motion or without scripts. */
+@media (prefers-reduced-motion: no-preference) {
+  @supports ((animation-timeline: view()) and (animation-range: entry)) {
+    .exhibit-stage { view-timeline: --exhibit-stage block; }
+    [data-annotation] { --reveal-start: calc(40% + var(--order, 0) * 12%); }
+    [data-annotation] .leader-anchor,
+    [data-annotation] .leader-line,
+    [data-annotation] .leader-label,
+    .annotation-focus { animation-timeline: --exhibit-stage; animation-fill-mode: both; animation-timing-function: linear; }
+    [data-annotation] .leader-anchor { animation-name: annotate-dot; animation-range: entry var(--reveal-start) entry calc(var(--reveal-start) + 5%); }
+    [data-annotation] .leader-line { animation-name: annotate-line; animation-range: entry calc(var(--reveal-start) + 3%) entry calc(var(--reveal-start) + 16%); }
+    [data-annotation].is-vertical .leader-line { animation-name: annotate-line-down; }
+    [data-annotation] .leader-label { animation-name: annotate-label; animation-range: entry calc(var(--reveal-start) + 12%) entry calc(var(--reveal-start) + 22%); }
+    .annotation-focus { animation-name: annotate-fade; animation-range: entry var(--reveal-start) entry calc(var(--reveal-start) + 12%); }
+  }
+  .annotations-pending [data-annotation] .leader-anchor { scale: 0; transition: scale 200ms var(--ease-out); transition-delay: calc(var(--order, 0) * 120ms); }
+  .annotations-pending [data-annotation] .leader-line { scale: 0 1; transition: scale 400ms var(--ease-out); transition-delay: calc(var(--order, 0) * 120ms + 120ms); }
+  .annotations-pending [data-annotation].is-vertical .leader-line { scale: 1 0; }
+  .annotations-pending [data-annotation] .leader-label { opacity: 0; translate: 0 6px; transition: opacity 300ms var(--ease-out), translate 300ms var(--ease-out); transition-delay: calc(var(--order, 0) * 120ms + 400ms); }
+  .annotations-pending .annotation-focus { opacity: 0; transition: opacity 400ms var(--ease-out); transition-delay: calc(var(--order, 0) * 120ms); }
+  .annotations-pending.is-revealed [data-annotation] .leader-anchor,
+  .annotations-pending.is-revealed [data-annotation] .leader-line { scale: 1; }
+  .annotations-pending.is-revealed [data-annotation] .leader-label { opacity: 1; translate: 0 0; }
+  .annotations-pending.is-revealed .annotation-focus { opacity: 1; }
+}
+@keyframes annotate-dot { from { scale: 0; } to { scale: 1; } }
+@keyframes annotate-line { from { scale: 0 1; } to { scale: 1 1; } }
+@keyframes annotate-line-down { from { scale: 1 0; } to { scale: 1 1; } }
+@keyframes annotate-label { from { opacity: 0; translate: 0 6px; } to { opacity: 1; translate: 0 0; } }
+@keyframes annotate-fade { from { opacity: 0; } to { opacity: 1; } }

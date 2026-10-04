@@ -4,6 +4,8 @@
 // rotated visual is larger than the visual itself, so the unrotated size is solved here.
 import DeviceFrame from "@/components/DeviceFrame.astro";
 import ExhibitLoop from "@/components/exhibits/ExhibitLoop.astro";
+import AnnotationFocus from "@/components/exhibits/AnnotationFocus.astro";
+import AnnotationLeader from "@/components/exhibits/AnnotationLeader.astro";
 
 interface Box { x: number; y: number; w: number; h?: number }
 interface Props {
@@ -13,8 +15,10 @@ interface Props {
   };
   stageRatio?: number;
   priority?: boolean;
+  annotations?: { type: "focus" | "leader" | "leader-vertical"; num: string; label?: string; at?: Box }[];
+  idPrefix?: string;
 }
-const { visual, stageRatio, priority = false } = Astro.props;
+const { visual, stageRatio, priority = false, annotations = [], idPrefix = "exhibit" } = Astro.props;
 const frame = visual.frame ?? "image";
 
 /** height over width of the whole visual, including any device bezel or browser chrome. */
@@ -50,6 +54,12 @@ const style = placement();
       ? <DeviceFrame frame={frame} src={visual.src} alt={visual.alt}><ExhibitLoop src={visual.loop.src} poster={visual.loop.poster} width={visual.width} height={visual.height} label={visual.alt} /></DeviceFrame>
       : <DeviceFrame frame={frame} src={visual.src} alt={visual.alt} width={visual.width} height={visual.height} priority={priority} />
   )}
+  {annotations.filter((annotation) => annotation.at).map((annotation) => {
+    const order = Number(annotation.num) - 1;
+    return annotation.type === "focus"
+      ? <AnnotationFocus num={annotation.num} at={annotation.at!} order={order} noteId={`${idPrefix}-note-${annotation.num}`} />
+      : <AnnotationLeader num={annotation.num} label={annotation.label ?? ""} at={annotation.at!} order={order} vertical={annotation.type === "leader-vertical"} />;
+  })}
   <slot />
 </div>
 <style>

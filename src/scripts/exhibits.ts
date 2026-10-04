@@ -229,3 +229,22 @@ export function initializeExhibitLoops(): void {
     }
   });
 }
+
+/** reveal annotations with timed transitions where scroll driven animations are unavailable. */
+export function initializeAnnotationFallback(): void {
+  const scrollDriven = CSS.supports("animation-timeline: view()") && CSS.supports("animation-range: entry");
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (scrollDriven || reduceMotion || !("IntersectionObserver" in window)) return;
+  const stages = [...document.querySelectorAll<HTMLElement>(".exhibit-stage")].filter((stage) => stage.querySelector("[data-annotation]"));
+  const observer = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      entry.target.classList.add("is-revealed");
+      observer.unobserve(entry.target);
+    }
+  }, { threshold: 0.35 });
+  stages.forEach((stage) => {
+    stage.classList.add("annotations-pending");
+    observer.observe(stage);
+  });
+}

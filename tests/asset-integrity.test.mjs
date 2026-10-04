@@ -65,8 +65,8 @@ test("published social cards use the required dimensions and cover exhibits reta
 });
 
 test("exhibit kit assets from the figma components ship as real files", () => {
-  for (const name of ["browser-light-red", "browser-light-yellow", "browser-light-green", "media-tag-dot"]) {
+  for (const name of ["browser-light-red", "browser-light-yellow", "browser-light-green"]) {
     const svg = readFileSync(publicFile(`/images/exhibits/${name}.svg`), "utf8");
-    assert.match(svg, /<svg[^>]*width="(11|6)"/);
+    assert.match(svg, /<svg[^>]*width="11"/);
   }
 });

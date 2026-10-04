@@ -64,3 +64,12 @@ test("one annotation colour is defined for light and both dark theme paths", () 
   assert.equal((globalCss.match(/--color-annotate:/g) ?? []).length, 3);
   assert.equal((globalCss.match(/--on-annotate:/g) ?? []).length, 3);
 });
+
+test("annotation motion follows the exhibit note and stays off under reduced motion", () => {
+  const block = globalCss.slice(globalCss.indexOf("/* exhibit annotations"));
+  assert.match(block, /^\/\* exhibit annotations[\s\S]*?@media \(prefers-reduced-motion: no-preference\) \{\n  @supports \(\(animation-timeline: view\(\)\) and \(animation-range: entry\)\)/);
+  assert.match(block, /transition: scale 400ms/);
+  assert.match(block, /var\(--order, 0\) \* 120ms/);
+  assert.match(block, /translate: 0 6px/);
+  assert.doesNotMatch(block.replace(/\/\*[\s\S]*?\*\//g, ""), /infinite|alternate|pulse/);
+});
