@@ -46,3 +46,9 @@ test("the interaction system uses blue rather than the previous orange accent", 
   assert.doesNotMatch(globalCss, /#f2ded5/i);
   assert.match(globalCss, /--accent:\s*#(?:1f4f7a|174f7a|194f78|1e4d73)/i);
 });
+
+test("reveal targets stay visible until the fallback observer opts in", () => {
+  assert.match(globalCss, /\.reveal-ready \[data-reveal\] \{/);
+  assert.match(globalCss, /\.reveal-ready \.section-rule\[data-reveal\] \{/);
+  assert.doesNotMatch(globalCss, /^\.section-rule\[data-reveal\] \{/m);
+});

@@ -263,7 +263,8 @@ button {
   background: var(--rule);
 }
 
-.section-rule[data-reveal] {
+/* only collapse the rule once the fallback observer is running, so it stays drawn without scripts. */
+.reveal-ready .section-rule[data-reveal] {
   opacity: 1;
   transform: scaleX(0);
   transform-origin: left;
