@@ -83,6 +83,12 @@ export const caseStudies = [
     exhibits: /** @type {Exhibit[]} */ ([
       {
         kind: "hero", id: "overview", chapter: "Overview", figma: "68:974",
+        eyebrow: "OVERVIEW",
+        heading: "Compare the system, not just the fund",
+        lede: [
+          "The fund needed to understand how other university venture programs were structured: their capital vehicles, student roles, technology-transfer connections, and ability to recycle capital. The source set mixed programs with different mandates, reporting standards, and levels of disclosure. Treating size as quality would have hidden the operating choices that actually mattered.",
+          "My job was to help turn that evidence into a comparison the investment team could defend. The underlying institution briefs and recommendations are confidential, so this public case study shows the method, visual system, and aggregate validation record rather than institution-level findings.",
+        ],
         visuals: [
           { src: "/images/work/usm-venture-benchmark/brief-vehicles-redacted.png", width: 1020, height: 1320, alt: "Redacted finished benchmark brief vehicle breakdown showing four stacked program cards", rot: 6, at: { x: 13.4, y: 12.4, w: 34.4 } },
           { src: "/images/work/usm-venture-benchmark/brief-portfolio-redacted.png", width: 1020, height: 1320, alt: "Redacted benchmark brief portfolio page showing a three-by-three company-card grid", rot: -6, at: { x: 53.2, y: 15, w: 34.4 } },
@@ -97,6 +103,10 @@ export const caseStudies = [
       },
       {
         kind: "stage", id: "the-brief-system", chapter: "The brief system", figma: "68:1009", size: "wide", ratio: "1116 / 460",
+        lede: [
+          "My contribution spanned the full artifact: I normalized the research, designed the six-page brief system, and translated the evidence into comparable investment profiles.",
+          "The visual model uses four lenses: capital scale, student integration, technology-transfer integration, and evergreen continuity. Together they make different program architectures legible without implying that every ecosystem is trying to produce the same outcome.",
+        ],
         eyebrow: "THE BRIEF SYSTEM",
         heading: "One structure for twenty-nine different ecosystems",
         visuals: [
@@ -118,6 +128,10 @@ export const caseStudies = [
       },
       {
         kind: "stage", id: "validation-grid", chapter: "Validation grid", figma: "68:1033", size: "wide", ratio: "1116 / 680",
+        lede: [
+          "A source hierarchy decided what controlled when documents disagreed. Missing disclosure stayed n/d; it was never backfilled with a guess. That discipline produced twenty-nine finalized profiles and one matrix designed for comparison and synthesis.",
+          "That quality pass changed the information design. Disclosed, approximate, and not-disclosed values needed to remain visually distinct, so a decision-maker could see where confidence was strong and where the evidence stopped.",
+        ],
         eyebrow: "VALIDATION GRID",
         heading: "The matrix was treated as a dataset, not an appendix",
         visuals: [{ src: "/images/work/usm-venture-benchmark/validation-grid.png", width: 2400, height: 1400, alt: "A twenty-nine by twenty-two validation grid showing verified cells, corrected cells, and cells changed to not disclosed", at: { x: 4.3, y: 6.2, w: 91.4 } }],
@@ -134,6 +148,9 @@ export const caseStudies = [
       },
       {
         kind: "journey", id: "the-evidence-path", chapter: "The evidence path", figma: "68:1058",
+        lede: [
+          "The result works at two speeds. A partner can scan for patterns across the portfolio, while an analyst can trace a comparison back to the underlying profile and citation. The public visualization uses schematic profiles only; it explains the model without publishing an institution's result.",
+        ],
         eyebrow: "THE EVIDENCE PATH",
         heading: "A ranked list would have been tidy and wrong",
         stages: ["01 Source evidence", "02 Normalized profile", "03 Comparison matrix", "04 Investment synthesis"],
@@ -158,9 +175,6 @@ export const caseStudies = [
             "Operating changes that could be piloted are separated from structures that need new capital or decision rights.",
           ] },
         ],
-      },
-      {
-        kind: "section", id: "the-vc-lens", chapter: "The VC lens", section: "vc-lens",
         strip: {
           label: "DECISION FRAMEWORK  ·  FOUR MECHANISMS, FOUR COMMITMENTS",
           cards: [
@@ -171,6 +185,15 @@ export const caseStudies = [
           ],
           note: "The mechanisms are generic. Confidential institution findings and recommendations are omitted.",
         },
+      },
+      {
+        kind: "section", id: "the-vc-lens", chapter: "The VC lens", section: "vc-lens",
+        eyebrow: "THE VC LENS",
+        heading: "The useful question was what could work here",
+        lede: [
+          "The last step moved from what exists elsewhere to what might transfer. I evaluated mechanisms against two axes: how broadly they could apply and the governance or capital effort required to adopt them. That separated operating changes that could be piloted from structures that would require new capital or new decision rights.",
+          "The framework gives an investment team a disciplined way to discuss what depends on local scale, what can survive a leadership change, and what should be tested before capital is committed. It is also the part of venture work I value most: synthesis is useful when it produces a better investment question.",
+        ],
       },
     ]),
     metrics: [

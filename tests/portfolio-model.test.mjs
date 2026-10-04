@@ -333,7 +333,7 @@ function sentences(text) {
 }
 
 // pages built from their prose mock (figma section 07); every page joins as it is built.
-const ledeSlugs = ["kairo-health"];
+const ledeSlugs = ["kairo-health", "usm-venture-benchmark"];
 
 /** every lede sentence of a chapter; a prose chapter with no lede of its own reads its section text. */
 function ledeSentences(project, exhibit) {
@@ -361,7 +361,7 @@ test("every lede sentence on a converted page is that page's own copy", () => {
 // the "+ prose (mock)" frames in figma section 07, exported to .private/redesign-spec/prose.json, set each
 // page's rail, chapter heads and ledes.
 const prosePath = new URL("../.private/redesign-spec/prose.json", import.meta.url);
-const mockSlugs = ["kairo-health"];
+const mockSlugs = ["kairo-health", "usm-venture-benchmark"];
 
 test("converted pages follow their prose mock word for word", { skip: !existsSync(prosePath) && "prose export not present" }, () => {
   const mocks = JSON.parse(readFileSync(prosePath, "utf8"));
@@ -414,9 +414,7 @@ function assertMatchesSpec(slug) {
       assert.deepEqual(built.stages, source.journey.stages);
       assert.equal(built.accentStage, source.journey.accentStage);
       assert.deepEqual(Object.fromEntries(built.rows.map(({ label, cells }) => [label, cells])), source.journey.rows);
-      // a strip may open the closing chapter instead (usm's decision framework).
-      const strip = built.strip ?? project.exhibits.find((exhibit) => exhibit.kind === "section" && exhibit.strip)?.strip;
-      assert.deepEqual(strip, source.strip);
+      assert.deepEqual(built.strip, source.strip);
     }
   }
 }

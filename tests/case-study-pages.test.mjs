@@ -191,16 +191,15 @@ test("USM renders the v2 exhibit layout from the approved spec", () => {
   assert.deepEqual(sectionIds, chapters);
   for (const id of chapters) assert.match(usm, new RegExp(`href="#${id}"`));
   assert.match(usm, /<span class="chapter-number"[^>]*>05<\/span>\s*The VC lens/);
-  // no reflection text exists, so the closing chapter is the vc-lens prose behind figma's last rail chapter.
+  // 05 the vc lens has no exhibit in figma, so it is a prose chapter; the decision framework stays in 04.
   assert.doesNotMatch(usm, /id="reflection"/);
-  const closing = usm.slice(usm.indexOf('id="the-vc-lens"'), usm.indexOf("data-project-pager"));
-  // like every chapter, 05 runs head, lede, exhibit: the vc-lens prose leads into the decision framework strip.
-  assert.ok(closing.indexOf("The useful question was what could work here") < closing.indexOf("DECISION FRAMEWORK"), "the prose leads into the strip");
-  assert.match(closing, /The last step moved from what exists elsewhere to what might transfer\./);
-  assert.match(closing, /It is also the part of venture work I value most: synthesis is useful when it produces a better investment question\./);
+  const vcLens = usm.slice(usm.indexOf('id="the-vc-lens"'), usm.indexOf("data-project-pager"));
+  assert.match(vcLens, /<p class="section-eyebrow"[^>]*>THE VC LENS<\/p>/);
+  assert.match(vcLens, /The last step moved from what exists elsewhere to what might transfer\./);
+  assert.doesNotMatch(vcLens, /journey-strip/);
   assert.doesNotMatch(usm, /transferability-lens/);
   const evidencePath = usm.slice(usm.indexOf('id="the-evidence-path"'), usm.indexOf('id="the-vc-lens"'));
-  assert.doesNotMatch(evidencePath, /journey-strip/);
+  assert.match(evidencePath, /class="journey-strip"/);
   assert.match(usm, /class="exhibit-stage stage-hero/);
   assert.match(usm, /--stage-ratio: 1116 \/ 460/);
   assert.match(usm, /left: 70\.8%; top: 71\.7%/);

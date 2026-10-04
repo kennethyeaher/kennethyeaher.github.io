@@ -5,7 +5,6 @@ import CaseStudyNav from "@/components/CaseStudyNav.astro";
 import ExhibitStage from "@/components/exhibits/ExhibitStage.astro";
 import ExhibitVisual from "@/components/exhibits/ExhibitVisual.astro";
 import ExhibitJourney from "@/components/exhibits/ExhibitJourney.astro";
-import ExhibitStrip from "@/components/exhibits/ExhibitStrip.astro";
 import ChapterLede from "@/components/exhibits/ChapterLede.astro";
 import ExhibitRows from "@/components/exhibits/ExhibitRows.astro";
 import ExhibitAuditCards from "@/components/exhibits/ExhibitAuditCards.astro";
@@ -94,7 +93,6 @@ function sectionFor(exhibit: any) {
           <section id={exhibit.id} class="exhibit-chapter" data-case-section aria-labelledby={`${exhibit.id}-heading`}>
             <SectionHead id={`${exhibit.id}-heading`} eyebrow={exhibit.eyebrow ?? section.label} heading={exhibit.heading ?? section.heading} />
             <ChapterLede paragraphs={exhibit.lede ?? section.body} />
-            {exhibit.strip && <div class="exhibit-body"><ExhibitStrip strip={exhibit.strip} /></div>}
           </section>
         );
       }
