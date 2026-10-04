@@ -1,110 +1,61 @@
 ---
-// Rachel Chen-inspired full-bleed motion cover, recolored from each project's real palette.
+import DeviceFrame from "@/components/DeviceFrame.astro";
 interface Props {
   project: {
+    slug: string;
     cardTitle: string;
     category: string;
-    cardAlt: string;
     cover: {
       variant: string;
       video: string;
       poster: string;
       palette: string[];
-      titlePlacement: string;
+      exhibit?: { src: string; alt: string; width: number; height: number; frame: "phone" | "tablet" | "laptop" | "sheet" };
     };
   };
   priority?: boolean;
   size?: "card" | "hero";
 }
-
 const { project, priority = false, size = "card" } = Astro.props;
+const exhibit = project.cover.exhibit;
 ---
-
-<div
-  class:list={["project-cover", `cover-${project.cover.variant}`, `is-${size}`]}
-  data-project-cover
-  data-cover-variant={project.cover.variant}
+<div class:list={["project-cover", `cover-${project.cover.variant}`, `is-${size}`, exhibit && "has-exhibit"]}
+  data-project-cover data-cover-variant={project.cover.variant}
   data-cover-palette={project.cover.palette.join(",")}
-  style={`--cover-poster: url("${project.cover.poster}")`}
->
-  <video
-    class="cover-motion"
-    autoplay
-    muted
-    loop
-    playsinline
-    preload={priority ? "auto" : "metadata"}
-    poster={project.cover.poster}
-    aria-hidden="true"
-  >
-    <source src={project.cover.video} type="video/mp4" />
+  style={`--cover-poster: url("${project.cover.poster}"); view-transition-name: cover-${project.slug}`}>
+  <video class="cover-motion" muted loop playsinline preload="none" poster={project.cover.poster} aria-hidden="true" data-cover-video>
+    <source data-src={project.cover.video} type="video/mp4" />
   </video>
   <span class="cover-scrim" aria-hidden="true"></span>
-  <div class="cover-label is-centered">
-    <span>{project.cardTitle}</span>
-  </div>
+  <div class="cover-label"><span>{project.cardTitle}</span><small>{project.category}</small></div>
+  {exhibit && <div class:list={["cover-exhibit", `exhibit-${exhibit.frame}`, exhibit.frame === "sheet" && exhibit.height > exhibit.width && "exhibit-portrait"]} style={`--exhibit-ratio: ${exhibit.width} / ${exhibit.height}`} aria-hidden="true">
+    <DeviceFrame {...exhibit} priority={priority} decorative={true} />
+  </div>}
 </div>
-
 <style>
-  .project-cover {
-    position: relative;
-    overflow: hidden;
-    width: 100%;
-    height: 100%;
-    isolation: isolate;
-    background-color: #17344f;
-    background-image: var(--cover-poster);
-    background-position: center;
-    background-size: cover;
+  .project-cover { position: relative; overflow: hidden; width: 100%; height: 100%; isolation: isolate; background: #17344f var(--cover-poster) center / cover; }
+  .cover-motion { position: absolute; z-index: 0; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .cover-scrim { position: absolute; z-index: 1; inset: 0; background: linear-gradient(90deg, rgb(9 24 40 / 84%), rgb(9 24 40 / 16%)); pointer-events: none; }
+  .cover-label { position: absolute; z-index: 3; top: 50%; left: 6%; width: 34%; transform: translateY(-50%); color: #fff; }
+  .cover-label span { display: block; font-family: var(--ui); font-size: clamp(20px, 2.5vw, 44px); font-weight: 650; letter-spacing: -0.035em; line-height: 1.08; text-wrap: balance; }
+  .cover-label small { display: block; margin-top: 14px; font-family: var(--ui); font-size: clamp(10px, 1vw, 14px); line-height: 1.45; opacity: .85; }
+  .cover-exhibit { position: absolute; z-index: 2; top: 50%; right: 5%; width: 53%; transform: translateY(-50%) rotate(-3deg); }
+  .exhibit-phone { top: 9%; right: 13%; width: 24%; height: 84%; transform: rotate(4deg); }
+  .exhibit-phone :global(.device-frame) { height: 100%; }
+  .exhibit-phone :global(.device-screen) { height: 100%; }
+  .exhibit-phone :global(img) { height: 100%; object-fit: cover; object-position: top; }
+  .exhibit-sheet { width: 52%; }
+  .exhibit-portrait { top: 9%; right: 12%; width: auto; height: 82%; aspect-ratio: var(--exhibit-ratio); transform: rotate(-3deg); }
+  .exhibit-portrait :global(.device-frame), .exhibit-portrait :global(.device-screen) { height: 100%; }
+  .exhibit-portrait :global(img) { height: 100%; object-fit: contain; }
+  .is-hero .cover-label span { font-size: clamp(28px, 4vw, 56px); }
+  @media (max-width: 620px) {
+    .cover-label span { font-size: clamp(18px, 5vw, 28px); }
+    .cover-label small { margin-top: 8px; font-size: 9px; }
+    .is-hero .cover-label span { font-size: clamp(20px, 5vw, 28px); }
+    .cover-exhibit { right: 4%; width: 52%; }
+    .exhibit-phone { right: 13%; width: 25%; }
+    .exhibit-portrait { right: 12%; width: auto; }
   }
-
-  .cover-motion {
-    position: absolute;
-    z-index: 1;
-    inset: -2%;
-    display: block;
-    width: 104%;
-    height: 104%;
-    max-width: none;
-    object-fit: cover;
-  }
-
-  .cover-scrim {
-    position: absolute;
-    z-index: 2;
-    inset: 0;
-    background: rgb(9 24 40 / 14%);
-    pointer-events: none;
-  }
-
-  .cover-label {
-    position: absolute;
-    z-index: 3;
-    inset: 0;
-    display: grid;
-    padding: clamp(24px, 4vw, 58px);
-    place-items: center;
-    color: #ffffff;
-    text-align: center;
-    text-shadow: 0 2px 22px rgb(4 17 31 / 28%);
-  }
-
-  .cover-label span {
-    max-width: 82%;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    font-size: clamp(26px, 3.1vw, 48px);
-    font-weight: 650;
-    letter-spacing: -0.035em;
-    line-height: 1.05;
-  }
-
-  .is-card .cover-label span {
-    font-size: clamp(24px, 2.4vw, 40px);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .cover-motion {
-      display: none;
-    }
-  }
+  @media (prefers-reduced-motion: reduce) { .cover-motion { display: none; } }
 </style>

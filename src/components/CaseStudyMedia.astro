@@ -1,105 +1,90 @@
 ---
-// Source-backed project media with reusable captions and responsive pairing.
+import DeviceFrame from "@/components/DeviceFrame.astro";
 interface MediaItem {
   src: string;
   alt: string;
+  width?: number;
+  height?: number;
   caption?: string;
   wide?: boolean;
+  kind?: string;
+  frame?: "phone" | "tablet" | "laptop" | "sheet";
+  poster?: string;
+  sources?: { src: string; type: string }[];
+  after?: { src: string; alt: string; width?: number; height?: number };
+  beforeLabel?: string;
+  afterLabel?: string;
+  annotations?: { x: number; y: number; title: string; text: string }[];
 }
-
-interface Props {
-  media: MediaItem[];
-  priority?: boolean;
-}
-
-const { media, priority = false } = Astro.props;
-const hasLeadGrid =
-  media.length >= 3 &&
-  Boolean(media[0]?.wide) &&
-  media.slice(1).every((item) => !item.wide) &&
-  (media.length - 1) % 2 === 0;
-const mediaLayout = hasLeadGrid
-  ? media.length === 3
-    ? "lead-pair"
-    : "lead-grid"
-  : undefined;
+interface Props { media: MediaItem[]; priority?: boolean; idPrefix?: string; }
+const { media, priority = false, idPrefix = "exhibit" } = Astro.props;
+const hasLeadGrid = media.length >= 3 && Boolean(media[0]?.wide) && media.slice(1).every((item) => !item.wide) && (media.length - 1) % 2 === 0;
+const mediaLayout = hasLeadGrid ? media.length === 3 ? "lead-pair" : "lead-grid" : undefined;
 ---
-
-<div
-  class:list={[
-    "case-media-grid",
-    media.length > 1 && "is-multiple",
-    media.length > 2 && "is-gallery",
-    hasLeadGrid && "has-lead-grid",
-  ]}
-  data-media-count={media.length}
-  data-media-layout={mediaLayout}
->
-  {
-    media.map((item, index) => (
-      <figure class:list={["case-media", item.wide && "is-wide"]} data-reveal>
-        <img
-          src={item.src}
-          alt={item.alt}
-          loading={priority && index === 0 ? "eager" : "lazy"}
-          fetchpriority={priority && index === 0 ? "high" : "auto"}
-        />
-        {item.caption && <figcaption>{item.caption}</figcaption>}
-      </figure>
-    ))
-  }
+<div class:list={["case-media-grid", media.length > 1 && "is-multiple", media.length > 2 && "is-gallery", hasLeadGrid && "has-lead-grid"]}
+  data-media-count={media.length} data-media-layout={mediaLayout}>
+  {media.map((item, index) => (
+    <figure class:list={["case-media", item.wide && "is-wide"]} data-reveal data-media-kind={item.kind ?? "image"}>
+      {item.kind === "device" ? (
+        <div class="device-stage"><DeviceFrame frame={item.frame} src={item.src} alt={item.alt} width={item.width} height={item.height} priority={priority && index === 0} /></div>
+      ) : item.kind === "video" ? (
+        <video data-exhibit-video controls muted loop playsinline preload="none" poster={item.poster} width={item.width} height={item.height} aria-label={item.alt}>
+          {(item.sources ?? [{ src: item.src, type: "video/mp4" }]).map((source) => <source src={source.src} type={source.type} />)}
+          <a href={item.src}>Open video</a>
+        </video>
+      ) : item.kind === "compare" && item.after ? (
+        <div data-compare class="comparison">
+          <div class="comparison-images">
+            <div data-compare-before class="compare-before"><img src={item.src} alt={item.alt} width={item.width} height={item.height} loading="lazy" /><span>{item.beforeLabel ?? "Before"}</span></div>
+            <div class="compare-after"><img src={item.after.src} alt={item.after.alt} width={item.after.width} height={item.after.height} loading="lazy" /><span>{item.afterLabel ?? "After"}</span></div>
+          </div>
+          <label class="compare-control">Compare screens<input type="range" min="0" max="100" value="50" aria-label="Before and after comparison" hidden /></label>
+        </div>
+      ) : item.kind === "annotated" ? (
+        <div class="annotated-screen">
+          <img src={item.src} alt={item.alt} width={item.width} height={item.height} loading="lazy" />
+          {item.annotations?.map((pin, pinIndex) => (
+            <div class="annotation" style={`--pin-x: ${pin.x}%; --pin-y: ${pin.y}%`}>
+              <button class="annotation-pin" type="button" popovertarget={`${idPrefix}-${index}-${pinIndex}`} aria-label={`${pinIndex + 1}. ${pin.title}`}>{pinIndex + 1}</button>
+              <div id={`${idPrefix}-${index}-${pinIndex}`} class="annotation-note" popover><strong>{pinIndex + 1}. {pin.title}</strong><p>{pin.text}</p></div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <img src={item.src} alt={item.alt} width={item.width} height={item.height} loading={priority && index === 0 ? "eager" : "lazy"} fetchpriority={priority && index === 0 ? "high" : "auto"} decoding="async" />
+      )}
+      {item.caption && <figcaption>{item.caption}</figcaption>}
+    </figure>
+  ))}
 </div>
-
 <style>
-  .case-media-grid {
-    display: grid;
-    gap: 18px;
+  .case-media-grid { display: grid; gap: 18px; }
+  .case-media-grid.is-multiple { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .case-media-grid.is-gallery { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .case-media-grid.has-lead-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .case-media { margin: 0; min-width: 0; }
+  .case-media-grid.is-gallery .case-media.is-wide { grid-column: 1 / -1; }
+  .case-media img, .case-media video { width: 100%; height: auto; border: 1px solid var(--rule); background: #fff; }
+  .device-stage { padding: clamp(16px, 3vw, 34px); background: color-mix(in srgb, var(--accent-soft) 45%, var(--canvas)); border: 1px solid var(--rule); border-radius: 4px; }
+  .case-media figcaption { max-width: 72ch; margin-top: 9px; color: var(--muted); font: 13px / 1.45 var(--ui); }
+  .comparison-images { position: relative; display: grid; gap: 12px; }
+  .compare-before, .compare-after { position: relative; min-width: 0; }
+  .comparison-images span { position: absolute; bottom: 10px; left: 10px; padding: 6px 9px; background: #142535; color: white; font: 12px var(--ui); }
+  .comparison-ready .comparison-images { display: block; }
+  .comparison-ready .compare-before { position: absolute; z-index: 1; inset: 0; clip-path: inset(0 calc(100% - var(--compare-position)) 0 0); }
+  .comparison-ready .compare-before img { height: 100%; object-fit: contain; }
+  .compare-control { display: block; padding-block: 12px; font: 12px var(--ui); }
+  .compare-control input { display: block; width: 100%; margin-top: 12px; accent-color: var(--accent); }
+  .compare-control input[hidden] { display: none; }
+  .annotated-screen { position: relative; }
+  .annotation-pin { display: none; }
+  .annotation-note { margin: 12px 0 0; padding: 16px; border: 1px solid var(--rule); background: var(--surface); color: var(--ink); font: 14px / 1.5 var(--ui); }
+  .annotation-note p { margin: 6px 0 0; }
+  @supports selector(:popover-open) {
+    .annotation-pin { position: absolute; display: grid; place-items: center; top: var(--pin-y); left: var(--pin-x); transform: translate(-50%, -50%); width: 44px; height: 44px; border: 2px solid var(--surface); border-radius: 50%; background: var(--accent); color: var(--canvas); font: 600 14px var(--ui); }
+    .annotation-note { margin: auto; width: min(380px, calc(100vw - 36px)); box-shadow: 0 12px 44px rgb(0 0 0 / 24%); }
+    .annotation-note::backdrop { background: rgb(0 0 0 / 12%); }
   }
-
-  .case-media-grid.is-multiple {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .case-media-grid.is-gallery {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .case-media-grid.has-lead-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .case-media {
-    margin: 0;
-  }
-
-  .case-media-grid.is-gallery .case-media.is-wide {
-    grid-column: 1 / -1;
-  }
-
-  .case-media img {
-    width: 100%;
-    height: auto;
-    border: 1px solid var(--rule);
-    background: var(--surface);
-  }
-
-  .case-media figcaption {
-    max-width: 72ch;
-    margin-top: 9px;
-    color: var(--muted);
-    font-size: 13px;
-    line-height: 1.4;
-  }
-
-  @media (max-width: 680px) {
-    .case-media-grid.is-multiple {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  @media (min-width: 681px) and (max-width: 940px) {
-    .case-media-grid.is-gallery {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
+  @media (max-width: 680px) { .case-media-grid.is-multiple { grid-template-columns: 1fr; } }
+  @media (min-width: 681px) and (max-width: 940px) { .case-media-grid.is-gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 </style>

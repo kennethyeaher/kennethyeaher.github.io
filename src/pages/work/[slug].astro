@@ -30,7 +30,8 @@ const previous = getAdjacentProject(project.slug, "previous");
 const next = getAdjacentProject(project.slug, "next");
 ---
 
-<Base title={project.title} description={project.summary} image={project.heroImage}>
+<Base title={project.title} description={project.summary} image={`/images/social/${project.slug}.png`} imageAlt={`${project.title}, ${project.role}, ${project.year}`}>
+  <div class="reading-progress" data-reading-progress aria-hidden="true" style={`--reading-accent: ${project.cover.palette[1]}`}><span></span></div>
   <div class="case-shell">
     <CaseStudyNav chapters={project.sections} />
 
@@ -39,11 +40,12 @@ const next = getAdjacentProject(project.slug, "next");
         <p class="case-eyebrow">
           {project.organization} · {project.category} · {project.year}
         </p>
-        <h1>{project.title}</h1>
+        <h1 style={`view-transition-name: title-${project.slug}`}>{project.title}</h1>
         <p class="case-summary">{project.summary}</p>
       </header>
 
       <div class="case-hero" data-reveal>
+        <button class="cover-playback" type="button" data-cover-toggle aria-pressed="false" hidden>Play cover motion</button>
         <ProjectCover project={project} priority={true} size="hero" />
       </div>
 
@@ -106,7 +108,7 @@ const next = getAdjacentProject(project.slug, "next");
                 )
               }
               {section.media && (
-                <CaseStudyMedia media={section.media} />
+                <CaseStudyMedia media={section.media} idPrefix={`${project.slug}-${section.id}`} />
               )}
               {
                 section.id === "high-fidelity" &&
@@ -177,7 +179,7 @@ const next = getAdjacentProject(project.slug, "next");
   .case-summary {
     max-width: 67ch;
     margin: 22px 0 0;
-    color: #66727d;
+    color: var(--secondary);
     font-size: 17px;
     line-height: 1.5;
   }
@@ -242,7 +244,7 @@ const next = getAdjacentProject(project.slug, "next");
   .project-links a:focus-visible {
     border-color: var(--accent);
     background: var(--accent);
-    color: #ffffff;
+    color: var(--on-accent);
   }
 
   .case-metrics {
@@ -298,7 +300,7 @@ const next = getAdjacentProject(project.slug, "next");
 
   .case-copy p {
     margin: 0;
-    color: #53616d;
+    color: var(--ink);
     font-size: 18px;
     line-height: 1.62;
   }
@@ -315,7 +317,7 @@ const next = getAdjacentProject(project.slug, "next");
     margin-top: 42px;
     padding: 24px;
     border: 1px solid var(--rule);
-    background: #ffffff;
+    background: var(--surface);
   }
 
   .screen-inventory-heading {
