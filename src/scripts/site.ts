@@ -1,9 +1,18 @@
+import { initializeTheme, initializeCoverMotion, initializeCoverDepth, initializeReadingProgress, initializeMediaControls } from "./exhibits";
+
 /**
- * Initialize the mobile navigation, reveal motion, and optional custom cursor.
+ * Initialize navigation, theme choice, motion, and exhibit controls.
  */
 function initializeSite(): void {
+  initializeTheme();
+  initializeCoverMotion();
+  initializeCoverDepth();
+  initializeReadingProgress();
+  initializeMediaControls();
+
   const toggle = document.querySelector<HTMLButtonElement>("[data-nav-toggle]");
   const links = document.querySelector<HTMLElement>("[data-nav-links]");
+  document.documentElement.classList.add("nav-ready");
   const menuLabel = document.querySelector<HTMLElement>("[data-menu-label]");
 
   /** Keep the mobile menu's visual and accessibility state in sync. */
@@ -23,7 +32,10 @@ function initializeSite(): void {
   });
 
   document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") setMenuOpen(false);
+    if (event.key === "Escape" && toggle?.getAttribute("aria-expanded") === "true") {
+      setMenuOpen(false);
+      toggle.focus();
+    }
   });
 
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -64,9 +76,11 @@ function initializeSite(): void {
 
   const revealItems = document.querySelectorAll<HTMLElement>("[data-reveal]");
 
-  if (reduceMotion || !("IntersectionObserver" in window)) {
+  const nativeReveal = CSS.supports("animation-timeline: view()") && CSS.supports("animation-range: entry 0% entry 100%");
+  if (reduceMotion || nativeReveal || !("IntersectionObserver" in window)) {
     revealItems.forEach((item) => item.classList.add("is-visible"));
   } else {
+    document.documentElement.classList.add("reveal-ready");
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -80,38 +94,6 @@ function initializeSite(): void {
     revealItems.forEach((item) => observer.observe(item));
   }
 
-  const finePointer = window.matchMedia("(pointer: fine)").matches;
-  const cursor = document.querySelector<HTMLElement>(".cursor-dot");
-  const cursorText = cursor?.querySelector<HTMLElement>("[data-cursor-text]");
-
-  if (!cursor || !finePointer || reduceMotion) return;
-
-  document.body.classList.add("cursor-enabled");
-  window.addEventListener("pointermove", (event) => {
-    cursor.style.transform = `translate3d(${event.clientX}px, ${event.clientY}px, 0)`;
-    cursor.classList.add("is-visible");
-  });
-  window.addEventListener("pointerleave", () => {
-    cursor.classList.remove("is-visible", "is-interactive", "is-labeled");
-    if (cursorText) cursorText.textContent = "";
-  });
-
-  document.querySelectorAll<HTMLElement>("a, button, select").forEach((interactive) => {
-    interactive.addEventListener("pointerenter", () => {
-      const label = interactive.dataset.cursorLabel;
-      if (label && cursorText) {
-        cursorText.textContent = label;
-        cursor.classList.remove("is-interactive");
-        cursor.classList.add("is-labeled");
-        return;
-      }
-      cursor.classList.add("is-interactive");
-    });
-    interactive.addEventListener("pointerleave", () => {
-      cursor.classList.remove("is-interactive", "is-labeled");
-      if (cursorText) cursorText.textContent = "";
-    });
-  });
 }
 
 initializeSite();

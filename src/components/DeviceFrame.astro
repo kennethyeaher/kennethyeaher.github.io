@@ -1,0 +1,32 @@
+---
+interface Props {
+  frame?: "phone" | "tablet" | "laptop" | "sheet";
+  src: string;
+  alt: string;
+  width?: number;
+  height?: number;
+  priority?: boolean;
+  decorative?: boolean;
+}
+const { frame = "tablet", src, alt, width, height, priority = false, decorative = false } = Astro.props;
+---
+<div class:list={["device-frame", `frame-${frame}`]} data-device-frame={frame}>
+  {frame === "laptop" && <div class="device-toolbar" aria-hidden="true"><i></i><i></i><i></i></div>}
+  <div class="device-screen">
+    <img src={src} alt={decorative ? "" : alt} width={width} height={height}
+      loading={priority ? "eager" : "lazy"} fetchpriority={priority ? "high" : "auto"} decoding="async" />
+  </div>
+</div>
+<style>
+  .device-frame { width: 100%; padding: 10px; border: 1px solid #48515d; border-radius: 24px; background: #18202a; box-shadow: 0 16px 36px rgb(0 0 0 / 18%); }
+  .device-screen { overflow: hidden; border-radius: 15px; background: #fff; }
+  .device-screen img { display: block; width: 100%; height: auto; }
+  .frame-phone { max-width: 390px; margin-inline: auto; padding: 8px; border-radius: 28px; }
+  .frame-phone .device-screen { border-radius: 20px; }
+  .frame-laptop { padding: 7px; border-radius: 12px; }
+  .frame-laptop .device-screen { border-radius: 0 0 5px 5px; }
+  .device-toolbar { display: flex; gap: 5px; padding: 6px 5px 11px; }
+  .device-toolbar i { width: 5px; height: 5px; border-radius: 50%; background: #8792a0; }
+  .frame-sheet { padding: 0; border-radius: 3px; border-color: var(--rule); background: var(--surface); }
+  .frame-sheet .device-screen { border-radius: 2px; }
+</style>
