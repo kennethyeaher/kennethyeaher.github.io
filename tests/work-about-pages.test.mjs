@@ -46,6 +46,9 @@ test("the Work page renders the approved thesis and newest-first project order",
   assert.equal((workHtml.match(/class="project-card"/g) ?? []).length, 8);
   assert.equal((workHtml.match(/data-tilt-card/g) ?? []).length, 8);
   assert.equal((workHtml.match(/data-project-cover/g) ?? []).length, 8);
+  assert.doesNotMatch(workHtml, /class="cover-exhibit|data-device-frame=|class="[^"]*has-exhibit/);
+  assert.equal((workHtml.match(/class="cover-scrim"/g) ?? []).length, 8);
+  assert.equal((workHtml.match(/view-transition-name: cover-/g) ?? []).length, 8);
   assert.doesNotMatch(workHtml, /Read case study/);
   assert.doesNotMatch(workHtml, /project-media is-contained/);
 });

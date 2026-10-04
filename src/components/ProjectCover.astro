@@ -17,7 +17,8 @@ interface Props {
   size?: "card" | "hero";
 }
 const { project, priority = false, size = "card" } = Astro.props;
-const exhibit = project.cover.exhibit;
+// home cards show only the gradient and the project name; the hero keeps its exhibit until phase 2.
+const exhibit = size === "hero" ? project.cover.exhibit : undefined;
 ---
 <div class:list={["project-cover", `cover-${project.cover.variant}`, `is-${size}`, exhibit && "has-exhibit"]}
   data-project-cover data-cover-variant={project.cover.variant}
