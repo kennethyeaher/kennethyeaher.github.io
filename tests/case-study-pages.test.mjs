@@ -18,7 +18,7 @@ const slugs = [
   "sohive",
 ];
 // pages already moved to the v2 exhibit layout; the older cover and media checks skip them.
-const exhibitPages = new Set(["kairo-health", "usm-venture-benchmark", "ovara", "terpcarehub", "college-park-capstone", "frontground", "terpcare"]);
+const exhibitPages = new Set(["kairo-health", "usm-venture-benchmark", "ovara", "terpcarehub", "college-park-capstone", "frontground", "terpcare", "sohive"]);
 const pages = new Map();
 
 before(() => {
@@ -126,7 +126,7 @@ test("previous and next project links wrap without dead ends", () => {
   assert.match(first, /href="\/work\/ovara"/);
   if (!exhibitPages.has("frontground")) assert.match(middle, /href="\/work\/college-park-capstone"/);
   assert.match(middle, /href="\/work\/terpcare"/);
-  assert.match(last, /href="\/work\/terpcare"/);
+  if (!exhibitPages.has("sohive")) assert.match(last, /href="\/work\/terpcare"/);
   assert.match(last, /href="\/work\/usm-venture-benchmark"/);
 });
 
@@ -351,4 +351,28 @@ test("TerpCare renders the v2 exhibit layout from its prose mock", () => {
   assert.equal([...page.matchAll(/data-device-frame="iphone"/g)].length, 7);
   assertBadgesResolve(page, 7);
   assert.match(page, /href="\/work\/sohive"/);
+});
+
+test("sohive renders the v2 exhibit layout from its prose mock", () => {
+  const page = pages.get("sohive");
+  const sectionIds = [...page.matchAll(/<section[^>]*\bid="([^"]+)"[^>]*data-case-section/g)].map((match) => match[1]);
+  assert.deepEqual(sectionIds, ["overview", "core-flows", "the-feed", "the-audit", "identity", "reflection"]);
+  assert.match(page, /hiveSocial · Product Design · 2022/);
+  assert.match(page, /A hive is the people, not the app/);
+  assert.match(page, /What an unnamed file taught me/);
+  // feed and event rows are clean rendered loops; the profile row is a still with no loop tag.
+  for (const name of ["feed", "event"]) {
+    assert.match(page, new RegExp(`data-src="/images/work/sohive/sohive-${name}-loop\\.mp4"`));
+    assert.match(page, new RegExp(`data-loop-name="${name} loop"`));
+  }
+  assert.equal([...page.matchAll(/class="row-tag"/g)].length, 2);
+  assert.match(page, /sohive-profile-screen\.png/);
+  // the feed pair: five leaders on two stages, three pointing in from the left.
+  assert.equal([...page.matchAll(/class="annotation annotation-leader is-(left|right)/g)].length, 5);
+  assert.equal([...page.matchAll(/class="annotation annotation-leader is-left/g)].length, 3);
+  assert.match(page, /No card needs a photo to look finished/);
+  // the artboard count draws 114 and 34 tiles in html, with its counts as text.
+  assert.equal([...page.matchAll(/<div class="count-tiles"[^>]*>([\s\S]*?)<\/div>/g)].map((match) => (match[1].match(/<i\b/g) ?? []).length).join(","), "114,34");
+  assert.match(page, /<span class="count-number"[^>]*>114<\/span>/);
+  assert.match(page, /href="\/work\/usm-venture-benchmark"/);
 });

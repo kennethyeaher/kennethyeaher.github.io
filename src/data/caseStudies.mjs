@@ -2199,7 +2199,7 @@ export const caseStudies = [
   {
     slug: "sohive",
     title: "sohive",
-    organization: "sohive",
+    organization: "hiveSocial",
     cardTitle: "sohive",
     category: "Product Design",
     year: "2022",
@@ -2227,6 +2227,128 @@ export const caseStudies = [
       }),
       titlePlacement: "center",
     },
+    exhibits: /** @type {Exhibit[]} */ ([
+      {
+        kind: "hero", id: "overview", chapter: "Overview", figma: "57:827",
+        eyebrow: "OVERVIEW",
+        heading: "I joined a product that had no name yet",
+        lede: [
+          "The team was building an events and social app for campus. When I picked up the design file it was called WTM, short for Watch The Moves, and the login artboard carried a note left for whoever came next: we still need to determine our logo for the app and design scheme, colour scheme.",
+          "Structurally the file was in decent shape. There were 114 artboards covering sign up, recovery, profiles, settings and a feed, and four account types were already sketched out. What it did not have was a product. Every action was iOS system blue, type sizes were picked per screen, and nothing in it said which company had made it.",
+          "That gap is the whole internship. The screens existed. Deciding what they should feel like, and then making 114 artboards agree with each other, was the work.",
+        ],
+        // figma 90:2557: the four card colours over black.
+        base: "#000000",
+        field: { width: 1116, height: 600, sigma: 60, circles: [{ x: 260, y: 440, r: 180, colour: "#DC3545", alpha: 0.85 }, { x: 910, y: 90, r: 210, colour: "#0069D9", alpha: 0.8 }, { x: 970, y: 530, r: 150, colour: "#00A650", alpha: 0.7 }, { x: 500, y: -40, r: 140, colour: "#F99953", alpha: 0.6 }] },
+        visuals: [
+          { src: "/images/work/sohive/sohive-event-screen.png", width: 658, height: 1423, alt: "sohive event detail for Terp Startup Mixer, opening on a gradient, with the host, date, place, who is going, and a fixed RSVP bar", frame: "iphone", rot: 6, at: { x: 17, y: 10.5, w: 28 } },
+          { src: "/images/work/sohive/sohive-profile-screen.png", width: 658, height: 1423, alt: "sohive profile for Kenneth Yeaher, with follower counts, Edit profile and Share, and upcoming events in rotating card colours", frame: "iphone", rot: -6, at: { x: 55.6, y: 15, w: 28 } },
+          { src: "/images/work/sohive/sohive-feed-screen.png", width: 658, height: 1423, alt: "sohive home feed on black, with a blue Terp Startup Mixer card and a green Late Night Study Jam card above a post from the African Student Association", frame: "iphone", rot: 0, at: { x: 38.4, y: 9, w: 24.7 } },
+        ],
+        metrics: [
+          { value: "114", label: "original artboards audited" },
+          { value: "34", label: "canonical screens in the rebuild" },
+          { value: "62", label: "component variants in the library" },
+        ],
+      },
+      {
+        kind: "rows", id: "core-flows", chapter: "Core flows", figma: "57:857",
+        eyebrow: "CORE FLOWS",
+        heading: "Colour is how you tell one event from another",
+        lede: [
+          "Sign up is the only part of sohive that is not black. Events happen at night and people check their phone in a dark room, so the app shell is black and the colour cards carry it. Forms on black read as an error state to most people, so the nine screens between opening the app and reaching the feed stay light.",
+          "The flow is four steps with a progress bar that tells you how many are left, a school email check that runs as you type, and a backup question you are allowed to skip. Verification is split across email and phone rather than stacked into one screen, because a person who mistypes a phone number should not have to redo an email code.",
+        ],
+        // row stages from the prose mock (90:2591, 90:2599, 90:2607).
+        base: "#050505",
+        fields: [
+          { width: 600, height: 600, sigma: 55, circles: [{ x: 110, y: 110, r: 230, colour: "#0069D9", alpha: 0.9 }, { x: 510, y: 510, r: 190, colour: "#00A650", alpha: 0.8 }] },
+          { width: 600, height: 600, sigma: 55, circles: [{ x: 130, y: 70, r: 230, colour: "#5B8DBE", alpha: 0.8 }, { x: 510, y: 490, r: 210, colour: "#00A650", alpha: 0.6 }] },
+          { width: 600, height: 600, sigma: 55, circles: [{ x: 100, y: 480, r: 240, colour: "#DC3545", alpha: 0.85 }, { x: 520, y: 60, r: 180, colour: "#F99953", alpha: 0.7 }] },
+        ],
+        visuals: [
+          { src: "/images/work/sohive/sohive-feed-screen.png", width: 658, height: 1423, alt: "sohive home feed on black, with a blue Terp Startup Mixer card and a green Late Night Study Jam card above a post from the African Student Association", frame: "iphone", at: { x: 29, y: 7.6, w: 42 },
+            loop: { src: "/images/work/sohive/sohive-feed-loop.mp4", poster: "/images/work/sohive/sohive-feed-loop-poster.webp", name: "feed" } },
+          { src: "/images/work/sohive/sohive-event-screen.png", width: 658, height: 1423, alt: "sohive event detail for Terp Startup Mixer, opening on a gradient, with the host, date, place, who is going, and a fixed RSVP bar", frame: "iphone", at: { x: 29, y: 7.6, w: 42 },
+            loop: { src: "/images/work/sohive/sohive-event-loop.mp4", poster: "/images/work/sohive/sohive-event-loop-poster.webp", name: "event" } },
+          // no recorded profile flow exists, so this row is a still and shows no loop tag.
+          { src: "/images/work/sohive/sohive-profile-screen.png", width: 658, height: 1423, alt: "sohive profile for Kenneth Yeaher, with follower counts, Edit profile and Share, and upcoming events in rotating card colours", frame: "iphone", at: { x: 29, y: 7.6, w: 42 } },
+        ],
+        captions: [
+          { tag: "LOOP · 6S", title: "A feed of colour, not of photos", body: "Three card colours rotate down the feed, so scrolling never turns into six identical blue rectangles. Type and colour do the work, and an image is an upgrade." },
+          { tag: "LOOP · 6S", title: "RSVP survives the scroll", body: "Event detail opens on a gradient rather than a stock photograph, and RSVP sits in a fixed bar so it is always one tap away." },
+          { tag: "LOOP · 6S", title: "Who is here", body: "Avatars rotate through the four hive colours, so people stay distinct without photos." },
+        ],
+      },
+      {
+        kind: "pair", id: "the-feed", chapter: "The feed", figma: "58:870",
+        eyebrow: "WHERE IT LANDED",
+        heading: "Insight 1: The event card is the product",
+        lede: [
+          "The event card is the product. It carries a host strip, an oversized title on a field of colour, the place and time, and a footer with likes, who is going and the single action that matters. Three card colours rotate down the feed, so scrolling never turns into six identical blue rectangles.",
+          "The rule underneath that is that no card needs a photo to look finished. Student organisations post from a phone at eleven at night. Type and colour do the work, and an image is an upgrade rather than a dependency. The same rule is why the event detail screen opens on a gradient rather than a stock photograph.",
+        ],
+        // figma 58:870 and 90:2616 draw the feed as a pair, not two rows; leader boxes are the instances there,
+        // as shares of each 534 by 600 stage, since the spec export could not tie them to a device.
+        stages: [
+          {
+            ratio: "534 / 600", base: "#050505",
+            field: { width: 534, height: 600, sigma: 55, circles: [{ x: 100, y: 120, r: 220, colour: "#0069D9", alpha: 0.85 }, { x: 490, y: 510, r: 190, colour: "#00A650", alpha: 0.75 }] },
+            visuals: [{ src: "/images/work/sohive/sohive-feed-screen.png", width: 658, height: 1423, alt: "sohive home feed on black, with a blue Terp Startup Mixer card and a green Late Night Study Jam card above a post from the African Student Association", frame: "iphone", at: { x: 27.53, y: 8.67, w: 44.94 } }],
+            annotations: [
+              { type: "leader", num: "01", label: "Place and time", at: { x: 67.84, y: 29.4, w: 27.66, h: 5.5 } },
+              { type: "leader", num: "02", label: "Title on colour", direction: "left", at: { x: 4.49, y: 34.43, w: 27.79, h: 5.5 } },
+              { type: "leader", num: "03", label: "Going, one action", at: { x: 65.59, y: 40.09, w: 29.91, h: 5.5 } },
+            ],
+          },
+          {
+            ratio: "534 / 600", base: "#050505",
+            field: { width: 534, height: 600, sigma: 55, circles: [{ x: 90, y: 90, r: 230, colour: "#5B8DBE", alpha: 0.8 }, { x: 480, y: 510, r: 180, colour: "#DC3545", alpha: 0.7 }] },
+            visuals: [{ src: "/images/work/sohive/sohive-event-screen.png", width: 658, height: 1423, alt: "sohive event detail for Terp Startup Mixer, opening on a gradient, with the host, date, place, who is going, and a fixed RSVP bar", frame: "iphone", at: { x: 46.07, y: 8.67, w: 44.94 } }],
+            annotations: [
+              { type: "leader", num: "01", label: "Gradient, not a stock photo", direction: "left", at: { x: 4.49, y: 24.26, w: 46.33, h: 5.5 } },
+              { type: "leader", num: "02", label: "RSVP in a fixed bar", direction: "left", at: { x: 4.49, y: 82.43, w: 46.33, h: 5.5 } },
+            ],
+          },
+        ],
+        captions: [
+          { title: "No card needs a photo to look finished", body: "The card carries an oversized title on a field of colour, the place and time, and a footer with who is going and the single action that matters. Student organisations post from a phone at eleven at night." },
+          { title: "The detail page opens on a gradient", body: "The same rule holds one level down. Event detail opens on a gradient rather than a stock photograph, and RSVP sits in a fixed bar so it survives the scroll." },
+        ],
+      },
+      {
+        kind: "custom", graphic: "artboard-count", id: "the-audit", chapter: "The audit", figma: "58:937",
+        eyebrow: "THE AUDIT",
+        heading: "114 artboards, but nothing like 114 screens",
+        lede: [
+          "The first useful thing I did was count. Most of the file was keyboard states, overlay variants and near duplicates of the same page saved under a new number. Grouped by the job each one actually did, 114 artboards collapsed into six flows and thirty four screens.",
+          "Doing that before touching a pixel is what made the rest possible. A colour system applied across 114 loose artboards is a week of clicking that drifts apart the moment someone edits one. Applied across thirty four screens built from shared components, it is one change.",
+          "The original file drew a person, a venue and a club as three separate designs. They are the same object with different fields. The profile header became one component with three variants, so a venue swaps its stat row for capacity and a club swaps its primary action for follow, and everything else stays put.",
+        ],
+        text: "Original Adobe XD file | 114 | artboards, mostly keyboard states, overlay variants and near duplicates saved under a new number | → | Rebuilt Figma library | 34 | canonical screens across six flows, built from shared components so a colour change is one change",
+      },
+      {
+        kind: "section", id: "identity", chapter: "Identity", section: "identity",
+        eyebrow: "IDENTITY",
+        heading: "A hive is the people, not the app",
+        lede: [
+          "WTM described what the app did. sohive describes what a campus already is, which is a lot of overlapping groups that share edges. The mark is four hexagons that overlap rather than tile, and the overlaps are where the colour mixes.",
+          "That gave the product a palette before it had a single finished screen. The four pastels in the mark stay decorative and carry avatars, category tiles and gradients. Saturated versions of the same hues carry the event cards, where white type has to hold up. Brand red is reserved and never used for decoration.",
+          "The library is fourteen component sets and sixty two variants, every colour bound to one variable collection and every piece of text bound to one of nine shared styles. Changing the brand red is one edit that lands on every screen, which is the difference between a design file and a design system.",
+          "The accessibility work is part of that rather than a pass at the end. Every foreground and background pair in the product is checked and written down. One of them, white on the green card, does not clear the small text threshold, so the green card only ever carries large type and the style guide says so out loud.",
+        ],
+      },
+      {
+        kind: "section", id: "reflection", chapter: "Reflection", section: "reflection",
+        eyebrow: "REFLECTION",
+        heading: "What an unnamed file taught me",
+        lede: [
+          "This was my first product design role, and the thing it taught me is that the interesting decisions are rarely the ones on the screen you are looking at. Counting the artboards, grouping them by job and cutting 114 down to 34 was unglamorous and it decided everything that came after.",
+          "The honest position on sohive is that it never shipped, so none of these decisions have been measured against real use. What I can defend is the reasoning: why the shell is black, why the cards rotate colour, why sign up is light, and why the green card is restricted to large type. Every one of those is written down beside the work rather than left for someone to guess at.",
+          "Rebuilding it in Figma years later was its own lesson. The original file drifted because it had no components to drift from, and I could see exactly where, because the same nav item is called two different things on two different artboards. That is the argument for a design system in one image, and it is why I build one first now.",
+        ],
+      },
+    ]),
     links: [
       { label: "Open Figma file", href: "https://www.figma.com/design/Aojqi0eDF8kWPbiBRno4gq" },
     ],

@@ -1,9 +1,11 @@
 ---
 // pair per figma 90:1757: two 534 by 560 stages side by side, each with its own colour field and a caption
 // underneath. annotations sit on their visual; with captions rather than notes, focus badges are markers.
+// a leader with no visual (sohive 90:2616) sits on the stage itself, its box a share of the stage.
 import Caption from "@/components/exhibits/Caption.astro";
 import ExhibitStage from "@/components/exhibits/ExhibitStage.astro";
 import ExhibitVisual from "@/components/exhibits/ExhibitVisual.astro";
+import AnnotationLeader from "@/components/exhibits/AnnotationLeader.astro";
 
 interface Props {
   id: string;
@@ -19,7 +21,9 @@ const ratio = (stage: any) => { const [w, h] = (stage.ratio ?? "534 / 560").spli
     <figure>
       <ExhibitStage palette={palette} size="pair" ratio={stage.ratio} field={stage.field} base={stage.base}>
         {stage.visuals.map((visual: any) => <ExhibitVisual visual={visual} stageRatio={ratio(stage)} stageWidth={534 / 1116} />)}
-        {[...(stage.annotations ?? [])].sort((a: any, b: any) => Number(a.num) - Number(b.num)).map((annotation: any) => (
+        {[...(stage.annotations ?? [])].sort((a: any, b: any) => Number(a.num) - Number(b.num)).map((annotation: any) => annotation.on === undefined ? (
+          <AnnotationLeader num={annotation.num} label={annotation.label} at={annotation.at} order={Number(annotation.num) - 1} direction={annotation.direction} theme={annotation.theme} />
+        ) : (
           <ExhibitVisual visual={stage.visuals[annotation.on]} stageRatio={ratio(stage)} idPrefix={`${id}-${index}`} annotations={[annotation]} overlay linkNotes={false} />
         ))}
       </ExhibitStage>
@@ -29,7 +33,8 @@ const ratio = (stage: any) => { const [w, h] = (stage.ratio ?? "534 / 560").spli
 </div>
 <style>
   .exhibit-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 48px; }
-  .exhibit-pair figure { display: grid; gap: 24px; margin: 0; }
+  /* a taller caption beside this one must not stretch this figure's rows apart (figma 90:2616 keeps both captions 24 under). */
+  .exhibit-pair figure { display: grid; align-content: start; gap: 24px; margin: 0; }
   .exhibit-pair figcaption :global(.exhibit-caption) { max-width: none; }
   @media (max-width: 760px) {
     .exhibit-pair { grid-template-columns: minmax(0, 1fr); gap: 40px; }

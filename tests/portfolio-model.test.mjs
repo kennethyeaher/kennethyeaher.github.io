@@ -291,13 +291,14 @@ test("unknown slugs fail closed", () => {
 });
 
 // pages on the v2 exhibit layout.
-const exhibitSlugs = ["kairo-health", "usm-venture-benchmark", "ovara", "terpcarehub", "college-park-capstone", "frontground", "terpcare"];
+const exhibitSlugs = ["kairo-health", "usm-venture-benchmark", "ovara", "terpcarehub", "college-park-capstone", "frontground", "terpcare", "sohive"];
 
 // figma rails for pages whose spec export carries no chapter list, read from the frame's chapter rail.
 const figmaRails = {
   ovara: ["01 Overview", "02 The dashboard", "03 The finding", "04 Corrections", "05 Design", "06 Reflection"],
   terpcarehub: ["01 Overview", "02 Core flows", "03 The measure", "04 Where it landed", "05 Design system", "06 Reflection"],
   frontground: ["01 Overview", "02 Core flows", "03 The problem", "04 The solution", "05 The system", "06 Where it stands"],
+  sohive: ["01 Overview", "02 Core flows", "03 The feed", "04 The audit", "05 Identity", "06 Reflection"],
 };
 
 
@@ -336,6 +337,7 @@ test("exhibits are optional and only the converted pages opt in", () => {
   assert.deepEqual(getProjectBySlug("college-park-capstone").exhibits.map(({ kind }) => kind), ["hero", "heatmap", "stage", "journey", "section"]);
   assert.deepEqual(getProjectBySlug("frontground").exhibits.map(({ kind }) => kind), ["hero", "rows", "custom", "stage", "section", "section"]);
   assert.deepEqual(getProjectBySlug("terpcare").exhibits.map(({ kind }) => kind), ["hero", "matrix", "journey", "stage", "section"]);
+  assert.deepEqual(getProjectBySlug("sohive").exhibits.map(({ kind }) => kind), ["hero", "rows", "pair", "custom", "section", "section"]);
 });
 
 /** split prose into sentences, keeping decimals such as 0.91 and initials inside one sentence. */
@@ -344,7 +346,7 @@ function sentences(text) {
 }
 
 // pages built from their prose mock (figma section 07); every page joins as it is built.
-const ledeSlugs = ["kairo-health", "usm-venture-benchmark", "ovara", "terpcarehub", "college-park-capstone", "frontground", "terpcare"];
+const ledeSlugs = ["kairo-health", "usm-venture-benchmark", "ovara", "terpcarehub", "college-park-capstone", "frontground", "terpcare", "sohive"];
 
 /** every lede sentence of a chapter; a prose chapter with no lede of its own reads its section text. */
 function ledeSentences(project, exhibit) {
@@ -372,7 +374,7 @@ test("every lede sentence on a converted page is that page's own copy", () => {
 // the "+ prose (mock)" frames in figma section 07, exported to .private/redesign-spec/prose.json, set each
 // page's rail, chapter heads and ledes.
 const prosePath = new URL("../.private/redesign-spec/prose.json", import.meta.url);
-const mockSlugs = ["kairo-health", "usm-venture-benchmark", "ovara", "terpcarehub", "college-park-capstone", "frontground", "terpcare"];
+const mockSlugs = ["kairo-health", "usm-venture-benchmark", "ovara", "terpcarehub", "college-park-capstone", "frontground", "terpcare", "sohive"];
 
 test("converted pages follow their prose mock word for word", { skip: !existsSync(prosePath) && "prose export not present" }, () => {
   const mocks = JSON.parse(readFileSync(prosePath, "utf8"));
@@ -418,8 +420,9 @@ function assertMatchesSpec(slug) {
       const annotations = built.annotations?.map((annotation) => ({ ...annotation, host: annotation.target ? "native" : annotation.on === undefined ? "stage" : source.visuals[annotation.on].id }))
         ?? built.stages.flatMap((stage, index) => stage.annotations.map((annotation) => ({ ...annotation, host: source.visuals[index].id })));
       // a box is a share of its visual (pct) or, for leaders placed on the stage, of the stage (stagePct).
-      assert.deepEqual(annotations.map(({ num, at }) => [num, at]), source.annotations.map(({ num, pct, stagePct }) => [num, pct ?? stagePct]));
-      assert.deepEqual(annotations.map(({ host }) => host), source.annotations.map(({ on }) => on ?? "stage"));
+      // a leader the spec ties only to a row (sohive 58:870) has no box there; it is measured from figma instead.
+      assert.deepEqual(annotations.map(({ num, at }, index) => [num, source.annotations[index].row ? undefined : at]), source.annotations.map(({ num, pct, stagePct }) => [num, pct ?? stagePct]));
+      assert.deepEqual(annotations.map(({ host }) => host), source.annotations.map(({ on, row }) => on ?? (row ? source.visuals[row - 1].id : "stage")));
       assert.deepEqual(annotations.map(({ label }) => label), source.annotations.map(({ label }) => label));
       assert.deepEqual(annotations.map(({ target }) => target), source.annotations.map(({ target }) => target));
     }

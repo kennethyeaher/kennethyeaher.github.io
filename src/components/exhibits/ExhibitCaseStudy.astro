@@ -8,6 +8,7 @@ import ExhibitJourney from "@/components/exhibits/ExhibitJourney.astro";
 import ChapterLede from "@/components/exhibits/ChapterLede.astro";
 import ExhibitRows from "@/components/exhibits/ExhibitRows.astro";
 import ExhibitAuditCards from "@/components/exhibits/ExhibitAuditCards.astro";
+import ExhibitArtboardCount from "@/components/exhibits/ExhibitArtboardCount.astro";
 import ExhibitHeatmap from "@/components/exhibits/ExhibitHeatmap.astro";
 import ExhibitMatrix from "@/components/exhibits/ExhibitMatrix.astro";
 import ExhibitPair from "@/components/exhibits/ExhibitPair.astro";
@@ -157,6 +158,9 @@ function sectionFor(exhibit: any) {
             )}
             {exhibit.kind === "custom" && exhibit.graphic === "audit-cards" && (
               <ExhibitAuditCards text={exhibit.text} footnote={exhibit.footnote} />
+            )}
+            {exhibit.kind === "custom" && exhibit.graphic === "artboard-count" && (
+              <ExhibitArtboardCount text={exhibit.text} />
             )}
             {exhibit.kind === "journey" && (
               <ExhibitJourney id={exhibit.id} stages={exhibit.stages} accentStage={exhibit.accentStage} rows={exhibit.rows} strip={exhibit.strip} caption={exhibit.heading} tones={exhibit.tones} figure={exhibit.figure} />
