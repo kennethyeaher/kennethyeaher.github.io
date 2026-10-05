@@ -358,6 +358,10 @@ test("sohive renders the v2 exhibit layout from its prose mock", () => {
   const sectionIds = [...page.matchAll(/<section[^>]*\bid="([^"]+)"[^>]*data-case-section/g)].map((match) => match[1]);
   assert.deepEqual(sectionIds, ["overview", "core-flows", "the-feed", "the-audit", "identity", "reflection"]);
   assert.match(page, /hiveSocial · Product Design · 2022/);
+  // the summary is the prose mock's header (90:2555), word for word, in the header and the social meta tags.
+  const summary = "A campus events and social network for the University of Maryland. I joined a file called WTM with a placeholder blue button, and left it with a name, a colour system and thirty four screens.";
+  assert.ok(page.includes(`<p class="exhibit-summary"`) && page.includes(`>${summary}</p>`));
+  for (const name of ['name="description"', 'property="og:description"', 'name="twitter:description"']) assert.ok(page.includes(`${name} content="${summary}"`), name);
   assert.match(page, /A hive is the people, not the app/);
   assert.match(page, /What an unnamed file taught me/);
   // feed and event rows are clean rendered loops; the profile row is a still with no loop tag.

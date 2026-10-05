@@ -2208,7 +2208,7 @@ export const caseStudies = [
     team: "Two founders and an engineer. I owned the interface work and the design system.",
     skills: ["Product design", "Interaction design", "Design systems", "Visual identity", "Information architecture", "Prototyping"],
     summary:
-      "A campus events and social network for the University of Maryland. I joined a file called WTM with a placeholder blue button and a note asking what the product should look like, and left it with a name, a colour system and thirty four screens. Rebuilt here from the original Adobe XD exports into a full Figma library.",
+      "A campus events and social network for the University of Maryland. I joined a file called WTM with a placeholder blue button, and left it with a name, a colour system and thirty four screens.",
     cardImage: "/images/work/sohive/cover-gradient-poster.png",
     cardAlt: "sohive motion cover in the app palette of red, blue, green and orange on black",
     heroImage: "/images/work/sohive/cover-gradient-poster.png",
