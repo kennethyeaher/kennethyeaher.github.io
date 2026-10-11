@@ -1,10 +1,16 @@
 ---
-// metric cards per figma 61:966. the leading number counts up once on first view; the final value
-// is what the server renders, so readers without scripts, or who prefer less motion, see it directly.
+// metric cards per figma 61:966, with home v2's serif labels (figma 90:1676). the leading number counts up once on
+// first view; the final value is what the server renders, so readers without scripts, or who prefer less motion,
+// see it directly.
 interface Props {
   metrics: { value: string; label: string }[];
 }
 const { metrics } = Astro.props;
+
+/** labels read in sentence case; the data keeps the approved wording, mostly lower case. */
+function sentence(label: string): string {
+  return label.charAt(0).toUpperCase() + label.slice(1);
+}
 
 /** split a metric into its leading count and the text after it, such as 55 and " of 56", 1,029 (grouped)
     or 10.9 and "M" (one decimal), so the counter can write each frame the way the final value reads. */
@@ -20,7 +26,7 @@ function parts(value: string): { count?: number; rest: string; decimals?: number
     const { count, rest, decimals, grouped } = parts(metric.value);
     return (
       <div class="metric">
-        <dt>{metric.label}</dt>
+        <dt>{sentence(metric.label)}</dt>
         <dd>
           <span class="metric-value">{metric.value}</span>
           {count !== undefined && count > 0 && (
@@ -33,8 +39,10 @@ function parts(value: string): { count?: number; rest: string; decimals?: number
 </dl>
 <style>
   .exhibit-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; margin: 40px 0 0; padding: 0; }
-  .metric { display: flex; flex-direction: column-reverse; gap: 6px; padding: 20px; border: 1px solid var(--rule); background: var(--surface); }
-  .metric dt { color: var(--muted); font: 12px / 1.3 var(--mono); letter-spacing: -0.02em; text-transform: uppercase; }
+  /* grid rows stretch every tile to the tallest one; the value stays on top (the label comes first for screen readers,
+     so the column is reversed and packed to its end, which is the top). */
+  .metric { display: flex; flex-direction: column-reverse; justify-content: flex-end; gap: 6px; padding: 20px; border: 1px solid var(--rule); background: var(--surface); }
+  .metric dt { color: var(--color-muted-label); font: 16px / 1.3 var(--body); }
   .metric dd { position: relative; margin: 0; color: var(--ink-strong); font: 400 48px / 1.02 var(--display); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
   /* the counter sits over the final value, which keeps holding the space, so nothing shifts. */
   .metric-count { position: absolute; inset: 0; }

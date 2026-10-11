@@ -163,6 +163,19 @@ test("reading progress matches figma 26:105: a sticky rule track under the heade
   for (const [, body] of globalCss.matchAll(/\.reading-progress[^{]*\{([^}]*)\}/g)) assert.doesNotMatch(body, /transition/);
 });
 
+test("metric labels are serif sentence case on all eight pages, and tiles in a row share one height", () => {
+  for (const [slug, html] of pages) {
+    const labels = [...html.matchAll(/<div class="metric"[^>]*>\s*<dt[^>]*>([^<]+)<\/dt>/g)].map((match) => match[1]);
+    assert.equal(labels.length, 3, slug);
+    for (const label of labels) assert.match(label, /^[A-Z0-9]/, `${slug}: ${label}`);
+  }
+  const source = readFileSync(join(projectRoot, "src", "components", "exhibits", "ExhibitMetrics.astro"), "utf8");
+  assert.match(source, /\.metric dt \{ color: var\(--color-muted-label\); font: 16px \/ 1\.3 var\(--body\); \}/);
+  // grid items stretch to the row, and the reversed column packs the value to the top.
+  assert.match(source, /\.metric \{ display: flex; flex-direction: column-reverse; justify-content: flex-end;/);
+  assert.doesNotMatch(source, /align-items: (?:start|center|end)|align-self/);
+});
+
 test("device exhibits preserve captions and source dimensions", () => {
   // every page is on the exhibit layout now; device frames keep their source dimensions there.
   for (const slug of ["frontground", "terpcarehub"]) {
