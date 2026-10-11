@@ -5,6 +5,7 @@ import test, { before } from "node:test";
 import assert from "node:assert/strict";
 
 import { projects } from "../src/data/portfolio.mjs";
+import { contrast, hexToOklch } from "../src/utils/oklch.mjs";
 
 const projectRoot = new URL("..", import.meta.url).pathname;
 const slugs = [
@@ -131,11 +132,6 @@ test("every eagerly loaded hero image is also fetched at high priority, cropped 
 });
 
 test("reading progress matches figma 26:105: a sticky rule track under the header, filled in the case study accent", () => {
-  const luminance = (hex) => {
-    const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
-    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-  };
-  const contrast = (a, b) => { const [high, low] = [luminance(a), luminance(b)].sort((x, y) => y - x); return (high + 0.05) / (low + 0.05); };
   for (const [slug, html] of pages) {
     const project = projects.find((entry) => entry.slug === slug);
     // the first thing in main, so it rests under the header and pins once the header scrolls away.
@@ -143,20 +139,28 @@ test("reading progress matches figma 26:105: a sticky rule track under the heade
     assert.ok(bar, `${slug} opens main with the reading progress bar`);
     assert.equal(bar[1], project.cover.accent ?? project.cover.palette[1]);
     assert.ok(contrast(bar[2], "#344553") >= 3, `${slug} dark fill reaches 3:1 on the dark track`);
+    // the dark fill is the same hue, lighter, with chroma cut only where srgb runs out.
+    const [lightness, chroma, hue] = hexToOklch(bar[1]);
+    const [darkLightness, darkChroma, darkHue] = hexToOklch(bar[2]);
+    assert.ok(darkLightness > lightness, `${slug} dark fill is lighter`);
+    assert.ok(Math.abs(darkHue - hue) * (180 / Math.PI) < 2, `${slug} dark fill keeps its hue`);
+    assert.ok(darkChroma > chroma * 0.9, `${slug} dark fill keeps its chroma`);
   }
   assert.match(pages.get("terpcarehub"), /--reading-accent: #E21833;/);
 
   const globalCss = readFileSync(join(projectRoot, "src", "styles", "global.css"), "utf8");
   assert.match(globalCss, /\.reading-progress \{ position: sticky; z-index: 40; top: 0; height: 3px; background: var\(--rule\); pointer-events: none; \}/);
-  // the scroll timeline only runs where motion is welcome; reduced motion keeps an empty track.
+  // the scroll timeline only runs where motion is welcome; under reduced motion the script sets the fill directly.
   const start = globalCss.indexOf("@media (prefers-reduced-motion: no-preference)");
   const motion = globalCss.slice(start, globalCss.indexOf("@media (prefers-reduced-motion: reduce)", start));
   assert.match(motion, /@supports \(animation-timeline: scroll\(\)\) \{\s*\.reading-progress span \{ animation: reading-progress linear both; animation-timeline: scroll\(root block\); \}/);
   const script = readFileSync(join(projectRoot, "src", "scripts", "exhibits.ts"), "utf8");
   const fallback = script.slice(script.indexOf("export function initializeReadingProgress"), script.indexOf("\n}\n", script.indexOf("export function initializeReadingProgress")));
-  assert.match(fallback, /CSS\.supports\("animation-timeline: scroll\(\)"\)\) return;/);
+  assert.match(fallback, /const native = CSS\.supports\("animation-timeline: scroll\(\)"\);/);
   assert.match(fallback, /prefers-reduced-motion: reduce/);
-  assert.match(fallback, /removeProperty\("--reading-progress"\)/);
+  assert.match(fallback, /if \(native && !motion\.matches\)/);
+  // no rule for the bar eases it, so the script's updates land as they are.
+  for (const [, body] of globalCss.matchAll(/\.reading-progress[^{]*\{([^}]*)\}/g)) assert.doesNotMatch(body, /transition/);
 });
 
 test("device exhibits preserve captions and source dimensions", () => {

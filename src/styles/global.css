@@ -561,11 +561,12 @@ button {
 .theme-icon { width: 15px; height: 15px; border: 1px solid currentColor; border-radius: 50%; background: linear-gradient(90deg, currentColor 50%, transparent 50%); }
 /* figma 26:105: a 3px rule coloured track under the header, filled in the case study accent. it is the first thing in
    main, so it rests under the header and sticks to the top of the viewport once the header scrolls away; it sits
-   below the header's layer so the open menu covers it. under reduced motion it stays an empty track. */
+   below the header's layer so the open menu covers it. under reduced motion the script sets the fill directly, so it
+   still follows the scroll position with no animation. */
 .reading-progress { position: sticky; z-index: 40; top: 0; height: 3px; background: var(--rule); pointer-events: none; }
 .reading-progress span { display: block; height: 100%; transform: scaleX(var(--reading-progress, 0)); transform-origin: left; background: var(--reading-accent, var(--accent)); }
 /* the dark track is #344553, which every case study accent falls under 3:1 against, so dark themes fill with the
-   accent lifted toward white until it reaches 3:1 (computed in src/pages/work/[slug].astro). */
+   accent raised in oklch lightness, hue and chroma kept, until it reaches 3:1 (src/utils/oklch.mjs). */
 :root[data-theme="dark"] .reading-progress span { background: var(--reading-accent-dark, var(--accent)); }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) .reading-progress span { background: var(--reading-accent-dark, var(--accent)); }

@@ -54,18 +54,20 @@ export function initializeCoverDepth(): void {
   });
 }
 
-/** Provide reading progress where a native scroll timeline is unavailable. */
+/** Provide reading progress where a native scroll timeline is unavailable, and under reduced motion. */
 export function initializeReadingProgress(): void {
   const progress = document.querySelector<HTMLElement>("[data-reading-progress]");
-  // the scroll timeline in global.css drives the bar wherever it exists.
-  if (!progress || CSS.supports("animation-timeline: scroll()")) return;
+  if (!progress) return;
+  // the scroll timeline in global.css drives the bar where it exists and motion is welcome; otherwise the fill is
+  // set directly from the scroll position, with no transition or easing.
+  const native = CSS.supports("animation-timeline: scroll()");
   const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
   let queued = false;
-  /** Measure the scrollable document and update its progress without animation; reduced motion keeps it empty. */
+  /** Measure the scrollable document and update its progress without animation. */
   function update(): void {
     queued = false;
     if (!progress) return;
-    if (motion.matches) {
+    if (native && !motion.matches) {
       progress.style.removeProperty("--reading-progress");
       return;
     }
@@ -75,13 +77,13 @@ export function initializeReadingProgress(): void {
   }
   /** Batch scroll and resize measurements into the next animation frame. */
   function schedule(): void {
-    if (queued) return;
+    if (queued || (native && !motion.matches)) return;
     queued = true;
     requestAnimationFrame(update);
   }
   window.addEventListener("scroll", schedule, { passive: true });
   window.addEventListener("resize", schedule);
-  motion.addEventListener("change", schedule);
+  motion.addEventListener("change", update);
   if ("ResizeObserver" in window) new ResizeObserver(schedule).observe(document.body);
   update();
 }
