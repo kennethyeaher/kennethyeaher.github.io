@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { existsSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -70,20 +70,47 @@ test("exhibit kit assets from the figma components ship as real files", () => {
   }
 });
 
-test("every exhibit image ships its sized webp copies", () => {
+/** every image an exhibit places on a stage, once each: the same set scripts/build-exhibit-images.mjs sizes. */
+function exhibitVisuals() {
+  const visuals = new Map();
   for (const project of projects) {
     for (const exhibit of project.exhibits ?? []) {
-      for (const visual of [...(exhibit.visuals ?? []), ...(exhibit.stages ?? []).flatMap((stage) => stage.visuals ?? []), ...(exhibit.tiles ?? []), ...(exhibit.figure ? [exhibit.figure] : [])]) {
-        const name = visual.src.split("/").pop().replace(/\.[^.]+$/, "");
-        for (const width of [480, 960]) {
-          const path = publicFile(`/images/exhibits/sized/${name}-${width}.webp`);
-          assert.ok(existsSync(path) && statSync(path).size > 0, `${name}-${width}.webp is missing`);
-        }
-        // every exhibit image and loop file is a real file in public.
-        for (const file of [visual.src, visual.loop?.src, visual.loop?.poster].filter(Boolean)) {
-          assert.ok(existsSync(publicFile(file)) && statSync(publicFile(file)).size > 0, `${file} is missing`);
-        }
+      for (const visual of [...(exhibit.visuals ?? []), ...(exhibit.stages ?? []).flatMap((stage) => stage.visuals ?? []), ...(exhibit.tiles ?? []), ...(exhibit.figure ? [exhibit.figure] : []),
+        ...(exhibit.scroller ? [exhibit.scroller.visual] : []), ...(exhibit.walkthrough?.steps ?? []).map((step) => step.screen), ...(exhibit.pins ? [exhibit.pins.visual] : [])]) {
+        visuals.set(visual.src, visual);
       }
     }
   }
+  return [...visuals.values()];
+}
+
+test("every exhibit image and loop file is a real file in public", () => {
+  for (const visual of exhibitVisuals()) {
+    for (const file of [visual.src, visual.loop?.src, visual.loop?.poster].filter(Boolean)) {
+      assert.ok(existsSync(publicFile(file)) && statSync(publicFile(file)).size > 0, `${file} is missing`);
+    }
+  }
+});
+
+test("the exhibit size manifest lists the standard widths below each source plus one at the source width, capped at 1920, and every copy exists", () => {
+  const manifest = JSON.parse(readFileSync(join(projectRoot, "src/data/exhibit-sizes.json"), "utf8"));
+  const sizedDir = publicFile("/images/exhibits/sized");
+  const expectedFiles = new Set();
+  for (const visual of exhibitVisuals()) {
+    const name = visual.src.split("/").pop().replace(/\.[^.]+$/, "");
+    const widths = manifest[name];
+    assert.ok(Array.isArray(widths), `${name} is missing from the manifest`);
+    const top = Math.min(visual.width, 1920);
+    const expected = [...[480, 960, 1440, 1920].filter((width) => width < top), top];
+    assert.deepEqual(widths, expected, `${name} (source ${visual.width} wide) has the wrong widths`);
+    for (const width of widths) {
+      const file = `${name}-${width}.webp`;
+      expectedFiles.add(file);
+      assert.ok(existsSync(join(sizedDir, file)) && statSync(join(sizedDir, file)).size > 0, `${file} is missing`);
+    }
+  }
+  // nothing ships unused: every file in the sized folder is one the manifest names.
+  assert.deepEqual(readdirSync(sizedDir).filter((file) => !expectedFiles.has(file)), []);
+  // and the manifest names only exhibit images.
+  assert.deepEqual(Object.keys(manifest).sort(), [...new Set(exhibitVisuals().map((visual) => visual.src.split("/").pop().replace(/\.[^.]+$/, "")))].sort());
 });

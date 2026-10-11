@@ -5,6 +5,7 @@
 import Caption from "@/components/exhibits/Caption.astro";
 import DeviceFrame from "@/components/DeviceFrame.astro";
 import ExhibitStage from "@/components/exhibits/ExhibitStage.astro";
+import { exhibitSrcset } from "@/utils/exhibitSrcset";
 
 interface Pin { n: string; at: { x: number; y: number }; title: string; body: string }
 interface Props {
@@ -33,9 +34,9 @@ const onPhone = (pin: Pin) => ({
   y: (((pin.at.y / 100) * stageHeight + 15 - phoneTop) / phoneHeight) * 100,
 });
 const noteId = (pin: Pin) => `${id}-note-${pin.n}`;
-const name = visual.src.split("/").pop()?.replace(/\.[^.]+$/, "");
-const srcset = [480, 960].map((width) => `/images/exhibits/sized/${name}-${width}.webp ${width}w`).join(", ");
-const sizes = `calc(min(1116px, 100vw - 48px) * ${(visual.at.w / 100).toFixed(3)})`;
+const srcset = exhibitSrcset(visual.src);
+// once the layout stacks (the container query below, a column of 860 or less) the phone is 60% of a full width stage.
+const sizes = `(max-width: 908px) calc(min(1116px, 100vw - 48px) * 0.6), calc(min(1116px, 100vw - 48px) * ${(visual.at.w / 100).toFixed(3)})`;
 
 // one rule set per pin: it is active while hovered or focused, or by default while no pin is. the active pin and
 // note swap in their full colours, ring and shadow; nothing dims by opacity, so inactive text keeps aa.

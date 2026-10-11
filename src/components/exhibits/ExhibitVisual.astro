@@ -7,6 +7,7 @@ import DeviceFrame from "@/components/DeviceFrame.astro";
 import ExhibitLoop from "@/components/exhibits/ExhibitLoop.astro";
 import AnnotationFocus from "@/components/exhibits/AnnotationFocus.astro";
 import AnnotationLeader from "@/components/exhibits/AnnotationLeader.astro";
+import { exhibitSrcset } from "@/utils/exhibitSrcset";
 
 interface Box { x: number; y: number; w: number; h?: number }
 interface Props {
@@ -54,13 +55,16 @@ function placement(): string | undefined {
 }
 const style = placement();
 
-// webp copies at 480 and 960 wide come from scripts/build-exhibit-images.mjs; the png stays the fallback.
-const name = visual.src.split("/").pop()?.replace(/\.[^.]+$/, "");
-const srcset = [480, 960].map((width) => `/images/exhibits/sized/${name}-${width}.webp ${width}w`).join(", ");
+// webp copies from scripts/build-exhibit-images.mjs; the png stays the fallback.
+const srcset = exhibitSrcset(visual.src);
 const share = visual.at ? (Number(style?.match(/width: ([\d.]+)%/)?.[1]) || visual.at.w) : 100;
 // a crop shows a fraction of the image, so the full image has to be that much wider to stay sharp.
 const zoom = visual.crop ? 1 / visual.crop.w : 1;
-const sizes = `calc(min(1116px, 100vw - 48px) * ${((share / 100) * zoom * (stageWidth ?? 1)).toFixed(3)})`;
+// a rows or pair stage (stageWidth given) is the full column once those layouts stack under 760px.
+const column = `min(1116px, 100vw - 48px)`;
+const sizes = stageWidth
+  ? `(max-width: 760px) calc(${column} * ${((share / 100) * zoom).toFixed(3)}), calc(${column} * ${((share / 100) * zoom * stageWidth).toFixed(3)})`
+  : `calc(${column} * ${((share / 100) * zoom).toFixed(3)})`;
 const cropStyle = visual.crop && `width: ${(100 / visual.crop.w).toFixed(3)}%; left: ${(-100 * visual.crop.x / visual.crop.w).toFixed(3)}%; top: ${(-100 * visual.crop.y / visual.crop.h).toFixed(3)}%`;
 const eager = priority || visual.priority === true;
 ---

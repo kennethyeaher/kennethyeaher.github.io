@@ -2,6 +2,7 @@
 // journey map per figma 63:955: stage columns by labelled rows, one accent stage, then an optional
 // strip of cards (63:1021). it is tabular, so it renders as a real table that scrolls on small screens.
 import ExhibitStrip from "@/components/exhibits/ExhibitStrip.astro";
+import { exhibitSrcset } from "@/utils/exhibitSrcset";
 
 interface Props {
   id: string;
@@ -22,7 +23,6 @@ const columns = stages.map((stage) => {
 });
 // row labels in figma run muted, annotate, accent; further rows stay muted.
 const tones = rowTones ?? ["muted", "annotate", "accent"];
-const figureName = figure?.src.split("/").pop()?.replace(/\.[^.]+$/, "");
 ---
 <div class="edge-fade" style="--edge-radius: 10px; --edge-inset: 1px">
 <div class="journey-scroll edge-scroll" role="region" aria-label="Journey map, scrolls sideways on small screens" tabindex="0">
@@ -55,7 +55,7 @@ const figureName = figure?.src.split("/").pop()?.replace(/\.[^.]+$/, "");
   <figure class="journey-figure">
     <p class="figure-label">{figure.label}</p>
     <picture>
-      <source type="image/webp" srcset={`/images/exhibits/sized/${figureName}-960.webp 960w`} sizes="min(1116px, 100vw - 48px)" />
+      <source type="image/webp" srcset={exhibitSrcset(figure.src)} sizes="min(1116px, 100vw - 48px)" />
       <img src={figure.src} alt={figure.alt} width={figure.width} height={figure.height} loading="lazy" decoding="async" />
     </picture>
     <figcaption>{figure.caption}</figcaption>

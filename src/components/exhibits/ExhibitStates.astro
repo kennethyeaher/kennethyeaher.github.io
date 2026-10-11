@@ -2,6 +2,7 @@
 // interface states per figma 90:1782: four tiles in a row, each a state crop on a sunken tile with its
 // name and one line under it, from the spec text (name | line | name | line ...). wraps to two by two.
 import Caption from "@/components/exhibits/Caption.astro";
+import { exhibitSrcset } from "@/utils/exhibitSrcset";
 
 interface Props {
   text: string;
@@ -11,14 +12,13 @@ interface Props {
 const { text, tiles, caption } = Astro.props;
 const parts = text.split(" | ");
 const named = tiles.map((tile, index) => ({ ...tile, name: parts[index * 2], line: parts[index * 2 + 1] }));
-const webp = (src: string, width: number) => `/images/exhibits/sized/${src.split("/").pop()?.replace(/\.[^.]+$/, "")}-${width}.webp`;
 ---
 <ul class="exhibit-states">
   {named.map((tile) => (
     <li>
       <div class="state-tile">
         <picture>
-          <source type="image/webp" srcset={`${webp(tile.src, 480)} 480w`} sizes="195px" />
+          <source type="image/webp" srcset={exhibitSrcset(tile.src)} sizes="195px" />
           <img src={tile.src} alt={tile.alt} width={tile.width} height={tile.height} loading="lazy" decoding="async" />
         </picture>
       </div>

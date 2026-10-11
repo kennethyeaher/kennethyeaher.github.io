@@ -5,6 +5,7 @@ import Caption from "@/components/exhibits/Caption.astro";
 import DeviceFrame from "@/components/DeviceFrame.astro";
 import ExhibitStage from "@/components/exhibits/ExhibitStage.astro";
 import MediaTag from "@/components/exhibits/MediaTag.astro";
+import { exhibitSrcset } from "@/utils/exhibitSrcset";
 
 interface Props {
   id: string;
@@ -17,9 +18,8 @@ interface Props {
 }
 const { id, palette, exhibit } = Astro.props;
 const { visual } = exhibit;
-// webp copies at 480 and 960 wide come from scripts/build-exhibit-images.mjs; the full export covers 2x desktop.
-const name = visual.src.split("/").pop()?.replace(/\.[^.]+$/, "");
-const srcset = [...[480, 960].map((width) => `/images/exhibits/sized/${name}-${width}.webp ${width}w`), `${visual.src} ${visual.width}w`].join(", ");
+// webp copies from scripts/build-exhibit-images.mjs, up to 1920 wide, cover 2x desktop; the full export is only the fallback.
+const srcset = exhibitSrcset(visual.src);
 const sizes = `calc(min(1116px, 100vw - 48px) * ${(visual.at.w / 100).toFixed(3)})`;
 ---
 <figure class="exhibit-scroller">

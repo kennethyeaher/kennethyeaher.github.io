@@ -363,8 +363,8 @@ test("TerpCareHub's overview laptop scrolls the full home page on hover or focus
   // keyboard focus reaches the frame, which is described by its caption.
   assert.match(laptop, /<div class="scroller-focus" tabindex="0" role="img" aria-label="[^"]+" aria-describedby="overview-scroller-caption"/);
   assert.deepEqual([texts(laptop, "caption-title")[0], texts(laptop, "caption-body")[0]], ["Home, desktop", "The redesigned hero states the promise in the university’s own colours, using the product’s real interface language behind it."]);
-  // the 2x export (3024 wide) is 650 KB; the sized copies carry the page, so the bound moves with them.
-  assert.ok(statSync(join(projectRoot, "public/images/work/terpcarehub/home-full.webp")).size < 700 * 1024, "the home page export stays under 700 KB");
+  // the widest copy a browser is offered (the 1920 one; the 3024 export is only the fallback) stays under 400 KB.
+  assert.ok(statSync(join(projectRoot, "public/images/exhibits/sized/home-full-1920.webp")).size < 400 * 1024, "the widest home page copy stays under 400 KB");
 });
 
 test("TerpCareHub's core flows open with a scroll walkthrough beside a pinned phone", () => {
