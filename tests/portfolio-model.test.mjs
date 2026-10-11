@@ -15,21 +15,40 @@ import { approvedLedes } from "../scripts/build-approved-ledes.mjs";
 const specPath = new URL("../.private/redesign-spec/v2-pages.json", import.meta.url);
 
 const expectedOrder = [
-  "usm-venture-benchmark",
-  "ovara",
-  "kairo-health",
   "terpcarehub",
-  "college-park-capstone",
   "frontground",
-  "terpcare",
   "sohive",
+  "terpcare",
+  "ovara",
+  "college-park-capstone",
+  "kairo-health",
+  "usm-venture-benchmark",
 ];
 
-test("featured work returns the approved eight projects newest first", () => {
+test("featured work returns the approved eight projects, design work first", () => {
   assert.deepEqual(
     getFeaturedProjects().map((project) => project.slug),
     expectedOrder,
   );
+});
+
+test("categories come from one fixed set, one or two per project", () => {
+  const allowed = new Set(["Product Design", "Interaction Design", "Design Systems", "UX Research", "Data Science", "Data Visualization", "Venture Research"]);
+  for (const project of projects) {
+    const parts = project.category.split(" + ");
+    assert.ok(parts.length >= 1 && parts.length <= 2, project.slug);
+    for (const part of parts) assert.ok(allowed.has(part), `${project.slug}: ${part}`);
+  }
+  assert.deepEqual(Object.fromEntries(projects.map((project) => [project.slug, project.category])), {
+    terpcarehub: "Interaction Design + Design Systems",
+    frontground: "Product Design + UX Research",
+    sohive: "Product Design + Design Systems",
+    terpcare: "Product Design",
+    ovara: "Data Science + Data Visualization",
+    "college-park-capstone": "UX Research",
+    "kairo-health": "Data Science",
+    "usm-venture-benchmark": "Venture Research + Data Visualization",
+  });
 });
 
 test("every project has a unique slug and every navigation target resolves", () => {
@@ -43,16 +62,16 @@ test("every project has a unique slug and every navigation target resolves", () 
 
 test("adjacent-project navigation wraps without a dead end", () => {
   assert.equal(
-    getAdjacentProject("usm-venture-benchmark", "previous").slug,
-    "sohive",
-  );
-  assert.equal(
-    getAdjacentProject("sohive", "next").slug,
+    getAdjacentProject("terpcarehub", "previous").slug,
     "usm-venture-benchmark",
   );
   assert.equal(
-    getAdjacentProject("frontground", "previous").slug,
-    "college-park-capstone",
+    getAdjacentProject("usm-venture-benchmark", "next").slug,
+    "terpcarehub",
+  );
+  assert.equal(
+    getAdjacentProject("ovara", "previous").slug,
+    "terpcare",
   );
 });
 

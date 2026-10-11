@@ -99,14 +99,14 @@ test("the renamed capstone and expanded product evidence render publicly", () =>
 });
 
 test("previous and next project links wrap without dead ends", () => {
-  const first = pages.get("usm-venture-benchmark");
-  const middle = pages.get("frontground");
-  const last = pages.get("sohive");
+  const first = pages.get("terpcarehub");
+  const middle = pages.get("terpcare");
+  const last = pages.get("usm-venture-benchmark");
 
-  // the v2 exhibit shell (figma 61:1059) closes on a next project link only.
-  assert.match(first, /href="\/work\/ovara"/);
-  assert.match(middle, /href="\/work\/terpcare"/);
-  assert.match(last, /href="\/work\/usm-venture-benchmark"/);
+  // the v2 exhibit shell (figma 61:1059) closes on a next project link only, in the home order.
+  assert.match(first, /href="\/work\/frontground"/);
+  assert.match(middle, /href="\/work\/ovara"/);
+  assert.match(last, /href="\/work\/terpcarehub"/);
 });
 
 
@@ -186,7 +186,7 @@ test("Kairo renders the v2 exhibit layout from the approved spec", () => {
   assert.match(kairo, /data-count-to="55" data-count-rest=" of 56"/);
   assert.match(kairo, /<table class="journey/);
   assert.match(kairo, /<th scope="col" class="is-accent[^"]*"/);
-  assert.match(kairo, /href="\/work\/terpcarehub"/);
+  assert.match(kairo, /href="\/work\/usm-venture-benchmark"/);
   assert.match(kairo, /The useful finding was a workflow insight, not a winner/);
   const badges = [...kairo.matchAll(/<a class="annotation-badge[^"]*" href="#([^"]+)" aria-describedby="([^"]+)"/g)];
   assert.equal(badges.length, 6);
@@ -232,7 +232,7 @@ test("USM renders the v2 exhibit layout from the approved spec", () => {
   assert.equal([...usm.matchAll(/class="is-mechanism/g)].length, 4);
   assert.match(usm, /<span class="strip-commitment"[^>]*>HIGH CAPITAL AND GOVERNANCE<\/span>/);
   assert.match(usm, /The mechanisms are generic\. Confidential institution findings and recommendations are omitted\./);
-  assert.match(usm, /href="\/work\/ovara"/);
+  assert.match(usm, /href="\/work\/terpcarehub"/);
   assertBadgesResolve(usm, 6);
   assert.doesNotMatch(usm, /data-cover-video|\.mp4/);
 });
@@ -264,7 +264,7 @@ test("Ovara renders the v2 exhibit layout from the approved spec", () => {
   assert.match(ovara, /<p class="audit-value"[^>]*>\+0\.33 → \+0\.12<\/p>/);
   assert.match(ovara, /<dt class="audit-heading is-guard"[^>]*>Guard<\/dt>/);
   assert.match(ovara, /That is the number I would have quoted in an interview\./);
-  assert.match(ovara, /href="\/work\/kairo-health"/);
+  assert.match(ovara, /href="\/work\/college-park-capstone"/);
   assertBadgesResolve(ovara, 3);
 });
 
@@ -308,7 +308,7 @@ test("TerpCareHub renders the v2 exhibit layout from its prose mock", () => {
   // four interface states, each with its name and line.
   assert.equal([...page.matchAll(/<p class="state-name"/g)].length, 4);
   assert.match(page, /interface-state-degraded\.png/);
-  assert.match(page, /href="\/work\/college-park-capstone"/);
+  assert.match(page, /href="\/work\/frontground"/);
 });
 
 /** the visible text of an html fragment, tags dropped and whitespace collapsed. */
@@ -422,7 +422,7 @@ test("the Capstone renders the v2 exhibit layout from its prose mock", () => {
   assertBadgesResolve(page, 3);
   assert.match(page, /TYLER’S JOURNEY MAP  ·  FOUR STAGES, NO PLANNING, NO ARRIVAL/);
   assert.match(page, /journey-tyler\.png/);
-  assert.match(page, /href="\/work\/frontground"/);
+  assert.match(page, /href="\/work\/kairo-health"/);
 });
 
 test("Frontground renders the v2 exhibit layout from its prose mock", () => {
@@ -447,7 +447,7 @@ test("Frontground renders the v2 exhibit layout from its prose mock", () => {
   assert.equal([...page.matchAll(/class="annotation annotation-leader is-left/g)].length, 2);
   assert.equal([...page.matchAll(/class="annotation annotation-leader is-vertical/g)].length, 1);
   assert.match(page, /What the interviews put on the first screen/);
-  assert.match(page, /href="\/work\/terpcare"/);
+  assert.match(page, /href="\/work\/sohive"/);
 });
 
 test("TerpCare renders the v2 exhibit layout from its prose mock", () => {
@@ -467,14 +467,14 @@ test("TerpCare renders the v2 exhibit layout from its prose mock", () => {
   // core flows: four phones, four boxes, every badge resolving to its note (three on the matrix, four here).
   assert.equal([...page.matchAll(/data-device-frame="iphone"/g)].length, 7);
   assertBadgesResolve(page, 7);
-  assert.match(page, /href="\/work\/sohive"/);
+  assert.match(page, /href="\/work\/ovara"/);
 });
 
 test("sohive renders the v2 exhibit layout from its prose mock", () => {
   const page = pages.get("sohive");
   const sectionIds = [...page.matchAll(/<section[^>]*\bid="([^"]+)"[^>]*data-case-section/g)].map((match) => match[1]);
   assert.deepEqual(sectionIds, ["overview", "core-flows", "the-feed", "the-audit", "identity", "reflection"]);
-  assert.match(page, /hiveSocial · Product Design · 2022/);
+  assert.match(page, /hiveSocial · Product Design \+ Design Systems · 2022/);
   // the summary is the prose mock's header (90:2555), word for word, in the header and the social meta tags.
   const summary = "A campus events and social network for the University of Maryland. I joined a file called WTM with a placeholder blue button, and left it with a name, a colour system and thirty four screens.";
   assert.ok(page.includes(`<p class="exhibit-summary"`) && page.includes(`>${summary}</p>`));
@@ -495,5 +495,5 @@ test("sohive renders the v2 exhibit layout from its prose mock", () => {
   // the artboard count draws 114 and 34 tiles in html, with its counts as text.
   assert.equal([...page.matchAll(/<div class="count-tiles"[^>]*>([\s\S]*?)<\/div>/g)].map((match) => (match[1].match(/<i\b/g) ?? []).length).join(","), "114,34");
   assert.match(page, /<span class="count-number"[^>]*>114<\/span>/);
-  assert.match(page, /href="\/work\/usm-venture-benchmark"/);
+  assert.match(page, /href="\/work\/terpcare"/);
 });

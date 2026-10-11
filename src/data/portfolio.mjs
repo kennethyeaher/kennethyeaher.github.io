@@ -390,10 +390,26 @@ export const aboutGallery = [
   { src: "/images/about/about-13.jpg", alt: "With friends outside Pat's King of Steaks in Philadelphia" },
 ];
 
-/** Eight publishable project records that drive the Work page and case studies. */
-export const projects = caseStudies;
+/** home v2 order (figma 131:2038): design work first, then data and research. next and previous follow it too. */
+const order = [
+  "terpcarehub",
+  "frontground",
+  "sohive",
+  "terpcare",
+  "ovara",
+  "college-park-capstone",
+  "kairo-health",
+  "usm-venture-benchmark",
+];
 
-/** Return the selected work in reverse chronological order, newest first. */
+/** Eight publishable project records that drive the Work page and case studies, in the home order. */
+export const projects = order.map((slug) => {
+  const project = caseStudies.find((entry) => entry.slug === slug);
+  if (!project) throw new Error(`Unknown project slug in the home order: ${slug}`);
+  return project;
+});
+
+/** Return the selected work in the home order. */
 export function getFeaturedProjects() {
   return [...projects];
 }

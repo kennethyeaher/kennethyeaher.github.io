@@ -26,18 +26,18 @@ before(() => {
   aboutHtml = readFileSync(join(projectRoot, "dist", "about", "index.html"), "utf8");
 });
 
-test("the Work page renders the approved thesis and newest-first project order", () => {
+test("the Work page renders the approved thesis and the design-first project order", () => {
   assert.match(visibleText(workHtml), /product specialist led by evidence/i);
 
   const routes = [
-    "/work/usm-venture-benchmark",
-    "/work/ovara",
-    "/work/kairo-health",
     "/work/terpcarehub",
-    "/work/college-park-capstone",
     "/work/frontground",
-    "/work/terpcare",
     "/work/sohive",
+    "/work/terpcare",
+    "/work/ovara",
+    "/work/college-park-capstone",
+    "/work/kairo-health",
+    "/work/usm-venture-benchmark",
   ];
   const positions = routes.map((route) => workHtml.indexOf(`href="${route}"`));
 
