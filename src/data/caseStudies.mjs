@@ -1039,24 +1039,20 @@ export const caseStudies = [
         ],
         eyebrow: "CORE FLOWS",
         heading: "Three flows carry the product",
-        // row stages from the prose mock (90:1689, 90:1699, 90:1709): their own base, field and veil.
-        bases: ["#b3122a", "#8a0b1e", "#e9a23b"],
+        // row stages from the prose mock (90:1699, 90:1709): their own base, field and veil.
+        bases: ["#8a0b1e", "#e9a23b"],
         veil: true,
         fields: [
-          { width: 600, height: 600, sigma: 45, circles: [{ x: 180, y: 140, r: 260, colour: "#FFD24D", alpha: 0.9 }, { x: 530, y: 490, r: 230, colour: "#FF7A45", alpha: 0.9 }, { x: 590, y: 50, r: 210, colour: "#7A0718", alpha: 0.9 }] },
           { width: 600, height: 600, sigma: 45, circles: [{ x: 160, y: 560, r: 280, colour: "#E21833", alpha: 0.9 }, { x: 550, y: 50, r: 190, colour: "#FFB547", alpha: 0.9 }, { x: 470, y: 590, r: 210, colour: "#3D0410", alpha: 0.9 }] },
           { width: 600, height: 600, sigma: 45, circles: [{ x: 140, y: 180, r: 280, colour: "#FFF1C4", alpha: 0.9 }, { x: 620, y: 580, r: 260, colour: "#E21833", alpha: 0.9 }, { x: 270, y: 270, r: 150, colour: "#FF8A3D", alpha: 0.9 }] },
         ],
         visuals: [
-          { src: "/images/work/terpcarehub/mobile-find-care.png", width: 321, height: 1100, alt: "Mobile find care screen", frame: "iphone", at: { x: 29, y: 7.6, w: 42 },
-            loop: { src: "/images/work/terpcarehub/terpcarehub-find-care-loop.mp4", poster: "/images/work/terpcarehub/terpcarehub-find-care-loop-poster.webp", name: "same-day care" } },
           { src: "/images/work/terpcarehub/mobile-alert-detail.png", width: 390, height: 998, alt: "Mobile alert detail screen", frame: "iphone", at: { x: 29, y: 7.6, w: 42 },
             loop: { src: "/images/work/terpcarehub/terpcarehub-alert-loop.mp4", poster: "/images/work/terpcarehub/terpcarehub-alert-loop-poster.webp", name: "alert" } },
           { src: "/images/work/terpcarehub/mobile-dashboard.png", width: 390, height: 1052, alt: "Mobile dashboard screen", frame: "iphone", at: { x: 29, y: 7.6, w: 42 },
             loop: { src: "/images/work/terpcarehub/terpcarehub-dashboard-loop.mp4", poster: "/images/work/terpcarehub/terpcarehub-dashboard-loop-poster.webp", name: "own items" } },
         ],
         captions: [
-          { tag: "LOOP · 6S", title: "Find same-day care", body: "Filters are preset, cost is visible before the click, and sign-in is required only to book." },
           { tag: "LOOP · 6S", title: "Read an alert with its source attached", body: "A severity tag, a source badge and a timestamp travel together, so an advisory keeps its authority after someone reshares it." },
           { tag: "LOOP · 6S", title: "Keep your own items apart", body: "Institutional alerts, peer conversation and personal items are visually separated, led by the alert that still needs acknowledgement." },
         ],
@@ -1073,37 +1069,23 @@ export const caseStudies = [
         text: "Current state · one student, one Sunday night | Overnight wait | 2:40 PM next day | Appointment taken | She misses a lecture to do it. | 11:02 PM | 01 | Symptom onset | No triage guidance exists anywhere on campus | 02 | First search | Hours and services live on separate pages | 03 | Source hopping | Four formats, no shared vocabulary, no verification | 04 | Dead end | Cost is the real blocker and the least visible fact | 05 | Gives up | Twenty-two minutes spent, no decision reached | Minute 22 · 11:24 PM | The worst moment on that map is not the overnight wait. It is minute twenty-two, when the search ends and she still does not know what to do.",
       },
       {
-        kind: "pair", id: "where-it-landed", chapter: "Where it landed", figma: "53:610",
+        kind: "stage", id: "where-it-landed", chapter: "Where it landed", figma: "53:610", size: "wide", ratio: "1116 / 560",
         lede: [
           "The provider card carries the decision. Availability, plan acceptance, and expected cost sit on the card itself. Cost was the blocker that ended the search in the journey map, and pushing it to a detail page would rebuild the same dead end one screen further in.",
           "Alerts carry a severity tag applied at ingest, a source badge, and a timestamp. Those three travel together, so an advisory keeps its authority after someone screenshots it and reshares it outside the product. A high-severity alert has to be acknowledged rather than swiped away, and acknowledging it says where the alert went.",
         ],
         eyebrow: "WHERE IT LANDED",
         heading: "Insight 1: The decision moves onto the card",
-        stages: [
-          {
-            ratio: "534 / 560", base: "#f6c453",
-            field: { width: 534, height: 560, sigma: 45, circles: [{ x: 140, y: 120, r: 260, colour: "#FFF4D6", alpha: 0.9 }, { x: 520, y: 520, r: 220, colour: "#FF9A3D", alpha: 0.9 }, { x: 350, y: 90, r: 150, colour: "#F5D77E", alpha: 0.9 }] },
-            visuals: [{ src: "/images/work/terpcarehub/provider-card.png", width: 665, height: 378, alt: "Provider card showing status, next availability, plan acceptance, and cost", rounded: 12, at: { x: 8.8, y: 15.36, w: 82.4 } }],
-            annotations: [
-              { type: "leader-vertical", num: "01", label: "Availability", on: 0, theme: "on-light", at: { x: 11, y: 54, w: 15.2, h: 90.9 } },
-              { type: "leader-vertical", num: "02", label: "Plan acceptance", on: 0, theme: "on-light", at: { x: 38.3, y: 54, w: 23.2, h: 90.9 } },
-              { type: "leader-vertical", num: "03", label: "Expected cost", on: 0, theme: "on-light", at: { x: 71.2, y: 54, w: 20, h: 90.9 } },
-            ],
-          },
-          {
-            ratio: "534 / 560", base: "#8a0b1e",
-            field: { width: 534, height: 560, sigma: 45, circles: [{ x: 160, y: 520, r: 260, colour: "#E21833", alpha: 0.9 }, { x: 510, y: 30, r: 190, colour: "#FF7A45", alpha: 0.9 }, { x: 510, y: 570, r: 210, colour: "#4A0512", alpha: 0.9 }] },
-            visuals: [{ src: "/images/work/terpcarehub/alert-detail.png", width: 1489, height: 1600, alt: "Alert detail page with severity banner and source verification panel", frame: "browser", url: "terpcarehub · alert", screen: { w: 640, h: 520 }, at: { x: 7.49, y: 11.43, w: 119.85 } }],
-            annotations: [
-              { type: "focus", num: "01", on: 0, at: { x: 4.6, y: 20.3, w: 90.8, h: 6.1 } },
-              { type: "focus", num: "02", on: 0, at: { x: 4.6, y: 37.1, w: 37.5, h: 7.1 } },
-              { type: "focus", num: "03", on: 0, at: { x: 64.1, y: 69, w: 32.6, h: 15.9 } },
-            ],
-          },
+        // figma 90:1769: the alert stage runs full width now the provider card half is gone; its annotations are shares of the visual.
+        base: "#8a0b1e",
+        field: { width: 1116, height: 560, sigma: 45, circles: [{ x: 451, y: 520, r: 260, colour: "#E21833", alpha: 0.9 }, { x: 801, y: 30, r: 190, colour: "#FF7A45", alpha: 0.9 }, { x: 801, y: 570, r: 210, colour: "#4A0512", alpha: 0.9 }] },
+        visuals: [{ src: "/images/work/terpcarehub/alert-detail.png", width: 1489, height: 1600, alt: "Alert detail page with severity banner and source verification panel", frame: "browser", url: "terpcarehub · alert", screen: { w: 640, h: 520 }, at: { x: 29.7, y: 11.4, w: 57.3 } }],
+        annotations: [
+          { type: "focus", num: "01", on: 0, at: { x: 4.6, y: 20.3, w: 90.8, h: 6.1 } },
+          { type: "focus", num: "02", on: 0, at: { x: 4.6, y: 37.1, w: 37.5, h: 7.1 } },
+          { type: "focus", num: "03", on: 0, at: { x: 64.1, y: 69, w: 32.6, h: 15.9 } },
         ],
         captions: [
-          { title: "Three facts answer the decision", body: "Availability, plan acceptance and expected cost sit on the card itself. Cost ended the search in the journey map, so pushing it to a detail page would rebuild the same dead end one screen further in." },
           { title: "An alert keeps its authority when it travels", body: "Severity, source and timestamp are applied at ingest and travel together, so an advisory still says where it came from after it is reshared. A high-severity alert has to be acknowledged rather than swiped away." },
         ],
       },

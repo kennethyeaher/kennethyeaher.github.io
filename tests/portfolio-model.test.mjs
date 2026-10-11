@@ -294,6 +294,8 @@ test("unknown slugs fail closed", () => {
 const exhibitSlugs = ["kairo-health", "usm-venture-benchmark", "ovara", "terpcarehub", "college-park-capstone", "frontground", "terpcare", "sohive"];
 
 // figma rails for pages whose spec export carries no chapter list, read from the frame's chapter rail.
+// terpcarehub 90:1631 replaced the find care loop with a walkthrough and dropped the provider card stage.
+const mockOwned = { terpcarehub: ["core-flows", "where-it-landed"] };
 const figmaRails = {
   ovara: ["01 Overview", "02 The dashboard", "03 The finding", "04 Corrections", "05 Design", "06 Reflection"],
   terpcarehub: ["01 Overview", "02 Core flows", "03 The measure", "04 Where it landed", "05 Design system", "06 Reflection"],
@@ -333,7 +335,7 @@ test("exhibits are optional and only the converted pages opt in", () => {
   assert.deepEqual(getProjectBySlug("kairo-health").exhibits.map(({ kind }) => kind), ["hero", "stage", "stage", "journey", "section"]);
   assert.deepEqual(getProjectBySlug("usm-venture-benchmark").exhibits.map(({ kind }) => kind), ["hero", "stage", "stage", "journey", "section"]);
   assert.deepEqual(getProjectBySlug("ovara").exhibits.map(({ kind }) => kind), ["hero", "rows", "stage", "custom", "section", "section"]);
-  assert.deepEqual(getProjectBySlug("terpcarehub").exhibits.map(({ kind }) => kind), ["hero", "rows", "custom", "pair", "custom", "section"]);
+  assert.deepEqual(getProjectBySlug("terpcarehub").exhibits.map(({ kind }) => kind), ["hero", "rows", "custom", "stage", "custom", "section"]);
   assert.deepEqual(getProjectBySlug("college-park-capstone").exhibits.map(({ kind }) => kind), ["hero", "heatmap", "stage", "journey", "section"]);
   assert.deepEqual(getProjectBySlug("frontground").exhibits.map(({ kind }) => kind), ["hero", "rows", "custom", "stage", "section", "section"]);
   assert.deepEqual(getProjectBySlug("terpcare").exhibits.map(({ kind }) => kind), ["hero", "matrix", "journey", "stage", "section"]);
@@ -412,6 +414,8 @@ function assertMatchesSpec(slug) {
   const rail = (Array.isArray(spec.chapters) ? spec.chapters : figmaRails[slug]).map((chapter) => chapter.replace(/\s+/g, " "));
   assert.deepEqual(project.exhibits.map(({ chapter }, index) => `0${index + 1} ${chapter}`), rail);
   for (const [built, source] of rest.filter(({ kind }) => kind !== "section").map((exhibit, index) => [exhibit, specRest[index]])) {
+    // chapters the writing pass rebuilt from the prose mock follow the mock, not this older spec; their own tests lock them.
+    if (mockOwned[slug]?.includes(built.id)) continue;
     assert.equal(built.figma, source.id);
     assert.equal(built.eyebrow, source.eyebrow);
     assert.equal(built.heading, source.heading);

@@ -264,20 +264,22 @@ test("TerpCareHub renders the v2 exhibit layout from its prose mock", () => {
   const sectionIds = [...page.matchAll(/<section[^>]*\bid="([^"]+)"[^>]*data-case-section/g)].map((match) => match[1]);
   assert.deepEqual(sectionIds, ["overview", "core-flows", "the-measure", "where-it-landed", "design-system", "reflection"]);
   assert.match(page, /What I would test first/);
-  // three iphone rows, each a cropped screen loop with its own named control.
-  assert.equal([...page.matchAll(/class="exhibit-row"/g)].length, 3);
-  for (const [clip, name] of [["find-care", "same-day care"], ["alert", "alert"], ["dashboard", "own items"]]) {
+  // two iphone rows, each a cropped screen loop with its own named control; the find care loop is gone.
+  assert.equal([...page.matchAll(/class="exhibit-row"/g)].length, 2);
+  assert.doesNotMatch(page, /terpcarehub-find-care-loop/);
+  for (const [clip, name] of [["alert", "alert"], ["dashboard", "own items"]]) {
     assert.match(page, new RegExp(`data-src="/images/work/terpcarehub/terpcarehub-${clip}-loop\\.mp4"`));
     assert.match(page, new RegExp(`data-loop-toggle hidden[^>]*><span data-loop-action[^>]*>Pause</span><span class="loop-name"[^>]*> ${name} loop</span></button>`));
   }
-  assert.equal([...page.matchAll(/class="stage-veil"/g)].length, 3);
+  assert.equal([...page.matchAll(/class="stage-veil"/g)].length, 2);
   // the minute 22 timeline is html over an svg rail.
   assert.match(page, /<ol class="timeline-steps"/);
   assert.equal([...page.matchAll(/<li[^>]*class="is-marked"[^>]*>/g)].length, 1);
   assert.match(page, /<svg class="timeline-rail"[^>]*aria-hidden="true"/);
   assert.match(page, /Minute 22 · 11:24 PM/);
-  // the pair: three leaders on the card, three focus markers on the alert, captions instead of notes.
-  assert.equal([...page.matchAll(/class="annotation annotation-leader is-vertical on-light"/g)].length, 3);
+  // the alert stage alone, full width: three focus markers and a caption instead of notes; the provider card is gone.
+  assert.doesNotMatch(page, /annotation-leader/);
+  assert.doesNotMatch(page, /class="exhibit-pair"/);
   assert.equal([...page.matchAll(/<span class="annotation-badge"[^>]*aria-hidden="true"/g)].length, 3);
   assert.doesNotMatch(page, /class="annotation-badge"[^>]*href=/);
   assert.match(page, /<span class="browser-address"[^>]*>terpcarehub · alert<\/span>/);
