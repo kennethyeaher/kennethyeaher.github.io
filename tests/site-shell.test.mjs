@@ -105,6 +105,27 @@ test("the collapsed menu is the first paint when scripts run, so the nav never s
   assert.match(globalCss, /html:not\(\.nav-ready\) \.primary-links/);
 });
 
+test("the open phone menu makes the page behind it inert and hands focus in and back out", () => {
+  const site = readFileSync(join(projectRoot, "src", "scripts", "site.ts"), "utf8");
+  assert.match(site, /const behind = \[document\.querySelector\("main"\), document\.querySelector\("\.site-footer"\)\];/);
+  assert.match(site, /behind\.forEach\(\(element\) => element\?\.toggleAttribute\("inert", open\)\);/);
+  assert.match(site, /if \(open\) links\.querySelector\("a"\)\?\.focus\(\);\s*else if \(returnFocus\) toggle\.focus\(\);/);
+  assert.match(site, /event\.key === "Escape"[^\n]*setMenuOpen\(false, true\)/);
+  // leaving the phone layout closes the menu, so nothing stays inert behind a menu that no longer shows.
+  assert.match(site, /phoneMenu\.addEventListener\("change"/);
+  // and the cord, which the open menu covers, leaves the tab order with it.
+  assert.match(globalCss, /\.site-nav:has\(\.primary-links\.is-open\) \.theme-cord \{ visibility: hidden; \}/);
+});
+
+test("the phone header is 56px, per figma 32:363, and reading progress rests right under it", () => {
+  const phone = globalCss.slice(globalCss.indexOf("@media (max-width: 860px) {\n  /* home v2 mobile"));
+  assert.match(phone, /--header-height: 56px;/);
+  assert.match(phone, /\.brand-role \{\s*display: none;/);
+  // sticky at the top of the viewport with no offset: the header is not sticky, so the bar rests under it and
+  // takes the top once the header scrolls away, whatever the header's height.
+  assert.match(globalCss, /\.reading-progress \{ position: sticky; z-index: 40; top: 0;/);
+});
+
 test("fonts are self-hosted with their licences, preloaded where they paint first, and keep their fallbacks", () => {
   const html = readFileSync(join(projectRoot, "dist", "index.html"), "utf8");
   const built = readFileSync(join(projectRoot, "dist", html.match(/href="\/(_astro\/[^"]+\.css)"/)[1]), "utf8");

@@ -383,6 +383,34 @@ test("TerpCareHub's core flows open with a scroll walkthrough beside a pinned ph
   assert.equal([...walkthrough.matchAll(/class="annotation annotation-focus on-light"/g)].length, 2, "step 2 outlines the plan and cost row, pinned and stacked");
 });
 
+test("on phones the walkthrough draws each step's phone 256 wide and whole, as figma 32:393 does", () => {
+  const source = readFileSync(join(projectRoot, "src", "components", "exhibits", "ExhibitWalkthrough.astro"), "utf8");
+  const phone = source.slice(source.indexOf("@media (max-width: 767px)"));
+  assert.match(phone, /\.walk-static :global\(\.exhibit-stage\) \{ aspect-ratio: auto; padding: 28px 0; \}/);
+  assert.match(phone, /\.walk-static \.walk-phone \{ position: relative;[^}]*width: min\(256px, 76\.5%\);/);
+  // the phone's screens are fetched for its phone width, not for 42% of the stage.
+  assert.match(pages.get("terpcarehub"), /sizes="\(max-width: 767px\) min\(256px, calc\(\(100vw - 40px\) \* 0\.76\)\), /);
+});
+
+test("timeline and visit quotes sit outside their sideways scroll, so they wrap on a phone", () => {
+  for (const [slug, kind] of [["terpcarehub", "timeline"], ["frontground", "visit"]]) {
+    const page = pages.get(slug);
+    const quote = page.indexOf(`<blockquote class="${kind}-quote"`);
+    assert.ok(quote > 0, `${slug} renders its ${kind} quote`);
+    // the scroll region and its canvas close before the quote opens.
+    assert.match(page.slice(page.indexOf(`class="${kind}-scroll"`), quote), /<\/div>\s*<\/div>\s*$/);
+  }
+});
+
+test("a tap plays the laptop scroll, since touch screens have no hover", () => {
+  const scroller = readFileSync(join(projectRoot, "src", "components", "exhibits", "ExhibitScroller.astro"), "utf8");
+  assert.match(scroller, /\.scroller-focus:is\(:hover, :focus, \.is-playing\) \.scroller-page \{ animation: page-scroll/);
+  const script = readFileSync(join(projectRoot, "src", "scripts", "exhibits.ts"), "utf8");
+  const tap = script.slice(script.indexOf("export function initializeScrollers"));
+  assert.match(tap, /addEventListener\("click"[\s\S]*classList\.add\("is-playing"\)/);
+  assert.match(tap, /animation\.currentTime = 0;/);
+});
+
 test("TerpCareHub's annotated pins are focusable buttons announced with their notes", () => {
   const page = pages.get("terpcarehub");
   const landed = page.slice(page.indexOf('id="where-it-landed"'), page.indexOf('id="design-system"'));

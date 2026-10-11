@@ -311,6 +311,21 @@ export function initializeMetricCounters(): void {
   });
 }
 
+/** Play the laptop scroll on a tap, since touch screens have no hover; a second tap starts it over. */
+export function initializeScrollers(): void {
+  document.querySelectorAll<HTMLElement>(".scroller-focus").forEach((frame) => {
+    frame.addEventListener("click", () => {
+      frame.classList.add("is-playing");
+      // a frame that kept focus from the last tap still holds its finished scroll, so rewind it.
+      frame.querySelector(".scroller-page")?.getAnimations().forEach((animation) => {
+        animation.currentTime = 0;
+        animation.play();
+      });
+    });
+    frame.addEventListener("animationend", () => frame.classList.remove("is-playing"));
+  });
+}
+
 /** in a scroll walkthrough, the step crossing the middle of the viewport is active and sets the pinned phone's screen. */
 export function initializeWalkthroughs(): void {
   if (!("IntersectionObserver" in window)) return;

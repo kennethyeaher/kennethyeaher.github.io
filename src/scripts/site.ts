@@ -1,4 +1,4 @@
-import { initializeTheme, initializeCoverGradients, initializeExhibitLoops, initializeAnnotationFallback, initializeMetricCounters, initializeCoverDepth, initializeReadingProgress, initializeMediaControls, initializeWalkthroughs } from "./exhibits";
+import { initializeTheme, initializeCoverGradients, initializeExhibitLoops, initializeAnnotationFallback, initializeMetricCounters, initializeCoverDepth, initializeReadingProgress, initializeMediaControls, initializeScrollers, initializeWalkthroughs } from "./exhibits";
 
 /**
  * Initialize navigation, theme choice, motion, and exhibit controls.
@@ -13,22 +13,29 @@ function initializeSite(): void {
   initializeAnnotationFallback();
   initializeMetricCounters();
   initializeWalkthroughs();
+  initializeScrollers();
 
   const toggle = document.querySelector<HTMLButtonElement>("[data-nav-toggle]");
   const links = document.querySelector<HTMLElement>("[data-nav-links]");
   document.documentElement.classList.add("nav-ready");
   const menuLabel = document.querySelector<HTMLElement>("[data-menu-label]");
 
-  /** Keep the mobile menu's visual and accessibility state in sync. */
-  function setMenuOpen(open: boolean): void {
+  const behind = [document.querySelector("main"), document.querySelector(".site-footer")];
+  const phoneMenu = window.matchMedia("(max-width: 860px)");
+
+  /** Keep the mobile menu's visual and accessibility state in sync; while it is open the page behind it is inert. */
+  function setMenuOpen(open: boolean, returnFocus = false): void {
     if (!toggle || !links || !menuLabel) return;
     toggle.setAttribute("aria-expanded", String(open));
     links.classList.toggle("is-open", open);
     menuLabel.textContent = open ? "Close" : "Menu";
+    behind.forEach((element) => element?.toggleAttribute("inert", open));
+    if (open) links.querySelector("a")?.focus();
+    else if (returnFocus) toggle.focus();
   }
 
   toggle?.addEventListener("click", () => {
-    setMenuOpen(toggle.getAttribute("aria-expanded") !== "true");
+    setMenuOpen(toggle.getAttribute("aria-expanded") !== "true", true);
   });
 
   links?.querySelectorAll("a").forEach((link) => {
@@ -36,10 +43,12 @@ function initializeSite(): void {
   });
 
   document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && toggle?.getAttribute("aria-expanded") === "true") {
-      setMenuOpen(false);
-      toggle.focus();
-    }
+    if (event.key === "Escape" && toggle?.getAttribute("aria-expanded") === "true") setMenuOpen(false, true);
+  });
+
+  // widening past the phone layout drops the menu, so nothing is left inert behind a menu that no longer shows.
+  phoneMenu.addEventListener("change", () => {
+    if (!phoneMenu.matches && toggle?.getAttribute("aria-expanded") === "true") setMenuOpen(false);
   });
 
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;

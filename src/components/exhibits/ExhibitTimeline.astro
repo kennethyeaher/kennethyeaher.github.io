@@ -52,16 +52,18 @@ const stepX = [56, 221, 386, 551, 716];
         <span class="step-title">{endTitle}</span>
         <span class="step-body">{endBody}</span>
       </div>
-      <blockquote class="timeline-quote"><p>{quote}</p></blockquote>
     </div>
   </div>
+  {/* outside the scroll, so the line wraps to the card instead of running off a phone screen. */}
+  <blockquote class="timeline-quote"><p>{quote}</p></blockquote>
 </figure>
 <style>
   .timeline { margin: 0; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); }
   .timeline-scroll { overflow-x: auto; border-radius: inherit; }
   .timeline-scroll:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-  /* the canvas keeps figma's 1116 by 480 geometry and scrolls sideways when the column is narrower. */
-  .timeline-canvas { position: relative; width: 1116px; height: 480px; }
+  /* the canvas keeps figma's 1116 wide geometry and scrolls sideways when the column is narrower; the quote
+     under it sits where figma puts it (349 down, 47 in, 880 wide) and wraps to the card on narrow screens. */
+  .timeline-canvas { position: relative; width: 1116px; height: 349px; }
   .timeline-canvas p { margin: 0; }
   .timeline-label, .timeline-wait, .timeline-marker { position: absolute; font: 11px / 1.3 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; }
   .timeline-label { top: 39px; left: 47px; color: var(--muted); }
@@ -82,6 +84,10 @@ const stepX = [56, 221, 386, 551, 716];
   .step-body { color: var(--secondary); font: 14px / 20px var(--body); }
   .is-marked .step-num, .is-marked .step-title { color: var(--color-annotate); }
   .timeline-end { position: absolute; top: 211px; right: 48px; display: grid; gap: 6px; width: 200px; text-align: right; }
-  .timeline-quote { position: absolute; top: 349px; left: 47px; width: 880px; margin: 0; padding-left: 20px; border-left: 2px solid var(--color-annotate); }
+  .timeline-quote { box-sizing: border-box; width: 880px; max-width: calc(100% - 94px); margin: 0 0 71px 47px; padding-left: 20px; border-left: 2px solid var(--color-annotate); }
+  .timeline-quote p { margin: 0; }
   .timeline-quote p { color: var(--ink-strong); font: 400 22px / 30px var(--display); letter-spacing: -0.01em; }
+  @media (max-width: 760px) {
+    .timeline-quote { max-width: none; width: auto; margin: 0 20px 28px; }
+  }
 </style>

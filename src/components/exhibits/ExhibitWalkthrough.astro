@@ -1,7 +1,7 @@
 ---
 // scroll walkthrough per figma 119:32: steps on the left scroll past a phone pinned on the right, and the
 // step nearest the middle of the viewport is active and sets the phone screen. under 768px each step
-// stacks under its own static screen with nothing pinned. with no script the first step stays active.
+// stacks under its own static screen with nothing pinned, the phone drawn 256 wide as in figma 32:393. with no script the first step stays active.
 import AnnotationFocus from "@/components/exhibits/AnnotationFocus.astro";
 import DeviceFrame from "@/components/DeviceFrame.astro";
 import ExhibitStage from "@/components/exhibits/ExhibitStage.astro";
@@ -16,11 +16,11 @@ interface Props {
 }
 const { id, palette, walkthrough } = Astro.props;
 const { steps, at } = walkthrough;
-const phone = `left: ${at.x}%; top: ${at.y}%; width: ${at.w}%`;
+const phone = `--at-x: ${at.x}%; --at-y: ${at.y}%; --at-w: ${at.w}%`;
 /** webp candidates for a screen, from scripts/build-exhibit-images.mjs. */
 const srcset = (screen: Screen) => [480, 960].map((width) => `/images/exhibits/sized/${screen.src.split("/").pop()?.replace(/\.[^.]+$/, "")}-${width}.webp ${width}w`).join(", ");
-// the phone is 42% of a stage that is at most 600 of the 1116 column.
-const sizes = `calc(min(600px, 100vw - 48px) * ${(at.w / 100).toFixed(2)})`;
+// the phone is 42% of a stage that is at most 600 of the 1116 column; on phones it is 256 wide (figma 32:393).
+const sizes = `(max-width: 767px) min(256px, calc((100vw - 40px) * 0.76)), calc(min(600px, 100vw - 48px) * ${(at.w / 100).toFixed(2)})`;
 ---
 <div class="walkthrough" data-walkthrough id={id}>
   <ol class="walk-steps">
@@ -91,7 +91,7 @@ const sizes = `calc(min(600px, 100vw - 48px) * ${(at.w / 100).toFixed(2)})`;
   .walk-step.is-active .walk-body { color: var(--ink); }
   .walk-pin { position: sticky; top: max(24px, calc(50vh - min(300px, 25vw))); }
   .walk-static { display: none; }
-  .walk-phone { position: absolute; z-index: 1; }
+  .walk-phone { position: absolute; z-index: 1; top: var(--at-y); left: var(--at-x); width: var(--at-w); }
   .walk-screen { position: absolute; inset: 0; opacity: 0; transition: opacity 200ms var(--ease-out); }
   .walk-screen.is-active { opacity: 1; }
   .walk-capture { position: relative; width: 100%; }
@@ -108,6 +108,10 @@ const sizes = `calc(min(600px, 100vw - 48px) * ${(at.w / 100).toFixed(2)})`;
     .walk-steps { gap: 40px; }
     .walk-step, .walk-step:first-child, .walk-step:last-child { display: grid; gap: 20px; min-height: 0; padding: 0; }
     .walk-static { display: block; }
+    /* figma 32:393: a 256 wide phone, whole, 28 inside the top and bottom of a stage that grows to fit it,
+       so the screen reads at 375 instead of shrinking to 42% of a square. */
+    .walk-static :global(.exhibit-stage) { aspect-ratio: auto; padding: 28px 0; }
+    .walk-static .walk-phone { position: relative; top: auto; left: auto; width: min(256px, 76.5%); margin: 0 auto; }
     .walk-text { border-left-color: #c21230; }
     .walk-title { color: var(--ink-strong); }
     .walk-body { color: var(--ink); }

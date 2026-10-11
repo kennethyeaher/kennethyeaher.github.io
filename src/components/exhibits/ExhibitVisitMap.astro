@@ -47,9 +47,10 @@ const dotX = stages.map((_, index) => 5.5 + index * 175.2);
           </li>
         ))}
       </ol>
-      {footnote && <blockquote class="visit-quote"><p>{footnote}</p></blockquote>}
     </div>
   </div>
+  {/* outside the scroll, so the line wraps to the card instead of running off a phone screen. */}
+  {footnote && <blockquote class="visit-quote"><p>{footnote}</p></blockquote>}
 </figure>
 <style>
   /* category colours keep the mock's hues at 4.5:1 or better on each theme's surface. */
@@ -84,6 +85,11 @@ const dotX = stages.map((_, index) => 5.5 + index * 175.2);
   .stage-label.is-response { color: var(--response); }
   .stage-breaks { min-height: 104px; padding-top: 5px; color: var(--ink-strong); font: 15px / 21px var(--body); }
   .stage-response { padding-top: 5px; color: var(--secondary); font: 15px / 21px var(--body); }
-  .visit-quote { margin: 40px 0 0; padding-left: 20px; border-left: 2px solid var(--care); max-width: 920px; }
+  .visit:has(.visit-quote) .visit-canvas { padding-bottom: 0; }
+  .visit-quote { box-sizing: border-box; max-width: min(920px, calc(100% - 80px)); margin: 40px 40px 30px; padding-left: 20px; border-left: 2px solid var(--care); }
+  .visit-quote p { margin: 0; }
   .visit-quote p { color: var(--ink-strong); font: 400 20px / 28px var(--display); letter-spacing: -0.01em; }
+  @media (max-width: 760px) {
+    .visit-quote { max-width: none; margin: 32px 20px 28px; }
+  }
 </style>
