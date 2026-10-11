@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { gzipSync } from "node:zlib";
 import test, { before } from "node:test";
@@ -31,7 +31,15 @@ test("the rendered shell provides theme choice and keeps accessible fallbacks", 
 
   assert.match(html, /class="skip-link"/);
   assert.doesNotMatch(html, /cursor-dot/);
-  assert.doesNotMatch(globalCss, /cursor:\s*none/);
+  // the one cursor: none sits on a data-cursor target while the note is on, for fine hovering pointers outside
+  // forced colours (figma 161:1721); nothing else in the stylesheet hides the native cursor.
+  assert.equal(globalCss.match(/cursor:\s*none/g).length, 1);
+  assert.match(globalCss, /@media \(hover: hover\) and \(pointer: fine\) and \(not \(forced-colors: active\)\) \{\s*\.is-pointing \[data-cursor\], \.is-pointing \[data-cursor\] \* \{ cursor: none; \}\s*\}/);
+  // and the same holds for the built stylesheets, component styles included.
+  const assetDir = join(projectRoot, "dist", "_astro");
+  const builtCss = readdirSync(assetDir).filter((name) => name.endsWith(".css")).map((name) => readFileSync(join(assetDir, name), "utf8")).join("\n");
+  assert.equal(builtCss.match(/cursor:\s*none/g).length, 1);
+  assert.match(builtCss, /@media ?\(hover: ?hover\) ?and ?\(pointer: ?fine\) ?and ?\(not ?\(forced-colors: ?active\)\) ?\{\.is-pointing \[data-cursor\], ?\.is-pointing \[data-cursor\] \* ?\{cursor: ?none\} ?\}/);
   assert.match(html, /data-nav-toggle/);
   assert.match(html, /data-theme-toggle/);
   assert.match(html, /aria-label="Dark theme"/);
@@ -70,7 +78,7 @@ test("the annotated cursor is one aria-hidden note over exactly four target type
   const kinds = new Set();
   for (const file of pagesBuilt) {
     const html = readFileSync(join(projectRoot, "dist", file), "utf8");
-    // the native cursor stays, and the note is a single aria-hidden element.
+    // the note is a single aria-hidden element, and the old cursor-dot class is gone.
     assert.doesNotMatch(html, /cursor-dot/);
     const notes = [...html.matchAll(/<div class="pointer-note" data-pointer-note aria-hidden="true">/g)];
     assert.equal(notes.length, 1, `${file} has one note`);
@@ -95,6 +103,26 @@ test("the annotated cursor is one aria-hidden note over exactly four target type
   // the script exits before doing anything on coarse or non hovering pointers, and css hides the note there too.
   assert.match(script, /if \(!note \|\| !chip \|\| !window\.matchMedia\("\(hover: hover\) and \(pointer: fine\)"\)\.matches\) return;/);
   assert.match(globalCss, /@media not \(\(hover: hover\) and \(pointer: fine\)\) \{\s*\.pointer-note \{ display: none; \}/);
+  // under forced colours the native pointer is the only one: the script exits and the note is hidden.
+  assert.match(script, /if \(window\.matchMedia\("\(forced-colors: active\)"\)\.matches\) return;/);
+  assert.match(globalCss, /@media \(forced-colors: active\) \{\s*\.pointer-note \{ display: none; \}/);
+  // the arrow hides only while the note is on: is-pointing is toggled beside is-on, and removed first on the way out.
+  assert.match(script, /note!\.classList\.add\("is-on"\);\s*root\.classList\.add\("is-pointing"\);/);
+  assert.match(script, /root\.classList\.remove\("is-pointing"\);\s*note!\.classList\.remove\("is-on"\);/);
+  assert.equal(script.match(/is-pointing/g).length, 2);
+  // the dot is the pointer: 10px with a canvas ring, centred on the tip by css, placed once a frame with no easing,
+  // no 12px and 16px offsets and no up flip.
+  assert.match(globalCss, /\.pointer-note-dot \{[^}]*width: 10px; height: 10px;[^}]*box-shadow: 0 0 0 2px var\(--canvas\);/);
+  assert.match(globalCss, /\.pointer-note \{[^}]*transform: translate\(-5px, -50%\);/);
+  assert.match(globalCss, /\.pointer-note\.is-left \{ flex-direction: row-reverse; transform: translate\(calc\(5px - 100%\), -50%\); \}/);
+  assert.match(script, /innerWidth - x < 160/);
+  assert.doesNotMatch(script, /0\.22|innerHeight|offsetWidth|offsetHeight|x [+-] 12|y [+-] 16/);
+  assert.match(script, /if \(target && !frame\) frame = requestAnimationFrame\(place\);/);
+  // the dot never appears at a stale spot: on entry the note is placed before it shows.
+  assert.match(script, /place\(\);\s*note!\.classList\.add\("is-on"\);/);
+  // the note also leaves on blur and when the tab hides, so the arrow is back when the visitor returns.
+  assert.match(script, /addEventListener\("blur", hide\)/);
+  assert.match(script, /"visibilitychange", \(\) => \{ if \(document\.hidden\) hide\(\); \}/);
   // labels: the card action from figma 129:1722, the loop's own action word, the pin's number and note title, and
   // the cord's theme action, which the user set apart from its "Dark theme" name.
   assert.match(script, /if \(kind === "card"\) return "View case study";/);

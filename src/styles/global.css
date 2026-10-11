@@ -633,13 +633,16 @@ html:not(.nav-ready) .theme-cord { display: none; }
   html:not(.nav-ready) .primary-links { position: static; display: flex; min-height: 0; flex-direction: row; padding: 8px 0; font: 12px var(--mono); }
 }
 
-/* annotated cursor, figma 129:1693: an annotate dot and 14px leader into a chip in the mono face, trailing the native
-   pointer (which always stays). the chip is --ink-strong with --canvas text, so it flips with the theme. entering, the
-   leader draws in 120ms and the chip reveals in 160ms; leaving, it fades out in 100ms. reduced motion: all instant. */
-.pointer-note { position: fixed; z-index: 100; top: 0; left: 0; display: flex; align-items: center; opacity: 0; pointer-events: none; transition: opacity 100ms; }
-.pointer-note.is-left { flex-direction: row-reverse; }
+/* annotated cursor, figma 161:1721: over the four data-cursor targets the native arrow hides and the note is the
+   pointer. a 10px annotate dot with a 2px --canvas ring sits centred on the tip, a 14px leader and a chip in the mono
+   face hang off it on the dot's centre line, flipped left within 160px of the right edge. the script writes only the
+   note's translate (the tip); the static transform below moves the dot's centre onto it. the chip is --ink-strong with
+   --canvas text, so it flips with the theme. entering, the leader draws in 120ms and the chip reveals in 160ms; leaving,
+   the arrow returns at once and the note fades out in 100ms. reduced motion: all instant. forced colours: no note. */
+.pointer-note { position: fixed; z-index: 100; top: 0; left: 0; display: flex; align-items: center; transform: translate(-5px, -50%); opacity: 0; pointer-events: none; transition: opacity 100ms; }
+.pointer-note.is-left { flex-direction: row-reverse; transform: translate(calc(5px - 100%), -50%); }
 .pointer-note.is-on { opacity: 1; transition: none; }
-.pointer-note-dot { flex: none; width: 5px; height: 5px; border-radius: 50%; background: var(--color-annotate); }
+.pointer-note-dot { flex: none; width: 10px; height: 10px; border-radius: 50%; background: var(--color-annotate); box-shadow: 0 0 0 2px var(--canvas); }
 .pointer-note-leader { flex: none; width: 14px; height: 1px; background: var(--color-annotate); transform-origin: left; scale: 0 1; transition: scale 0s 100ms; }
 .pointer-note.is-left .pointer-note-leader { transform-origin: right; }
 .pointer-note-chip { padding: 5px 10px; border-radius: 999px; background: var(--ink-strong); color: var(--canvas); font: 500 11px / normal var(--mono); white-space: nowrap; clip-path: inset(0 100% 0 0 round 999px); transition: clip-path 0s 100ms; }
@@ -651,6 +654,15 @@ html:not(.nav-ready) .theme-cord { display: none; }
 }
 @media not ((hover: hover) and (pointer: fine)) {
   .pointer-note { display: none; }
+}
+@media (forced-colors: active) {
+  .pointer-note { display: none; }
+}
+/* the one place the native cursor hides: a data-cursor target, and only while the note is on. it also covers the
+   cord's grab and grabbing, since the dot is the pointer there too. the html type is there for specificity: the pin
+   and the loop toggle set cursor: pointer at two classes' worth from component styles that load after this file. */
+@media (hover: hover) and (pointer: fine) and (not (forced-colors: active)) {
+  html.is-pointing [data-cursor], html.is-pointing [data-cursor] * { cursor: none; }
 }
 
 /* sideways scrolling cards (heatmap, journey, matrix, timeline, visit map) fade at the right edge while more

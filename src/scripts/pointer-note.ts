@@ -1,19 +1,20 @@
 /**
- * Annotated cursor per figma 129:1693. The native pointer stays; over the four data-cursor targets (project cards,
- * loop pills, pins and the pull cord) one aria-hidden note trails it: an annotate dot, a 14px leader and a chip
- * saying what a click does. Fine hovering pointers only, never keyboard focus.
+ * annotated cursor per figma 161:1721. over the four data-cursor targets (project cards, loop pills, pins and the
+ * pull cord) the native arrow hides and one aria-hidden note is the pointer: a 10px annotate dot centred on the tip,
+ * a 14px leader and a chip saying what a click does, moved to the tip once a frame with no easing. everywhere else,
+ * a target with an empty label included, the native pointer stays. fine hovering mouse pointers only, never keyboard
+ * focus, never under forced colours.
  */
 export function initializePointerNote(): void {
   const note = document.querySelector<HTMLElement>("[data-pointer-note]");
   const chip = note?.querySelector<HTMLElement>(".pointer-note-chip");
   if (!note || !chip || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+  if (window.matchMedia("(forced-colors: active)").matches) return;
   const root = document.documentElement;
-  const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
   const dark = window.matchMedia("(prefers-color-scheme: dark)");
   let target: HTMLElement | null = null;
   let x = 0;
   let y = 0;
-  let at = [0, 0];
   let frame = 0;
 
   /** The chip repeats what the target already says: its link action, loop state, pin note or theme action. */
@@ -30,42 +31,35 @@ export function initializePointerNote(): void {
     return title ? `${number} · ${title}` : "";
   }
 
-  /** Place the note 12px right and 16px under the tip, flipped left or up within 160px of an edge. */
-  function goal(): number[] {
-    const left = innerWidth - x < 160;
-    const up = innerHeight - y < 160;
-    note!.classList.toggle("is-left", left);
-    return [left ? x - 12 - note!.offsetWidth : x + 12, up ? y - 16 - note!.offsetHeight : y + 16];
+  /** put the dot's centre on the stored point; css offsets the note so the tip is the dot. flipped left near the right edge. */
+  function place(): void {
+    frame = 0;
+    note!.classList.toggle("is-left", innerWidth - x < 160);
+    note!.style.translate = `${x}px ${y}px`;
   }
 
-  /** Ease toward the goal by 0.22 a frame, only while the note shows; reduced motion snaps. */
-  function follow(): void {
-    const [gx, gy] = goal();
-    const ease = motion.matches ? 1 : 0.22;
-    at = [at[0] + (gx - at[0]) * ease, at[1] + (gy - at[1]) * ease];
-    note!.style.translate = `${at[0]}px ${at[1]}px`;
-    frame = Math.abs(gx - at[0]) + Math.abs(gy - at[1]) > 0.5 ? requestAnimationFrame(follow) : 0;
-  }
-
+  /** the arrow comes back first, then the note fades. */
   function hide(): void {
     target = null;
+    root.classList.remove("is-pointing");
     note!.classList.remove("is-on");
     cancelAnimationFrame(frame);
     frame = 0;
   }
 
-  /** Show the note for a target, or refresh its label in place when the target's state changes. */
+  /** show the note for a target, or refresh its label in place when the target's state changes. */
   function show(element: HTMLElement): void {
     const text = label(element);
     if (!text) return hide();
     chip!.textContent = text;
-    if (target !== element && !note!.classList.contains("is-on")) {
-      at = goal();
-      note!.style.translate = `${at[0]}px ${at[1]}px`;
+    if (!note!.classList.contains("is-on")) {
+      // placed before it shows, so the dot never appears at a stale spot.
+      cancelAnimationFrame(frame);
+      place();
       note!.classList.add("is-on");
+      root.classList.add("is-pointing");
     }
     target = element;
-    if (!frame) frame = requestAnimationFrame(follow);
   }
 
   document.addEventListener("pointermove", (event) => {
@@ -77,9 +71,13 @@ export function initializePointerNote(): void {
     const selecting = !(getSelection()?.isCollapsed ?? true);
     if (!element || selecting || over?.closest("input, select, textarea, [contenteditable]")) return hide();
     show(element);
+    // one write per frame, however many moves arrive.
+    if (target && !frame) frame = requestAnimationFrame(place);
   }, { passive: true });
   // scrolling moves targets under a still pointer, the walkthrough's pinned phone among them; the next move decides.
   addEventListener("scroll", hide, { passive: true });
+  addEventListener("blur", hide);
+  document.addEventListener("visibilitychange", () => { if (document.hidden) hide(); });
   document.documentElement.addEventListener("pointerleave", hide);
   // the loop and cord labels follow playback and the theme while the pointer rests on them.
   const refresh = () => { if (target) show(target); };
