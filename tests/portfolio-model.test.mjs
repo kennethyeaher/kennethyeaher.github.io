@@ -10,6 +10,7 @@ import {
   profile,
   projects,
 } from "../src/data/portfolio.mjs";
+import { approvedLedes } from "../scripts/build-approved-ledes.mjs";
 
 const specPath = new URL("../.private/redesign-spec/v2-pages.json", import.meta.url);
 
@@ -350,6 +351,13 @@ function sentences(text) {
 // the "+ prose (mock)" frames in figma section 07, exported to .private/redesign-spec/prose.json, set each
 // page's rail, chapter heads and ledes.
 const prosePath = new URL("../.private/redesign-spec/prose.json", import.meta.url);
+// ci has no .private, so it reads the approved paragraphs from a committed fixture (scripts/build-approved-ledes.mjs).
+const fixturePath = new URL("./fixtures/approved-ledes.json", import.meta.url);
+
+/** per slug, each chapter's approved paragraphs: from the prose export when present, else the fixture. */
+function approvedParagraphs() {
+  return existsSync(prosePath) ? approvedLedes(JSON.parse(readFileSync(prosePath, "utf8"))) : JSON.parse(readFileSync(fixturePath, "utf8"));
+}
 
 // pages built from their prose mock (figma section 07); every page joins as it is built.
 const ledeSlugs = ["kairo-health", "usm-venture-benchmark", "ovara", "terpcarehub", "college-park-capstone", "frontground", "terpcare", "sohive"];
@@ -363,10 +371,11 @@ function ledeSentences(project, exhibit) {
 }
 
 test("every lede sentence on a converted page is that page's own copy", () => {
+  const approvedBySlug = approvedParagraphs();
   for (const slug of ledeSlugs) {
     const project = getProjectBySlug(slug);
     // a page's copy is its section text, the captions of its section media, and the paragraphs approved in its prose mock.
-    const approved = existsSync(prosePath) ? JSON.parse(readFileSync(prosePath, "utf8"))[slug].chapters.flatMap(({ paragraphs }) => paragraphs) : [];
+    const approved = approvedBySlug[slug].flat();
     const prose = [...project.sections.flatMap(({ body, media }) => [...body, ...(media ?? []).map(({ caption }) => caption)]), ...approved].join("\n");
     for (const exhibit of project.exhibits) {
       const lede = ledeSentences(project, exhibit);
@@ -379,6 +388,11 @@ test("every lede sentence on a converted page is that page's own copy", () => {
 });
 
 const mockSlugs = ["kairo-health", "usm-venture-benchmark", "ovara", "terpcarehub", "college-park-capstone", "frontground", "terpcare", "sohive"];
+
+test("the approved lede fixture matches the prose export", { skip: !existsSync(prosePath) && "prose export not present" }, () => {
+  const expected = approvedLedes(JSON.parse(readFileSync(prosePath, "utf8")));
+  assert.deepEqual(JSON.parse(readFileSync(fixturePath, "utf8")), expected, "tests/fixtures/approved-ledes.json is out of date; run node scripts/build-approved-ledes.mjs");
+});
 
 test("converted pages follow their prose mock word for word", { skip: !existsSync(prosePath) && "prose export not present" }, () => {
   const mocks = JSON.parse(readFileSync(prosePath, "utf8"));
