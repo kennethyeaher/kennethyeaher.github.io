@@ -1,5 +1,5 @@
 ---
-// Work index with an editorial thesis and evidence-led project grid.
+// Work index: the thesis beside a compact job list, then the project grid (home v2, figma 131:1693 and 131:1973).
 import Base from "@/layouts/Base.astro";
 import ExperienceList from "@/components/ExperienceList.astro";
 import ProjectCard from "@/components/ProjectCard.astro";
@@ -12,21 +12,25 @@ const projects = getFeaturedProjects();
   <div class="home-page">
     <section class="home-intro" aria-labelledby="home-title">
       <div class="home-thesis" data-reveal>
-        <h1 id="home-title">
-          I’m Ken, a product specialist led by <em>evidence.</em>
-        </h1>
+        <h1 id="home-title">{profile.headline}</h1>
       </div>
       <div class="home-experience" data-reveal>
         <ExperienceList entries={experience} />
       </div>
     </section>
 
-    <section class="work-grid" aria-label="Selected work">
-      {
-        projects.map((project) => (
-          <ProjectCard project={project} />
-        ))
-      }
+    <section class="work" aria-labelledby="work-title">
+      <div class="work-header">
+        <h2 id="work-title">Selected work</h2>
+        <p>{String(projects.length).padStart(2, "0")} projects</p>
+      </div>
+      <div class="work-grid">
+        {
+          projects.map((project) => (
+            <ProjectCard project={project} />
+          ))
+        }
+      </div>
     </section>
   </div>
 </Base>
@@ -40,8 +44,8 @@ const projects = getFeaturedProjects();
 
   .home-intro {
     display: grid;
-    padding-top: 210px;
-    padding-bottom: 62px;
+    padding-top: 96px;
+    padding-bottom: 64px;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 24px;
     align-items: end;
@@ -53,29 +57,38 @@ const projects = getFeaturedProjects();
     color: var(--ink-strong);
     /* the h1's own metric matched fallbacks, sized for its desktop optical size (see global.css). */
     font-family: "Fraunces", "Fraunces Home Wide Fallback Iowan", "Fraunces Home Wide Fallback Georgia", var(--display);
-    font-size: clamp(48px, 4.4vw, 68px);
+    /* 68px at 1440, as in the frame. */
+    font-size: clamp(48px, 4.72vw, 68px);
     font-weight: 400;
     letter-spacing: -0.025em;
     line-height: 0.98;
   }
 
-  .home-thesis h1 em {
-    font-weight: 400;
+  .work-header {
+    display: flex;
+    padding-bottom: 20px;
+    justify-content: space-between;
+    gap: 24px;
+    color: var(--muted);
+    font: 12px / 1.3 var(--mono);
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
   }
 
-  .home-experience {
-    padding-bottom: 4px;
+  .work-header h2,
+  .work-header p {
+    margin: 0;
+    font: inherit;
   }
 
   .work-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 52px 24px;
+    gap: 56px 24px;
   }
 
   @media (max-width: 1020px) {
     .home-intro {
-      padding-top: 120px;
       grid-template-columns: 1fr;
       gap: 44px;
     }
@@ -87,25 +100,31 @@ const projects = getFeaturedProjects();
 
   @media (max-width: 760px) {
     .home-intro {
-      padding-top: 84px;
-      padding-bottom: 46px;
+      padding-top: 72px;
+      padding-bottom: 40px;
+      gap: 36px;
     }
 
     .home-thesis h1 {
       font-family: "Fraunces", "Fraunces Home Small Fallback Iowan", "Fraunces Home Small Fallback Georgia", var(--display);
-      font-size: clamp(42px, 12vw, 58px);
+      /* 44px at 375, as in the frame. */
+      font-size: clamp(42px, 11.75vw, 58px);
       line-height: 1.02;
+    }
+
+    /* the mobile frame goes straight from the job list to the first card. */
+    .work-header {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
     }
 
     .work-grid {
       grid-template-columns: 1fr;
-      gap: 52px;
-    }
-  }
-
-  @media (max-width: 420px) {
-    .home-intro {
-      padding-top: 58px;
+      gap: 44px;
     }
   }
 </style>

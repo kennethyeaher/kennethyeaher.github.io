@@ -5,7 +5,7 @@ export const profile = {
   name: "Kenneth Yeaher",
   shortName: "Ken",
   roleLine: "Product Designer and Data Scientist",
-  headline: "I’m Ken, a product specialist led by evidence.",
+  headline: "I’m Ken, a product designer and data scientist.",
   intro:
     "I study how people move through systems, build with the data those systems leave behind, and use both to decide what should exist next.",
   aboutHeadline: "I build where people, data, and decisions meet.",
@@ -26,7 +26,8 @@ export const profile = {
 };
 
 /**
- * Compact professional history shown beside the home-page thesis.
+ * Compact professional history shown beside the home-page thesis. `compact` marks the three
+ * entries the phone layout keeps (figma 131:1980).
  * NOTE: `experience` is the compact home-page list pinned by
  * tests/portfolio-model.test.mjs, and `roles` below is the full About-page
  * timeline. They overlap on purpose; do not reconcile or merge them.
@@ -36,6 +37,7 @@ export const experience = [
     year: "2026",
     organization: "USM Maryland Momentum Fund",
     role: "Summer Investment Associate",
+    compact: true,
   },
   {
     year: "2026",
@@ -46,6 +48,7 @@ export const experience = [
     year: "2025",
     organization: "Towers Surgical Partners",
     role: "Data Analyst",
+    compact: true,
   },
   {
     year: "2024",
@@ -56,6 +59,7 @@ export const experience = [
     year: "2022",
     organization: "Frontground",
     role: "Founder",
+    compact: true,
   },
   {
     year: "2021",

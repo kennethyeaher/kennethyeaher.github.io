@@ -93,41 +93,42 @@
 }
 
 /* the home h1's own fallbacks. fraunces sets its optical size from the font size, so it is relatively wider at
-   the 45px phone size than at the 63px desktop size, and no one size-adjust keeps the h1's line breaks at both.
-   the small faces apply up to 760px and the wide faces above it (src/pages/index.astro). each value sits inside
-   the size-adjust range that sets the h1 on the same lines as fraunces at 375 (45px) or 1440 (63.36px), and at
-   as many nearby widths as allow it; around 480 and 1100 no value fits both those widths and the target.
-   ascent and descent are fraunces' hhea values (1956 and 510 of 2000) divided by size-adjust. */
+   the 44px phone size than at the 68px desktop size, and one size-adjust cannot match its widths at both. the
+   small faces apply up to 760px and the wide faces above it (src/pages/index.astro). each value sits inside the
+   size-adjust range that sets "I'm Ken, a product designer and data scientist." on the same lines as fraunces at
+   375 (44px) or 1440 (68px), and at as many nearby widths as allow it; around 390, 480 and 700 no small value
+   fits those widths and 375 together. ascent and descent are fraunces' hhea values (1956 and 510 of 2000)
+   divided by size-adjust. */
 @font-face {
   font-family: "Fraunces Home Small Fallback Iowan";
   src: local("Iowan Old Style Roman"), local("IowanOldStyle-Roman");
-  size-adjust: 102.5%;
-  ascent-override: 95.41%;
-  descent-override: 24.88%;
+  size-adjust: 101%;
+  ascent-override: 96.83%;
+  descent-override: 25.25%;
   line-gap-override: 0%;
 }
 @font-face {
   font-family: "Fraunces Home Small Fallback Georgia";
   src: local("Georgia");
-  size-adjust: 103%;
-  ascent-override: 94.95%;
-  descent-override: 24.76%;
+  size-adjust: 101.5%;
+  ascent-override: 96.35%;
+  descent-override: 25.12%;
   line-gap-override: 0%;
 }
 @font-face {
   font-family: "Fraunces Home Wide Fallback Iowan";
   src: local("Iowan Old Style Roman"), local("IowanOldStyle-Roman");
-  size-adjust: 94.5%;
-  ascent-override: 103.49%;
-  descent-override: 26.98%;
+  size-adjust: 99%;
+  ascent-override: 98.79%;
+  descent-override: 25.76%;
   line-gap-override: 0%;
 }
 @font-face {
   font-family: "Fraunces Home Wide Fallback Georgia";
   src: local("Georgia");
-  size-adjust: 95.5%;
-  ascent-override: 102.41%;
-  descent-override: 26.70%;
+  size-adjust: 99%;
+  ascent-override: 98.79%;
+  descent-override: 25.76%;
   line-gap-override: 0%;
 }
 
@@ -160,6 +161,8 @@
   /* inactive note text on a pale stage card, the same in both themes: 5.62:1 on white, 5.30:1 on a 92% white
      card over the stage's #ff9a3d, the worst case on terpcarehub 119:71. */
   --color-muted-on-light-stage: #5d6974;
+  /* serif labels in the muted colour: card lines and metric labels (home v2). the dark themes point it at --muted. */
+  --color-muted-label: var(--color-muted-on-light-stage);
   --display: "Fraunces", "Fraunces Fallback Iowan", "Fraunces Fallback Georgia", "Iowan Old Style", Baskerville, Georgia, serif;
   --body: "Newsreader", "Newsreader Fallback Iowan", "Newsreader Fallback Georgia", "Iowan Old Style", Georgia, serif;
   --mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
@@ -431,19 +434,17 @@ button {
 }
 
 @media (max-width: 860px) {
+  /* home v2 mobile (figma 131:1974): the name alone, in a 56px bar; the subtitle would otherwise sit under it. */
   :root {
-    --header-height: 76px;
+    --header-height: 56px;
   }
 
   .brand-lockup {
-    display: grid;
-    gap: 2px;
-    line-height: 1.25;
+    font-size: 12px;
   }
 
   .brand-role {
-    max-width: 60vw;
-    font-size: 10px;
+    display: none;
   }
 
   .menu-toggle {
@@ -479,12 +480,9 @@ button {
 }
 
 @media (max-width: 620px) {
+  /* the 375 frames use a 20px gutter. */
   :root {
-    --page-gutter: 18px;
-  }
-
-  .brand-role {
-    max-width: 54vw;
+    --page-gutter: 20px;
   }
 
   .site-footer {
@@ -545,6 +543,7 @@ button {
   --muted: #abb9c6; --secondary: #b8c5d0; --rule: #344553;
   --on-accent: #111923; --accent: #8abde7; --accent-strong: #b2d8f5; --accent-soft: #233f57;
     --color-annotate: #fb8a5c; --on-annotate: #111923; --surface-sunken: #142130;
+    --color-muted-label: var(--muted);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -553,6 +552,7 @@ button {
     --muted: #abb9c6; --secondary: #b8c5d0; --rule: #344553;
     --on-accent: #111923; --accent: #8abde7; --accent-strong: #b2d8f5; --accent-soft: #233f57;
     --color-annotate: #fb8a5c; --on-annotate: #111923; --surface-sunken: #142130;
+    --color-muted-label: var(--muted);
   }
 }
 .nav-controls { display: flex; align-items: center; gap: 18px; margin-left: auto; }
@@ -591,7 +591,6 @@ button {
 @media (max-width: 620px) {
   .site-nav { gap: 12px; }
   .nav-controls { gap: 8px; }
-  .brand-role { max-width: 42vw; }
 }
 
 @media (max-width: 860px) {

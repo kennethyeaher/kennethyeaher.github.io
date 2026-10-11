@@ -27,7 +27,7 @@ before(() => {
 });
 
 test("the Work page renders the approved thesis and the design-first project order", () => {
-  assert.match(visibleText(workHtml), /product specialist led by evidence/i);
+  assert.match(visibleText(workHtml), /I’m Ken, a product designer and data scientist\./);
 
   const routes = [
     "/work/terpcarehub",
@@ -56,6 +56,22 @@ test("the Work page renders the approved thesis and the design-first project ord
   assert.doesNotMatch(workHtml, /\.mp4|data-cover-video/);
   assert.doesNotMatch(workHtml, /Read case study/);
   assert.doesNotMatch(workHtml, /project-media is-contained/);
+});
+
+test("home v2 follows figma 131:1693 and 131:1973: a work header, a compact job list on phones, serif card lines", () => {
+  assert.match(workHtml, /<h2 id="work-title"[^>]*>Selected work<\/h2>\s*<p[^>]*>08 projects<\/p>/);
+  // card titles sit under the work header; the view transition names the clicked card's h3.
+  assert.equal((workHtml.match(/<div class="project-heading"[^>]*>\s*<h3/g) ?? []).length, 8);
+  assert.match(workHtml, /card\.querySelector\("h3"\)\.style\.viewTransitionName/);
+  // the three entries the phone layout keeps, in order.
+  const compact = [...workHtml.matchAll(/<li class="is-compact"[^>]*>\s*<span class="experience-year"[^>]*>(\d{4})<\/span>\s*<span class="experience-org"[^>]*>([^<]+)<\/span>\s*<span class="experience-role"[^>]*>([^<]+)<\/span>/g)].map((match) => match.slice(1).join(" "));
+  assert.deepEqual(compact, ["2026 USM Maryland Momentum Fund Summer Investment Associate", "2025 Towers Surgical Partners Data Analyst", "2022 Frontground Founder"]);
+  assert.equal((workHtml.match(/<li[^>]*>\s*<span class="experience-year"/g) ?? []).length, 6);
+
+  const css = [...workHtml.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map((match) => readFileSync(join(projectRoot, "dist", match[1]), "utf8")).join("\n");
+  assert.match(css, /\.home-intro\[[^\]]+\]\{[^}]*padding-top:96px;padding-bottom:64px/);
+  assert.match(css, /\.project-role\[[^\]]+\]\{[^}]*color:var\(--color-muted-label\);font:15px ?\/ ?1\.3 var\(--body\)/);
+  assert.match(css, /\.project-summary\[[^\]]+\]\{[^}]*color:var\(--ink\);font-size:17px/);
 });
 
 test("the About page is HCI-focused and renders no fake photo placeholders", () => {

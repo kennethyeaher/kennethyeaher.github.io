@@ -38,7 +38,7 @@ const ogImage = new URL(image ?? "/images/portfolio-preview-2026.png", Astro.sit
         if (!card) return;
         const slug = card.getAttribute("href").split("/").pop();
         card.querySelector(".project-cover").style.viewTransitionName = on ? `cover-${slug}` : "";
-        card.querySelector("h2").style.viewTransitionName = on ? `title-${slug}` : "";
+        card.querySelector("h3").style.viewTransitionName = on ? `title-${slug}` : "";
       };
       addEventListener("pageswap", (event) => {
         if (event.viewTransition) nameCard(cardFor(event.activation?.entry.url), true);

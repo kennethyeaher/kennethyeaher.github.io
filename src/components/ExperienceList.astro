@@ -5,6 +5,8 @@ interface Props {
     year: string;
     organization: string;
     role: string;
+    /** one of the entries the phone layout keeps. */
+    compact?: boolean;
   }>;
 }
 
@@ -14,7 +16,7 @@ const { entries } = Astro.props;
 <ol class="experience-list" aria-label="Selected experience">
   {
     entries.map((entry) => (
-      <li>
+      <li class:list={[entry.compact && "is-compact"]}>
         <span class="experience-year">{entry.year}</span>
         <span class="experience-org">{entry.organization}</span>
         <span class="experience-role">{entry.role}</span>
@@ -24,21 +26,22 @@ const { entries } = Astro.props;
 </ol>
 
 <style>
+  /* home v2 (figma 131:1698, 131:1980): year, organisation and role in three columns; on phones the compact
+     entries only, with the role under the organisation. */
   .experience-list {
     display: grid;
     margin: 0;
     padding: 0;
-    gap: 5px;
+    gap: 6px;
     list-style: none;
   }
 
   .experience-list li {
     display: grid;
-    grid-template-columns: 64px minmax(190px, 1.1fr) minmax(200px, 1fr);
-    align-items: baseline;
-    column-gap: 18px;
-    font-size: 14px;
-    line-height: 1.45;
+    grid-template-columns: 82px minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+    font-size: 17px;
+    line-height: 1.5;
   }
 
   .experience-year,
@@ -47,35 +50,31 @@ const { entries } = Astro.props;
   }
 
   .experience-year {
-    font-family: var(--mono);
-    font-size: 12px;
+    font: 12px / 1.3 var(--mono);
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
   }
 
   .experience-org {
     color: var(--ink-strong);
   }
 
-  @media (max-width: 1180px) {
-    .experience-list li {
-      grid-template-columns: 58px minmax(130px, 0.8fr) minmax(170px, 1.2fr);
-      column-gap: 12px;
-      font-size: 14px;
-    }
-  }
-
-  @media (max-width: 720px) {
+  @media (max-width: 760px) {
     .experience-list {
-      gap: 14px;
+      gap: 10px;
     }
 
     .experience-list li {
-      grid-template-columns: 52px 1fr;
+      grid-template-columns: auto minmax(0, 1fr);
       column-gap: 12px;
+    }
+
+    .experience-list li:not(.is-compact) {
+      display: none;
     }
 
     .experience-role {
       grid-column: 2;
-      font-size: 13px;
     }
   }
 </style>

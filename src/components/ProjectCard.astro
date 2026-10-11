@@ -33,7 +33,7 @@ const { project } = Astro.props;
     <ProjectCover project={project} />
   </figure>
   <div class="project-heading">
-    <h2>{project.cardTitle}</h2>
+    <h3>{project.cardTitle}</h3>
     <span>{project.year}</span>
   </div>
   <p class="project-role">{project.category} · {project.role}</p>
@@ -67,42 +67,44 @@ const { project } = Astro.props;
     transition: opacity 300ms ease;
   }
 
+  /* home v2 card meta (figma 131:1851, 131:1997): serif title and line, mono only for the year. */
   .project-heading {
     display: flex;
-    margin-top: 13px;
-    align-items: baseline;
+    margin-top: 20px;
+    align-items: center;
     justify-content: space-between;
     gap: 20px;
   }
 
-  .project-heading h2 {
+  .project-heading h3 {
     margin: 0;
     color: var(--ink-strong);
     font-family: var(--display);
-    font-size: clamp(20px, 2vw, 27px);
+    font-size: clamp(26px, 2.22vw, 32px);
     font-weight: 400;
-    line-height: 1.15;
+    letter-spacing: -0.015em;
+    line-height: 1.1;
     transition: color 220ms ease;
   }
 
-  .project-heading span,
-  .project-role {
+  .project-heading span {
     color: var(--muted);
-    font-family: var(--mono);
-    font-size: 11px;
+    font: 12px / 1.3 var(--mono);
+    letter-spacing: -0.02em;
     text-transform: uppercase;
   }
 
   .project-role {
-    margin: 5px 0 0;
+    margin: 8px 0 0;
+    color: var(--color-muted-label);
+    font: 15px / 1.3 var(--body);
   }
 
   .project-summary {
-    max-width: 62ch;
-    margin: 9px 0 0;
-    color: var(--secondary);
-    font-size: 15px;
-    line-height: 1.42;
+    margin: 8px 0 0;
+    color: var(--ink);
+    font-size: 17px;
+    line-height: 1.5;
   }
 
   .project-card:hover .project-media::after,
@@ -110,14 +112,19 @@ const { project } = Astro.props;
     opacity: 1;
   }
 
-  .project-card:hover .project-heading h2,
-  .project-card:focus-visible .project-heading h2 {
+  .project-card:hover .project-heading h3,
+  .project-card:focus-visible .project-heading h3 {
     color: var(--accent);
   }
 
-  @media (max-width: 620px) {
+  @media (max-width: 760px) {
+    .project-heading {
+      margin-top: 10px;
+    }
+
+    .project-role,
     .project-summary {
-      font-size: 16px;
+      margin-top: 10px;
     }
   }
 
