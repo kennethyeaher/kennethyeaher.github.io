@@ -34,12 +34,15 @@ test("the rendered shell provides theme choice and keeps accessible fallbacks", 
   // the one cursor: none sits on a data-cursor target while the note is on, for fine hovering pointers outside
   // forced colours (figma 161:1721); nothing else in the stylesheet hides the native cursor.
   assert.equal(globalCss.match(/cursor:\s*none/g).length, 1);
-  assert.match(globalCss, /@media \(hover: hover\) and \(pointer: fine\) and \(not \(forced-colors: active\)\) \{\s*\.is-pointing \[data-cursor\], \.is-pointing \[data-cursor\] \* \{ cursor: none; \}\s*\}/);
+  assert.match(globalCss, /@media \(hover: hover\) and \(pointer: fine\) and \(not \(forced-colors: active\)\) \{\s*html\.is-pointing \[data-cursor\], html\.is-pointing \[data-cursor\] \* \{ cursor: none; \}\s*\}/);
   // and the same holds for the built stylesheets, component styles included.
   const assetDir = join(projectRoot, "dist", "_astro");
   const builtCss = readdirSync(assetDir).filter((name) => name.endsWith(".css")).map((name) => readFileSync(join(assetDir, name), "utf8")).join("\n");
   assert.equal(builtCss.match(/cursor:\s*none/g).length, 1);
-  assert.match(builtCss, /@media ?\(hover: ?hover\) ?and ?\(pointer: ?fine\) ?and ?\(not ?\(forced-colors: ?active\)\) ?\{\.is-pointing \[data-cursor\], ?\.is-pointing \[data-cursor\] \* ?\{cursor: ?none\} ?\}/);
+  assert.match(builtCss, /@media ?\(hover: ?hover\) ?and ?\(pointer: ?fine\) ?and ?\(not ?\(forced-colors: ?active\)\) ?\{html\.is-pointing \[data-cursor\], ?html\.is-pointing \[data-cursor\] \* ?\{cursor: ?none\} ?\}/);
+  // the pin and loop toggle set cursor: pointer at two classes' worth, so the rule needs the html type to win the tie.
+  assert.match(builtCss, /\.pin\[data-astro-cid-\w+\]\{[^}]*cursor:pointer/);
+  assert.match(builtCss, /\.loop-toggle\[data-astro-cid-\w+\]\{[^}]*cursor:pointer/);
   assert.match(html, /data-nav-toggle/);
   assert.match(html, /data-theme-toggle/);
   assert.match(html, /aria-label="Dark theme"/);
