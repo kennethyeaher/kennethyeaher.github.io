@@ -1,12 +1,16 @@
-/** Keep the theme control synchronized with the saved or system preference. */
+/** Run the theme pull cord: a click or key press pulls it, a drag stretches it, and release switches the theme. */
 export function initializeTheme(): void {
   const button = document.querySelector<HTMLButtonElement>("[data-theme-toggle]");
-  if (!button) return;
+  const visual = button?.querySelector<HTMLElement>(".theme-cord-visual");
+  if (!button || !visual) return;
+  const root = document.documentElement;
   const systemTheme = window.matchMedia("(prefers-color-scheme: dark)");
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const fullPull = 28;
+  let fade = 0;
   /** Resolve an explicit preference before consulting the operating system. */
   function isDark(): boolean {
-    return document.documentElement.dataset.theme === "dark" ||
-      (!document.documentElement.dataset.theme && systemTheme.matches);
+    return root.dataset.theme === "dark" || (!root.dataset.theme && systemTheme.matches);
   }
   /** Update the action label, pressed state, and browser chrome color. */
   function updateControl(): void {
@@ -14,19 +18,92 @@ export function initializeTheme(): void {
     const dark = isDark();
     button.setAttribute("aria-pressed", String(dark));
     button.setAttribute("aria-label", dark ? "Use light theme" : "Use dark theme");
-    const label = button.querySelector("[data-theme-label]");
-    if (label) label.textContent = dark ? "Light" : "Dark";
     document.querySelector('meta[name="theme-color"]')?.setAttribute("content", dark ? "#111923" : "#f8fafb");
   }
-  button.hidden = false;
-  updateControl();
-  button.addEventListener("click", () => {
-    const theme = isDark() ? "light" : "dark";
-    document.documentElement.dataset.theme = theme;
-    try { localStorage.setItem("portfolio-theme", theme); } catch {}
+  /** Apply a stored choice, or follow the system when there is none. */
+  function applyTheme(theme: string | null): void {
+    if (theme === "light" || theme === "dark") root.dataset.theme = theme;
+    else delete root.dataset.theme;
     updateControl();
+  }
+  /** Switch to the opposite of what is showing; picking the system theme again clears the stored choice. */
+  function switchTheme(): void {
+    const theme = isDark() ? "light" : "dark";
+    const stored = theme === (systemTheme.matches ? "dark" : "light") ? null : theme;
+    if (!reduceMotion.matches) {
+      root.classList.add("theme-fading");
+      clearTimeout(fade);
+      fade = window.setTimeout(() => root.classList.remove("theme-fading"), 250);
+    }
+    applyTheme(stored);
+    try {
+      if (stored) localStorage.setItem("portfolio-theme", stored);
+      else localStorage.removeItem("portfolio-theme");
+    } catch {}
+  }
+  /** Set how far below rest the pull hangs, in px of the 44px cord. */
+  function setPull(pull: number, mode: "spring" | "pulling" | "dragging"): void {
+    button?.classList.toggle("is-pulling", mode === "pulling");
+    button?.classList.toggle("is-dragging", mode === "dragging");
+    visual?.style.setProperty("--pull", String(pull));
+  }
+
+  let startY = 0;
+  let pull = 0;
+  let dragging = false;
+  let pressed = false;
+  let skipClick = false;
+  let release = 0;
+  button.addEventListener("pointerdown", (event) => {
+    if (reduceMotion.matches || !event.isPrimary || event.button !== 0) return;
+    pressed = true;
+    dragging = false;
+    startY = event.clientY;
+    button.setPointerCapture(event.pointerId);
   });
+  button.addEventListener("pointermove", (event) => {
+    if (!pressed) return;
+    const distance = event.clientY - startY;
+    if (!dragging && Math.abs(distance) < 4) return;
+    dragging = true;
+    pull = Math.min(Math.max(distance, 0), fullPull);
+    setPull(pull, "dragging");
+  });
+  /** A drag released past halfway switches the theme; either way the cord springs back. */
+  function endDrag(switches: boolean): void {
+    if (!pressed) return;
+    pressed = false;
+    if (!dragging) return;
+    dragging = false;
+    skipClick = true;
+    setPull(0, "spring");
+    if (switches && pull >= fullPull / 2) switchTheme();
+  }
+  button.addEventListener("pointerup", () => endDrag(true));
+  button.addEventListener("pointercancel", () => endDrag(false));
+  button.addEventListener("click", () => {
+    if (skipClick) {
+      skipClick = false;
+      return;
+    }
+    if (reduceMotion.matches) {
+      switchTheme();
+      return;
+    }
+    // a click, Enter or Space pulls the cord to 72px, then releases it.
+    clearTimeout(release);
+    setPull(fullPull, "pulling");
+    release = window.setTimeout(() => {
+      setPull(0, "spring");
+      switchTheme();
+    }, 120);
+  });
+
+  updateControl();
   systemTheme.addEventListener("change", updateControl);
+  window.addEventListener("storage", (event) => {
+    if (event.key === "portfolio-theme") applyTheme(event.newValue);
+  });
 }
 
 /** Apply restrained cover tilt for fine pointers, retaining the normal cursor. */

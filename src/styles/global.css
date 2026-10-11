@@ -163,6 +163,11 @@
   --color-muted-on-light-stage: #5d6974;
   /* serif labels in the muted colour: card lines and metric labels (home v2). the dark themes point it at --muted. */
   --color-muted-label: var(--color-muted-on-light-stage);
+  /* the pull cord (figma 26:113): its #7a8791 line passes 3:1 on both canvases, so it stays one colour. the pull
+     is an open ring in light and fills with the accent in dark. */
+  --cord: #7a8791;
+  --cord-pull: var(--canvas);
+  --cord-ring: var(--ink-strong);
   --display: "Fraunces", "Fraunces Fallback Iowan", "Fraunces Fallback Georgia", "Iowan Old Style", Baskerville, Georgia, serif;
   --body: "Newsreader", "Newsreader Fallback Iowan", "Newsreader Fallback Georgia", "Iowan Old Style", Georgia, serif;
   --mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
@@ -471,6 +476,7 @@ button {
   }
 
   .primary-links.is-open {
+    z-index: 1;
     display: flex;
   }
 
@@ -544,6 +550,7 @@ button {
   --on-accent: #111923; --accent: #8abde7; --accent-strong: #b2d8f5; --accent-soft: #233f57;
     --color-annotate: #fb8a5c; --on-annotate: #111923; --surface-sunken: #142130;
     --color-muted-label: var(--muted);
+    --cord-pull: var(--accent); --cord-ring: var(--ink);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -553,12 +560,38 @@ button {
     --on-accent: #111923; --accent: #8abde7; --accent-strong: #b2d8f5; --accent-soft: #233f57;
     --color-annotate: #fb8a5c; --on-annotate: #111923; --surface-sunken: #142130;
     --color-muted-label: var(--muted);
+    --cord-pull: var(--accent); --cord-ring: var(--ink);
   }
 }
 .nav-controls { display: flex; align-items: center; gap: 18px; margin-left: auto; }
-.theme-toggle { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 8px; border: 0; background: transparent; color: var(--ink); font: 11px var(--mono); }
-.theme-toggle[hidden] { display: none; }
-.theme-icon { width: 15px; height: 15px; border: 1px solid currentColor; border-radius: 50%; background: linear-gradient(90deg, currentColor 50%, transparent 50%); }
+/* the theme pull cord (figma 26:113, motion 32:450 to 32:474) hangs 44px under the header rule at the right gutter.
+   it sits out of flow, so showing it never moves the nav, and it shows from the first paint whenever scripts run
+   (the head script adds nav-ready); without scripts it has nothing to do and stays hidden. the button is a 44px
+   wide hit area around the cord; --pull (0 to 28) stretches the line to 72px and carries the ring down with it. */
+.site-nav { position: relative; }
+.theme-cord { position: absolute; top: calc(100% + 1px); right: calc(var(--page-gutter) - 10px); display: flex; width: 44px; height: 60px; justify-content: center; padding: 0; border: 0; background: transparent; cursor: grab; touch-action: none; -webkit-tap-highlight-color: transparent; }
+html:not(.nav-ready) .theme-cord { display: none; }
+/* the open phone menu covers the cord, so it leaves the tab order too. */
+.site-nav:has(.primary-links.is-open) .theme-cord { visibility: hidden; }
+.theme-cord:active { cursor: grabbing; }
+.theme-cord:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; border-radius: 4px; }
+.theme-cord-visual { --pull: 0; display: flex; align-self: flex-start; flex-direction: column; align-items: center; transform-origin: top center; }
+.theme-cord-line { flex: none; width: 1.5px; height: 44px; background: var(--cord); transform-origin: top; scale: 1 calc(1 + var(--pull) / 44); }
+.theme-cord-knob { flex: none; box-sizing: border-box; width: 14px; height: 14px; border: 1.5px solid var(--cord-ring); border-radius: 50%; background: var(--cord-pull); translate: 0 calc(var(--pull) * 1px); }
+/* stiffness 300, damping 18, mass 1: one 14.8% overshoot, then a 2% swing too small to see, settled in 614ms. */
+.theme-cord-line, .theme-cord-knob { --cord-spring: linear(0, 0.083, 0.278, 0.512, 0.736, 0.918, 1.045, 1.119, 1.147, 1.142, 1.116, 1.083, 1.048, 1.019, 0.998, 0.985, 0.979, 0.978, 0.981, 0.986, 0.991, 0.996, 0.999, 1.002, 1); transition: scale 614ms var(--cord-spring), translate 614ms var(--cord-spring), background-color 250ms, border-color 250ms; }
+.theme-cord.is-pulling :is(.theme-cord-line, .theme-cord-knob) { transition-duration: 120ms, 120ms, 250ms, 250ms; transition-timing-function: var(--ease-out); }
+.theme-cord.is-dragging :is(.theme-cord-line, .theme-cord-knob) { transition-property: background-color, border-color; }
+/* the theme cross-fades over 250ms; the cord keeps its own transitions so its spring runs through the fade. */
+:root.theme-fading, :root.theme-fading :not(.theme-cord, .theme-cord *), :root.theme-fading ::before, :root.theme-fading ::after { transition: color 250ms, background-color 250ms, border-color 250ms, fill 250ms, stroke 250ms, outline-color 250ms, text-decoration-color 250ms, box-shadow 250ms; }
+@media (max-width: 860px) {
+  /* the 375 frame (131:1977) draws the cord at 0.8x, centred 14px inside the gutter. */
+  .theme-cord { right: calc(var(--page-gutter) - 8px); height: 48px; }
+  .theme-cord-visual { scale: 0.8; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .theme-cord-line, .theme-cord-knob { transition: none; }
+}
 /* figma 26:105: a 3px rule coloured track under the header, filled in the case study accent. it is the first thing in
    main, so it rests under the header and sticks to the top of the viewport once the header scrolls away; it sits
    below the header's layer so the open menu covers it. under reduced motion the script sets the fill directly, so it

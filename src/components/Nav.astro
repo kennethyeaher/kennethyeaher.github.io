@@ -25,9 +25,6 @@ function isActive(href: string): boolean {
     </a>
 
     <div class="nav-controls">
-      <button class="theme-toggle" type="button" data-theme-toggle aria-label="Use dark theme" aria-pressed="false" hidden>
-        <span class="theme-icon" aria-hidden="true"></span><span data-theme-label>Dark</span>
-      </button>
       <button
         class="menu-toggle"
         type="button"
@@ -37,7 +34,6 @@ function isActive(href: string): boolean {
       >
         <span data-menu-label>Menu</span>
       </button>
-  
     </div>
     <div class="primary-links" id="primary-links" data-nav-links>
       {
@@ -54,5 +50,9 @@ function isActive(href: string): boolean {
         ))
       }
     </div>
+    {/* after the links, so focus reaches it last, matching where it hangs. */}
+    <button class="theme-cord" type="button" data-theme-toggle aria-label="Use dark theme" aria-pressed="false">
+      <span class="theme-cord-visual" aria-hidden="true"><span class="theme-cord-line"></span><span class="theme-cord-knob"></span></span>
+    </button>
   </nav>
 </header>

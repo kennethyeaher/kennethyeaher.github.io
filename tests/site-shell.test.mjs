@@ -41,6 +41,27 @@ test("the rendered shell provides theme choice and keeps accessible fallbacks", 
   assert.match(globalCss, /@media \(pointer: fine\) and \(prefers-reduced-motion: no-preference\)/);
 });
 
+test("the theme switch is the pull cord: a real button that hangs out of flow and springs back", () => {
+  const html = readFileSync(join(projectRoot, "dist", "index.html"), "utf8");
+  const cord = html.match(/<button class="theme-cord"[^>]*>/)?.[0];
+  assert.ok(cord, "the pull cord renders in the header");
+  assert.match(cord, /type="button"/);
+  assert.match(cord, /data-theme-toggle/);
+  assert.match(cord, /aria-pressed="false"/);
+  assert.match(cord, /aria-label="Use dark theme"/);
+  // shown by css from the first paint, never revealed by script, so it cannot shift the header.
+  assert.doesNotMatch(cord, /\shidden/);
+  assert.match(globalCss, /\.theme-cord \{ position: absolute;/);
+  assert.match(globalCss, /html:not\(\.nav-ready\) \.theme-cord \{ display: none; \}/);
+  // rests at 44px, pulls 28px further to 72px, and springs back on stiffness 300, damping 18.
+  assert.match(globalCss, /\.theme-cord-line \{[^}]*height: 44px;/);
+  assert.match(globalCss, /scale 614ms var\(--cord-spring\)/);
+  assert.match(globalCss, /--cord-spring: linear\(0, /);
+  assert.match(globalCss, /:root\.theme-fading[^{]*\{ transition: color 250ms/);
+  const reduced = globalCss.match(/@media \(prefers-reduced-motion: reduce\) \{\s*\.theme-cord-line, \.theme-cord-knob \{ transition: none; \}/);
+  assert.ok(reduced, "no swing under reduced motion");
+});
+
 test("the interaction system uses blue rather than the previous orange accent", () => {
   assert.doesNotMatch(globalCss, /#c95a30/i);
   assert.doesNotMatch(globalCss, /#f2ded5/i);
