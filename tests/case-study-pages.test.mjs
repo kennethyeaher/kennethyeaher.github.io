@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import test, { before } from "node:test";
 import assert from "node:assert/strict";
@@ -289,6 +289,71 @@ test("TerpCareHub renders the v2 exhibit layout from its prose mock", () => {
   assert.equal([...page.matchAll(/<p class="state-name"/g)].length, 4);
   assert.match(page, /interface-state-degraded\.png/);
   assert.match(page, /href="\/work\/college-park-capstone"/);
+});
+
+/** the visible text of an html fragment, tags dropped and whitespace collapsed. */
+function textOf(html) {
+  return html.replace(/<style[\s\S]*?<\/style>/gi, " ").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+}
+
+/** the inner text of every element carrying one class, in page order. */
+function texts(html, className) {
+  return [...html.matchAll(new RegExp(`<(\\w+) class="${className}"[^>]*>([\\s\\S]*?)</\\1>`, "g"))].map((match) => textOf(match[2]));
+}
+
+test("TerpCareHub's overview laptop scrolls the full home page on hover or focus", () => {
+  const page = pages.get("terpcarehub");
+  const overview = page.slice(page.indexOf('id="overview"'), page.indexOf('id="core-flows"'));
+  const laptop = overview.slice(overview.indexOf('class="exhibit-scroller"'));
+  assert.ok(laptop.length > 0, "the laptop renders in the overview");
+  assert.match(laptop, /HOVER · SCROLLS/);
+  assert.match(laptop, /<span class="browser-address"[^>]*>terpcarehub · home<\/span>/);
+  assert.match(laptop, /<img class="scroller-page" src="\/images\/work\/terpcarehub\/home-full\.webp"/);
+  // keyboard focus reaches the frame, which is described by its caption.
+  assert.match(laptop, /<div class="scroller-focus" tabindex="0" role="img" aria-label="[^"]+" aria-describedby="overview-scroller-caption"/);
+  assert.deepEqual([texts(laptop, "caption-title")[0], texts(laptop, "caption-body")[0]], ["Home, desktop", "The redesigned hero states the promise in the university’s own colours, using the product’s real interface language behind it."]);
+  assert.ok(statSync(join(projectRoot, "public/images/work/terpcarehub/home-full.webp")).size < 400 * 1024, "the home page export stays under 400 KB");
+});
+
+test("TerpCareHub's core flows open with a scroll walkthrough beside a pinned phone", () => {
+  const page = pages.get("terpcarehub");
+  const flows = page.slice(page.indexOf('id="core-flows"'), page.indexOf('id="the-measure"'));
+  const walkthrough = flows.slice(flows.indexOf("data-walkthrough"), flows.indexOf('class="exhibit-rows"'));
+  assert.ok(flows.indexOf("data-walkthrough") < flows.indexOf('class="exhibit-row"'), "the walkthrough is the first row after the lede");
+  assert.match(walkthrough, /SCROLL · PHONE PINNED/);
+  assert.deepEqual(texts(walkthrough, "walk-label"), ["STEP 1", "STEP 2", "STEP 3"]);
+  assert.deepEqual(texts(walkthrough, "walk-title"), ["Filters are preset", "Cost is visible before the click", "Sign in only to book"]);
+  assert.deepEqual(texts(walkthrough, "walk-body"), [
+    "Open now and Takes my plan start switched on, and the list is sorted by soonest appointment.",
+    "Plan acceptance and expected cost sit on the card itself.",
+    "Browsing, filtering and deciding stay open so an urgent decision never hits a login wall.",
+  ]);
+  // one pinned screen per step, the first shown until a script moves the active step.
+  const screens = [...walkthrough.matchAll(/<div class="walk-screen( is-active)?" data-walk-screen="(\d)"( aria-hidden="true")?/g)];
+  assert.deepEqual(screens.map((match) => [match[2], Boolean(match[1]), Boolean(match[3])]), [["0", true, false], ["1", false, true], ["2", false, true]]);
+  assert.match(walkthrough, /mobile-sign-in-to-book\.png/);
+  assert.equal([...walkthrough.matchAll(/class="annotation annotation-focus on-light"/g)].length, 2, "step 2 outlines the plan and cost row, pinned and stacked");
+});
+
+test("TerpCareHub's annotated pins are focusable buttons announced with their notes", () => {
+  const page = pages.get("terpcarehub");
+  const landed = page.slice(page.indexOf('id="where-it-landed"'), page.indexOf('id="design-system"'));
+  const pins = landed.slice(landed.indexOf('class="exhibit-pins"'));
+  assert.ok(landed.indexOf("exhibit-pins") > landed.indexOf("terpcarehub · alert"), "the pins sit below the alert stage");
+  const buttons = [...pins.matchAll(/<button type="button" class="pin" data-pin="(\d)" aria-describedby="([^"]+)"[^>]*>([\s\S]*?)<\/button>/g)];
+  assert.deepEqual(buttons.map((match) => [match[1], textOf(match[3])]), [["1", "Annotation 1"], ["2", "Annotation 2"], ["3", "Annotation 3"]]);
+  assert.doesNotMatch(pins, /<button[^>]*tabindex="-1"/);
+  // each pin is described by a note that exists, carries the same number, and holds the approved text.
+  const notes = [...pins.matchAll(/<li class="pin-note" id="([^"]+)" data-note="(\d)"[^>]*>([\s\S]*?)<\/li>/g)];
+  assert.deepEqual(buttons.map((match) => match[2]), notes.map((match) => match[1]));
+  assert.deepEqual(notes.map((match) => textOf(match[3])), [
+    "ANNOTATION 1 Live status on every card Open or closed status sits on each provider card, so hours never need a second page.",
+    "ANNOTATION 2 Cost before the click Cost was the blocker that ended the search in the journey map, so availability, plan acceptance, and expected cost sit on the card itself.",
+    "ANNOTATION 3 Sign in only to book Browsing, filtering and deciding stay open so an urgent decision never hits a login wall.",
+  ]);
+  // pin 2 is active while nothing is hovered or focused.
+  assert.match(page, /\[data-pins="where-it-landed-pins"\]:not\(:has\(\[data-pin\]:is\(:hover, :focus-visible\)\)\) :is\(\[data-pin="2"\], \[data-note="2"\]\)/);
+  assert.deepEqual([texts(pins, "caption-title")[0], texts(pins, "caption-body")[0]], ["Provider card, design decisions", "Hover or tab to a pin to open its note. The active pin and its note are linked by color and number, and both are announced to screen readers."]);
 });
 
 test("the Capstone renders the v2 exhibit layout from its prose mock", () => {
