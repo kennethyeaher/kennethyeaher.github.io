@@ -559,8 +559,17 @@ button {
 .theme-toggle { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 8px; border: 0; background: transparent; color: var(--ink); font: 11px var(--mono); }
 .theme-toggle[hidden] { display: none; }
 .theme-icon { width: 15px; height: 15px; border: 1px solid currentColor; border-radius: 50%; background: linear-gradient(90deg, currentColor 50%, transparent 50%); }
-.reading-progress { position: fixed; z-index: 60; top: 0; left: 0; width: 100%; height: 3px; pointer-events: none; }
-.reading-progress span { display: block; width: 100%; height: 100%; transform: scaleX(var(--reading-progress, 0)); transform-origin: left; background: var(--reading-accent, var(--accent)); }
+/* figma 26:105: a 3px rule coloured track under the header, filled in the case study accent. it is the first thing in
+   main, so it rests under the header and sticks to the top of the viewport once the header scrolls away; it sits
+   below the header's layer so the open menu covers it. under reduced motion it stays an empty track. */
+.reading-progress { position: sticky; z-index: 40; top: 0; height: 3px; background: var(--rule); pointer-events: none; }
+.reading-progress span { display: block; height: 100%; transform: scaleX(var(--reading-progress, 0)); transform-origin: left; background: var(--reading-accent, var(--accent)); }
+/* the dark track is #344553, which every case study accent falls under 3:1 against, so dark themes fill with the
+   accent lifted toward white until it reaches 3:1 (computed in src/pages/work/[slug].astro). */
+:root[data-theme="dark"] .reading-progress span { background: var(--reading-accent-dark, var(--accent)); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .reading-progress span { background: var(--reading-accent-dark, var(--accent)); }
+}
 @media (prefers-reduced-motion: no-preference) {
   @view-transition { navigation: auto; }
   ::view-transition-group(*) { animation-duration: 380ms; animation-timing-function: var(--ease-out); }

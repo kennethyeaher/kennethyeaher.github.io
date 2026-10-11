@@ -57,12 +57,18 @@ export function initializeCoverDepth(): void {
 /** Provide reading progress where a native scroll timeline is unavailable. */
 export function initializeReadingProgress(): void {
   const progress = document.querySelector<HTMLElement>("[data-reading-progress]");
-  if (!progress) return;
+  // the scroll timeline in global.css drives the bar wherever it exists.
+  if (!progress || CSS.supports("animation-timeline: scroll()")) return;
+  const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
   let queued = false;
-  /** Measure the scrollable document and update its progress without animation. */
+  /** Measure the scrollable document and update its progress without animation; reduced motion keeps it empty. */
   function update(): void {
     queued = false;
     if (!progress) return;
+    if (motion.matches) {
+      progress.style.removeProperty("--reading-progress");
+      return;
+    }
     const distance = document.documentElement.scrollHeight - window.innerHeight;
     const fraction = distance > 0 ? Math.min(1, Math.max(0, window.scrollY / distance)) : 0;
     progress.style.setProperty("--reading-progress", String(fraction));
@@ -75,6 +81,7 @@ export function initializeReadingProgress(): void {
   }
   window.addEventListener("scroll", schedule, { passive: true });
   window.addEventListener("resize", schedule);
+  motion.addEventListener("change", schedule);
   if ("ResizeObserver" in window) new ResizeObserver(schedule).observe(document.body);
   update();
 }

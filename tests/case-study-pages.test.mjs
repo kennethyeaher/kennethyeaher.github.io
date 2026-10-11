@@ -130,6 +130,35 @@ test("every eagerly loaded hero image is also fetched at high priority, cropped 
   }
 });
 
+test("reading progress matches figma 26:105: a sticky rule track under the header, filled in the case study accent", () => {
+  const luminance = (hex) => {
+    const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  };
+  const contrast = (a, b) => { const [high, low] = [luminance(a), luminance(b)].sort((x, y) => y - x); return (high + 0.05) / (low + 0.05); };
+  for (const [slug, html] of pages) {
+    const project = projects.find((entry) => entry.slug === slug);
+    // the first thing in main, so it rests under the header and pins once the header scrolls away.
+    const bar = html.match(/<main id="main-content">\s*<div class="reading-progress" data-reading-progress aria-hidden="true" style="--reading-accent: (#[0-9a-fA-F]{6}); --reading-accent-dark: (#[0-9a-fA-F]{6})"><span><\/span><\/div>/);
+    assert.ok(bar, `${slug} opens main with the reading progress bar`);
+    assert.equal(bar[1], project.cover.accent ?? project.cover.palette[1]);
+    assert.ok(contrast(bar[2], "#344553") >= 3, `${slug} dark fill reaches 3:1 on the dark track`);
+  }
+  assert.match(pages.get("terpcarehub"), /--reading-accent: #E21833;/);
+
+  const globalCss = readFileSync(join(projectRoot, "src", "styles", "global.css"), "utf8");
+  assert.match(globalCss, /\.reading-progress \{ position: sticky; z-index: 40; top: 0; height: 3px; background: var\(--rule\); pointer-events: none; \}/);
+  // the scroll timeline only runs where motion is welcome; reduced motion keeps an empty track.
+  const start = globalCss.indexOf("@media (prefers-reduced-motion: no-preference)");
+  const motion = globalCss.slice(start, globalCss.indexOf("@media (prefers-reduced-motion: reduce)", start));
+  assert.match(motion, /@supports \(animation-timeline: scroll\(\)\) \{\s*\.reading-progress span \{ animation: reading-progress linear both; animation-timeline: scroll\(root block\); \}/);
+  const script = readFileSync(join(projectRoot, "src", "scripts", "exhibits.ts"), "utf8");
+  const fallback = script.slice(script.indexOf("export function initializeReadingProgress"), script.indexOf("\n}\n", script.indexOf("export function initializeReadingProgress")));
+  assert.match(fallback, /CSS\.supports\("animation-timeline: scroll\(\)"\)\) return;/);
+  assert.match(fallback, /prefers-reduced-motion: reduce/);
+  assert.match(fallback, /removeProperty\("--reading-progress"\)/);
+});
+
 test("device exhibits preserve captions and source dimensions", () => {
   // every page is on the exhibit layout now; device frames keep their source dimensions there.
   for (const slug of ["frontground", "terpcarehub"]) {

@@ -996,6 +996,8 @@ export const caseStudies = [
       variant: "terpcarehub",
       poster: "/images/work/terpcarehub/cover-gradient-poster.png",
       palette: ["#8A0B1E", "#C21230", "#E21833", "#FF6B80", "#FFD200"],
+      // the reading progress fill in figma 30:259 and 32:363; other pages fill with palette[1].
+      accent: "#E21833",
       exhibit: /** @type {const} */ ({
         "src": "/images/work/terpcarehub/mobile-find-care.png",
         "alt": "Mobile find care screen",
