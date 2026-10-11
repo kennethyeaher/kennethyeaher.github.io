@@ -122,4 +122,5 @@ test("the home h1 keeps its own fallbacks, one pair per optical size, so its lin
   }
   // chrome only matches local() by full or postscript name, and iowan's family name matches neither.
   assert.match(globalCss, /local\("Iowan Old Style Roman"\), local\("IowanOldStyle-Roman"\)/);
+  assert.doesNotMatch(globalCss, /local\("Iowan Old Style"\)/);
 });

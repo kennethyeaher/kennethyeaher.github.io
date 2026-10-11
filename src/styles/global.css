@@ -57,10 +57,11 @@
 /* metric-matched fallbacks, so text keeps its line breaks when the web fonts swap in. widths were
    measured in chrome over the site's own copy (newsreader at 18px, fraunces at 48px, where the
    reflowing text sits) against each system serif; ascent and descent come from the font files' hhea
-   tables, divided by size-adjust. each face only applies where its local font is installed. */
+   tables, divided by size-adjust. each face only applies where its local font is installed. chrome matches
+   local() by full or postscript name, not family name, so iowan is named "Iowan Old Style Roman". */
 @font-face {
   font-family: "Newsreader Fallback Iowan";
-  src: local("Iowan Old Style");
+  src: local("Iowan Old Style Roman"), local("IowanOldStyle-Roman");
   size-adjust: 89.56%;
   ascent-override: 82.07%;
   descent-override: 29.59%;
@@ -76,7 +77,7 @@
 }
 @font-face {
   font-family: "Fraunces Fallback Iowan";
-  src: local("Iowan Old Style");
+  src: local("Iowan Old Style Roman"), local("IowanOldStyle-Roman");
   size-adjust: 99.92%;
   ascent-override: 97.88%;
   descent-override: 25.52%;
@@ -96,8 +97,7 @@
    the small faces apply up to 760px and the wide faces above it (src/pages/index.astro). each value sits inside
    the size-adjust range that sets the h1 on the same lines as fraunces at 375 (45px) or 1440 (63.36px), and at
    as many nearby widths as allow it; around 480 and 1100 no value fits both those widths and the target.
-   chrome matches local() by full or postscript name, so iowan is named "Iowan Old Style Roman". ascent and
-   descent are fraunces' hhea values (1956 and 510 of 2000) divided by size-adjust. */
+   ascent and descent are fraunces' hhea values (1956 and 510 of 2000) divided by size-adjust. */
 @font-face {
   font-family: "Fraunces Home Small Fallback Iowan";
   src: local("Iowan Old Style Roman"), local("IowanOldStyle-Roman");
