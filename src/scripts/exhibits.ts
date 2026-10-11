@@ -132,7 +132,8 @@ export function initializeExhibitLoops(): void {
   const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
   document.querySelectorAll<HTMLElement>("[data-exhibit-loop]").forEach((loop) => {
     const video = loop.querySelector("video");
-    const button = loop.querySelector<HTMLButtonElement>("[data-loop-toggle]");
+    // the control lives in the stage's media tag, not on the device, and names its clip by id.
+    const button = video?.id ? document.querySelector<HTMLButtonElement>(`[data-loop-toggle][aria-controls="${video.id}"]`) : null;
     if (!video || !button) return;
     let visible = false;
     let pausedByVisitor = false;

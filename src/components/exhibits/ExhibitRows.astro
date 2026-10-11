@@ -23,8 +23,9 @@ const { palette, visuals, captions, fields = [], base, bases = [], veil = false 
     <div class="exhibit-row">
       <ExhibitStage palette={palette} size="square" field={fields[index]} base={bases[index] ?? base} veil={veil}>
         <ExhibitVisual visual={visual} stageRatio={1} stageWidth={600 / 1116} />
-        {/* the media tag marks a stage that ships as a looping video (figma 50:584), so a still row shows none. */}
-        {captions[index].tag && visual.loop && <span class="row-tag"><MediaTag text={captions[index].tag!} /></span>}
+        {/* the media tag marks a stage that ships as a looping video (figma 50:584), so a still row shows none.
+            it carries the loop's pause control in the stage's corner (132:1838), clear of the device. */}
+        {captions[index].tag && visual.loop && <span class="row-tag"><MediaTag text={captions[index].tag!} loop={visual.loop.name ?? ""} /></span>}
       </ExhibitStage>
       <div class="row-caption">
         <Caption title={captions[index].title} body={captions[index].body} />
@@ -38,6 +39,10 @@ const { palette, visuals, captions, fields = [], base, bases = [], veil = false 
   .exhibit-row { display: grid; grid-template-columns: minmax(0, 600px) minmax(0, 400px); align-items: end; gap: 56px; }
   .row-tag { position: absolute; z-index: 4; top: 3%; left: 3%; }
   .row-caption :global(.exhibit-caption) { max-width: 400px; }
+  /* below a 560 wide stage the pill reaches the phone's top edge, so the phone drops 20px and stays clear of it. */
+  @container (max-width: 560px) {
+    .exhibit-row :global(.exhibit-visual.is-placed:has(.frame-iphone)) { margin-top: 20px; }
+  }
   @media (max-width: 760px) {
     .exhibit-row { grid-template-columns: minmax(0, 1fr); gap: 20px; }
   }

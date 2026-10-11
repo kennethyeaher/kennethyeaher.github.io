@@ -13,10 +13,11 @@
  * @typedef {{
  *   src: string, alt: string, width: number, height: number,
  *   frame?: "image" | "iphone" | "browser", rot?: number, at?: Box, loop?: { src: string, poster: string, name?: string },
- *   url?: string, crop?: { x: number, y: number, w: number, h: number }, priority?: boolean
+ *   url?: string, crop?: { x: number, y: number, w: number, h: number }, priority?: boolean, zoom?: number
  * }} ExhibitVisual
  *   loop.name tells loop controls apart ("Play state loop"); url is the browser address; crop shows one region of the image as fractions of its size;
- *   priority marks the lcp visual when it is not the hero's last one.
+ *   priority marks the lcp visual when it is not the hero's last one; zoom draws a resized browser instance larger,
+ *   its chrome scaling with it (terpcarehub 132:1846 is the 640 instance at 1.5x).
  * @typedef {{
  *   type: "focus" | "leader" | "leader-vertical", num: string, label?: string,
  *   on?: number, at?: Box, target?: string, direction?: "left" | "right", theme?: "on-dark" | "on-light"
@@ -706,14 +707,15 @@ export const caseStudies = [
         ],
       },
       {
-        kind: "stage", id: "the-brief", chapter: "The brief", figma: "61:1002", size: "wide", ratio: "1116 / 680",
+        kind: "stage", id: "the-brief", chapter: "The brief", figma: "61:1002", size: "wide", ratio: "1116 / 810",
         lede: [
           "I modeled the dataset on the MSF Aweil pediatric triage form, the same document I had watched clinicians use. Every form carries plausible values across identifiers, free text, a checkbox triage class, and six numeric vitals.",
           "A fixed seed generated thirty ground truth forms. Rendering each at five quality levels produced 150 documents and 2,100 field attempts. Synthetic data gave me exact ground truth on all fourteen fields with no privacy exposure. It also sets a ceiling. Real handwritten records would be harder for both methods, and nothing in this study measures that gap.",
         ],
         eyebrow: "THE BRIEF",
         heading: "Thirty generated forms created a controlled clinical document set",
-        visuals: [{ src: "/images/work/kairo/kairo-form-clean.png", width: 1700, height: 2200, alt: "One generated pediatric triage form at clean quality", at: { x: 29.2, y: 5.9, w: 41.6 } }],
+        // drawn at 1.7x the figma size and cropped below box 01 (phase 4 rule from 132:1838), so the boxed labels read at 12px at 1440.
+        visuals: [{ src: "/images/work/kairo/kairo-form-clean.png", width: 1700, height: 2200, alt: "One generated pediatric triage form at clean quality", at: { x: 14.65, y: 4.94, w: 70.7 } }],
         annotations: [
           { type: "focus", num: "01", on: 0, at: { x: 8.2, y: 66.3, w: 69.4, h: 5.3 } },
           { type: "focus", num: "02", on: 0, at: { x: 7.3, y: 36, w: 87.1, h: 7.7 } },
@@ -1095,17 +1097,18 @@ export const caseStudies = [
         text: "Current state · one student, one Sunday night | Overnight wait | 2:40 PM next day | Appointment taken | She misses a lecture to do it. | 11:02 PM | 01 | Symptom onset | No triage guidance exists anywhere on campus | 02 | First search | Hours and services live on separate pages | 03 | Source hopping | Four formats, no shared vocabulary, no verification | 04 | Dead end | Cost is the real blocker and the least visible fact | 05 | Gives up | Twenty-two minutes spent, no decision reached | Minute 22 · 11:24 PM | The worst moment on that map is not the overnight wait. It is minute twenty-two, when the search ends and she still does not know what to do.",
       },
       {
-        kind: "stage", id: "where-it-landed", chapter: "Where it landed", figma: "90:1755", size: "wide", ratio: "1116 / 560",
+        kind: "stage", id: "where-it-landed", chapter: "Where it landed", figma: "90:1755", size: "wide", ratio: "1116 / 790",
         lede: [
           "The provider card carries the decision. Availability, plan acceptance, and expected cost sit on the card itself. Cost was the blocker that ended the search in the journey map, and pushing it to a detail page would rebuild the same dead end one screen further in.",
           "Alerts carry a severity tag applied at ingest, a source badge, and a timestamp. Those three travel together, so an advisory keeps its authority after someone screenshots it and reshares it outside the product. A high-severity alert has to be acknowledged rather than swiped away, and acknowledging it says where the alert went.",
         ],
         eyebrow: "WHERE IT LANDED",
         heading: "Insight 1: The decision moves onto the card",
-        // figma 90:1769: the alert stage runs full width now the provider card half is gone; its annotations are shares of the visual.
+        // figma 132:1846: the alert browser drawn at 1.5x (960 wide) on a 790 tall stage cropped from the top, so the
+        // pinned text reads at 12px or more at 1440. its annotations are shares of the visual, so they scale with it.
         base: "#8a0b1e",
-        field: { width: 1116, height: 560, sigma: 45, circles: [{ x: 451, y: 520, r: 260, colour: "#E21833", alpha: 0.9 }, { x: 801, y: 30, r: 190, colour: "#FF7A45", alpha: 0.9 }, { x: 801, y: 570, r: 210, colour: "#4A0512", alpha: 0.9 }] },
-        visuals: [{ src: "/images/work/terpcarehub/alert-detail.png", width: 1489, height: 1600, alt: "Alert detail page with severity banner and source verification panel", frame: "browser", url: "terpcarehub · alert", screen: { w: 640, h: 520 }, at: { x: 29.7, y: 11.4, w: 57.3 } }],
+        field: { width: 1116, height: 790, sigma: 45, circles: [{ x: 451, y: 520, r: 260, colour: "#E21833", alpha: 0.9 }, { x: 801, y: 30, r: 190, colour: "#FF7A45", alpha: 0.9 }, { x: 801, y: 570, r: 210, colour: "#4A0512", alpha: 0.9 }] },
+        visuals: [{ src: "/images/work/terpcarehub/alert-detail.png", width: 1489, height: 1600, alt: "Alert detail page with severity banner and source verification panel", frame: "browser", url: "terpcarehub · alert", screen: { w: 640, h: 520 }, zoom: 1.5, at: { x: 6.99, y: 6.08, w: 86.02 } }],
         annotations: [
           { type: "focus", num: "01", on: 0, at: { x: 4.6, y: 20.3, w: 90.8, h: 6.1 } },
           { type: "focus", num: "02", on: 0, at: { x: 4.6, y: 37.1, w: 37.5, h: 7.1 } },
@@ -1115,12 +1118,14 @@ export const caseStudies = [
         pins: {
           figma: "119:71", ratio: "1116 / 680", base: "#f6c453", active: "2",
           field: { width: 1116, height: 680, sigma: 45, circles: [{ x: 220, y: 180, r: 260, colour: "#FFF4D6", alpha: 0.9 }, { x: 980, y: 600, r: 220, colour: "#FF9A3D", alpha: 0.9 }, { x: 570, y: 30, r: 150, colour: "#F5D77E", alpha: 0.9 }] },
-          visual: { src: "/images/work/terpcarehub/mobile-find-care.png", width: 321, height: 1100, alt: "Mobile find care screen", at: { x: 17.9, y: 4.4, w: 26.9 } },
+          // the phone is drawn at 1.2x the figma size and runs off the stage's foot (phase 4 rule from 132:1838), so the
+          // pinned card text reads at 12px at 1440; the pins moved with it and sit on the same screen pixels.
+          visual: { src: "/images/work/terpcarehub/mobile-find-care.png", width: 321, height: 1100, alt: "Mobile find care screen", at: { x: 15.21, y: 4.4, w: 32.28 } },
           // each pin's top left on the stage, as figma places it: the status badge, the cost field, the book button.
           pins: [
-            { n: "1", at: { x: 40.1, y: 34.7 }, title: "Live status on every card", body: "Open or closed status sits on each provider card, so hours never need a second page." },
-            { n: "2", at: { x: 38.9, y: 50.4 }, title: "Cost before the click", body: "Cost was the blocker that ended the search in the journey map, so availability, plan acceptance, and expected cost sit on the card itself." },
-            { n: "3", at: { x: 40.1, y: 57.1 }, title: "Sign in only to book", body: "Browsing, filtering and deciding stay open so an urgent decision never hits a login wall." },
+            { n: "1", at: { x: 42.1, y: 41.2 }, title: "Live status on every card", body: "Open or closed status sits on each provider card, so hours never need a second page." },
+            { n: "2", at: { x: 40.7, y: 60 }, title: "Cost before the click", body: "Cost was the blocker that ended the search in the journey map, so availability, plan acceptance, and expected cost sit on the card itself." },
+            { n: "3", at: { x: 42.1, y: 68.1 }, title: "Sign in only to book", body: "Browsing, filtering and deciding stay open so an urgent decision never hits a login wall." },
           ],
           notes: { x: 55.6, width: 400 },
           caption: { title: "Provider card, design decisions", body: "Hover or tab to a pin to open its note. The active pin and its note are linked by color and number, and both are announced to screen readers." },

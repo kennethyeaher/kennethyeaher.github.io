@@ -1,11 +1,22 @@
 ---
 // media tag per figma 50:584, marking a stage that ships as a looping muted clip.
+// with a loop it carries that loop's pause control as one pill (figma 132:1838): dot, tag, divider, Pause or Play,
+// so the control never sits on the device. the script shows it; without scripts or under reduced motion
+// the pill stays a plain tag.
+import { loopId } from "@/utils/loop.mjs";
+
 interface Props {
   text: string;
+  /** the loop this tag controls, by its name ("alert" gives "Pause alert loop"). */
+  loop?: string;
 }
-const { text } = Astro.props;
+const { text, loop } = Astro.props;
+// named the way ExhibitLoop names its clip, so the ids match.
+const loopName = loop === undefined ? undefined : loop ? `${loop} loop` : "loop";
 ---
-<span class="media-tag"><span class="media-dot" aria-hidden="true"></span>{text}</span>
+<span class:list={["media-tag", loopName && "has-control"]}><span class="media-dot" aria-hidden="true"></span>{text}{loopName && (
+  <button class="loop-toggle" type="button" data-loop-toggle aria-controls={loopId(loopName)} hidden><span data-loop-action>Pause</span><span class="loop-name"> {loopName}</span></button>
+)}</span>
 <style>
   .media-tag {
     display: inline-flex;
@@ -22,4 +33,28 @@ const { text } = Astro.props;
   }
   /* drawn from the annotate token rather than the figma svg, so the site keeps one annotation colour. */
   .media-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--color-annotate-on-stage); }
+  /* the pill with a control, per 132:1838: a darker fill so the white control text keeps 4.5:1 on the palest stage. */
+  .media-tag.has-control { gap: 8px; padding: 6px 10px; background: rgb(26 31 38 / 72%); }
+  .loop-toggle {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: #fff;
+    font: 500 10px / 1 var(--mono);
+    letter-spacing: 0.06em;
+    cursor: pointer;
+  }
+  .loop-toggle[hidden] { display: none; }
+  /* the divider belongs to the control, so a hidden control takes it along. */
+  .loop-toggle::before { width: 1px; height: 12px; content: ""; background: rgb(255 255 255 / 40%); }
+  /* the visible word is small; the hit area is 44px square around it. */
+  .loop-toggle::after { position: absolute; top: 50%; right: -10px; width: max(44px, calc(100% + 10px)); height: 44px; content: ""; translate: 0 -50%; }
+  .loop-toggle:focus-visible { outline: none; }
+  .media-tag:has(.loop-toggle:focus-visible) { outline: 2px solid #fff; outline-offset: 2px; }
+  /* only the action shows; the loop's name stays in the accessible name, which starts with the visible word. */
+  .loop-name { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 </style>

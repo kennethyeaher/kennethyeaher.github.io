@@ -89,7 +89,8 @@ ${pins.map((pin) => `${live(pin.n)} [data-note="${pin.n}"]`).join(", ")}, ${idle
     z-index: 2;
     display: grid;
     place-items: center;
-    width: max(26px, 10cqw);
+    /* 30px on a 300 wide phone; capped there when the phone is drawn larger (132:1838 keeps badges at their size). */
+    width: clamp(26px, 10cqw, 30px);
     aspect-ratio: 1;
     padding: 0;
     /* an inactive pin keeps its white number at 5.18:1 and shows its state with a lighter ring and a smaller shadow. */
@@ -98,7 +99,7 @@ ${pins.map((pin) => `${live(pin.n)} [data-note="${pin.n}"]`).join(", ")}, ${idle
     background: var(--color-annotate-on-light-stage);
     box-shadow: var(--pin-shadow, 0 1px 2px rgb(0 0 0 / 18%));
     color: #fff;
-    font: 600 max(11px, 4.333cqw) / 1 var(--ui);
+    font: 600 clamp(11px, 4.333cqw, 13px) / 1 var(--ui);
     translate: -50% -50%;
     cursor: pointer;
     transition: border-color 150ms var(--ease-out), box-shadow 150ms var(--ease-out);

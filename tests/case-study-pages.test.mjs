@@ -131,6 +131,21 @@ test("every eagerly loaded hero image is also fetched at high priority, cropped 
   }
 });
 
+test("every loop control joins its media tag as one pill and never sits on the device (figma 132:1838)", () => {
+  let loops = 0;
+  for (const [slug, html] of pages) {
+    for (const [, id] of html.matchAll(/<video id="(clip-[a-z0-9-]+)"/g)) {
+      loops += 1;
+      const controls = [...html.matchAll(new RegExp(`<span class="media-tag has-control"[^>]*>(?:(?!</button>).)*aria-controls="${id}"`, "gs"))];
+      assert.equal(controls.length, 1, `${slug}: ${id} has one control, inside its media tag`);
+    }
+    // nothing inside a device frame or a clip is a loop control.
+    for (const device of html.matchAll(/<div class="device-frame[^"]*"(?:(?!<\/video>).)*<\/video>/gs)) assert.doesNotMatch(device[0], /data-loop-toggle/, slug);
+    assert.doesNotMatch(html, /<div class="exhibit-loop"(?:(?!<\/div>).)*data-loop-toggle/s, slug);
+  }
+  assert.equal(loops, 9);
+});
+
 test("reading progress matches figma 26:105: a sticky rule track under the header, filled in the case study accent", () => {
   for (const [slug, html] of pages) {
     const project = projects.find((entry) => entry.slug === slug);
@@ -269,7 +284,7 @@ test("Ovara renders the v2 exhibit layout from the approved spec", () => {
     assert.match(ovara, new RegExp(`poster="/images/work/ovara/ovara-${name}-loop-poster\\.webp"`));
     assert.match(ovara, new RegExp(`data-src="/images/work/ovara/ovara-${name}-loop\\.mp4"`));
     assert.match(ovara, new RegExp(`data-loop-name="${name} loop"`));
-    assert.match(ovara, new RegExp(`data-loop-toggle hidden[^>]*><span data-loop-action[^>]*>Pause</span><span class="loop-name"[^>]*> ${name} loop</span></button>`));
+    assert.match(ovara, new RegExp(`class="loop-toggle"[^>]*data-loop-toggle aria-controls="clip-${name.replace(/ /g, "-")}-loop" hidden[^>]*><span data-loop-action[^>]*>Pause</span><span class="loop-name"[^>]*> ${name} loop</span></button></span>`));
   }
   assert.doesNotMatch(ovara, /autoplay/);
   // audit cards in html, every field from the spec text.
@@ -302,7 +317,7 @@ test("TerpCareHub renders the v2 exhibit layout from its prose mock", () => {
   assert.doesNotMatch(page, /terpcarehub-find-care-loop/);
   for (const [clip, name] of [["alert", "alert"], ["dashboard", "own items"]]) {
     assert.match(page, new RegExp(`data-src="/images/work/terpcarehub/terpcarehub-${clip}-loop\\.mp4"`));
-    assert.match(page, new RegExp(`data-loop-toggle hidden[^>]*><span data-loop-action[^>]*>Pause</span><span class="loop-name"[^>]*> ${name} loop</span></button>`));
+    assert.match(page, new RegExp(`class="loop-toggle"[^>]*data-loop-toggle aria-controls="clip-${name.replace(/ /g, "-")}-loop" hidden[^>]*><span data-loop-action[^>]*>Pause</span><span class="loop-name"[^>]*> ${name} loop</span></button></span>`));
   }
   // a veil on each row stage, the overview laptop, the pinned walkthrough stage and its three narrow-screen stages.
   assert.equal([...page.matchAll(/class="stage-veil"/g)].length, 7);

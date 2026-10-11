@@ -1,6 +1,9 @@
 ---
-// a muted looping clip that only plays while in view, with a pause control and a poster.
+// a muted looping clip that only plays while in view, with a poster. its pause control sits in the stage's
+// media tag (figma 132:1838), never on the device, and finds this clip by the video's id.
 // under reduced motion, or without scripts, the poster stays as the still.
+import { loopId } from "@/utils/loop.mjs";
+
 interface Props {
   src: string;
   poster: string;
@@ -14,31 +17,11 @@ const { src, poster, width, height, label, name } = Astro.props;
 const loopName = name ? `${name} loop` : "loop";
 ---
 <div class="exhibit-loop" data-exhibit-loop data-loop-name={loopName}>
-  <video muted loop playsinline preload="none" poster={poster} width={width} height={height} aria-label={label}>
+  <video id={loopId(loopName)} muted loop playsinline preload="none" poster={poster} width={width} height={height} aria-label={label}>
     <source data-src={src} type="video/mp4" />
   </video>
-  <button class="loop-toggle" type="button" data-loop-toggle hidden><span data-loop-action>Pause</span><span class="loop-name"> {loopName}</span></button>
 </div>
 <style>
   .exhibit-loop { position: relative; }
   .exhibit-loop video { display: block; width: 100%; height: auto; }
-  .loop-toggle {
-    position: absolute;
-    right: 10px;
-    bottom: 10px;
-    min-width: 44px;
-    min-height: 44px;
-    padding: 6px 12px;
-    border: 1px solid rgb(255 255 255 / 55%);
-    border-radius: 999px;
-    background: rgb(0 0 0 / 55%);
-    color: #fff;
-    font: 11px var(--mono);
-    letter-spacing: 0.04em;
-  }
-  .loop-toggle[hidden] { display: none; }
-  /* on a phone screen the control shows only its action; the loop's name stays in the accessible name,
-     which still starts with the visible word. */
-  :global(.frame-iphone) .loop-name { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-  .loop-toggle:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 </style>
