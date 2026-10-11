@@ -45,6 +45,8 @@ For a technical review, start with the shared content model in `src/data/portfol
 
 ## Local preview
 
+The site needs Node 22.12 or later.
+
 ```bash
 npm ci
 npm run dev

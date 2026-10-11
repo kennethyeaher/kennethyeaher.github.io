@@ -2,6 +2,9 @@
   "name": "kenneth-yeaher-portfolio",
   "type": "module",
   "version": "1.0.0",
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "scripts": {
     "dev": "astro dev",
     "build": "node scripts/build-social-cards.mjs && node scripts/build-exhibit-images.mjs && astro build",
