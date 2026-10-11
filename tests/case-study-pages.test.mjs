@@ -271,7 +271,8 @@ test("TerpCareHub renders the v2 exhibit layout from its prose mock", () => {
     assert.match(page, new RegExp(`data-src="/images/work/terpcarehub/terpcarehub-${clip}-loop\\.mp4"`));
     assert.match(page, new RegExp(`data-loop-toggle hidden[^>]*><span data-loop-action[^>]*>Pause</span><span class="loop-name"[^>]*> ${name} loop</span></button>`));
   }
-  assert.equal([...page.matchAll(/class="stage-veil"/g)].length, 2);
+  // a veil on each row stage and on the overview laptop.
+  assert.equal([...page.matchAll(/class="stage-veil"/g)].length, 3);
   // the minute 22 timeline is html over an svg rail.
   assert.match(page, /<ol class="timeline-steps"/);
   assert.equal([...page.matchAll(/<li[^>]*class="is-marked"[^>]*>/g)].length, 1);

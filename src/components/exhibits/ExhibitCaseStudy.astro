@@ -7,6 +7,7 @@ import ExhibitVisual from "@/components/exhibits/ExhibitVisual.astro";
 import ExhibitJourney from "@/components/exhibits/ExhibitJourney.astro";
 import ChapterLede from "@/components/exhibits/ChapterLede.astro";
 import ExhibitRows from "@/components/exhibits/ExhibitRows.astro";
+import ExhibitScroller from "@/components/exhibits/ExhibitScroller.astro";
 import ExhibitAuditCards from "@/components/exhibits/ExhibitAuditCards.astro";
 import ExhibitArtboardCount from "@/components/exhibits/ExhibitArtboardCount.astro";
 import ExhibitHeatmap from "@/components/exhibits/ExhibitHeatmap.astro";
@@ -90,6 +91,7 @@ function sectionFor(exhibit: any) {
         <div class="overview-chapter">
           <SectionHead eyebrow={hero.eyebrow} heading={hero.heading} />
           <ChapterLede paragraphs={hero.lede} />
+          {hero.scroller && <div class="exhibit-body"><ExhibitScroller id={`${hero.id}-scroller`} palette={palette} exhibit={hero.scroller} /></div>}
         </div>
       )}
     </section>

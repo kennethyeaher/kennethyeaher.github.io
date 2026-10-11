@@ -1,0 +1,61 @@
+---
+// laptop per figma 119:2: a browser on a stage whose screen scrolls the full page on hover or keyboard focus,
+// over 6s, then rests at the top. under reduced motion the screen stays on the top of the page.
+import Caption from "@/components/exhibits/Caption.astro";
+import DeviceFrame from "@/components/DeviceFrame.astro";
+import ExhibitStage from "@/components/exhibits/ExhibitStage.astro";
+import MediaTag from "@/components/exhibits/MediaTag.astro";
+
+interface Props {
+  id: string;
+  palette: string[];
+  exhibit: {
+    ratio: string; base: string; field: any; veil?: boolean; tag: string;
+    visual: { src: string; width: number; height: number; alt: string; url: string; screen: { w: number; h: number }; at: { x: number; y: number; w: number } };
+    caption: { title: string; body: string };
+  };
+}
+const { id, palette, exhibit } = Astro.props;
+const { visual } = exhibit;
+// webp copies at 480 and 960 wide come from scripts/build-exhibit-images.mjs; the full export covers 2x desktop.
+const name = visual.src.split("/").pop()?.replace(/\.[^.]+$/, "");
+const srcset = [...[480, 960].map((width) => `/images/exhibits/sized/${name}-${width}.webp ${width}w`), `${visual.src} ${visual.width}w`].join(", ");
+const sizes = `calc(min(1116px, 100vw - 48px) * ${(visual.at.w / 100).toFixed(3)})`;
+---
+<figure class="exhibit-scroller">
+  <ExhibitStage palette={palette} size="wide" ratio={exhibit.ratio} field={exhibit.field} base={exhibit.base} veil={exhibit.veil}>
+    <div class="scroller-device" style={`left: ${visual.at.x}%; top: ${visual.at.y}%; width: ${visual.at.w}%`}>
+      {/* the frame takes focus so a keyboard visitor gets the same scroll a pointer gets on hover. */}
+      <div class="scroller-focus" tabindex="0" role="img" aria-label={visual.alt} aria-describedby={`${id}-caption`}>
+        <DeviceFrame frame="browser" src={visual.src} alt="" url={visual.url} screen={visual.screen}>
+          <div class="scroller-screen">
+            <img class="scroller-page" src={visual.src} srcset={srcset} sizes={sizes} alt="" width={visual.width} height={visual.height} loading="lazy" decoding="async" />
+          </div>
+        </DeviceFrame>
+      </div>
+    </div>
+    <span class="scroller-tag"><MediaTag text={exhibit.tag} /></span>
+  </ExhibitStage>
+  <figcaption id={`${id}-caption`}><Caption title={exhibit.caption.title} body={exhibit.caption.body} /></figcaption>
+</figure>
+<style>
+  /* figma 119:29: the caption sits 24 under the stage and runs 720 wide. */
+  .exhibit-scroller { display: grid; gap: 24px; margin: 0; }
+  .exhibit-scroller figcaption :global(.exhibit-caption) { max-width: 720px; }
+  .scroller-device { position: absolute; z-index: 1; }
+  .scroller-focus { display: block; border-radius: 12px; }
+  .scroller-focus:focus-visible { outline: 2px solid #fff; outline-offset: 4px; }
+  /* the screen is a size container, so the page can travel exactly its own height less one screen. */
+  .scroller-screen { position: relative; overflow: hidden; height: 100%; container-type: size; }
+  .scroller-page { display: block; width: 100%; height: auto; }
+  .scroller-tag { position: absolute; z-index: 4; top: 3%; left: 1.61%; }
+  @media (prefers-reduced-motion: no-preference) {
+    .scroller-focus:is(:hover, :focus-visible) .scroller-page { animation: page-scroll 6.8s ease-in-out both; }
+  }
+  /* six seconds down the page, then back to rest at the top. */
+  @keyframes page-scroll {
+    0% { translate: 0 0; }
+    88% { translate: 0 calc(-100% + 100cqh); }
+    100% { translate: 0 0; }
+  }
+</style>

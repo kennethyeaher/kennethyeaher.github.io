@@ -14,7 +14,9 @@ function exhibitSources() {
   for (const project of caseStudies) {
     for (const exhibit of project.exhibits ?? []) {
       // visuals sit on the exhibit itself, on each stage of a pair, or are the tiles of a states grid.
-      const visuals = [...(exhibit.visuals ?? []), ...(exhibit.stages ?? []).flatMap((stage) => stage.visuals ?? []), ...(exhibit.tiles ?? []), ...(exhibit.figure ? [exhibit.figure] : [])];
+      // the writing pass adds a scrolling laptop, walkthrough screens and a pinned phone beside an exhibit.
+      const visuals = [...(exhibit.visuals ?? []), ...(exhibit.stages ?? []).flatMap((stage) => stage.visuals ?? []), ...(exhibit.tiles ?? []), ...(exhibit.figure ? [exhibit.figure] : []),
+        ...(exhibit.scroller ? [exhibit.scroller.visual] : []), ...(exhibit.walkthrough?.steps ?? []).map((step) => step.screen), ...(exhibit.pins ? [exhibit.pins.visual] : [])];
       for (const visual of visuals) sources.add(visual.src);
     }
   }
