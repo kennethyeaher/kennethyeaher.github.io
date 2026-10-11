@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import test, { before } from "node:test";
 import assert from "node:assert/strict";
@@ -80,4 +80,31 @@ test("the collapsed menu is the first paint when scripts run, so the nav never s
   assert.match(head, /document\.documentElement\.classList\.add\("nav-ready"\)/);
   // without scripts the class never lands, and the link row fallback still applies.
   assert.match(globalCss, /html:not\(\.nav-ready\) \.primary-links/);
+});
+
+test("fonts are self-hosted with their licences, preloaded where they paint first, and keep their fallbacks", () => {
+  const html = readFileSync(join(projectRoot, "dist", "index.html"), "utf8");
+  const built = readFileSync(join(projectRoot, "dist", html.match(/href="\/(_astro\/[^"]+\.css)"/)[1]), "utf8");
+  for (const source of [globalCss, built, html]) assert.doesNotMatch(source, /fonts\.(googleapis|gstatic)\.com|@import\s+url/);
+
+  const faces = [...globalCss.matchAll(/@font-face \{([^}]*)\}/g)].map(([, body]) => body).filter((body) => /src: url\(/.test(body));
+  for (const family of ["Fraunces", "JetBrains Mono", "Newsreader"]) {
+    const own = faces.filter((body) => body.includes(`font-family: "${family}"`));
+    assert.equal(own.length, 2, `${family} ships latin and latin-ext`);
+    for (const body of own) {
+      assert.match(body, /font-weight: 400 500;/);
+      assert.match(body, /font-display: swap;/);
+      assert.match(body, /unicode-range: /);
+      const file = join(projectRoot, "public", body.match(/url\("\/([^"]+)"\)/)[1]);
+      assert.ok(statSync(file).size > 0, `${file} is missing`);
+      assert.match(readFileSync(join(file, "..", "OFL.txt"), "utf8"), /SIL Open Font License, Version 1\.1/);
+    }
+  }
+
+  const preloads = [...html.matchAll(/<link rel="preload" href="([^"]+)" as="font" type="font\/woff2" crossorigin>/g)].map(([, href]) => href);
+  assert.deepEqual(preloads, ["/fonts/fraunces/fraunces-latin.woff2", "/fonts/jetbrains-mono/jetbrains-mono-latin.woff2"]);
+  for (const href of preloads) assert.ok(existsSync(join(projectRoot, "public", href)));
+  // the metric matched fallbacks stay in every serif stack.
+  assert.match(globalCss, /--display: "Fraunces", "Fraunces Fallback Iowan", "Fraunces Fallback Georgia"/);
+  assert.match(globalCss, /--body: "Newsreader", "Newsreader Fallback Iowan", "Newsreader Fallback Georgia"/);
 });
