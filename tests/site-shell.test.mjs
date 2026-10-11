@@ -196,6 +196,26 @@ test("fonts are self-hosted with their licences, preloaded where they paint firs
   assert.match(globalCss, /--body: "Newsreader", "Newsreader Fallback Iowan", "Newsreader Fallback Georgia"/);
 });
 
+test("scroll-driven animations keep animation-timeline as its own declaration in the built css", () => {
+  // the animation shorthand cannot set animation-timeline, so a minifier that folds it in makes chromium drop the
+  // whole declaration: the edge fade, reading progress bar and scroll reveals then never run.
+  const html = readFileSync(join(projectRoot, "dist", "index.html"), "utf8");
+  const built = readFileSync(join(projectRoot, "dist", html.match(/href="\/(_astro\/[^"]+\.css)"/)[1]), "utf8");
+  const rules = {
+    "edge fade": /\.edge-fade::?after\{([^}]*animation[^}]*)\}/,
+    "reading progress": /\.reading-progress span\{([^}]*animation[^}]*)\}/,
+    "scroll reveal": /\[data-reveal\]:not\(\.section-rule\)\{([^}]*animation[^}]*)\}/,
+  };
+  for (const [name, rule] of Object.entries(rules)) {
+    const body = built.match(rule)?.[1];
+    assert.ok(body, `the ${name} rule with an animation is in the built global sheet`);
+    assert.match(body, /(^|;)animation-timeline:/, `the ${name} rule keeps animation-timeline as its own declaration`);
+  }
+  for (const [, value] of built.matchAll(/(?:^|[;{])animation:([^;}]*)/g)) {
+    assert.doesNotMatch(value, /scroll\(|view\(|--edge/, `animation shorthand carries a timeline: ${value}`);
+  }
+});
+
 test("the home h1 keeps its own fallbacks, one pair per optical size, so its lines hold when fraunces swaps in", () => {
   const home = readFileSync(join(projectRoot, "src", "pages", "index.astro"), "utf8");
   for (const size of ["Small", "Wide"]) {
