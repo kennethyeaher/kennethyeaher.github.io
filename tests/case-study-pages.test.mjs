@@ -121,6 +121,15 @@ test("every case study has a unique social preview and reading progress", () => 
   }
 });
 
+test("every eagerly loaded hero image is also fetched at high priority, cropped or not", () => {
+  for (const [slug, html] of pages) {
+    const hero = html.slice(html.indexOf('class="hero-wrap"'), html.indexOf('class="case-meta"'));
+    const eager = hero.match(/<img[^>]*loading="eager"[^>]*>/g) ?? [];
+    assert.ok(eager.length > 0, `${slug} has an eager hero image`);
+    for (const img of eager) assert.match(img, /fetchpriority="high"/, `${slug}: ${img.slice(0, 120)}`);
+  }
+});
+
 test("device exhibits preserve captions and source dimensions", () => {
   // every page is on the exhibit layout now; device frames keep their source dimensions there.
   for (const slug of ["frontground", "terpcarehub"]) {

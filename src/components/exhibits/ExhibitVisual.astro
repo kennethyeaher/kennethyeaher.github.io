@@ -73,7 +73,7 @@ const eager = priority || visual.priority === true;
             <picture>
               <source type="image/webp" srcset={srcset} sizes={sizes} />
               <img src={visual.src} alt={visual.alt} width={visual.width} height={visual.height} style={cropStyle}
-                loading={eager ? "eager" : "lazy"} decoding="async" />
+                loading={eager ? "eager" : "lazy"} fetchpriority={eager ? "high" : "auto"} decoding="async" />
             </picture>
           </div>
         : <picture>
