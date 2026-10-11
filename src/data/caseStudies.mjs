@@ -34,7 +34,8 @@
  * @typedef {{ id: string, chapter: string, figma?: string, eyebrow?: string, heading?: string, lede?: LedeParagraph[] }} ExhibitBase
  * @typedef {{ figma: string, ratio: string, base: string, field: StageField, veil?: boolean, tag: string, visual: ExhibitVisual & { url: string, screen: { w: number, h: number } }, caption: ExhibitCaption }} ExhibitScroller
  * @typedef {ExhibitBase & { kind: "hero", visuals: ExhibitVisual[], kpi?: ExhibitKpi, metrics: { value: string, label: string }[], scroller?: ExhibitScroller }} HeroExhibit
- * @typedef {ExhibitBase & { kind: "stage", size: "wide" | "square" | "pair", ratio?: string, visuals: ExhibitVisual[], annotations?: ExhibitAnnotation[], notes?: ExhibitNote[], captions?: ExhibitCaption[] }} StageExhibit
+ * @typedef {{ figma: string, ratio: string, base: string, field: StageField, active: string, visual: ExhibitVisual, pins: { n: string, at: { x: number, y: number }, title: string, body: string }[], notes: { x: number, width: number }, caption: ExhibitCaption }} ExhibitPins
+ * @typedef {ExhibitBase & { kind: "stage", size: "wide" | "square" | "pair", ratio?: string, visuals: ExhibitVisual[], annotations?: ExhibitAnnotation[], notes?: ExhibitNote[], captions?: ExhibitCaption[], pins?: ExhibitPins }} StageExhibit
  * @typedef {{ width: number, height: number, sigma: number, circles: { x: number, y: number, r: number, colour: string, alpha: number }[] }} StageField
  *   a stage's own colour field from figma, in that stage's pixels.
  * @typedef {{ label: string, title: string, body: string, screen: ExhibitVisual, focus?: { num: string, at: { x: number, y: number, w: number, h: number } } }} WalkthroughStep
@@ -1112,6 +1113,20 @@ export const caseStudies = [
           { type: "focus", num: "02", on: 0, at: { x: 4.6, y: 37.1, w: 37.5, h: 7.1 } },
           { type: "focus", num: "03", on: 0, at: { x: 64.1, y: 69, w: 32.6, h: 15.9 } },
         ],
+        // figma 119:71, below the alert stage: three pins on the find care screen, each linked to its note.
+        pins: {
+          figma: "119:71", ratio: "1116 / 680", base: "#f6c453", active: "2",
+          field: { width: 1116, height: 680, sigma: 45, circles: [{ x: 220, y: 180, r: 260, colour: "#FFF4D6", alpha: 0.9 }, { x: 980, y: 600, r: 220, colour: "#FF9A3D", alpha: 0.9 }, { x: 570, y: 30, r: 150, colour: "#F5D77E", alpha: 0.9 }] },
+          visual: { src: "/images/work/terpcarehub/mobile-find-care.png", width: 321, height: 1100, alt: "Mobile find care screen", at: { x: 17.9, y: 4.4, w: 26.9 } },
+          // each pin's top left on the stage, as figma places it: the status badge, the cost field, the book button.
+          pins: [
+            { n: "1", at: { x: 40.1, y: 34.7 }, title: "Live status on every card", body: "Open or closed status sits on each provider card, so hours never need a second page." },
+            { n: "2", at: { x: 38.9, y: 50.4 }, title: "Cost before the click", body: "Cost was the blocker that ended the search in the journey map, so availability, plan acceptance, and expected cost sit on the card itself." },
+            { n: "3", at: { x: 40.1, y: 57.1 }, title: "Sign in only to book", body: "Browsing, filtering and deciding stay open so an urgent decision never hits a login wall." },
+          ],
+          notes: { x: 55.6, width: 400 },
+          caption: { title: "Provider card, design decisions", body: "Hover or tab to a pin to open its note. The active pin and its note are linked by color and number, and both are announced to screen readers." },
+        },
         captions: [
           { title: "An alert keeps its authority when it travels", body: "Severity, source and timestamp are applied at ingest and travel together, so an advisory still says where it came from after it is reshared. A high-severity alert has to be acknowledged rather than swiped away." },
         ],

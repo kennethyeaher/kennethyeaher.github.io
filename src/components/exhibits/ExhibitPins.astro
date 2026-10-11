@@ -1,0 +1,123 @@
+---
+// annotated pins per figma 119:71: numbered pins on a phone and a notes column beside it. each pin is a
+// button described by its note; hovering or focusing a pin raises that note and dims the rest, and with
+// nothing hovered or focused the default pin stays active. the state is css only (:has), so no script.
+import Caption from "@/components/exhibits/Caption.astro";
+import DeviceFrame from "@/components/DeviceFrame.astro";
+import ExhibitStage from "@/components/exhibits/ExhibitStage.astro";
+
+interface Pin { n: string; at: { x: number; y: number }; title: string; body: string }
+interface Props {
+  id: string;
+  palette: string[];
+  exhibit: {
+    ratio: string; base: string; field: any; active: string;
+    visual: { src: string; width: number; height: number; alt: string; at: { x: number; y: number; w: number } };
+    pins: Pin[];
+    notes: { x: number; width: number };
+    caption: { title: string; body: string };
+  };
+}
+const { id, palette, exhibit } = Astro.props;
+const { visual, pins } = exhibit;
+const [stageWidth, stageHeight] = exhibit.ratio.split("/").map(Number);
+
+// pins are given as the top left of a 30px pin on the stage, as figma places them; they are drawn on the
+// phone instead, by centre, so they stay on the same pixels of the screen when the layout stacks.
+const phoneWidth = (visual.at.w / 100) * stageWidth;
+const phoneHeight = phoneWidth * (620 / 300);
+const phoneLeft = (visual.at.x / 100) * stageWidth;
+const phoneTop = (visual.at.y / 100) * stageHeight;
+const onPhone = (pin: Pin) => ({
+  x: (((pin.at.x / 100) * stageWidth + 15 - phoneLeft) / phoneWidth) * 100,
+  y: (((pin.at.y / 100) * stageHeight + 15 - phoneTop) / phoneHeight) * 100,
+});
+const noteId = (pin: Pin) => `${id}-note-${pin.n}`;
+const name = visual.src.split("/").pop()?.replace(/\.[^.]+$/, "");
+const srcset = [480, 960].map((width) => `/images/exhibits/sized/${name}-${width}.webp ${width}w`).join(", ");
+const sizes = `calc(min(1116px, 100vw - 48px) * ${(visual.at.w / 100).toFixed(3)})`;
+
+// one rule set per pin: it is active while hovered or focused, or by default while no pin is.
+const scope = `[data-pins="${id}"]`;
+const live = (n: string) => `${scope}:has([data-pin="${n}"]:is(:hover, :focus-visible))`;
+const idle = `${scope}:not(:has([data-pin]:is(:hover, :focus-visible)))`;
+const states = [
+  ...pins.map((pin) => `${live(pin.n)} :is([data-pin="${pin.n}"], [data-note="${pin.n}"])`),
+  `${idle} :is([data-pin="${exhibit.active}"], [data-note="${exhibit.active}"])`,
+].join(",\n");
+const css = `${states} { opacity: 1; }
+${pins.map((pin) => `${live(pin.n)} [data-note="${pin.n}"]`).join(", ")}, ${idle} [data-note="${exhibit.active}"] { border-color: var(--color-annotate-on-light-stage); }`;
+---
+<figure class="exhibit-pins" data-pins={id}>
+  <div class="pins-layout">
+    <ExhibitStage palette={palette} size="wide" ratio={exhibit.ratio} field={exhibit.field} base={exhibit.base}>
+      <div class="pins-phone" style={`--x: ${visual.at.x}%; --y: ${visual.at.y}%; --w: ${visual.at.w}%`}>
+        <DeviceFrame frame="iphone" src={visual.src} alt={visual.alt} width={visual.width} height={visual.height} srcset={srcset} sizes={sizes} />
+        {pins.map((pin) => {
+          const at = onPhone(pin);
+          return (
+            <button type="button" class="pin" data-pin={pin.n} aria-describedby={noteId(pin)} style={`left: ${at.x.toFixed(2)}%; top: ${at.y.toFixed(2)}%`}>
+              <span class="sr-only">Annotation </span>{pin.n}
+            </button>
+          );
+        })}
+      </div>
+    </ExhibitStage>
+    <ol class="pin-notes" style={`--notes-x: ${exhibit.notes.x}%; --notes-w: ${((exhibit.notes.width / stageWidth) * 100).toFixed(2)}%`}>
+      {pins.map((pin) => (
+        <li class="pin-note" id={noteId(pin)} data-note={pin.n}>
+          <span class="note-label">ANNOTATION {pin.n}</span>
+          <span class="note-title">{pin.title}</span>
+          <span class="note-body">{pin.body}</span>
+        </li>
+      ))}
+    </ol>
+  </div>
+  <figcaption><Caption title={exhibit.caption.title} body={exhibit.caption.body} /></figcaption>
+</figure>
+<style is:inline set:html={css}></style>
+<style>
+  /* figma 119:71 sits 32 under the alert caption, its own caption 24 under the stage and 720 wide. */
+  .exhibit-pins { display: grid; gap: 24px; margin: 32px 0 0; }
+  .exhibit-pins figcaption :global(.exhibit-caption) { max-width: 720px; }
+  .pins-layout { position: relative; container-type: inline-size; }
+  .pins-phone { position: absolute; z-index: 1; left: var(--x); top: var(--y); width: var(--w); container-type: inline-size; }
+  /* a 30px pin on a 300 wide phone, in the annotate colour for a light stage so white numbers keep aa in both themes. */
+  .pin {
+    position: absolute;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    width: max(26px, 10cqw);
+    aspect-ratio: 1;
+    padding: 0;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    background: var(--color-annotate-on-light-stage);
+    box-shadow: 0 2px 6px rgb(0 0 0 / 25%);
+    color: #fff;
+    font: 600 max(11px, 4.333cqw) / 1 var(--ui);
+    translate: -50% -50%;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 150ms var(--ease-out);
+  }
+  /* the visible pin stays 30px; the hit area grows to 44px for touch. */
+  .pin::before { position: absolute; inset: -9px; content: ""; }
+  .pin:focus-visible { outline: 2px solid #fff; outline-offset: 2px; box-shadow: 0 0 0 5px var(--color-annotate-on-light-stage); }
+  .pin-notes { position: absolute; z-index: 2; top: 50%; left: var(--notes-x); display: grid; gap: 16px; width: var(--notes-w); margin: 0; padding: 0; list-style: none; translate: 0 -50%; }
+  .pin-note { display: grid; gap: 6px; padding: 16px 20px 18px; border: 1.5px solid transparent; border-radius: 12px; background: rgb(255 255 255 / 92%); opacity: 0.6; transition: opacity 150ms var(--ease-out), border-color 150ms var(--ease-out); }
+  .note-label { color: var(--color-annotate-on-light-stage); font: 11px / normal var(--mono); }
+  .note-title { color: #1f2933; font: 600 15px / normal var(--ui); }
+  .note-body { color: #314050; font: 16px / 1.3 var(--body); }
+  @media (prefers-reduced-motion: reduce) {
+    .pin, .pin-note { transition: none; }
+  }
+  /* stacked when the stage is too narrow for the notes beside the phone (under 768px viewports and narrow
+     tablets): a taller stage around a larger phone, and the notes under it. */
+  @container (max-width: 860px) {
+    .pins-layout :global(.exhibit-stage) { aspect-ratio: 1 / 1.36; }
+    .pins-phone { left: 20%; top: 5%; width: 60%; }
+    .pin-notes { position: static; width: auto; margin-top: 16px; translate: none; }
+  }
+</style>
