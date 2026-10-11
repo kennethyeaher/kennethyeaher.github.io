@@ -1,11 +1,10 @@
-import { initializeTheme, initializeCoverMotion, initializeCoverGradients, initializeExhibitLoops, initializeAnnotationFallback, initializeMetricCounters, initializeCoverDepth, initializeReadingProgress, initializeMediaControls, initializeWalkthroughs } from "./exhibits";
+import { initializeTheme, initializeCoverGradients, initializeExhibitLoops, initializeAnnotationFallback, initializeMetricCounters, initializeCoverDepth, initializeReadingProgress, initializeMediaControls, initializeWalkthroughs } from "./exhibits";
 
 /**
  * Initialize navigation, theme choice, motion, and exhibit controls.
  */
 function initializeSite(): void {
   initializeTheme();
-  initializeCoverMotion();
   initializeCoverGradients();
   initializeCoverDepth();
   initializeReadingProgress();

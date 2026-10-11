@@ -31,6 +31,25 @@ const ogImage = new URL(image ?? "/images/portfolio-preview-2026.png", Astro.sit
         const saved = localStorage.getItem("portfolio-theme");
         if (saved === "light" || saved === "dark") document.documentElement.dataset.theme = saved;
       } catch {}
+      // only the clicked card carries view transition names, matched to its case study hero, so home names two
+      // elements instead of sixteen. pagereveal must be listening before the first render, hence the head.
+      const cardFor = (url) => url && document.querySelector(`.project-card[href="${new URL(url).pathname.replace(/\/$/, "")}"]`);
+      const nameCard = (card, on) => {
+        if (!card) return;
+        const slug = card.getAttribute("href").split("/").pop();
+        card.querySelector(".project-cover").style.viewTransitionName = on ? `cover-${slug}` : "";
+        card.querySelector("h2").style.viewTransitionName = on ? `title-${slug}` : "";
+      };
+      addEventListener("pageswap", (event) => {
+        if (event.viewTransition) nameCard(cardFor(event.activation?.entry.url), true);
+      });
+      addEventListener("pagereveal", (event) => {
+        document.querySelectorAll(".project-card").forEach((card) => nameCard(card, false));
+        if (!event.viewTransition) return;
+        const card = cardFor(window["navigation"]?.activation?.from?.url);
+        nameCard(card, true);
+        event.viewTransition.finished.finally(() => nameCard(card, false));
+      });
     </script>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />

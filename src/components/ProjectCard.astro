@@ -14,17 +14,14 @@ interface Props {
     cardAlt: string;
     cover: {
       variant: string;
-      video: string;
       poster: string;
       palette: string[];
       titlePlacement: string;
-      exhibit?: { src: string; alt: string; width: number; height: number; frame: "phone" | "tablet" | "laptop" | "sheet" };
     };
   };
-  priority?: boolean;
 }
 
-const { project, priority = false } = Astro.props;
+const { project } = Astro.props;
 ---
 
 <a
@@ -33,10 +30,10 @@ const { project, priority = false } = Astro.props;
   data-tilt-card
 >
   <figure class="project-media">
-    <ProjectCover project={project} priority={priority} size="card" />
+    <ProjectCover project={project} />
   </figure>
   <div class="project-heading">
-    <h2 style={`view-transition-name: title-${project.slug}`}>{project.cardTitle}</h2>
+    <h2>{project.cardTitle}</h2>
     <span>{project.year}</span>
   </div>
   <p class="project-role">{project.category} · {project.role}</p>

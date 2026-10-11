@@ -93,7 +93,7 @@ test("every featured project carries a project-palette motion cover and a substa
   ]);
 
   for (const project of projects) {
-    assert.match(project.cover.video, /\.mp4$/);
+    assert.equal("video" in project.cover, false, `${project.slug} cover has no video`);
     assert.match(project.cover.poster, /\.png$/);
     assert.equal(project.cover.titlePlacement, "center");
     assert.ok(project.cover.palette.length >= 4, `${project.slug} needs a real project palette`);
@@ -296,7 +296,6 @@ const exhibitSlugs = ["kairo-health", "usm-venture-benchmark", "ovara", "terpcar
 
 // figma rails for pages whose spec export carries no chapter list, read from the frame's chapter rail.
 // terpcarehub 90:1631 replaced the find care loop with a walkthrough and dropped the provider card stage.
-const mockOwned = { terpcarehub: ["core-flows", "where-it-landed"] };
 const figmaRails = {
   ovara: ["01 Overview", "02 The dashboard", "03 The finding", "04 Corrections", "05 Design", "06 Reflection"],
   terpcarehub: ["01 Overview", "02 Core flows", "03 The measure", "04 Where it landed", "05 Design system", "06 Reflection"],
@@ -428,8 +427,6 @@ function assertMatchesSpec(slug) {
   const rail = (Array.isArray(spec.chapters) ? spec.chapters : figmaRails[slug]).map((chapter) => chapter.replace(/\s+/g, " "));
   assert.deepEqual(project.exhibits.map(({ chapter }, index) => `0${index + 1} ${chapter}`), rail);
   for (const [built, source] of rest.filter(({ kind }) => kind !== "section").map((exhibit, index) => [exhibit, specRest[index]])) {
-    // chapters the writing pass rebuilt from the prose mock follow the mock, not this older spec; their own tests lock them.
-    if (mockOwned[slug]?.includes(built.id)) continue;
     assert.equal(built.figma, source.id);
     assert.equal(built.eyebrow, source.eyebrow);
     assert.equal(built.heading, source.heading);
@@ -452,6 +449,16 @@ function assertMatchesSpec(slug) {
       if (source.visuals) assert.equal((built.visuals ?? built.stages).length, source.visuals.length);
     }
     if (source.text) assert.deepEqual([built.text, built.footnote], [source.text, source.footnote]);
+    if (source.walkthrough) {
+      assert.equal(built.walkthrough.figma, source.walkthrough.id);
+      assert.equal(built.walkthrough.tag, source.walkthrough.tag);
+      assert.deepEqual(built.walkthrough.steps.map(({ label, title, body }) => ({ label, title, body })), source.walkthrough.steps);
+    }
+    if (source.pins) {
+      assert.deepEqual([built.pins.figma, built.pins.ratio, built.pins.active], [source.pins.id, source.pins.stage, source.pins.active]);
+      assert.deepEqual(built.pins.pins.map(({ n, title, body }) => ({ n, title, body })), source.pins.pins);
+      assert.deepEqual(built.pins.caption, source.pins.caption);
+    }
     if (source.captions && built.kind === "stage") assert.deepEqual(built.captions, source.captions);
     if (source.matrix) assert.deepEqual({ label: built.label, columns: built.columns, rows: built.rows }, source.matrix);
     if (source.heatmap) assert.deepEqual(Object.fromEntries(built.panels.map(({ label, columns, rows }) => [label, { columns, rows }])), source.heatmap);

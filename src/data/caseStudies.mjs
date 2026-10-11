@@ -76,7 +76,6 @@ export const caseStudies = [
     heroAlt: "USM Venture Benchmark motion cover in crimson, rose, slate, and deep ink",
     cover: {
       variant: "usm-benchmark",
-      video: "/images/work/usm-venture-benchmark/cover-loop.mp4",
       poster: "/images/work/usm-venture-benchmark/cover-poster.png",
       palette: ["#111111", "#E21833", "#A61022", "#F2B8BE", "#F6F3EE", "#6A737B"],
       exhibit: /** @type {const} */ ({
@@ -354,7 +353,6 @@ export const caseStudies = [
     heroAlt: "Ovara motion cover in the product's iris, coral, sage, marigold, and cream palette",
     cover: {
       variant: "ovara",
-      video: "/images/work/ovara/cover-gradient.mp4",
       poster: "/images/work/ovara/cover-gradient-poster.png",
       palette: ["#17102C", "#6B4FBF", "#E87A3C", "#5B9066", "#C9A652", "#F5EFE4"],
       exhibit: /** @type {const} */ ({
@@ -674,7 +672,6 @@ export const caseStudies = [
     heroAlt: "Kairo Health motion cover in clinical navy and data blue",
     cover: {
       variant: "kairo",
-      video: "/images/work/kairo/cover-gradient.mp4",
       poster: "/images/work/kairo/cover-gradient-poster.png",
       palette: ["#071B2D", "#0D2E4D", "#2F80ED", "#8DD3F7", "#52697E"],
       exhibit: /** @type {const} */ ({
@@ -987,7 +984,7 @@ export const caseStudies = [
     year: "2025",
     role: "Project Manager and Product Designer",
     timeline: "December 2025",
-    team: "Five-person INFM600 team; I managed the project and led the design direction",
+    team: "Five-person INFM600 team; I managed the project and led the design direction. The redesign shown here is mine alone.",
     skills: ["Information architecture", "Interaction design", "Design systems", "Service design", "Figma", "Accessibility"],
     summary:
       "A redesign of a campus health hub built around one measure: how long a University of Maryland student takes to go from noticing a symptom to knowing what to do about it.",
@@ -997,7 +994,6 @@ export const caseStudies = [
     heroAlt: "TerpCareHub motion cover in University of Maryland red and gold",
     cover: {
       variant: "terpcarehub",
-      video: "/images/work/terpcarehub/cover-gradient.mp4",
       poster: "/images/work/terpcarehub/cover-gradient-poster.png",
       palette: ["#8A0B1E", "#C21230", "#E21833", "#FF6B80", "#FFD200"],
       exhibit: /** @type {const} */ ({
@@ -1027,7 +1023,7 @@ export const caseStudies = [
           { src: "/images/work/terpcarehub/provider-card.png", width: 665, height: 378, alt: "Provider card showing status, next availability, plan acceptance, and cost", rot: 0, rounded: 16, at: { x: 49.1, y: 32.7, w: 40.9 } },
         ],
         metrics: [
-          { value: "9h 38m", label: "mapped symptom-to-appointment delay" },
+          { value: "9h 38m", label: "Mapped symptom-to-appointment delay, before the redesign" },
           { value: "15", label: "screens and interface states" },
           { value: "9", label: "components on a shared token system" },
         ],
@@ -1041,7 +1037,7 @@ export const caseStudies = [
         },
       },
       {
-        kind: "rows", id: "core-flows", chapter: "Core flows", figma: "51:682",
+        kind: "rows", id: "core-flows", chapter: "Core flows", figma: "90:1686",
         lede: [
           "The three are finding same-day care, publishing a wellness event, and moving a county advisory to a student who acts on it. I annotated each flow with the reason it is shaped that way, because the reasoning is the part worth reviewing.",
           "A student in an acute moment should not have to construct a query. The default state already answers “open now, takes my plan.” Auth is required only to book. Browsing, filtering and deciding stay open, so the 90-second decision never hits a login wall. A decision flow that dead-ends on unavailability recreates the original failure. The negative branch still ends in an actionable option.",
@@ -1097,7 +1093,7 @@ export const caseStudies = [
         text: "Current state · one student, one Sunday night | Overnight wait | 2:40 PM next day | Appointment taken | She misses a lecture to do it. | 11:02 PM | 01 | Symptom onset | No triage guidance exists anywhere on campus | 02 | First search | Hours and services live on separate pages | 03 | Source hopping | Four formats, no shared vocabulary, no verification | 04 | Dead end | Cost is the real blocker and the least visible fact | 05 | Gives up | Twenty-two minutes spent, no decision reached | Minute 22 · 11:24 PM | The worst moment on that map is not the overnight wait. It is minute twenty-two, when the search ends and she still does not know what to do.",
       },
       {
-        kind: "stage", id: "where-it-landed", chapter: "Where it landed", figma: "53:610", size: "wide", ratio: "1116 / 560",
+        kind: "stage", id: "where-it-landed", chapter: "Where it landed", figma: "90:1755", size: "wide", ratio: "1116 / 560",
         lede: [
           "The provider card carries the decision. Availability, plan acceptance, and expected cost sit on the card itself. Cost was the blocker that ended the search in the journey map, and pushing it to a detail page would rebuild the same dead end one screen further in.",
           "Alerts carry a severity tag applied at ingest, a source badge, and a timestamp. Those three travel together, so an advisory keeps its authority after someone screenshots it and reshares it outside the product. A high-severity alert has to be acknowledged rather than swiped away, and acknowledging it says where the alert went.",
@@ -1167,7 +1163,7 @@ export const caseStudies = [
       { label: "Open Figma file", href: "https://www.figma.com/design/He7UGi0QBLQNXkCCeRmkDH/TerpCareHub.com" },
     ],
     metrics: [
-      { value: "9h 38m", label: "mapped symptom-to-appointment delay" },
+      { value: "9h 38m", label: "Mapped symptom-to-appointment delay, before the redesign" },
       { value: "15", label: "screens and interface states" },
       { value: "9", label: "components on a shared token system" },
     ],
@@ -1309,7 +1305,7 @@ export const caseStudies = [
     year: "2024",
     role: "Project Manager",
     timeline: "Fall 2024",
-    team: "Four person student team",
+    team: "Four person student team. I ran the in-person surveys and talked with residents, and made the personas and journey maps myself. Teammates led the social media audit and the recommendations, with my input.",
     skills: ["User research", "Personas", "Journey mapping", "Client leadership"],
     summary:
       "A civic research engagement that turned two surveys and contextual interviews at three city events into five personas, three journey maps, a social media audit, and recommendations for the City of College Park.",
@@ -1319,7 +1315,6 @@ export const caseStudies = [
     heroAlt: "Information Science Capstone motion cover in College Park blue and gold",
     cover: {
       variant: "capstone",
-      video: "/images/work/capstone/cover-gradient.mp4",
       poster: "/images/work/capstone/cover-gradient-poster.png",
       palette: ["#0F3D5E", "#1F6FA3", "#8DB8D9", "#E5B545", "#F4E8C1"],
       exhibit: /** @type {const} */ ({
@@ -1677,7 +1672,7 @@ export const caseStudies = [
     year: "2024",
     role: "Founder",
     timeline: "Sept 2022 to May 2024",
-    team: "Solo. I ran the field research, the product decisions, the interface design, and the fundraising.",
+    team: "Only designer on a team of three; the other two handled engineering and cybersecurity. I ran the field research, the product decisions, the interface design, and the fundraising.",
     skills: ["Field research", "Product strategy", "Information architecture", "Interaction design", "Design systems", "Fundraising"],
     summary:
       "An electronic health record built for clinics in Monrovia, Liberia that still run on paper. Sixty plus provider interviews, a role gated product, and a design system I later rebuilt from the original Adobe XD files.",
@@ -1687,7 +1682,6 @@ export const caseStudies = [
     heroAlt: "Frontground motion cover in the company navy and green",
     cover: {
       variant: "frontground",
-      video: "/images/work/frontground/cover-gradient.mp4",
       poster: "/images/work/frontground/cover-gradient-poster.png",
       palette: ["#002637", "#003F5D", "#145676", "#0C8B44", "#DDE7EB"],
       exhibit: /** @type {const} */ ({
@@ -1983,7 +1977,6 @@ export const caseStudies = [
     heroAlt: "TerpCare motion cover in the product's charcoal, red, and gold palette",
     cover: {
       variant: "terpcare",
-      video: "/images/work/terpcare/cover-gradient.mp4",
       poster: "/images/work/terpcare/cover-gradient-poster.png",
       palette: ["#211F20", "#E93C43", "#FFCC1E", "#A93C52", "#4B4848"],
       exhibit: /** @type {const} */ ({
@@ -2265,7 +2258,6 @@ export const caseStudies = [
     heroAlt: "sohive motion cover in the app palette of red, blue, green and orange on black",
     cover: {
       variant: "sohive",
-      video: "/images/work/sohive/cover-gradient.mp4",
       poster: "/images/work/sohive/cover-gradient-poster.png",
       palette: ["#000000", "#DC3545", "#0069D9", "#00A650", "#F99953"],
       exhibit: /** @type {const} */ ({

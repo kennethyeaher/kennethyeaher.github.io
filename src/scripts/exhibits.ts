@@ -29,69 +29,6 @@ export function initializeTheme(): void {
   systemTheme.addEventListener("change", updateControl);
 }
 
-/** Lazily play cover motion on card interaction or an explicit hero control. */
-export function initializeCoverMotion(): void {
-  const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
-  document.querySelectorAll<HTMLVideoElement>("[data-cover-video]").forEach((video) => {
-    const card = video.closest<HTMLAnchorElement>(".project-card");
-    const button = video.closest(".case-hero")?.querySelector<HTMLButtonElement>("[data-cover-toggle]");
-    let requested = false;
-    let visible = true;
-    let playbackVersion = 0;
-    /** Reflect actual playback rather than optimistic play requests. */
-    function updateButton(): void {
-      if (!button) return;
-      button.textContent = video.paused ? "Play cover motion" : "Pause cover motion";
-      button.setAttribute("aria-pressed", String(!video.paused));
-    }
-    /** Pause immediately when motion, visibility, or interaction state changes. */
-    function synchronizePlayback(): void {
-      const version = ++playbackVersion;
-      if (!requested || !visible || document.hidden || motionPreference.matches) {
-        video.pause();
-        updateButton();
-        return;
-      }
-      const source = video.querySelector<HTMLSourceElement>("source[data-src]");
-      if (source && !source.hasAttribute("src")) {
-        source.src = source.dataset.src ?? "";
-        video.load();
-      }
-      video.play().then(() => {
-        if (version !== playbackVersion || !requested || !visible || document.hidden || motionPreference.matches) video.pause();
-        updateButton();
-      }).catch(updateButton);
-    }
-    /** Derive whether pointer or keyboard interaction still requests playback. */
-    function updateCardRequest(): void {
-      requested = Boolean(card?.matches(":hover") && window.matchMedia("(pointer: fine)").matches) || Boolean(card?.matches(":focus-within"));
-      synchronizePlayback();
-    }
-    card?.addEventListener("pointerenter", updateCardRequest);
-    card?.addEventListener("pointerleave", updateCardRequest);
-    card?.addEventListener("focusin", updateCardRequest);
-    card?.addEventListener("focusout", () => queueMicrotask(updateCardRequest));
-    if (button) {
-      button.hidden = motionPreference.matches;
-      button.addEventListener("click", () => { requested = !requested; synchronizePlayback(); });
-    }
-    video.addEventListener("play", updateButton);
-    video.addEventListener("pause", updateButton);
-    document.addEventListener("visibilitychange", synchronizePlayback);
-    motionPreference.addEventListener("change", () => {
-      if (button) button.hidden = motionPreference.matches;
-      requested = false;
-      synchronizePlayback();
-    });
-    if ("IntersectionObserver" in window) {
-      new IntersectionObserver((entries) => {
-        visible = entries[0]?.isIntersecting ?? false;
-        synchronizePlayback();
-      }).observe(video);
-    }
-  });
-}
-
 /** Apply restrained cover tilt for fine pointers, retaining the normal cursor. */
 export function initializeCoverDepth(): void {
   const pointer = window.matchMedia("(pointer: fine)");

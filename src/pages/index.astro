@@ -23,8 +23,8 @@ const projects = getFeaturedProjects();
 
     <section class="work-grid" aria-label="Selected work">
       {
-        projects.map((project, index) => (
-          <ProjectCard project={project} priority={index < 2} />
+        projects.map((project) => (
+          <ProjectCard project={project} />
         ))
       }
     </section>

@@ -1,5 +1,4 @@
 ---
-import DeviceFrame from "@/components/DeviceFrame.astro";
 interface Props {
   project: {
     slug: string;
@@ -7,18 +6,13 @@ interface Props {
     category: string;
     cover: {
       variant: string;
-      video: string;
       poster: string;
       palette: string[];
-      exhibit?: { src: string; alt: string; width: number; height: number; frame: "phone" | "tablet" | "laptop" | "sheet" };
     };
   };
-  priority?: boolean;
-  size?: "card" | "hero";
 }
-const { project, priority = false, size = "card" } = Astro.props;
-// home cards show only the gradient and the project name; the hero keeps its exhibit until phase 2.
-const exhibit = size === "hero" ? project.cover.exhibit : undefined;
+// home cards show only the gradient and the project name; case studies use their exhibit hero instead.
+const { project } = Astro.props;
 
 /** relative luminance of a #rrggbb colour, used to order the gradient fields from dark to pale. */
 function luminance(hex: string): number {
@@ -44,46 +38,26 @@ const slots = [
   { x: 74, y: 28, size: 92, phase: 200 },
   { x: 90, y: 74, size: 72, phase: 300 },
 ];
-const fields = size === "card" ? gradientFields(project.cover.palette).map((colour, index) => ({ colour, ...slots[index] })) : [];
+const fields = gradientFields(project.cover.palette).map((colour, index) => ({ colour, ...slots[index] }));
 ---
-<div class:list={["project-cover", `cover-${project.cover.variant}`, `is-${size}`, exhibit && "has-exhibit"]}
+<div class:list={["project-cover", `cover-${project.cover.variant}`, "is-card"]}
   data-project-cover data-cover-variant={project.cover.variant}
   data-cover-palette={project.cover.palette.join(",")}
-  style={`--cover-poster: url("${project.cover.poster}"); --cover-base: ${project.cover.palette[0]}; view-transition-name: cover-${project.slug}`}>
-  {size === "card" ? (
-    <div class="cover-gradient" aria-hidden="true" data-cover-gradient>
-      {fields.map((field) => (
-        <span class="cover-field" style={`--field: ${field.colour}; --field-x: ${field.x}%; --field-y: ${field.y}%; --field-size: ${field.size}%; --field-phase: ${field.phase}deg`}></span>
-      ))}
-    </div>
-  ) : (
-    <video class="cover-motion" muted loop playsinline preload="none" poster={project.cover.poster} aria-hidden="true" data-cover-video>
-      <source data-src={project.cover.video} type="video/mp4" />
-    </video>
-  )}
+  style={`--cover-poster: url("${project.cover.poster}"); --cover-base: ${project.cover.palette[0]}`}>
+  <div class="cover-gradient" aria-hidden="true" data-cover-gradient>
+    {fields.map((field) => (
+      <span class="cover-field" style={`--field: ${field.colour}; --field-x: ${field.x}%; --field-y: ${field.y}%; --field-size: ${field.size}%; --field-phase: ${field.phase}deg`}></span>
+    ))}
+  </div>
   <span class="cover-scrim" aria-hidden="true"></span>
   <div class="cover-label"><span>{project.cardTitle}</span><small>{project.category}</small></div>
-  {exhibit && <div class:list={["cover-exhibit", `exhibit-${exhibit.frame}`, exhibit.frame === "sheet" && exhibit.height > exhibit.width && "exhibit-portrait"]} style={`--exhibit-ratio: ${exhibit.width} / ${exhibit.height}`} aria-hidden="true">
-    <DeviceFrame {...exhibit} priority={priority} decorative={true} />
-  </div>}
 </div>
 <style>
   .project-cover { position: relative; overflow: hidden; width: 100%; height: 100%; isolation: isolate; background: #17344f var(--cover-poster) center / cover; }
-  .cover-motion { position: absolute; z-index: 0; inset: 0; width: 100%; height: 100%; object-fit: cover; }
   .cover-scrim { position: absolute; z-index: 1; inset: 0; background: linear-gradient(90deg, rgb(9 24 40 / 84%), rgb(9 24 40 / 16%)); pointer-events: none; }
   .cover-label { position: absolute; z-index: 3; top: 50%; left: 6%; width: 34%; transform: translateY(-50%); color: #fff; }
   .cover-label span { display: block; font-family: var(--ui); font-size: clamp(20px, 2.5vw, 44px); font-weight: 650; letter-spacing: -0.035em; line-height: 1.08; text-wrap: balance; }
   .cover-label small { display: block; margin-top: 14px; font-family: var(--ui); font-size: clamp(10px, 1vw, 14px); line-height: 1.45; opacity: .85; }
-  .cover-exhibit { position: absolute; z-index: 2; top: 50%; right: 5%; width: 53%; transform: translateY(-50%) rotate(-3deg); }
-  .exhibit-phone { top: 9%; right: 13%; width: 24%; height: 84%; transform: rotate(4deg); }
-  .exhibit-phone :global(.device-frame) { height: 100%; }
-  .exhibit-phone :global(.device-screen) { height: 100%; }
-  .exhibit-phone :global(img) { height: 100%; object-fit: cover; object-position: top; }
-  .exhibit-sheet { width: 52%; }
-  .exhibit-portrait { top: 9%; right: 12%; width: auto; height: 82%; aspect-ratio: var(--exhibit-ratio); transform: rotate(-3deg); }
-  .exhibit-portrait :global(.device-frame), .exhibit-portrait :global(.device-screen) { height: 100%; }
-  .exhibit-portrait :global(img) { height: 100%; object-fit: contain; }
-  .is-hero .cover-label span { font-size: clamp(28px, 4vw, 56px); }
 
   /* live gradient for home cards. the poster stays the fallback when scripts are off. */
   .is-card { background-image: none; background-color: var(--cover-base, #17344f); }
@@ -123,10 +97,5 @@ const fields = size === "card" ? gradientFields(project.cover.palette).map((colo
   @media (max-width: 620px) {
     .cover-label span { font-size: clamp(18px, 5vw, 28px); }
     .cover-label small { margin-top: 8px; font-size: 9px; }
-    .is-hero .cover-label span { font-size: clamp(20px, 5vw, 28px); }
-    .cover-exhibit { right: 4%; width: 52%; }
-    .exhibit-phone { right: 13%; width: 25%; }
-    .exhibit-portrait { right: 12%; width: auto; }
   }
-  @media (prefers-reduced-motion: reduce) { .cover-motion { display: none; } }
 </style>

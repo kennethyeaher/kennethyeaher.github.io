@@ -24,7 +24,6 @@ test("every published portfolio media reference resolves to a non-empty real fil
       project.cardImage,
       project.heroImage,
       project.cover.poster,
-      project.cover.video,
       project.cover.exhibit?.src,
       `/images/social/${project.slug}.png`,
       ...project.sections.flatMap((section) =>

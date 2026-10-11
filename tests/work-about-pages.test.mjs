@@ -48,7 +48,10 @@ test("the Work page renders the approved thesis and newest-first project order",
   assert.equal((workHtml.match(/data-project-cover/g) ?? []).length, 8);
   assert.doesNotMatch(workHtml, /class="cover-exhibit|data-device-frame=|class="[^"]*has-exhibit/);
   assert.equal((workHtml.match(/class="cover-scrim"/g) ?? []).length, 8);
-  assert.equal((workHtml.match(/view-transition-name: cover-/g) ?? []).length, 8);
+  // names go on the clicked card only, from the head script, so the static markup carries none.
+  assert.doesNotMatch(workHtml.replace(/<script[\s\S]*?<\/script>/g, ""), /view-transition-name/);
+  assert.match(workHtml, /addEventListener\("pageswap"/);
+  assert.match(workHtml, /addEventListener\("pagereveal"/);
   assert.equal((workHtml.match(/data-cover-gradient/g) ?? []).length, 8);
   assert.doesNotMatch(workHtml, /\.mp4|data-cover-video/);
   assert.doesNotMatch(workHtml, /Read case study/);

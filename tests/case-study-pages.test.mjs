@@ -17,8 +17,6 @@ const slugs = [
   "terpcare",
   "sohive",
 ];
-// pages already moved to the v2 exhibit layout; the older cover and media checks skip them.
-const exhibitPages = new Set(["kairo-health", "usm-venture-benchmark", "ovara", "terpcarehub", "college-park-capstone", "frontground", "terpcare", "sohive"]);
 const pages = new Map();
 
 before(() => {
@@ -83,23 +81,6 @@ test("public case studies keep caveats and future-improvement notes out of the r
   }
 });
 
-test("case-study covers show real exhibits with explicitly controlled motion", () => {
-  for (const [slug, html] of pages) {
-    if (exhibitPages.has(slug)) continue;
-    assert.match(html, /data-project-cover/);
-    assert.match(html, /class="cover-motion"/);
-    assert.doesNotMatch(html, /autoplay/);
-    assert.match(html, /data-cover-toggle/);
-    assert.match(html, /data-cover-video/);
-    assert.match(html, /data-device-frame/);
-    assert.match(html, /preload="none"/);
-    assert.match(html, /muted/);
-    assert.match(html, /loop/);
-    assert.match(html, /class="cover-label"/);
-    assert.doesNotMatch(html, /case-hero[\s\S]{0,500}is-contained/);
-  }
-});
-
 test("the renamed capstone and expanded product evidence render publicly", () => {
   const usm = pages.get("usm-venture-benchmark");
 
@@ -119,15 +100,11 @@ test("the renamed capstone and expanded product evidence render publicly", () =>
 test("previous and next project links wrap without dead ends", () => {
   const first = pages.get("usm-venture-benchmark");
   const middle = pages.get("frontground");
-  // frontground is on the exhibit layout, which ends on a next project link only.
   const last = pages.get("sohive");
 
-  // the v2 exhibit shell (figma 61:1059) closes on a next project link only, so previous is checked on the older layout.
-  if (!exhibitPages.has("usm-venture-benchmark")) assert.match(first, /href="\/work\/sohive"/);
+  // the v2 exhibit shell (figma 61:1059) closes on a next project link only.
   assert.match(first, /href="\/work\/ovara"/);
-  if (!exhibitPages.has("frontground")) assert.match(middle, /href="\/work\/college-park-capstone"/);
   assert.match(middle, /href="\/work\/terpcare"/);
-  if (!exhibitPages.has("sohive")) assert.match(last, /href="\/work\/terpcare"/);
   assert.match(last, /href="\/work\/usm-venture-benchmark"/);
 });
 
@@ -140,6 +117,7 @@ test("every case study has a unique social preview and reading progress", () => 
     const names = [...html.matchAll(/view-transition-name: ([a-z-]+)/g)].map((match) => match[1]);
     assert.equal(new Set(names).size, names.length, `duplicate transition names on ${slug}`);
     assert.doesNotMatch(html, /\bTODO\b/);
+    assert.doesNotMatch(html, /autoplay/);
   }
 });
 

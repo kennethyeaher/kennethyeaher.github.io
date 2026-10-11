@@ -1,5 +1,5 @@
 ---
-// Desktop and mobile chapter wayfinding for a single case study.
+// desktop and mobile chapter wayfinding for a single case study.
 interface Chapter {
   id: string;
   label: string;
@@ -7,18 +7,14 @@ interface Chapter {
 
 interface Props {
   chapters: Chapter[];
-  variant?: "default" | "exhibit";
 }
 
-const { chapters, variant = "default" } = Astro.props;
 // the exhibit rail (figma 61:921) numbers each chapter and marks the active one with a longer dash.
-const numbered = variant === "exhibit";
+const { chapters } = Astro.props;
 ---
 
-<aside class:list={["case-rail", numbered && "is-numbered"]} aria-label="Case study navigation" data-case-nav>
-  {numbered
-    ? <a class="back-link" href="/" aria-label="Back to Work"><span aria-hidden="true">← </span>Back</a>
-    : <a class="back-link" href="/">Back to Work</a>}
+<aside class="case-rail is-numbered" aria-label="Case study navigation" data-case-nav>
+  <a class="back-link" href="/" aria-label="Back to Work"><span aria-hidden="true">← </span>Back</a>
   <ol>
     {
       chapters.map((chapter, index) => (
@@ -28,7 +24,7 @@ const numbered = variant === "exhibit";
             data-section-link={chapter.id}
             aria-current={index === 0 ? "location" : undefined}
           >
-            {numbered && <span class="chapter-number">{String(index + 1).padStart(2, "0")}</span>}
+            <span class="chapter-number">{String(index + 1).padStart(2, "0")}</span>
             {chapter.label}
           </a>
         </li>
