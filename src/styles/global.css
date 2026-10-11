@@ -1,8 +1,8 @@
 /* self-hosted from google fonts (ofl, licence beside each family in public/fonts), at the axes the old google
    fonts import asked for: fraunces opsz 9 to 144, newsreader opsz 6 to 72, all three at wght 400 to 500. newsreader
-   and jetbrains mono were cut to wght 400 to 500 with the fonttools instancer. fraunces keeps google's file, which
-   still carries wght 100 to 900, because narrowing its axis moved glyph widths and rewrapped a heading; the
-   font-weight range below clamps it to 400 to 500. one variable file serves both weights. only latin and latin-ext
+   and jetbrains mono were cut to wght 400 to 500 with the fonttools instancer, by scripts/instance-fonts.py.
+   fraunces keeps google's file, which still carries wght 100 to 900, because narrowing its axis moved glyph widths
+   and rewrapped a heading; the font-weight range below clamps it to 400 to 500. one variable file serves both weights. only latin and latin-ext
    ship; the site has no greek, cyrillic or vietnamese text. fraunces and jetbrains mono latin are preloaded in
    Base.astro. */
 @font-face {
@@ -88,6 +88,46 @@
   size-adjust: 101.34%;
   ascent-override: 96.50%;
   descent-override: 25.16%;
+  line-gap-override: 0%;
+}
+
+/* the home h1's own fallbacks. fraunces sets its optical size from the font size, so it is relatively wider at
+   the 45px phone size than at the 63px desktop size, and no one size-adjust keeps the h1's line breaks at both.
+   the small faces apply up to 760px and the wide faces above it (src/pages/index.astro). each value sits inside
+   the size-adjust range that sets the h1 on the same lines as fraunces at 375 (45px) or 1440 (63.36px), and at
+   as many nearby widths as allow it; around 480 and 1100 no value fits both those widths and the target.
+   chrome matches local() by full or postscript name, so iowan is named "Iowan Old Style Roman". ascent and
+   descent are fraunces' hhea values (1956 and 510 of 2000) divided by size-adjust. */
+@font-face {
+  font-family: "Fraunces Home Small Fallback Iowan";
+  src: local("Iowan Old Style Roman"), local("IowanOldStyle-Roman");
+  size-adjust: 102.5%;
+  ascent-override: 95.41%;
+  descent-override: 24.88%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: "Fraunces Home Small Fallback Georgia";
+  src: local("Georgia");
+  size-adjust: 103%;
+  ascent-override: 94.95%;
+  descent-override: 24.76%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: "Fraunces Home Wide Fallback Iowan";
+  src: local("Iowan Old Style Roman"), local("IowanOldStyle-Roman");
+  size-adjust: 94.5%;
+  ascent-override: 103.49%;
+  descent-override: 26.98%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: "Fraunces Home Wide Fallback Georgia";
+  src: local("Georgia");
+  size-adjust: 95.5%;
+  ascent-override: 102.41%;
+  descent-override: 26.70%;
   line-gap-override: 0%;
 }
 

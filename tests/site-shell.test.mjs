@@ -108,3 +108,18 @@ test("fonts are self-hosted with their licences, preloaded where they paint firs
   assert.match(globalCss, /--display: "Fraunces", "Fraunces Fallback Iowan", "Fraunces Fallback Georgia"/);
   assert.match(globalCss, /--body: "Newsreader", "Newsreader Fallback Iowan", "Newsreader Fallback Georgia"/);
 });
+
+test("the home h1 keeps its own fallbacks, one pair per optical size, so its lines hold when fraunces swaps in", () => {
+  const home = readFileSync(join(projectRoot, "src", "pages", "index.astro"), "utf8");
+  for (const size of ["Small", "Wide"]) {
+    for (const local of ["Iowan", "Georgia"]) {
+      const family = `Fraunces Home ${size} Fallback ${local}`;
+      const face = globalCss.match(new RegExp(`@font-face \\{\\s*font-family: "${family}";([^}]*)\\}`));
+      assert.ok(face, `${family} is declared`);
+      for (const descriptor of ["size-adjust", "ascent-override", "descent-override", "line-gap-override"]) assert.match(face[1], new RegExp(`${descriptor}: [\\d.]+%;`));
+    }
+    assert.match(home, new RegExp(`font-family: "Fraunces", "Fraunces Home ${size} Fallback Iowan", "Fraunces Home ${size} Fallback Georgia", var\\(--display\\);`));
+  }
+  // chrome only matches local() by full or postscript name, and iowan's family name matches neither.
+  assert.match(globalCss, /local\("Iowan Old Style Roman"\), local\("IowanOldStyle-Roman"\)/);
+});

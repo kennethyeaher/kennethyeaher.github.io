@@ -51,7 +51,8 @@ const projects = getFeaturedProjects();
     max-width: 660px;
     margin: 0;
     color: var(--ink-strong);
-    font-family: var(--display);
+    /* the h1's own metric matched fallbacks, sized for its desktop optical size (see global.css). */
+    font-family: "Fraunces", "Fraunces Home Wide Fallback Iowan", "Fraunces Home Wide Fallback Georgia", var(--display);
     font-size: clamp(48px, 4.4vw, 68px);
     font-weight: 400;
     letter-spacing: -0.025em;
@@ -91,6 +92,7 @@ const projects = getFeaturedProjects();
     }
 
     .home-thesis h1 {
+      font-family: "Fraunces", "Fraunces Home Small Fallback Iowan", "Fraunces Home Small Fallback Georgia", var(--display);
       font-size: clamp(42px, 12vw, 58px);
       line-height: 1.02;
     }
