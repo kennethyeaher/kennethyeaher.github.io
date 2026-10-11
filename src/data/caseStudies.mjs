@@ -36,13 +36,14 @@
  * @typedef {{ figma: string, ratio: string, base: string, field: StageField, veil?: boolean, tag: string, touchTag?: string, visual: ExhibitVisual & { url: string, screen: { w: number, h: number } }, caption: ExhibitCaption }} ExhibitScroller
  * @typedef {ExhibitBase & { kind: "hero", visuals: ExhibitVisual[], kpi?: ExhibitKpi, metrics: { value: string, label: string }[], scroller?: ExhibitScroller }} HeroExhibit
  * @typedef {{ figma: string, ratio: string, base: string, field: StageField, active: string, visual: ExhibitVisual, pins: { n: string, at: { x: number, y: number }, title: string, body: string }[], notes: { x: number, width: number }, caption: ExhibitCaption }} ExhibitPins
- * @typedef {ExhibitBase & { kind: "stage", size: "wide" | "square" | "pair", ratio?: string, visuals: ExhibitVisual[], annotations?: ExhibitAnnotation[], notes?: ExhibitNote[], captions?: ExhibitCaption[], pins?: ExhibitPins }} StageExhibit
+ * @typedef {ExhibitBase & { kind: "stage", size: "wide" | "square" | "pair", ratio?: string, visuals: ExhibitVisual[], annotations?: ExhibitAnnotation[], notes?: ExhibitNote[], captions?: ExhibitCaption[], pins?: ExhibitPins, zoom?: true | "phone" }} StageExhibit
+ *   zoom marks a small pinned stage that zooms to the active annotation (figma 168:1745); "phone" limits that to phone widths.
  * @typedef {{ width: number, height: number, sigma: number, circles: { x: number, y: number, r: number, colour: string, alpha: number }[] }} StageField
  *   a stage's own colour field from figma, in that stage's pixels.
  * @typedef {{ label: string, title: string, body: string, screen: ExhibitVisual, focus?: { num: string, at: { x: number, y: number, w: number, h: number } } }} WalkthroughStep
- * @typedef {{ figma: string, base: string, field: StageField, veil?: boolean, tag: string, at: { x: number, y: number, w: number }, steps: WalkthroughStep[] }} ExhibitWalkthrough
+ * @typedef {{ figma: string, base: string, field: StageField, veil?: boolean, tag: string, at: { x: number, y: number, w: number }, steps: WalkthroughStep[], zoom?: true }} ExhibitWalkthrough
  * @typedef {ExhibitBase & { kind: "rows", visuals: ExhibitVisual[], captions: ExhibitCaption[], annotations?: ExhibitAnnotation[], fields?: StageField[], base?: string, walkthrough?: ExhibitWalkthrough }} RowsExhibit
- * @typedef {ExhibitBase & { kind: "pair", stages: { ratio?: string, base?: string, field?: StageField, visuals: ExhibitVisual[], annotations?: ExhibitAnnotation[] }[], captions: ExhibitCaption[] }} PairExhibit
+ * @typedef {ExhibitBase & { kind: "pair", stages: { ratio?: string, base?: string, field?: StageField, visuals: ExhibitVisual[], annotations?: ExhibitAnnotation[] }[], captions: ExhibitCaption[], zoom?: true }} PairExhibit
  *   two stages side by side, each captioned; annotation theme on-light suits a pale stage.
  * @typedef {{ label: string, highlight?: string, cards?: ([string, string, string] | [string, string, string, string])[], note?: string }} ExhibitStrip
  *   three part cards are a tier, a value and a route; four part cards add a commitment line; a strip with no cards is a label and a note.
@@ -135,7 +136,7 @@ export const caseStudies = [
         ],
       },
       {
-        kind: "stage", id: "validation-grid", chapter: "Validation grid", figma: "68:1033", size: "wide", ratio: "1116 / 680",
+        kind: "stage", id: "validation-grid", chapter: "Validation grid", figma: "68:1033", size: "wide", ratio: "1116 / 680", zoom: true,
         lede: [
           "A source hierarchy decided what controlled when documents disagreed. Missing disclosure stayed n/d; it was never backfilled with a guess. That discipline produced twenty-nine finalized profiles and one matrix designed for comparison and synthesis.",
           "That quality pass changed the information design. Disclosed, approximate, and not-disclosed values needed to remain visually distinct, so a decision-maker could see where confidence was strong and where the evidence stopped.",
@@ -419,7 +420,7 @@ export const caseStudies = [
         ],
       },
       {
-        kind: "stage", id: "the-finding", chapter: "The finding", figma: "56:708", size: "wide", ratio: "1116 / 640",
+        kind: "stage", id: "the-finding", chapter: "The finding", figma: "56:708", size: "wide", ratio: "1116 / 640", zoom: true,
         lede: [
           "1,029 of 3,144 US counties have zero providers in any of the thirteen reproductive health taxonomy codes I track, and 10,917,875 people live in them. That is a direct count of registered providers against ACS county population, sorted into five tiers by fixed density thresholds. No model produces this number, and none of the three failures described later touch it.",
           "The split matters as much as the count. Access deserts are 33 percent of counties and 3 percent of the population, which is what you would expect when the empty counties are rural. I think that is the honest way to state the finding. A headline that only says 1,029 counties invites the reader to picture a third of the country cut off from care, and the population column corrects that on sight.",
@@ -728,7 +729,7 @@ export const caseStudies = [
         ],
       },
       {
-        kind: "stage", id: "field-by-tier", chapter: "Field by tier", figma: "62:986", size: "wide", ratio: "1116 / 680",
+        kind: "stage", id: "field-by-tier", chapter: "Field by tier", figma: "62:986", size: "wide", ratio: "1116 / 680", zoom: true,
         lede: [
           "The rules method applies fourteen label anchored patterns, tuned on clean OCR and left unchanged at every tier. No fuzzy fallbacks. That is the realistic deployment story for a rule based system. You write the rules once, and then the world sends you input you did not tune for.",
           "Clean and moderate performance was statistically similar. At heavy noise the model reached F1 0.91 against 0.86 for rules, and at severe noise 0.67 against 0.58. A paired bootstrap with 1,000 resamples and an exact McNemar test confirm the gap at those two tiers and only those two.",
@@ -1053,7 +1054,7 @@ export const caseStudies = [
         heading: "Three flows carry the product",
         // figma 119:32, the first row after the lede: the old find care row's stage, pinned while three steps scroll past.
         walkthrough: {
-          figma: "119:32", base: "#b3122a", veil: true, tag: "SCROLL · PHONE PINNED", at: { x: 29, y: 7.6, w: 42 },
+          figma: "119:32", base: "#b3122a", veil: true, tag: "SCROLL · PHONE PINNED", at: { x: 29, y: 7.6, w: 42 }, zoom: true,
           field: { width: 600, height: 600, sigma: 45, circles: [{ x: 180, y: 140, r: 260, colour: "#FFD24D", alpha: 0.9 }, { x: 530, y: 490, r: 230, colour: "#FF7A45", alpha: 0.9 }, { x: 590, y: 50, r: 210, colour: "#7A0718", alpha: 0.9 }] },
           steps: [
             { label: "STEP 1", title: "Filters are preset", body: "Open now and Takes my plan start switched on, and the list is sorted by soonest appointment.",
@@ -1098,6 +1099,8 @@ export const caseStudies = [
       },
       {
         kind: "stage", id: "where-it-landed", chapter: "Where it landed", figma: "90:1755", size: "wide", ratio: "1116 / 790",
+        // figma 168:1745: the alert badges zoom on phones only; at 1440 the 1.5x instance already reads at 12px.
+        zoom: "phone",
         lede: [
           "The provider card carries the decision. Availability, plan acceptance, and expected cost sit on the card itself. Cost was the blocker that ended the search in the journey map, and pushing it to a detail page would rebuild the same dead end one screen further in.",
           "Alerts carry a severity tag applied at ingest, a source badge, and a timestamp. Those three travel together, so an advisory keeps its authority after someone screenshots it and reshares it outside the product. A high-severity alert has to be acknowledged rather than swiped away, and acknowledging it says where the alert went.",
@@ -1399,7 +1402,7 @@ export const caseStudies = [
         ],
       },
       {
-        kind: "stage", id: "the-persona", chapter: "The persona", figma: "73:1040", size: "wide", ratio: "1116 / 800",
+        kind: "stage", id: "the-persona", chapter: "The persona", figma: "73:1040", size: "wide", ratio: "1116 / 800", zoom: true,
         lede: [
           "Jessica, Alex, Priya, Tyler, and Maria stand for five different relationships to College Park: an engaged parent eight years in, a married graphic designer three years in with no children, an on-campus student leader, an off-campus junior, and a Spanish speaking mother of a four year old.",
           "Each profile has two frames. The first carries the photograph, the basics, and a seven axis personality scale. The second carries motivations, frustrations, goals, preferred communication channels, and quotes. Both are on this page, because the second frame is where the research actually sits and showing only the first one would have been the flattering choice.",
@@ -1766,7 +1769,7 @@ export const caseStudies = [
         footnote: "Refiling is the one that matters most and gets the least attention. Every other stage depends on that last step being done correctly every day.",
       },
       {
-        kind: "stage", id: "the-solution", chapter: "The solution", figma: "57:782", size: "wide", ratio: "1116 / 640",
+        kind: "stage", id: "the-solution", chapter: "The solution", figma: "57:782", size: "wide", ratio: "1116 / 640", zoom: true,
         lede: [
           "I designed against what they told me, brought it back, and changed it. The triage colours, the split of the exam form into two pages, and the decision to keep orders on their own screen all came out of that loop rather than out of my first draft. I am still in contact with a couple of the providers I met, which is the part of this I am most glad about.",
           "The first screen a clinician sees answers who is in front of me right now. Arrivals, acuity, and open requests get the space. The trend chart is context and it sits to the side. That ordering came straight out of the interviews, where nobody described their day in terms of analytics and everybody described it in terms of the waiting room.",
@@ -2079,7 +2082,7 @@ export const caseStudies = [
         },
       },
       {
-        kind: "stage", id: "core-flows", chapter: "Core flows", figma: "74:1169", size: "wide", ratio: "1116 / 620",
+        kind: "stage", id: "core-flows", chapter: "Core flows", figma: "74:1169", size: "wide", ratio: "1116 / 620", zoom: true,
         eyebrow: "CORE FLOWS",
         heading: "The 15-screen product system turned the structure into a recognizable UMD product",
         lede: [
@@ -2330,7 +2333,7 @@ export const caseStudies = [
         ],
       },
       {
-        kind: "pair", id: "the-feed", chapter: "The feed", figma: "58:870",
+        kind: "pair", id: "the-feed", chapter: "The feed", figma: "58:870", zoom: true,
         eyebrow: "WHERE IT LANDED",
         heading: "Insight 1: The event card is the product",
         lede: [
