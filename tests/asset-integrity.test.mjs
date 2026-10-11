@@ -101,7 +101,7 @@ test("the exhibit size manifest lists the standard widths below each source plus
     const widths = manifest[name];
     assert.ok(Array.isArray(widths), `${name} is missing from the manifest`);
     const top = Math.min(visual.width, 1920);
-    const expected = [...[480, 960, 1440, 1920].filter((width) => width < top), top];
+    const expected = [...[320, 480, 960, 1440, 1920].filter((width) => width < top), top];
     assert.deepEqual(widths, expected, `${name} (source ${visual.width} wide) has the wrong widths`);
     for (const width of widths) {
       const file = `${name}-${width}.webp`;

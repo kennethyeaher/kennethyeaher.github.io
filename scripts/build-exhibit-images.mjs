@@ -9,7 +9,7 @@ const outputRoot = join(projectRoot, "public/images/exhibits/sized");
 const manifestPath = join(projectRoot, "src/data/exhibit-sizes.json");
 // the standard widths, plus one copy at the source's own width so a 2x screen can reach it; nothing is written
 // wider than the source or than this cap, and every copy's name is its real width.
-const exhibitWidths = [480, 960, 1440, 1920];
+const exhibitWidths = [320, 480, 960, 1440, 1920];
 const maxWidth = 1920;
 
 /** collect every image an exhibit places on a stage, once each. */
