@@ -10,7 +10,6 @@
 <p align="center">
   <img alt="Astro" src="https://img.shields.io/badge/Astro-BC52EE?style=flat-square&logo=astro&logoColor=white">
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white">
-  <img alt="Tailwind CSS" src="https://img.shields.io/badge/Tailwind_CSS-087EA4?style=flat-square&logo=tailwindcss&logoColor=white">
   <a href="https://kennethyeaher.github.io/"><img alt="Live site" src="https://img.shields.io/badge/site-live-1f4f7a?style=flat-square"></a>
   <a href="https://github.com/kennethyeaher/kennethyeaher.github.io/actions/workflows/deploy.yml"><img alt="Deploy status" src="https://img.shields.io/github/actions/workflow/status/kennethyeaher/kennethyeaher.github.io/deploy.yml?branch=main&style=flat-square&label=deploy"></a>
 </p>

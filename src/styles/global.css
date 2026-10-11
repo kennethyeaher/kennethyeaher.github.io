@@ -1,3 +1,7 @@
+/* the reset comes first so every rule below builds on it. css only allows an @import before other rules, so the
+   font faces follow it; their order among themselves is unchanged, and font faces do not take part in the cascade. */
+@import "./preflight.css";
+
 /* self-hosted from google fonts (ofl, licence beside each family in public/fonts), at the axes the old google
    fonts import asked for: fraunces opsz 9 to 144, newsreader opsz 6 to 72, all three at wght 400 to 500. newsreader
    and jetbrains mono were cut to wght 400 to 500 with the fonttools instancer, by scripts/instance-fonts.py.
@@ -131,10 +135,6 @@
   descent-override: 25.76%;
   line-gap-override: 0%;
 }
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 
 :root {
   color-scheme: light;
