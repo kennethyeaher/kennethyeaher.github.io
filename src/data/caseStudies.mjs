@@ -387,7 +387,10 @@ export const caseStudies = [
         kind: "rows", id: "the-dashboard", chapter: "The dashboard", figma: "55:677",
         lede: [
           "The reader I built this for is the person I used to hand analysis to, someone deciding where a multi site women's health group opens next. That person needs to compare two candidate counties, not admire a national pattern. The interface only partly serves them. It shows where supply is thin and leaves the ranking, the confidence, and the what if to the reader.",
+          "The Dash interface opens on the national picture and moves down. State level gives per capita density, a ranked bar chart, and a choropleth. Switching to county level swaps in the tier map across 3,144 counties, the tier distribution, and a findings card for whatever is selected. Selecting a state filters the companion views, and reset restores the national view from any state of the interface.",
+          "The state view no longer offers a risk tier, because the model behind it was retired. It shows observed density and a rank, and it says so.",
           "The pipeline runs in seventeen ordered stages, from pulling the NPPES weekly release through writing the dashboard exports. Critical stages abort the run so a later stage never reads a stale input, and reporting stages warn and continue so a chart bug does not look like a pipeline failure. Each stage writes a named artifact with a data dictionary beside it, so any figure on the dashboard can be traced back through the transformations to the federal file it came from.",
+          "The definition of supply is a choice rather than a given, so I made it visible. 100,397 providers enter the analysis across twelve of the thirteen tracked taxonomy codes. Obstetrics and Gynecology alone is 55.9 percent of the count. Certified nurse midwives, midwives, and women's health nurse practitioners together are 28.2 percent, and reproductive endocrinologists are 2.0 percent. The state rates cover 99,544 of them, because 853 sit in Puerto Rico, another territory, a military postal address, or abroad, and there is no state population to divide those by. Anyone reading the map should know that a county counted as served might have a midwife and no surgeon.",
         ],
         eyebrow: "THE DASHBOARD",
         heading: "Two grains, one interface, and a reset that always works",
@@ -418,6 +421,9 @@ export const caseStudies = [
           "1,029 of 3,144 US counties have zero providers in any of the thirteen reproductive health taxonomy codes I track, and 10,917,875 people live in them. That is a direct count of registered providers against ACS county population, sorted into five tiers by fixed density thresholds. No model produces this number, and none of the three failures described later touch it.",
           "The split matters as much as the count. Access deserts are 33 percent of counties and 3 percent of the population, which is what you would expect when the empty counties are rural. I think that is the honest way to state the finding. A headline that only says 1,029 counties invites the reader to picture a third of the country cut off from care, and the population column corrects that on sight.",
           "The pattern is not regional either. At least one access desert appears in 43 states.",
+          "This measures registered providers, not delivered care. NPPES records a self reported practice address and a self selected taxonomy, and a provider who works across three counties appears in one. A provider who has retired without deactivating an NPI still counts. Nothing here captures whether a listed provider takes new patients, accepts Medicaid, or has a six month wait.",
+          "Geography is approximate at the edges. ZIPs are assigned whole to the county holding the largest share of their land area, so a ZIP that straddles a county line lands entirely on one side. Connecticut ZIPs route through a centroid based crosswalk with the same edge problem. Some providers fail the ZIP lookup outright and drop out of the county layer.",
+          "The tier thresholds are a judgment call, not a standard. Zero, five, ten and twenty providers per 100,000 are reasonable cut points, and a different set would move counties between tiers. Only the zero threshold is unarguable, which is one more reason the headline sits there.",
         ],
         eyebrow: "THE FINDING",
         heading: "1,029 counties have no reproductive health provider at all",
@@ -437,6 +443,9 @@ export const caseStudies = [
         kind: "custom", graphic: "audit-cards", id: "corrections", chapter: "Corrections", figma: "56:748",
         lede: [
           "I went back through this project to recompute every number I had already published. Three were wrong. Each one invalidated the fix before it, so they had to be worked in order.",
+          "Connecticut came first. The county layer reported all nine Connecticut planning regions as access deserts with zero providers, and my README at the time said the underlying CSV was fine and only the map was broken. That was wrong. The ZIP to county crosswalk came from the 2020 ZCTA relationship file, which still emits Connecticut's eight legacy county codes. County population came from the 2022 ACS, the first vintage in which the nine planning regions are the county equivalent. The two code sets share nothing, the join dropped every matched Connecticut provider, and nothing warned. 1,275 providers came back once the ZIPs were routed through a planning region crosswalk.",
+          "The second was a denominator. The function that built state population summed a metro reference table that carries the whole metro's population on every county row, so the twenty nine county Atlanta metro added its 6,411,149 residents twenty nine times. Georgia's denominator came to 198,940,717 against a true 10,722,325. The fifty one state populations summed to 2,187,759,309, roughly 6.6 times the country. The inflation ran 0.32x to 28.8x, so it scrambled the state ranking rather than scaling it. National density moved from 4.55 to 30.06 per 100,000, and the thinnest states changed from New Jersey, Virginia, Georgia and Indiana to Arkansas, Alabama, North Dakota and Mississippi. The corrected order matches published maternity care desert research. The order I had shipped contradicted it.",
+          "The third was target leakage, and it is the one I would have been least likely to catch by looking at output. The best scoring feature was growth_per_100k, which is recent provider growth divided by state population. The target is provider count divided by state population. Recently enumerated providers are a strict subset of the provider count in all fifty one states, averaging 5.8 percent of the workforce. The feature was a piece of the answer over the same denominator, and the model was scoring itself on information it should not have had.",
           "Workforce composition does not explain state level provider density. Once the leaking feature was removed, cross validated R2 fell from +0.3253 to +0.1244 on a single feature, taxonomy diversity. The residual based state risk tiers this project started from have been retired. Ranking states by how far they fall below a prediction is not defensible when the prediction explains almost nothing.",
           "Each of the three now has a test or a runtime guard that fails if it comes back.",
         ],
@@ -1004,6 +1013,7 @@ export const caseStudies = [
         lede: [
           "TerpCareHub started as an INFM600 group project, a centralized health hub for the University of Maryland. The team delivered a pitch and a working site. Neither one answered the question our problem research kept circling back to, which is what a student should actually do at the moment they need care.",
           "Five sources publish campus health information on their own: the Health Center, the Counseling Center, Prince George's County public health, student organization accounts, and emergency email. Different formats, no shared vocabulary, no agreement on what counts as urgent. I led this redesign, and it treats that split as a timing problem rather than a content problem.",
+          "Every extra source a student checks adds minutes during exactly the moments when minutes are the safety metric: outbreaks, weather closures, mental health crises.",
         ],
         // figma 90:1660 paints this hero with a warm gradient and no colour field.
         base: "linear-gradient(144.4deg, #fff1c4 0%, #ffc24d 30%, #f0563a 55.7%, #c21230 71.4%)",
@@ -1022,7 +1032,10 @@ export const caseStudies = [
         kind: "rows", id: "core-flows", chapter: "Core flows", figma: "51:682",
         lede: [
           "The three are finding same-day care, publishing a wellness event, and moving a county advisory to a student who acts on it. I annotated each flow with the reason it is shaped that way, because the reasoning is the part worth reviewing.",
+          "A student in an acute moment should not have to construct a query. The default state already answers “open now, takes my plan.” Auth is required only to book. Browsing, filtering and deciding stay open, so the 90-second decision never hits a login wall. A decision flow that dead-ends on unavailability recreates the original failure. The negative branch still ends in an actionable option.",
           "The submission flow changed the most. An org leader who emails a staff member and hears nothing back will not try again, so review has a visible state, a rejection carries a reason, and a published event returns view and sign-up counts to the person who submitted it.",
+          "Org leaders are publishing to a campus-wide audience. Seeing the student-facing card before it goes out is what makes the channel feel official rather than a form into a void. Views and sign-ups are the only feedback that tells an org their work reached anyone. Without it there is no reason to use the channel twice.",
+          "A student clearing a banner at a bus stop still needs to find it later. Dismissed alerts stay retrievable instead of vanishing. An advisory that ends in a list of options restarts the search that caused the delay. Each alert resolves to a single next step.",
         ],
         eyebrow: "CORE FLOWS",
         heading: "Three flows carry the product",
@@ -1052,6 +1065,7 @@ export const caseStudies = [
         kind: "custom", graphic: "timeline", id: "the-measure", chapter: "The measure", figma: "52:582",
         lede: [
           "I mapped one student's Sunday night across the systems that exist today. A fever starts at 11:02 PM. She checks four sources over twenty-two minutes and reaches no decision, gives up, and takes an appointment at 2:40 PM the next afternoon. She misses a lecture to do it.",
+          "The journey map is current-state. It describes the systems as they exist today, not a tested experience of the redesign.",
           "The worst moment on that map is not the overnight wait. It is minute twenty-two, when the search ends and she still does not know what to do. I argued every later design decision against that moment instead of against a feature list.",
         ],
         eyebrow: "THE MEASURE",
@@ -1097,6 +1111,7 @@ export const caseStudies = [
         kind: "custom", graphic: "states-grid", id: "design-system", chapter: "Design system", figma: "54:629",
         lede: [
           "The original file had no components, no text styles, and three font families competing across five pages. I rebuilt it on a token collection for colour, spacing, and radius, a ten-step type ramp, and nine components. Each component carries a written description of the decision it encodes.",
+          "In the header, Find Care sits first among the links because it is the task with a time cost attached; everything else can wait a page load. On the program card, remaining capacity and the verifying body sit together: capacity drives the decision to act now, and the verifier is what separates an official programme from a peer post. In the footer, the emergency strip sits above everything else because a health product must not bury the one action that cannot wait.",
           "The interface states are the part I would point a reviewer at first. An empty result proposes a specific fix and says what that fix will find. Loading names what is being checked. Degraded data is labelled rather than served quietly, which for a health product is the state that matters most. Mobile is designed rather than resized, because mobile-first was the primary need the original research named.",
         ],
         eyebrow: "DESIGN SYSTEM",
@@ -1303,6 +1318,7 @@ export const caseStudies = [
           "The City of College Park serves families, students, long-time residents, and bilingual households through many separate channels. Our capstone team studied how people discovered city programs, where communication lost momentum, and what would make participation feel more relevant.",
           "As project manager, I led the client relationship with Assistant City Manager Bill Gardiner, coordinated our institutional advisors, and kept research, synthesis, and presentation work aligned with the city’s goals. The client team also included Katherine Garcia, the bilingual communications coordinator, and Ryna Quinones, the communications and events manager. Garcia’s title is the reason the bilingual access thread in this project was never incidental. The city already had someone responsible for it.",
           "The engagement covered field research, a social-media audit, five personas, three journey maps, a final report, and an executive presentation. I translated that broad scope into weekly decisions, clarified ownership, and made sure each artifact answered a question the city could use.",
+          "Leading the relationship also meant making research legible without flattening the differences between students, parents, newer residents, and Spanish-speaking households.",
         ],
         visuals: [
           { src: "/images/work/capstone/journey-jessica.png", width: 3551, height: 1649, alt: "Jessica’s journey map across five stages, Awareness, Planning, Arrival, Experience and Post-Event, with rows for touchpoints, user actions, goals, feelings, pain points and opportunities", rot: 5, at: { x: 3.6, y: 7.2, w: 50.2 } },
@@ -1319,8 +1335,11 @@ export const caseStudies = [
       {
         kind: "heatmap", id: "the-survey", chapter: "The survey", figma: "73:1067",
         lede: [
+          "We ran two surveys, one for University of Maryland students and one for College Park residents. Twenty two of the twenty four students had never attended a City of College Park event. Seventeen followed none of the city’s accounts at all. Seven followed Instagram, two Twitter, one Facebook. The city was publishing into a place these students were not standing.",
           "We combined the two surveys with contextual interviews at three city events: College Park Day, Good Neighbor Day, and Friday Night LIVE. Observing the experience in context showed the distance between publishing information and helping a resident act on it.",
+          "Face-to-face conversations made two needs especially clear: Spanish-speaking families wanted more consistent bilingual access, while students wanted city initiatives to feel connected to their lives rather than adjacent to campus.",
           "Interest was real and it was not universal. Fourteen students said they were somewhat interested in hearing more and two said very interested. Eight said they were not interested at all. That is a third of the cohort, and it puts a ceiling on what better communication alone can do.",
+          "Channel preferences pointed in two directions. Twenty of the twenty three students who answered chose social media, with nine each for email and text, six for campus bulletins, and four for the campus calendar. The nine residents inverted it: six chose email, five text, four bulletins, three social. One channel strategy was never going to serve both groups.",
           "The social media audit ran alongside the surveys and closed on six recommendations: accessibility, interactivity and community pride, broader and more balanced content, visual storytelling, cross promotion, and measurement.",
         ],
         eyebrow: "THE SURVEY",
@@ -1358,6 +1377,7 @@ export const caseStudies = [
         lede: [
           "Jessica, Alex, Priya, Tyler, and Maria stand for five different relationships to College Park: an engaged parent eight years in, a married graphic designer three years in with no children, an on-campus student leader, an off-campus junior, and a Spanish speaking mother of a four year old.",
           "Each profile has two frames. The first carries the photograph, the basics, and a seven axis personality scale. The second carries motivations, frustrations, goals, preferred communication channels, and quotes. Both are on this page, because the second frame is where the research actually sits and showing only the first one would have been the flattering choice.",
+          "The channel rows sit closest to the survey data, though even those were measured by cohort rather than by person. Age, household, occupation, and the personality scales came out of contextual interviews and the team’s reading of them. That makes these a shared vocabulary for talking about residents, not a description of the population, and the difference matters the moment someone uses a persona to justify a decision.",
         ],
         eyebrow: "THE PERSONA",
         heading: "Five personas built from two surveys and a semester of conversations",
@@ -1380,6 +1400,7 @@ export const caseStudies = [
         kind: "journey", id: "three-journeys", chapter: "Three journeys", figma: "73:1091",
         lede: [
           "All three maps carry the same six rows: touchpoints, user actions, goals, feelings, pain points, and opportunities. The stage columns are not shared. Jessica’s map runs Awareness, Planning, Arrival, Experience, Post-Event. Maria’s opens on Curiosity and closes on Reflection. Tyler’s has no Planning stage and no Arrival stage at all.",
+          "Tyler’s map is the one I would put in front of a communications team first. He had no planning stage because he did not plan. He walked down Knox Road on a Friday night looking for a bar, heard live music coming from City Hall, and went in. His first recorded pain point is that he was unaware Friday Night LIVE existed until he stumbled onto it. He lives in College Park, and the channel that reached him was sound.",
           "The opportunity rows converge even though the stages do not. Jessica’s asks for parking maps and activity schedules published on the event page. Tyler’s asks for posters, digital boards, and student newsletters on campus. Maria’s asks for promotional materials in Spanish, distributed through community hubs. Three residents, three versions of one request: make it findable before I am standing in front of it.",
         ],
         eyebrow: "THREE JOURNEYS",
@@ -1419,6 +1440,8 @@ export const caseStudies = [
           "The personas rest on a narrower base than the word persona usually implies. The surveys measured channel preference by cohort, not by person, so no profile’s channel list is a respondent’s answer. The lists are consistent with the cohort totals, and one reaches past them: Maria prefers WhatsApp, which neither survey offered as an option. Age, occupation, household, and the personality scales are not survey outputs either. They came from sixteen contextual interviews at College Park Day, Good Neighbor Day, and Friday Night LIVE, none of which we transcribed. The count belongs in the report and it is not there.",
           "The bigger gap is that none of this went back to the people it describes. We built five personas and three journey maps, presented them to the city, and handed them over. No resident ever saw the profile meant to represent them. Maria is the one I would fix first. She carries the project’s argument about bilingual access, her journey map is the most detailed of the three, and the resident survey never asked a single question about language. Katherine Garcia, the city’s bilingual communications coordinator, sat on the client team. Checking Maria against her reading was available to us and we did not do it.",
           "What the work does support is narrower and still worth something. Twenty two of twenty four students had never attended a City of College Park event, a gap large enough that the direction is not in doubt even if the exact share is. The journey maps are honest reconstructions of three specific paths through one kind of event. The personas gave the city a shared vocabulary it did not have before. None of that needs a bigger sample to be useful. It needs me to say which claims rest on measurement and which rest on judgment.",
+          "Meeting residents face to face changed the project from an academic exercise into a responsibility. I learned to lead with curiosity, translate qualitative evidence into a shared direction, and keep a team focused on the people behind the artifact.",
+          "Presenting to the City of College Park confirmed my interest in human-computer interaction. The most valuable outcome was a common picture of the community that helped a client reason more carefully about communication.",
         ],
       },
     ]),
@@ -1979,6 +2002,7 @@ export const caseStudies = [
         heading: "The opportunity sat between therapy apps and campus information sites",
         lede: [
           "Focusing on University of Maryland students ages eighteen to twenty-two gave the team a concrete setting for decisions about language, visual familiarity, and the relationship between campus and outside support.",
+          "Generic therapy apps offered convenience but lacked university context. Counseling centers offered institutional support while spreading information across service pages and appointment pathways. Awareness campaigns normalized conversation without creating an ongoing product relationship.",
           "That comparison led to a combined strategy: campus resources, communication options, peer discussion, and repeatable mood reflection in one interface.",
         ],
         // figma 90:3015: a 1000 wide card 107 down and 58 in on a 1116 by 600 stage.
@@ -2014,6 +2038,7 @@ export const caseStudies = [
           "The structure centers a home feed, campus resources, discussion, messages, and mood tracking. Persistent bottom navigation keeps destinations stable, while notifications and profile settings support continuity.",
           "Home combines timely campus news and events with a welcome state, giving the product a recognizable daily entry point.",
           "We sketched onboarding, profile setup, home, calendar, chat, campus resources, campaigns, discussion, notifications, and messaging before building in Figma. Seeing the screens together exposed repeated patterns and made navigation decisions easier to discuss.",
+          "The low-fidelity set kept attention on content order: what a student needs first, what belongs one tap away, and which functions stay visible across the experience. Onboarding, home, and calendar sketches established first-use and return-use rhythm.",
         ],
         // figma 90:3077 has no accent destination and reads every row label muted.
         stages: ["01 Home", "02 Resources", "03 Discussion", "04 Messages", "05 Mood"],
@@ -2035,6 +2060,7 @@ export const caseStudies = [
         heading: "The 15-screen product system turned the structure into a recognizable UMD product",
         lede: [
           "The collaborative prototype uses university colors, editorial imagery, and a consistent mobile frame. Home surfaces campus content; discussion gives peer conversation a place; the mood calendar turns reflection into a repeatable action.",
+          "The fifteen-screen inventory shows how onboarding, discovery, care, conversation, reflection, and account continuity fit together. The final concept brings campus context, conversation, and self-reflection into one mobile system.",
           "I worked across research, wireframing, interface decisions, and prototype refinement, helping the team balance a broad feature set with a simple navigation model.",
         ],
         // figma 90:3139: the gap's field on a 620 tall stage.

@@ -77,7 +77,8 @@ test("public case studies keep caveats and future-improvement notes out of the r
     assert.doesNotMatch(text, /\bcaveats?\b/i);
     assert.doesNotMatch(text, /\blimitations?\b/i);
     assert.doesNotMatch(text, /\bfuture (?:work|improvements?)\b/i);
-    assert.doesNotMatch(text, /\bnext steps?\b/i);
+    // plural only: approved copy says an alert "resolves to a single next step", which is not a future-work note.
+    assert.doesNotMatch(text, /\bnext steps\b/i);
     assert.doesNotMatch(html, /case-callout/);
   }
 });

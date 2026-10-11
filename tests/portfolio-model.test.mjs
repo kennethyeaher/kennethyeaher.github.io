@@ -345,6 +345,10 @@ function sentences(text) {
   return text.split(/(?<=[.?!])\s+(?=[A-Z0-9])/).map((sentence) => sentence.trim()).filter(Boolean);
 }
 
+// the "+ prose (mock)" frames in figma section 07, exported to .private/redesign-spec/prose.json, set each
+// page's rail, chapter heads and ledes.
+const prosePath = new URL("../.private/redesign-spec/prose.json", import.meta.url);
+
 // pages built from their prose mock (figma section 07); every page joins as it is built.
 const ledeSlugs = ["kairo-health", "usm-venture-benchmark", "ovara", "terpcarehub", "college-park-capstone", "frontground", "terpcare", "sohive"];
 
@@ -359,8 +363,9 @@ function ledeSentences(project, exhibit) {
 test("every lede sentence on a converted page is that page's own copy", () => {
   for (const slug of ledeSlugs) {
     const project = getProjectBySlug(slug);
-    // a page's copy is its section text and the captions of its section media.
-    const prose = project.sections.flatMap(({ body, media }) => [...body, ...(media ?? []).map(({ caption }) => caption)]).join("\n");
+    // a page's copy is its section text, the captions of its section media, and the paragraphs approved in its prose mock.
+    const approved = existsSync(prosePath) ? JSON.parse(readFileSync(prosePath, "utf8"))[slug].chapters.flatMap(({ paragraphs }) => paragraphs) : [];
+    const prose = [...project.sections.flatMap(({ body, media }) => [...body, ...(media ?? []).map(({ caption }) => caption)]), ...approved].join("\n");
     for (const exhibit of project.exhibits) {
       const lede = ledeSentences(project, exhibit);
       assert.ok(lede.length > 0, `${slug} ${exhibit.id} has a lede`);
@@ -371,9 +376,6 @@ test("every lede sentence on a converted page is that page's own copy", () => {
   }
 });
 
-// the "+ prose (mock)" frames in figma section 07, exported to .private/redesign-spec/prose.json, set each
-// page's rail, chapter heads and ledes.
-const prosePath = new URL("../.private/redesign-spec/prose.json", import.meta.url);
 const mockSlugs = ["kairo-health", "usm-venture-benchmark", "ovara", "terpcarehub", "college-park-capstone", "frontground", "terpcare", "sohive"];
 
 test("converted pages follow their prose mock word for word", { skip: !existsSync(prosePath) && "prose export not present" }, () => {
