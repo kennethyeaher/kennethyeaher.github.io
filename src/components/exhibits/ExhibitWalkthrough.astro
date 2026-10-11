@@ -1,0 +1,108 @@
+---
+// scroll walkthrough per figma 119:32: steps on the left scroll past a phone pinned on the right, and the
+// step nearest the middle of the viewport is active and sets the phone screen. under 768px each step
+// stacks under its own static screen with nothing pinned. with no script the first step stays active.
+import AnnotationFocus from "@/components/exhibits/AnnotationFocus.astro";
+import DeviceFrame from "@/components/DeviceFrame.astro";
+import ExhibitStage from "@/components/exhibits/ExhibitStage.astro";
+import MediaTag from "@/components/exhibits/MediaTag.astro";
+
+interface Screen { src: string; width: number; height: number; alt: string }
+interface Step { label: string; title: string; body: string; screen: Screen; focus?: { num: string; at: { x: number; y: number; w: number; h: number } } }
+interface Props {
+  id: string;
+  palette: string[];
+  walkthrough: { base: string; field: any; veil?: boolean; tag: string; at: { x: number; y: number; w: number }; steps: Step[] };
+}
+const { id, palette, walkthrough } = Astro.props;
+const { steps, at } = walkthrough;
+const phone = `left: ${at.x}%; top: ${at.y}%; width: ${at.w}%`;
+/** webp candidates for a screen, from scripts/build-exhibit-images.mjs. */
+const srcset = (screen: Screen) => [480, 960].map((width) => `/images/exhibits/sized/${screen.src.split("/").pop()?.replace(/\.[^.]+$/, "")}-${width}.webp ${width}w`).join(", ");
+// the phone is 42% of a stage that is at most 600 of the 1116 column.
+const sizes = `calc(min(600px, 100vw - 48px) * ${(at.w / 100).toFixed(2)})`;
+---
+<div class="walkthrough" data-walkthrough id={id}>
+  <ol class="walk-steps">
+    {steps.map((step, index) => (
+      <li class:list={["walk-step", index === 0 && "is-active"]} data-walk-step={index}>
+        <div class="walk-static">
+          <ExhibitStage palette={palette} size="square" field={walkthrough.field} base={walkthrough.base} veil={walkthrough.veil}>
+            <div class="walk-phone" style={phone}>
+              <DeviceFrame frame="iphone" src={step.screen.src} alt={step.screen.alt}>
+                <div class="walk-capture" style={`aspect-ratio: ${step.screen.width} / ${step.screen.height}`}>
+                  <picture>
+                    <source type="image/webp" srcset={srcset(step.screen)} sizes={sizes} />
+                    <img src={step.screen.src} alt={step.screen.alt} width={step.screen.width} height={step.screen.height} loading="lazy" decoding="async" />
+                  </picture>
+                  {step.focus && <AnnotationFocus num={step.focus.num} at={step.focus.at} order={0} onLight />}
+                </div>
+              </DeviceFrame>
+            </div>
+          </ExhibitStage>
+        </div>
+        <div class="walk-text">
+          <p class="walk-label">{step.label}</p>
+          <p class="walk-title">{step.title}</p>
+          <p class="walk-body">{step.body}</p>
+        </div>
+      </li>
+    ))}
+  </ol>
+  <div class="walk-pin">
+    <ExhibitStage palette={palette} size="square" field={walkthrough.field} base={walkthrough.base} veil={walkthrough.veil}>
+      <div class="walk-phone" style={phone}>
+        <DeviceFrame frame="iphone" src={steps[0].screen.src} alt="">
+          {steps.map((step, index) => (
+            <div class:list={["walk-screen", index === 0 && "is-active"]} data-walk-screen={index} aria-hidden={index === 0 ? undefined : "true"}>
+              <div class="walk-capture" style={`aspect-ratio: ${step.screen.width} / ${step.screen.height}`}>
+                <picture>
+                  <source type="image/webp" srcset={srcset(step.screen)} sizes={sizes} />
+                  <img src={step.screen.src} alt={step.screen.alt} width={step.screen.width} height={step.screen.height} loading="lazy" decoding="async" />
+                </picture>
+                {step.focus && <AnnotationFocus num={step.focus.num} at={step.focus.at} order={0} onLight />}
+              </div>
+            </div>
+          ))}
+        </DeviceFrame>
+      </div>
+      <span class="walk-tag"><MediaTag text={walkthrough.tag} /></span>
+    </ExhibitStage>
+  </div>
+</div>
+<style>
+  /* figma 119:32: a 379 steps column, 56 gap, 600 square stage. */
+  /* 56 under the lede and 56 above the first row, as figma spaces them; the body and rows add 32 and 24. */
+  .walkthrough { display: grid; grid-template-columns: minmax(0, 379px) minmax(0, 600px); gap: 56px; align-items: start; margin: 24px 0 32px; }
+  .walk-steps { display: grid; margin: 0; padding: 0; list-style: none; }
+  /* each step holds the middle of the viewport for a while, so the pinned phone has time to show its screen. */
+  .walk-step { display: flex; align-items: center; min-height: min(70vh, 600px); }
+  .walk-step:first-child { min-height: 300px; align-items: start; padding-top: 149px; }
+  .walk-step:last-child { min-height: 300px; align-items: end; padding-bottom: 149px; }
+  .walk-text { display: grid; gap: 6px; padding-left: 16px; border-left: 3px solid var(--rule); opacity: 0.55; transition: opacity 200ms var(--ease-out), border-color 200ms var(--ease-out); }
+  .walk-step.is-active .walk-text { border-left-color: #c21230; opacity: 1; }
+  .walk-label { margin: 0; color: var(--muted); font: 12px / normal var(--mono); }
+  .walk-title { margin: 0; color: var(--ink-strong); font: 600 15px / normal var(--ui); }
+  .walk-body { margin: 0; color: var(--ink); font: 17px / 1.35 var(--body); max-width: 360px; }
+  .walk-pin { position: sticky; top: max(24px, calc(50vh - min(300px, 25vw))); }
+  .walk-static { display: none; }
+  .walk-phone { position: absolute; z-index: 1; }
+  .walk-screen { position: absolute; inset: 0; opacity: 0; transition: opacity 200ms var(--ease-out); }
+  .walk-screen.is-active { opacity: 1; }
+  .walk-capture { position: relative; width: 100%; }
+  .walk-capture picture { display: block; }
+  .walk-capture img { display: block; width: 100%; height: auto; }
+  .walk-tag { position: absolute; z-index: 4; top: 3%; left: 3%; }
+  @media (prefers-reduced-motion: reduce) {
+    .walk-text, .walk-screen { transition: none; }
+  }
+  /* under 768px: a static screen above each step, all steps at full strength, nothing pinned. */
+  @media (max-width: 767px) {
+    .walkthrough { grid-template-columns: minmax(0, 1fr); }
+    .walk-pin { display: none; }
+    .walk-steps { gap: 40px; }
+    .walk-step, .walk-step:first-child, .walk-step:last-child { display: grid; gap: 20px; min-height: 0; padding: 0; }
+    .walk-static { display: block; }
+    .walk-text, .walk-step.is-active .walk-text { border-left-color: #c21230; opacity: 1; }
+  }
+</style>

@@ -287,3 +287,26 @@ export function initializeMetricCounters(): void {
     observer.observe(counter);
   });
 }
+
+/** in a scroll walkthrough, the step crossing the middle of the viewport is active and sets the pinned phone's screen. */
+export function initializeWalkthroughs(): void {
+  if (!("IntersectionObserver" in window)) return;
+  document.querySelectorAll<HTMLElement>("[data-walkthrough]").forEach((walkthrough) => {
+    const steps = [...walkthrough.querySelectorAll<HTMLElement>("[data-walk-step]")];
+    const screens = [...walkthrough.querySelectorAll<HTMLElement>("[data-walk-screen]")];
+    /** mark one step active and show its screen; the others leave the accessibility tree. */
+    function activate(index: number): void {
+      steps.forEach((step, i) => step.classList.toggle("is-active", i === index));
+      screens.forEach((screen, i) => {
+        screen.classList.toggle("is-active", i === index);
+        if (i === index) screen.removeAttribute("aria-hidden");
+        else screen.setAttribute("aria-hidden", "true");
+      });
+    }
+    // a zero height band across the middle of the viewport: whichever step it crosses is active.
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) if (entry.isIntersecting) activate(steps.indexOf(entry.target as HTMLElement));
+    }, { rootMargin: "-50% 0px -50% 0px" });
+    steps.forEach((step) => observer.observe(step));
+  });
+}

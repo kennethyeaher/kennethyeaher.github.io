@@ -8,6 +8,7 @@ import ExhibitJourney from "@/components/exhibits/ExhibitJourney.astro";
 import ChapterLede from "@/components/exhibits/ChapterLede.astro";
 import ExhibitRows from "@/components/exhibits/ExhibitRows.astro";
 import ExhibitScroller from "@/components/exhibits/ExhibitScroller.astro";
+import ExhibitWalkthrough from "@/components/exhibits/ExhibitWalkthrough.astro";
 import ExhibitAuditCards from "@/components/exhibits/ExhibitAuditCards.astro";
 import ExhibitArtboardCount from "@/components/exhibits/ExhibitArtboardCount.astro";
 import ExhibitHeatmap from "@/components/exhibits/ExhibitHeatmap.astro";
@@ -128,6 +129,7 @@ function sectionFor(exhibit: any) {
                 {exhibit.captions && <div class="stage-caption">{exhibit.captions.map((caption: any) => <Caption title={caption.title} body={caption.body} />)}</div>}
               </>
             )}
+            {exhibit.walkthrough && <ExhibitWalkthrough id={`${exhibit.id}-walkthrough`} palette={palette} walkthrough={exhibit.walkthrough} />}
             {exhibit.kind === "rows" && (
               <ExhibitRows palette={palette} visuals={exhibit.visuals} captions={exhibit.captions} fields={exhibit.fields} base={exhibit.base} bases={exhibit.bases} veil={exhibit.veil} />
             )}

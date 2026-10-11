@@ -271,8 +271,8 @@ test("TerpCareHub renders the v2 exhibit layout from its prose mock", () => {
     assert.match(page, new RegExp(`data-src="/images/work/terpcarehub/terpcarehub-${clip}-loop\\.mp4"`));
     assert.match(page, new RegExp(`data-loop-toggle hidden[^>]*><span data-loop-action[^>]*>Pause</span><span class="loop-name"[^>]*> ${name} loop</span></button>`));
   }
-  // a veil on each row stage and on the overview laptop.
-  assert.equal([...page.matchAll(/class="stage-veil"/g)].length, 3);
+  // a veil on each row stage, the overview laptop, the pinned walkthrough stage and its three narrow-screen stages.
+  assert.equal([...page.matchAll(/class="stage-veil"/g)].length, 7);
   // the minute 22 timeline is html over an svg rail.
   assert.match(page, /<ol class="timeline-steps"/);
   assert.equal([...page.matchAll(/<li[^>]*class="is-marked"[^>]*>/g)].length, 1);
@@ -281,7 +281,8 @@ test("TerpCareHub renders the v2 exhibit layout from its prose mock", () => {
   // the alert stage alone, full width: three focus markers and a caption instead of notes; the provider card is gone.
   assert.doesNotMatch(page, /annotation-leader/);
   assert.doesNotMatch(page, /class="exhibit-pair"/);
-  assert.equal([...page.matchAll(/<span class="annotation-badge"[^>]*aria-hidden="true"/g)].length, 3);
+  const landed = page.slice(page.indexOf('id="where-it-landed"'), page.indexOf('id="design-system"'));
+  assert.equal([...landed.matchAll(/<span class="annotation-badge"[^>]*aria-hidden="true"/g)].length, 3);
   assert.doesNotMatch(page, /class="annotation-badge"[^>]*href=/);
   assert.match(page, /<span class="browser-address"[^>]*>terpcarehub · alert<\/span>/);
   // four interface states, each with its name and line.

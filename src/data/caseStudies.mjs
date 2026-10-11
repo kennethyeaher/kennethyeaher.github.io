@@ -37,7 +37,9 @@
  * @typedef {ExhibitBase & { kind: "stage", size: "wide" | "square" | "pair", ratio?: string, visuals: ExhibitVisual[], annotations?: ExhibitAnnotation[], notes?: ExhibitNote[], captions?: ExhibitCaption[] }} StageExhibit
  * @typedef {{ width: number, height: number, sigma: number, circles: { x: number, y: number, r: number, colour: string, alpha: number }[] }} StageField
  *   a stage's own colour field from figma, in that stage's pixels.
- * @typedef {ExhibitBase & { kind: "rows", visuals: ExhibitVisual[], captions: ExhibitCaption[], annotations?: ExhibitAnnotation[], fields?: StageField[], base?: string }} RowsExhibit
+ * @typedef {{ label: string, title: string, body: string, screen: ExhibitVisual, focus?: { num: string, at: { x: number, y: number, w: number, h: number } } }} WalkthroughStep
+ * @typedef {{ figma: string, base: string, field: StageField, veil?: boolean, tag: string, at: { x: number, y: number, w: number }, steps: WalkthroughStep[] }} ExhibitWalkthrough
+ * @typedef {ExhibitBase & { kind: "rows", visuals: ExhibitVisual[], captions: ExhibitCaption[], annotations?: ExhibitAnnotation[], fields?: StageField[], base?: string, walkthrough?: ExhibitWalkthrough }} RowsExhibit
  * @typedef {ExhibitBase & { kind: "pair", stages: { ratio?: string, base?: string, field?: StageField, visuals: ExhibitVisual[], annotations?: ExhibitAnnotation[] }[], captions: ExhibitCaption[] }} PairExhibit
  *   two stages side by side, each captioned; annotation theme on-light suits a pale stage.
  * @typedef {{ label: string, highlight?: string, cards?: ([string, string, string] | [string, string, string, string])[], note?: string }} ExhibitStrip
@@ -1048,6 +1050,22 @@ export const caseStudies = [
         ],
         eyebrow: "CORE FLOWS",
         heading: "Three flows carry the product",
+        // figma 119:32, the first row after the lede: the old find care row's stage, pinned while three steps scroll past.
+        walkthrough: {
+          figma: "119:32", base: "#b3122a", veil: true, tag: "SCROLL · PHONE PINNED", at: { x: 29, y: 7.6, w: 42 },
+          field: { width: 600, height: 600, sigma: 45, circles: [{ x: 180, y: 140, r: 260, colour: "#FFD24D", alpha: 0.9 }, { x: 530, y: 490, r: 230, colour: "#FF7A45", alpha: 0.9 }, { x: 590, y: 50, r: 210, colour: "#7A0718", alpha: 0.9 }] },
+          steps: [
+            { label: "STEP 1", title: "Filters are preset", body: "Open now and Takes my plan start switched on, and the list is sorted by soonest appointment.",
+              screen: { src: "/images/work/terpcarehub/mobile-find-care.png", width: 321, height: 1100, alt: "Mobile find care screen with Open now and Takes my plan switched on" } },
+            // the focus box sits on the first card's plan and cost row, as shares of the capture.
+            { label: "STEP 2", title: "Cost is visible before the click", body: "Plan acceptance and expected cost sit on the card itself.",
+              screen: { src: "/images/work/terpcarehub/mobile-find-care.png", width: 321, height: 1100, alt: "Mobile find care screen with the first card's plan and cost row outlined" },
+              focus: { num: "02", at: { x: 8.7, y: 30.6, w: 82.6, h: 5.4 } } },
+            // rendered from .private/redesign-clips/source/sign-in-to-book.html at 390 by 844, 2x.
+            { label: "STEP 3", title: "Sign in only to book", body: "Browsing, filtering and deciding stay open so an urgent decision never hits a login wall.",
+              screen: { src: "/images/work/terpcarehub/mobile-sign-in-to-book.png", width: 780, height: 1688, alt: "Sign in to book sheet over the find care list, with Log in and Sign up buttons" } },
+          ],
+        },
         // row stages from the prose mock (90:1699, 90:1709): their own base, field and veil.
         bases: ["#8a0b1e", "#e9a23b"],
         veil: true,
