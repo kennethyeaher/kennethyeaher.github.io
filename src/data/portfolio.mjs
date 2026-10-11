@@ -22,6 +22,8 @@ export const profile = {
     linkedin: "https://linkedin.com/in/kennethyeaher",
     github: "https://github.com/kennethyeaher",
     resume: "/resume/kyresume.pdf",
+    // the footer's email link (home v2 note, figma 131:2038).
+    email: "mailto:kyeaher@umd.edu",
   },
 };
 

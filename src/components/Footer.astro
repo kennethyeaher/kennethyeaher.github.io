@@ -1,5 +1,5 @@
 ---
-// Minimal footer with the two approved public links.
+// Minimal footer with the approved public links: LinkedIn, GitHub and Email (figma 131:1735).
 import { profile } from "@/data/portfolio.mjs";
 ---
 
@@ -9,9 +9,10 @@ import { profile } from "@/data/portfolio.mjs";
       <span>Designed + developed by Ken</span>
       <img src="/images/kenneth.jpg" alt="Ken smiling" width="28" height="28" />
     </p>
-    <nav class="footer-links" aria-label="Social links">
+    <nav class="footer-links" aria-label="Contact links">
       <a href={profile.links.linkedin} target="_blank" rel="noreferrer">LinkedIn</a>
       <a href={profile.links.github} target="_blank" rel="noreferrer">GitHub</a>
+      <a href={profile.links.email}>Email</a>
     </nav>
   </div>
 </footer>

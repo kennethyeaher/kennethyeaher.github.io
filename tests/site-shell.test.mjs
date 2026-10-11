@@ -124,3 +124,13 @@ test("the home h1 keeps its own fallbacks, one pair per optical size, so its lin
   assert.match(globalCss, /local\("Iowan Old Style Roman"\), local\("IowanOldStyle-Roman"\)/);
   assert.doesNotMatch(globalCss, /local\("Iowan Old Style"\)/);
 });
+
+test("the footer carries LinkedIn, GitHub and Email, and Email opens a message to kyeaher@umd.edu", () => {
+  for (const page of ["index.html", "about/index.html", "work/terpcarehub/index.html"]) {
+    const html = readFileSync(join(projectRoot, "dist", page), "utf8");
+    const footer = html.slice(html.indexOf('<footer class="site-footer"'), html.indexOf("</footer>"));
+    const links = [...footer.matchAll(/<a href="([^"]+)"[^>]*>([^<]+)<\/a>/g)].map(([, href, label]) => [label, href]);
+    assert.deepEqual(links.map(([label]) => label), ["LinkedIn", "GitHub", "Email"], page);
+    assert.equal(links[2][1], "mailto:kyeaher@umd.edu");
+  }
+});
