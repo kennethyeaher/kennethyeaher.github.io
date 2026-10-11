@@ -12,12 +12,11 @@ export function initializeTheme(): void {
   function isDark(): boolean {
     return root.dataset.theme === "dark" || (!root.dataset.theme && systemTheme.matches);
   }
-  /** Update the action label, pressed state, and browser chrome color. */
+  /** Update the pressed state under the fixed "Dark theme" name, and the browser chrome color. */
   function updateControl(): void {
     if (!button) return;
     const dark = isDark();
     button.setAttribute("aria-pressed", String(dark));
-    button.setAttribute("aria-label", dark ? "Use light theme" : "Use dark theme");
     document.querySelector('meta[name="theme-color"]')?.setAttribute("content", dark ? "#111923" : "#f8fafb");
   }
   /** Apply a stored choice, or follow the system when there is none. */

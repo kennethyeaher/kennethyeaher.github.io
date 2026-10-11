@@ -33,7 +33,7 @@ test("the rendered shell provides theme choice and keeps accessible fallbacks", 
   assert.doesNotMatch(globalCss, /cursor:\s*none/);
   assert.match(html, /data-nav-toggle/);
   assert.match(html, /data-theme-toggle/);
-  assert.match(html, /aria-label="Use dark theme"/);
+  assert.match(html, /aria-label="Dark theme"/);
   assert.match(globalCss, /prefers-color-scheme: dark/);
   assert.match(globalCss, /:root\[data-theme="dark"\]/);
   assert.match(html, /portfolio-theme/);
@@ -48,7 +48,9 @@ test("the theme switch is the pull cord: a real button that hangs out of flow an
   assert.match(cord, /type="button"/);
   assert.match(cord, /data-theme-toggle/);
   assert.match(cord, /aria-pressed="false"/);
-  assert.match(cord, /aria-label="Use dark theme"/);
+  // a fixed name; aria-pressed carries the state, and the script never rewrites the label.
+  assert.match(cord, /aria-label="Dark theme"/);
+  assert.doesNotMatch(readFileSync(join(projectRoot, "src", "scripts", "exhibits.ts"), "utf8"), /setAttribute\("aria-label", dark/);
   // shown by css from the first paint, never revealed by script, so it cannot shift the header.
   assert.doesNotMatch(cord, /\shidden/);
   assert.match(globalCss, /\.theme-cord \{ position: absolute;/);
