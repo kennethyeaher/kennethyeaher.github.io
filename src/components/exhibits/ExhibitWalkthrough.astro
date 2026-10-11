@@ -79,11 +79,16 @@ const sizes = `calc(min(600px, 100vw - 48px) * ${(at.w / 100).toFixed(2)})`;
   .walk-step { display: flex; align-items: center; min-height: min(70vh, 600px); }
   .walk-step:first-child { min-height: 300px; align-items: start; padding-top: 149px; }
   .walk-step:last-child { min-height: 300px; align-items: end; padding-bottom: 149px; }
-  .walk-text { display: grid; gap: 6px; padding-left: 16px; border-left: 3px solid var(--rule); opacity: 0.55; transition: opacity 200ms var(--ease-out), border-color 200ms var(--ease-out); }
-  .walk-step.is-active .walk-text { border-left-color: #c21230; opacity: 1; }
+  /* inactive steps dim by colour, not opacity, so every line keeps aa: --muted is 4.92:1 on the light canvas
+     and 8.83:1 on the dark one. the active step takes the 3px #c21230 bar and full-strength ink. */
+  .walk-text { display: grid; gap: 6px; padding-left: 16px; border-left: 3px solid var(--rule); transition: border-color 200ms var(--ease-out); }
+  .walk-text > * { transition: color 200ms var(--ease-out); }
+  .walk-step.is-active .walk-text { border-left-color: #c21230; }
   .walk-label { margin: 0; color: var(--muted); font: 12px / normal var(--mono); }
-  .walk-title { margin: 0; color: var(--ink-strong); font: 600 15px / normal var(--ui); }
-  .walk-body { margin: 0; color: var(--ink); font: 17px / 1.35 var(--body); max-width: 360px; }
+  .walk-title { margin: 0; color: var(--muted); font: 600 15px / normal var(--ui); }
+  .walk-body { margin: 0; color: var(--muted); font: 17px / 1.35 var(--body); max-width: 360px; }
+  .walk-step.is-active .walk-title { color: var(--ink-strong); }
+  .walk-step.is-active .walk-body { color: var(--ink); }
   .walk-pin { position: sticky; top: max(24px, calc(50vh - min(300px, 25vw))); }
   .walk-static { display: none; }
   .walk-phone { position: absolute; z-index: 1; }
@@ -94,7 +99,7 @@ const sizes = `calc(min(600px, 100vw - 48px) * ${(at.w / 100).toFixed(2)})`;
   .walk-capture img { display: block; width: 100%; height: auto; }
   .walk-tag { position: absolute; z-index: 4; top: 3%; left: 3%; }
   @media (prefers-reduced-motion: reduce) {
-    .walk-text, .walk-screen { transition: none; }
+    .walk-text, .walk-text > *, .walk-screen { transition: none; }
   }
   /* under 768px: a static screen above each step, all steps at full strength, nothing pinned. */
   @media (max-width: 767px) {
@@ -103,6 +108,8 @@ const sizes = `calc(min(600px, 100vw - 48px) * ${(at.w / 100).toFixed(2)})`;
     .walk-steps { gap: 40px; }
     .walk-step, .walk-step:first-child, .walk-step:last-child { display: grid; gap: 20px; min-height: 0; padding: 0; }
     .walk-static { display: block; }
-    .walk-text, .walk-step.is-active .walk-text { border-left-color: #c21230; opacity: 1; }
+    .walk-text { border-left-color: #c21230; }
+    .walk-title { color: var(--ink-strong); }
+    .walk-body { color: var(--ink); }
   }
 </style>

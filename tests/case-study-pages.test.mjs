@@ -356,6 +356,33 @@ test("TerpCareHub's annotated pins are focusable buttons announced with their no
   assert.deepEqual([texts(pins, "caption-title")[0], texts(pins, "caption-body")[0]], ["Provider card, design decisions", "Hover or tab to a pin to open its note. The active pin and its note are linked by color and number, and both are announced to screen readers."]);
 });
 
+test("TerpCareHub's walkthrough steps, pin notes and pins never dim by opacity", () => {
+  const page = pages.get("terpcarehub");
+  // every stylesheet the page loads and every style block it inlines.
+  const css = [
+    ...[...page.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map((match) => readFileSync(join(projectRoot, "dist", match[1]), "utf8")),
+    ...[...page.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)].map((match) => match[1]),
+  ].join("\n");
+  // a selector that names a step, a note or a pin; the phone's own screen layers may still crossfade.
+  const target = /\.walk-(?:step|text|label|title|body)(?![\w-])|\.pin(?:-note)?(?![\w-])|\.note-(?:label|title|body)(?![\w-])|\[data-(?:pin|note)(?:[=\]])/;
+  const screenLayer = /\.walk-(?:screen|capture|static|pin|phone)(?![\w-])[^\s>+~]*$/;
+  let checked = 0;
+  for (const [, selectors, body] of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    const pieces = selectors.split(",").map((piece) => piece.trim()).filter((piece) => target.test(piece) && !screenLayer.test(piece));
+    if (!pieces.length) continue;
+    checked += 1;
+    for (const [, value] of body.matchAll(/(?:^|;)\s*opacity\s*:\s*([^;!}]+)/g)) {
+      const number = value.trim().endsWith("%") ? parseFloat(value) / 100 : parseFloat(value);
+      assert.ok(!(number < 1), `${pieces.join(", ")} sets opacity ${value.trim()}`);
+    }
+  }
+  assert.ok(checked > 10, "the walkthrough and pin rules were found");
+  // no inline opacity on the elements themselves either.
+  for (const [tag] of page.matchAll(/<(?:li|div|p|span|button)[^>]*class="(?:walk-step|walk-text|walk-label|walk-title|walk-body|pin|pin-note|note-label|note-title|note-body)[ "][^>]*>/g)) {
+    assert.doesNotMatch(tag, /style="[^"]*opacity/, tag);
+  }
+});
+
 test("the Capstone renders the v2 exhibit layout from its prose mock", () => {
   const page = pages.get("college-park-capstone");
   const sectionIds = [...page.matchAll(/<section[^>]*\bid="([^"]+)"[^>]*data-case-section/g)].map((match) => match[1]);
