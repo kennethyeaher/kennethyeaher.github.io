@@ -119,5 +119,7 @@ ${pins.map((pin) => `${live(pin.n)} [data-note="${pin.n}"]`).join(", ")}, ${idle
     .pins-layout :global(.exhibit-stage) { aspect-ratio: 1 / 1.36; }
     .pins-phone { left: 20%; top: 5%; width: 60%; }
     .pin-notes { position: static; width: auto; margin-top: 16px; translate: none; }
+    /* off the stage the 92% card shows the page through it, which in the dark theme takes the 11px label under aa. */
+    .pin-note { background: #fff; }
   }
 </style>
