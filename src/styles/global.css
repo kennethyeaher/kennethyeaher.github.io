@@ -633,6 +633,18 @@ html:not(.nav-ready) .theme-cord { display: none; }
   html:not(.nav-ready) .primary-links { position: static; display: flex; min-height: 0; flex-direction: row; padding: 8px 0; font: 12px var(--mono); }
 }
 
+/* sideways scrolling cards (heatmap, journey, matrix, timeline, visit map) fade at the right edge while more
+   content waits to the right, and lose the fade at the end. the wrapper's ::after follows its scroller's own
+   timeline; with no overflow the timeline is inactive and the fade stays at 0. browsers without scroll-driven
+   animation get no fade. it is out of flow, so it never moves anything. */
+.edge-fade { position: relative; min-width: 0; max-width: 100%; timeline-scope: --edge; }
+.edge-fade::after { position: absolute; z-index: 5; top: var(--edge-inset, 0); right: var(--edge-inset, 0); bottom: var(--edge-inset, 0); width: 48px; content: ""; border-radius: 0 var(--edge-radius, 0) var(--edge-radius, 0) 0; background: linear-gradient(to right, transparent, var(--edge-colour, var(--surface))); opacity: 0; pointer-events: none; }
+@supports (animation-timeline: scroll()) and (timeline-scope: --edge) {
+  .edge-fade > .edge-scroll { scroll-timeline: --edge inline; }
+  .edge-fade::after { animation: edge-fade linear both; animation-timeline: --edge; }
+  @keyframes edge-fade { 0%, 92% { opacity: 1; } 100% { opacity: 0; } }
+}
+
 /* exhibit annotations, per figma note 58:1100: the dot scales in, the line draws, the label rises 6px,
    staggered by number; focus outlines fade in and never pulse. scroll driven where supported, an
    observer fallback otherwise, and nothing moves under reduced motion or without scripts. */

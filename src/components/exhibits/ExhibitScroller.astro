@@ -10,7 +10,7 @@ interface Props {
   id: string;
   palette: string[];
   exhibit: {
-    ratio: string; base: string; field: any; veil?: boolean; tag: string;
+    ratio: string; base: string; field: any; veil?: boolean; tag: string; touchTag?: string;
     visual: { src: string; width: number; height: number; alt: string; url: string; screen: { w: number; h: number }; at: { x: number; y: number; w: number } };
     caption: { title: string; body: string };
   };
@@ -34,7 +34,7 @@ const sizes = `calc(min(1116px, 100vw - 48px) * ${(visual.at.w / 100).toFixed(3)
         </DeviceFrame>
       </div>
     </div>
-    <span class="scroller-tag"><MediaTag text={exhibit.tag} /></span>
+    <span class="scroller-tag"><MediaTag text={exhibit.tag} touchText={exhibit.touchTag} /></span>
   </ExhibitStage>
   <figcaption id={`${id}-caption`}><Caption title={exhibit.caption.title} body={exhibit.caption.body} /></figcaption>
 </figure>

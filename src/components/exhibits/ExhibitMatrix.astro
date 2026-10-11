@@ -27,7 +27,8 @@ const targets = annotations.map((annotation) => {
 const noteFor = (row: number, column: number) => targets.find((target) => target.row === row && target.column === column);
 const accentIndex = columns.findIndex((name) => name === accent);
 ---
-<div class="matrix-scroll" role="region" aria-labelledby={`${id}-matrix-label`} tabindex="0">
+<div class="edge-fade" style="--edge-radius: 14px; --edge-colour: #fff">
+<div class="matrix-scroll edge-scroll" role="region" aria-labelledby={`${id}-matrix-label`} tabindex="0">
   <div class="matrix-card">
     <table class="matrix" style={`width: ${widths.reduce((sum, width) => sum + width, 0)}px`}>
       <caption id={`${id}-matrix-label`}>{label}</caption>
@@ -53,6 +54,7 @@ const accentIndex = columns.findIndex((name) => name === accent);
       </tbody>
     </table>
   </div>
+</div>
 </div>
 <style>
   .matrix-scroll { overflow-x: auto; max-width: 100%; border-radius: 14px; }

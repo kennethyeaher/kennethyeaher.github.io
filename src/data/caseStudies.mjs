@@ -33,7 +33,7 @@
  *   lede text comes word for word from the page's sections; a sentence written to join or set up a
  *   chapter is marked newCopy, listed in .private/redesign-spec/new-copy.md, and held back until approved.
  * @typedef {{ id: string, chapter: string, figma?: string, eyebrow?: string, heading?: string, lede?: LedeParagraph[] }} ExhibitBase
- * @typedef {{ figma: string, ratio: string, base: string, field: StageField, veil?: boolean, tag: string, visual: ExhibitVisual & { url: string, screen: { w: number, h: number } }, caption: ExhibitCaption }} ExhibitScroller
+ * @typedef {{ figma: string, ratio: string, base: string, field: StageField, veil?: boolean, tag: string, touchTag?: string, visual: ExhibitVisual & { url: string, screen: { w: number, h: number } }, caption: ExhibitCaption }} ExhibitScroller
  * @typedef {ExhibitBase & { kind: "hero", visuals: ExhibitVisual[], kpi?: ExhibitKpi, metrics: { value: string, label: string }[], scroller?: ExhibitScroller }} HeroExhibit
  * @typedef {{ figma: string, ratio: string, base: string, field: StageField, active: string, visual: ExhibitVisual, pins: { n: string, at: { x: number, y: number }, title: string, body: string }[], notes: { x: number, width: number }, caption: ExhibitCaption }} ExhibitPins
  * @typedef {ExhibitBase & { kind: "stage", size: "wide" | "square" | "pair", ratio?: string, visuals: ExhibitVisual[], annotations?: ExhibitAnnotation[], notes?: ExhibitNote[], captions?: ExhibitCaption[], pins?: ExhibitPins }} StageExhibit
@@ -1033,7 +1033,7 @@ export const caseStudies = [
         ],
         // figma 119:2, after the overview lede: the full home page in a browser that scrolls on hover or focus.
         scroller: {
-          figma: "119:2", ratio: "1116 / 600", base: "#8a0b1e", veil: true, tag: "HOVER · SCROLLS",
+          figma: "119:2", ratio: "1116 / 600", base: "#8a0b1e", veil: true, tag: "HOVER · SCROLLS", touchTag: "TAP · SCROLLS",
           field: { width: 1116, height: 600, sigma: 45, circles: [{ x: 250, y: 150, r: 310, colour: "#FFD24D", alpha: 0.9 }, { x: 900, y: 520, r: 280, colour: "#FF7A45", alpha: 0.9 }, { x: 990, y: 30, r: 230, colour: "#7A0718", alpha: 0.9 }] },
           // exported from the terpcarehub file, home 40:694.
           visual: { src: "/images/work/terpcarehub/home-full.webp", width: 1370, height: 4096, alt: "TerpCareHub home page, desktop, full length", url: "terpcarehub · home", screen: { w: 840, h: 480 }, at: { x: 12.4, y: 6.7, w: 75.3 } },

@@ -24,7 +24,8 @@ const columns = stages.map((stage) => {
 const tones = rowTones ?? ["muted", "annotate", "accent"];
 const figureName = figure?.src.split("/").pop()?.replace(/\.[^.]+$/, "");
 ---
-<div class="journey-scroll" role="region" aria-label="Journey map, scrolls sideways on small screens" tabindex="0">
+<div class="edge-fade" style="--edge-radius: 10px; --edge-inset: 1px">
+<div class="journey-scroll edge-scroll" role="region" aria-label="Journey map, scrolls sideways on small screens" tabindex="0">
   <table class="journey">
     <caption id={`${id}-caption`} class="sr-only">{caption}</caption>
     <thead>
@@ -47,6 +48,7 @@ const figureName = figure?.src.split("/").pop()?.replace(/\.[^.]+$/, "");
       ))}
     </tbody>
   </table>
+</div>
 </div>
 {strip && <ExhibitStrip strip={strip} />}
 {figure && (

@@ -48,7 +48,8 @@ const columnNote = (panel: string, column: string) => targets.find((target) => t
 // rows are 49 tall with 8 between them under a 32 tall header; a column box covers the header and every row.
 const columnHeight = (rows: number) => 32 + rows * 57 + 4;
 ---
-<div class="heatmap-scroll" role="region" aria-label="Survey heatmap, scrolls sideways on small screens" tabindex="0">
+<div class="edge-fade" style="--edge-radius: 14px; --edge-colour: #fff">
+<div class="heatmap-scroll edge-scroll" role="region" aria-label="Survey heatmap, scrolls sideways on small screens" tabindex="0">
   <div class="heatmap-card">
     {panels.map((panel) => (
       <table class="heatmap">
@@ -91,6 +92,7 @@ const columnHeight = (rows: number) => 32 + rows * 57 + 4;
       </table>
     ))}
   </div>
+</div>
 </div>
 <style>
   .heatmap-scroll { overflow-x: auto; max-width: 100%; border-radius: 14px; }

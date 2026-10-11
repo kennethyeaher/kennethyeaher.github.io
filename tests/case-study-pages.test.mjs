@@ -354,7 +354,10 @@ test("TerpCareHub's overview laptop scrolls the full home page on hover or focus
   const overview = page.slice(page.indexOf('id="overview"'), page.indexOf('id="core-flows"'));
   const laptop = overview.slice(overview.indexOf('class="exhibit-scroller"'));
   assert.ok(laptop.length > 0, "the laptop renders in the overview");
-  assert.match(laptop, /HOVER · SCROLLS/);
+  // one wording per input: hover where a pointer can hover, tap on touch screens (any-hover: none).
+  assert.match(laptop, /<span class="tag-pointer"[^>]*>HOVER · SCROLLS<\/span><span class="tag-touch"[^>]*>TAP · SCROLLS<\/span>/);
+  const tag = readFileSync(join(projectRoot, "src", "components", "exhibits", "MediaTag.astro"), "utf8");
+  assert.match(tag, /\.tag-touch \{ display: none; \}\s*@media \(any-hover: none\) \{\s*\.tag-pointer \{ display: none; \}\s*\.tag-touch \{ display: inline; \}/);
   assert.match(laptop, /<span class="browser-address"[^>]*>terpcarehub · home<\/span>/);
   assert.match(laptop, /<img class="scroller-page" src="\/images\/work\/terpcarehub\/home-full\.webp"/);
   // keyboard focus reaches the frame, which is described by its caption.
@@ -397,8 +400,19 @@ test("timeline and visit quotes sit outside their sideways scroll, so they wrap 
     const page = pages.get(slug);
     const quote = page.indexOf(`<blockquote class="${kind}-quote"`);
     assert.ok(quote > 0, `${slug} renders its ${kind} quote`);
-    // the scroll region and its canvas close before the quote opens.
-    assert.match(page.slice(page.indexOf(`class="${kind}-scroll"`), quote), /<\/div>\s*<\/div>\s*$/);
+    // the canvas, the scroll region and its edge fade wrapper all close before the quote opens.
+    assert.match(page.slice(page.indexOf(`class="${kind}-scroll`), quote), /<\/div>\s*<\/div>\s*<\/div>\s*$/);
+  }
+});
+
+test("every sideways scrolling card fades at its right edge while there is more, scroll-driven and out of flow", () => {
+  const css = readFileSync(join(projectRoot, "src", "styles", "global.css"), "utf8");
+  assert.match(css, /\.edge-fade \{ position: relative; min-width: 0; max-width: 100%; timeline-scope: --edge; \}/);
+  assert.match(css, /\.edge-fade::after \{ position: absolute;[^}]*opacity: 0; pointer-events: none; \}/);
+  // only where scroll-driven animation exists; elsewhere the fade stays at 0.
+  assert.match(css, /@supports \(animation-timeline: scroll\(\)\) and \(timeline-scope: --edge\) \{\s*\.edge-fade > \.edge-scroll \{ scroll-timeline: --edge inline; \}\s*\.edge-fade::after \{ animation: edge-fade linear both; animation-timeline: --edge; \}\s*@keyframes edge-fade \{ 0%, 92% \{ opacity: 1; \} 100% \{ opacity: 0; \} \}/);
+  for (const [slug, kind] of [["college-park-capstone", "heatmap"], ["college-park-capstone", "journey"], ["terpcare", "matrix"], ["terpcarehub", "timeline"], ["frontground", "visit"]]) {
+    assert.match(pages.get(slug), new RegExp(`<div class="edge-fade"[^>]*>\\s*<div class="${kind}-scroll edge-scroll"`), `${slug} wraps its ${kind}`);
   }
 });
 
