@@ -50,7 +50,8 @@ const sizes = `calc(min(1116px, 100vw - 48px) * ${(visual.at.w / 100).toFixed(3)
   .scroller-page { display: block; width: 100%; height: auto; }
   .scroller-tag { position: absolute; z-index: 4; top: 3%; left: 1.61%; }
   @media (prefers-reduced-motion: no-preference) {
-    .scroller-focus:is(:hover, :focus-visible) .scroller-page { animation: page-scroll 6.8s ease-in-out both; }
+    /* :focus rather than :focus-visible, so a tap on a touch screen, which has no hover, also scrolls the page. */
+    .scroller-focus:is(:hover, :focus) .scroller-page { animation: page-scroll 6.8s ease-in-out both; }
   }
   /* six seconds down the page, then back to rest at the top. */
   @keyframes page-scroll {
