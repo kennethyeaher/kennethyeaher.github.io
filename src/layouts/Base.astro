@@ -80,6 +80,8 @@ const ogImage = new URL(image ?? "/images/portfolio-preview-2026.png", Astro.sit
       <slot />
     </main>
     <Footer />
+    {/* the annotated cursor (figma 129:1693): hidden until the script shows it over a data-cursor target. */}
+    <div class="pointer-note" data-pointer-note aria-hidden="true"><span class="pointer-note-dot"></span><span class="pointer-note-leader"></span><span class="pointer-note-chip"></span></div>
 
     <script>
       import "@/scripts/site.ts";

@@ -16,7 +16,7 @@ const { text, touchText, loop } = Astro.props;
 // named the way ExhibitLoop names its clip, so the ids match.
 const loopName = loop === undefined ? undefined : loop ? `${loop} loop` : "loop";
 ---
-<span class:list={["media-tag", loopName && "has-control"]}><span class="media-dot" aria-hidden="true"></span>{touchText ? <><span class="tag-pointer">{text}</span><span class="tag-touch">{touchText}</span></> : text}{loopName && (
+<span class:list={["media-tag", loopName && "has-control"]} data-cursor={loopName && "loop"}><span class="media-dot" aria-hidden="true"></span>{touchText ? <><span class="tag-pointer">{text}</span><span class="tag-touch">{touchText}</span></> : text}{loopName && (
   <button class="loop-toggle" type="button" data-loop-toggle aria-controls={loopId(loopName)} hidden><span data-loop-action>Pause</span><span class="loop-name"> {loopName}</span></button>
 )}</span>
 <style>

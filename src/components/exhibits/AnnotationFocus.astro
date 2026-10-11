@@ -17,7 +17,7 @@ const position = place ?? `left: ${at!.x}%; top: ${at!.y}%; width: ${at!.w}%; he
 ---
 <span class:list={["annotation", "annotation-focus", onLight && "on-light"]} style={`${position}; --order: ${order}`} data-annotation>
   {noteId
-    ? <a class="annotation-badge" href={`#${noteId}`} aria-describedby={noteId}><span class="sr-only">Note </span>{num}</a>
+    ? <a class="annotation-badge" href={`#${noteId}`} aria-describedby={noteId} data-cursor="pin"><span class="sr-only">Note </span>{num}</a>
     : <span class="annotation-badge" aria-hidden="true">{num}</span>}
 </span>
 <style>

@@ -1,6 +1,7 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
+import { gzipSync } from "node:zlib";
 import test, { before } from "node:test";
 import assert from "node:assert/strict";
 
@@ -62,6 +63,48 @@ test("the theme switch is the pull cord: a real button that hangs out of flow an
   assert.match(globalCss, /:root\.theme-fading[^{]*\{ transition: color 250ms/);
   const reduced = globalCss.match(/@media \(prefers-reduced-motion: reduce\) \{\s*\.theme-cord-line, \.theme-cord-knob \{ transition: none; \}/);
   assert.ok(reduced, "no swing under reduced motion");
+});
+
+test("the annotated cursor is one aria-hidden note over exactly four target types, for fine hovering pointers only", () => {
+  const pagesBuilt = ["index.html", "about/index.html", ...["terpcarehub", "ovara", "kairo-health", "usm-venture-benchmark", "college-park-capstone", "frontground", "terpcare", "sohive"].map((slug) => `work/${slug}/index.html`)];
+  const kinds = new Set();
+  for (const file of pagesBuilt) {
+    const html = readFileSync(join(projectRoot, "dist", file), "utf8");
+    // the native cursor stays, and the note is a single aria-hidden element.
+    assert.doesNotMatch(html, /cursor-dot/);
+    const notes = [...html.matchAll(/<div class="pointer-note" data-pointer-note aria-hidden="true">/g)];
+    assert.equal(notes.length, 1, `${file} has one note`);
+    for (const [tag] of html.matchAll(/<[a-z]+\b[^>]*\bdata-cursor="[^"]*"[^>]*>/g)) {
+      const kind = tag.match(/data-cursor="([^"]*)"/)[1];
+      kinds.add(kind);
+      // each kind sits only on its own kind of target.
+      if (kind === "card") assert.match(tag, /^<a class="project-card"/, file);
+      else if (kind === "cord") assert.match(tag, /^<button class="theme-cord"/, file);
+      else if (kind === "loop") assert.match(tag, /^<span class="media-tag has-control"/, file);
+      else if (kind === "pin") {
+        assert.match(tag, /^<(button type="button" class="pin"|a class="annotation-badge")/, file);
+        // a pin's chip repeats its number and the title of the note it is described by, so that note must exist.
+        const note = tag.match(/aria-describedby="([^"]+)"/)[1];
+        assert.match(html, new RegExp(`id="${note}"[^>]*>[\\s\\S]*?class="note-title"`), `${file} ${note}`);
+      } else assert.fail(`${file} carries an unknown data-cursor "${kind}"`);
+    }
+  }
+  assert.deepEqual([...kinds].sort(), ["card", "cord", "loop", "pin"]);
+
+  const script = readFileSync(join(projectRoot, "src", "scripts", "pointer-note.ts"), "utf8");
+  // the script exits before doing anything on coarse or non hovering pointers, and css hides the note there too.
+  assert.match(script, /if \(!note \|\| !chip \|\| !window\.matchMedia\("\(hover: hover\) and \(pointer: fine\)"\)\.matches\) return;/);
+  assert.match(globalCss, /@media not \(\(hover: hover\) and \(pointer: fine\)\) \{\s*\.pointer-note \{ display: none; \}/);
+  // labels: the card action from figma 129:1722, the loop's own action word, the pin's number and note title, and
+  // the cord's theme action, which the user set apart from its "Dark theme" name.
+  assert.match(script, /if \(kind === "card"\) return "View case study";/);
+  assert.match(script, /\? "Pull for light" : "Pull for dark"/);
+  assert.match(script, /`\$\{toggle\.querySelector\("\[data-loop-action\]"\)\?\.textContent\} loop`/);
+  assert.match(script, /`\$\{number\} · \$\{title\}`/);
+  // pointer events only: keyboard focus never shows it.
+  assert.doesNotMatch(script, /focusin|"focus"/);
+  assert.ok(gzipSync(script).length < 3072, "the cursor script stays under 3 KB gzipped, even unminified");
+  assert.match(globalCss, /@media \(prefers-reduced-motion: reduce\) \{\s*\.pointer-note, \.pointer-note \* \{ transition: none !important; \}/);
 });
 
 test("the interaction system uses blue rather than the previous orange accent", () => {

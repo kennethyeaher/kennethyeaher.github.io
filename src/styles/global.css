@@ -633,6 +633,26 @@ html:not(.nav-ready) .theme-cord { display: none; }
   html:not(.nav-ready) .primary-links { position: static; display: flex; min-height: 0; flex-direction: row; padding: 8px 0; font: 12px var(--mono); }
 }
 
+/* annotated cursor, figma 129:1693: an annotate dot and 14px leader into a chip in the mono face, trailing the native
+   pointer (which always stays). the chip is --ink-strong with --canvas text, so it flips with the theme. entering, the
+   leader draws in 120ms and the chip reveals in 160ms; leaving, it fades out in 100ms. reduced motion: all instant. */
+.pointer-note { position: fixed; z-index: 100; top: 0; left: 0; display: flex; align-items: center; opacity: 0; pointer-events: none; transition: opacity 100ms; }
+.pointer-note.is-left { flex-direction: row-reverse; }
+.pointer-note.is-on { opacity: 1; transition: none; }
+.pointer-note-dot { flex: none; width: 5px; height: 5px; border-radius: 50%; background: var(--color-annotate); }
+.pointer-note-leader { flex: none; width: 14px; height: 1px; background: var(--color-annotate); transform-origin: left; scale: 0 1; transition: scale 0s 100ms; }
+.pointer-note.is-left .pointer-note-leader { transform-origin: right; }
+.pointer-note-chip { padding: 5px 10px; border-radius: 999px; background: var(--ink-strong); color: var(--canvas); font: 500 11px / normal var(--mono); white-space: nowrap; clip-path: inset(0 100% 0 0 round 999px); transition: clip-path 0s 100ms; }
+.pointer-note.is-left .pointer-note-chip { clip-path: inset(0 0 0 100% round 999px); }
+.pointer-note.is-on .pointer-note-leader { scale: 1 1; transition: scale 120ms var(--ease-out); }
+.pointer-note.is-on .pointer-note-chip { clip-path: inset(0 round 999px); transition: clip-path 160ms var(--ease-out); }
+@media (prefers-reduced-motion: reduce) {
+  .pointer-note, .pointer-note * { transition: none !important; }
+}
+@media not ((hover: hover) and (pointer: fine)) {
+  .pointer-note { display: none; }
+}
+
 /* sideways scrolling cards (heatmap, journey, matrix, timeline, visit map) fade at the right edge while more
    content waits to the right, and lose the fade at the end. the wrapper's ::after follows its scroller's own
    timeline; with no overflow the timeline is inactive and the fade stays at 0. browsers without scroll-driven

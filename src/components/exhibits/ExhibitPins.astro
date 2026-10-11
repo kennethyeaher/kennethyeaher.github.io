@@ -57,7 +57,7 @@ ${pins.map((pin) => `${live(pin.n)} [data-note="${pin.n}"]`).join(", ")}, ${idle
         {pins.map((pin) => {
           const at = onPhone(pin);
           return (
-            <button type="button" class="pin" data-pin={pin.n} aria-describedby={noteId(pin)} style={`left: ${at.x.toFixed(2)}%; top: ${at.y.toFixed(2)}%`}>
+            <button type="button" class="pin" data-pin={pin.n} aria-describedby={noteId(pin)} data-cursor="pin" style={`left: ${at.x.toFixed(2)}%; top: ${at.y.toFixed(2)}%`}>
               <span class="sr-only">Annotation </span>{pin.n}
             </button>
           );
