@@ -1003,8 +1003,8 @@ export const caseStudies = [
       exhibit: /** @type {const} */ ({
         "src": "/images/work/terpcarehub/mobile-find-care.png",
         "alt": "Mobile find care screen",
-        "width": 321,
-        "height": 1100,
+        "width": 780,
+        "height": 2680,
         "frame": "phone"
       }),
       titlePlacement: "center",
@@ -1023,8 +1023,8 @@ export const caseStudies = [
         base: "linear-gradient(144.4deg, #fff1c4 0%, #ffc24d 30%, #f0563a 55.7%, #c21230 71.4%)",
         field: { width: 1116, height: 600, sigma: 0, circles: [] },
         visuals: [
-          { src: "/images/work/terpcarehub/mobile-find-care.png", width: 321, height: 1100, alt: "Mobile find care screen", frame: "iphone", rot: 0, priority: true, at: { x: 26.9, y: 10.7, w: 26.9 } },
-          { src: "/images/work/terpcarehub/provider-card.png", width: 665, height: 378, alt: "Provider card showing status, next availability, plan acceptance, and cost", rot: 0, rounded: 16, at: { x: 49.1, y: 32.7, w: 40.9 } },
+          { src: "/images/work/terpcarehub/mobile-find-care.png", width: 780, height: 2680, alt: "Mobile find care screen", frame: "iphone", rot: 0, priority: true, at: { x: 26.9, y: 10.7, w: 26.9 } },
+          { src: "/images/work/terpcarehub/provider-card.png", width: 1330, height: 756, alt: "Provider card showing status, next availability, plan acceptance, and cost", rot: 0, rounded: 16, at: { x: 49.1, y: 32.7, w: 40.9 } },
         ],
         metrics: [
           { value: "9h 38m", label: "Mapped symptom-to-appointment delay, before the redesign" },
@@ -1036,7 +1036,7 @@ export const caseStudies = [
           figma: "119:2", ratio: "1116 / 600", base: "#8a0b1e", veil: true, tag: "HOVER · SCROLLS", touchTag: "TAP · SCROLLS",
           field: { width: 1116, height: 600, sigma: 45, circles: [{ x: 250, y: 150, r: 310, colour: "#FFD24D", alpha: 0.9 }, { x: 900, y: 520, r: 280, colour: "#FF7A45", alpha: 0.9 }, { x: 990, y: 30, r: 230, colour: "#7A0718", alpha: 0.9 }] },
           // exported from the terpcarehub file, home 40:694.
-          visual: { src: "/images/work/terpcarehub/home-full.webp", width: 1370, height: 4096, alt: "TerpCareHub home page, desktop, full length", url: "terpcarehub · home", screen: { w: 840, h: 480 }, at: { x: 12.4, y: 6.7, w: 75.3 } },
+          visual: { src: "/images/work/terpcarehub/home-full.webp", width: 3024, height: 9046, alt: "TerpCareHub home page, desktop, full length", url: "terpcarehub · home", screen: { w: 840, h: 480 }, at: { x: 12.4, y: 6.7, w: 75.3 } },
           caption: { title: "Home, desktop", body: "The redesigned hero states the promise in the university’s own colours, using the product’s real interface language behind it." },
         },
       },
@@ -1057,10 +1057,10 @@ export const caseStudies = [
           field: { width: 600, height: 600, sigma: 45, circles: [{ x: 180, y: 140, r: 260, colour: "#FFD24D", alpha: 0.9 }, { x: 530, y: 490, r: 230, colour: "#FF7A45", alpha: 0.9 }, { x: 590, y: 50, r: 210, colour: "#7A0718", alpha: 0.9 }] },
           steps: [
             { label: "STEP 1", title: "Filters are preset", body: "Open now and Takes my plan start switched on, and the list is sorted by soonest appointment.",
-              screen: { src: "/images/work/terpcarehub/mobile-find-care.png", width: 321, height: 1100, alt: "Mobile find care screen with Open now and Takes my plan switched on" } },
+              screen: { src: "/images/work/terpcarehub/mobile-find-care.png", width: 780, height: 2680, alt: "Mobile find care screen with Open now and Takes my plan switched on" } },
             // the focus box sits on the first card's plan and cost row, as shares of the capture.
             { label: "STEP 2", title: "Cost is visible before the click", body: "Plan acceptance and expected cost sit on the card itself.",
-              screen: { src: "/images/work/terpcarehub/mobile-find-care.png", width: 321, height: 1100, alt: "Mobile find care screen with the first card's plan and cost row outlined" },
+              screen: { src: "/images/work/terpcarehub/mobile-find-care.png", width: 780, height: 2680, alt: "Mobile find care screen with the first card's plan and cost row outlined" },
               focus: { num: "02", at: { x: 8.7, y: 30.6, w: 82.6, h: 5.4 } } },
             // rendered from .private/redesign-clips/source/sign-in-to-book.html at 390 by 844, 2x.
             { label: "STEP 3", title: "Sign in only to book", body: "Browsing, filtering and deciding stay open so an urgent decision never hits a login wall.",
@@ -1075,9 +1075,9 @@ export const caseStudies = [
           { width: 600, height: 600, sigma: 45, circles: [{ x: 140, y: 180, r: 280, colour: "#FFF1C4", alpha: 0.9 }, { x: 620, y: 580, r: 260, colour: "#E21833", alpha: 0.9 }, { x: 270, y: 270, r: 150, colour: "#FF8A3D", alpha: 0.9 }] },
         ],
         visuals: [
-          { src: "/images/work/terpcarehub/mobile-alert-detail.png", width: 390, height: 998, alt: "Mobile alert detail screen", frame: "iphone", at: { x: 29, y: 7.6, w: 42 },
+          { src: "/images/work/terpcarehub/mobile-alert-detail.png", width: 780, height: 1996, alt: "Mobile alert detail screen", frame: "iphone", at: { x: 29, y: 7.6, w: 42 },
             loop: { src: "/images/work/terpcarehub/terpcarehub-alert-loop.mp4", poster: "/images/work/terpcarehub/terpcarehub-alert-loop-poster.webp", name: "alert" } },
-          { src: "/images/work/terpcarehub/mobile-dashboard.png", width: 390, height: 1052, alt: "Mobile dashboard screen", frame: "iphone", at: { x: 29, y: 7.6, w: 42 },
+          { src: "/images/work/terpcarehub/mobile-dashboard.png", width: 780, height: 2104, alt: "Mobile dashboard screen", frame: "iphone", at: { x: 29, y: 7.6, w: 42 },
             loop: { src: "/images/work/terpcarehub/terpcarehub-dashboard-loop.mp4", poster: "/images/work/terpcarehub/terpcarehub-dashboard-loop-poster.webp", name: "own items" } },
         ],
         captions: [
@@ -1108,7 +1108,7 @@ export const caseStudies = [
         // pinned text reads at 12px or more at 1440. its annotations are shares of the visual, so they scale with it.
         base: "#8a0b1e",
         field: { width: 1116, height: 790, sigma: 45, circles: [{ x: 451, y: 520, r: 260, colour: "#E21833", alpha: 0.9 }, { x: 801, y: 30, r: 190, colour: "#FF7A45", alpha: 0.9 }, { x: 801, y: 570, r: 210, colour: "#4A0512", alpha: 0.9 }] },
-        visuals: [{ src: "/images/work/terpcarehub/alert-detail.png", width: 1489, height: 1600, alt: "Alert detail page with severity banner and source verification panel", frame: "browser", url: "terpcarehub · alert", screen: { w: 640, h: 520 }, zoom: 1.5, at: { x: 6.99, y: 6.08, w: 86.02 } }],
+        visuals: [{ src: "/images/work/terpcarehub/alert-detail.png", width: 3024, height: 3250, alt: "Alert detail page with severity banner and source verification panel", frame: "browser", url: "terpcarehub · alert", screen: { w: 640, h: 520 }, zoom: 1.5, at: { x: 6.99, y: 6.08, w: 86.02 } }],
         annotations: [
           { type: "focus", num: "01", on: 0, at: { x: 4.6, y: 20.3, w: 90.8, h: 6.1 } },
           { type: "focus", num: "02", on: 0, at: { x: 4.6, y: 37.1, w: 37.5, h: 7.1 } },
@@ -1120,7 +1120,7 @@ export const caseStudies = [
           field: { width: 1116, height: 680, sigma: 45, circles: [{ x: 220, y: 180, r: 260, colour: "#FFF4D6", alpha: 0.9 }, { x: 980, y: 600, r: 220, colour: "#FF9A3D", alpha: 0.9 }, { x: 570, y: 30, r: 150, colour: "#F5D77E", alpha: 0.9 }] },
           // the phone is drawn at 1.2x the figma size and runs off the stage's foot (phase 4 rule from 132:1838), so the
           // pinned card text reads at 12px at 1440; the pins moved with it and sit on the same screen pixels.
-          visual: { src: "/images/work/terpcarehub/mobile-find-care.png", width: 321, height: 1100, alt: "Mobile find care screen", at: { x: 15.21, y: 4.4, w: 32.28 } },
+          visual: { src: "/images/work/terpcarehub/mobile-find-care.png", width: 780, height: 2680, alt: "Mobile find care screen", at: { x: 15.21, y: 4.4, w: 32.28 } },
           // each pin's top left on the stage, as figma places it: the status badge, the cost field, the book button.
           pins: [
             { n: "1", at: { x: 42.1, y: 41.2 }, title: "Live status on every card", body: "Open or closed status sits on each provider card, so hours never need a second page." },
@@ -1146,10 +1146,10 @@ export const caseStudies = [
         text: "Empty · no results | Proposes the fix and says what it will find. | Loading · skeleton | Names what is being checked. | Degraded · stale source | Labelled, not served quietly. | Confirmation · acknowledged | Says where the alert went.",
         // crops of interface-states.png exported at 2x from figma 54:636, 54:641, 54:646 and 54:651.
         tiles: [
-          { src: "/images/work/terpcarehub/interface-state-empty.png", width: 388, height: 597, alt: "Empty state: no clinics match all three filters, with a button to widen the search to 5 miles" },
-          { src: "/images/work/terpcarehub/interface-state-loading.png", width: 388, height: 597, alt: "Loading state: skeleton rows while availability is checked at six clinics" },
-          { src: "/images/work/terpcarehub/interface-state-degraded.png", width: 388, height: 597, alt: "Degraded state: a banner saying county data was last verified six hours ago, with a retry button" },
-          { src: "/images/work/terpcarehub/interface-state-confirmation.png", width: 388, height: 597, alt: "Confirmation state: alert acknowledged, with buttons back to the dashboard and to all alerts" },
+          { src: "/images/work/terpcarehub/interface-state-empty.png", width: 780, height: 1200, alt: "Empty state: no clinics match all three filters, with a button to widen the search to 5 miles" },
+          { src: "/images/work/terpcarehub/interface-state-loading.png", width: 780, height: 1200, alt: "Loading state: skeleton rows while availability is checked at six clinics" },
+          { src: "/images/work/terpcarehub/interface-state-degraded.png", width: 780, height: 1200, alt: "Degraded state: a banner saying county data was last verified six hours ago, with a retry button" },
+          { src: "/images/work/terpcarehub/interface-state-confirmation.png", width: 780, height: 1200, alt: "Confirmation state: alert acknowledged, with buttons back to the dashboard and to all alerts" },
         ],
         captions: [
           { title: "Degraded is the state that matters most", body: "An empty result proposes a specific fix. Loading names what is being checked. Degraded data is labelled rather than served quietly, which for a health product is the state that matters most." },
@@ -1270,9 +1270,9 @@ export const caseStudies = [
           "Alerts carry a severity tag applied at ingest, a source badge, and a timestamp. Those three travel together, so an advisory keeps its authority after someone screenshots it and reshares it outside the product. A high-severity alert has to be acknowledged rather than swiped away, and acknowledging it says where the alert went.",
         ],
         media: [
-          { src: "/images/work/terpcarehub/provider-card.png", width: 665, height: 378, alt: "Provider card showing status, next availability, plan acceptance, and cost", caption: "Provider card. Three facts answer the decision before any click." },
+          { src: "/images/work/terpcarehub/provider-card.png", width: 1330, height: 756, alt: "Provider card showing status, next availability, plan acceptance, and cost", caption: "Provider card. Three facts answer the decision before any click." },
           { src: "/images/work/terpcarehub/dashboard.png", width: 786, height: 1600, alt: "Signed-in dashboard with notifications, forum, county alerts, events, and messages", caption: "Signed-in dashboard. Institutional alerts, peer conversation, and personal items are visually separated." },
-          { src: "/images/work/terpcarehub/alert-detail.png", width: 1489, height: 1600, alt: "Alert detail page with severity banner and source verification panel", caption: "Alert detail. What it is, who it affects, what to do, and where it came from." },
+          { src: "/images/work/terpcarehub/alert-detail.png", width: 3024, height: 3250, alt: "Alert detail page with severity banner and source verification panel", caption: "Alert detail. What it is, who it affects, what to do, and where it came from." },
           { src: "/images/work/terpcarehub/submit-an-event.png", width: 1074, height: 1600, alt: "Submit an event form with a live preview and review status timeline", caption: "Submit an event. The right rail previews the student-facing card and shows where the submission sits in review." },
         ],
       },
@@ -1286,9 +1286,9 @@ export const caseStudies = [
         ],
         media: [
           { src: "/images/work/terpcarehub/interface-states.png", width: 1810, height: 893, alt: "Four interface states with the reasoning written under each", caption: "Empty, loading, degraded, and confirmation states, each annotated with why it behaves that way." },
-          { src: "/images/work/terpcarehub/mobile-find-care.png", width: 321, height: 1100, kind: "device", frame: /** @type {const} */ ("phone"), alt: "Mobile find care screen", caption: "Find care on mobile. Availability keeps a full-width row; nothing is dropped." },
-          { src: "/images/work/terpcarehub/mobile-alert-detail.png", width: 390, height: 998, kind: "device", frame: /** @type {const} */ ("phone"), alt: "Mobile alert detail screen", caption: "Alert detail on mobile, with a persistent acknowledge bar." },
-          { src: "/images/work/terpcarehub/mobile-dashboard.png", width: 390, height: 1052, kind: "device", frame: /** @type {const} */ ("phone"), alt: "Mobile dashboard screen", caption: "Dashboard on mobile, led by the alert that still needs acknowledgement." },
+          { src: "/images/work/terpcarehub/mobile-find-care.png", width: 780, height: 2680, kind: "device", frame: /** @type {const} */ ("phone"), alt: "Mobile find care screen", caption: "Find care on mobile. Availability keeps a full-width row; nothing is dropped." },
+          { src: "/images/work/terpcarehub/mobile-alert-detail.png", width: 780, height: 1996, kind: "device", frame: /** @type {const} */ ("phone"), alt: "Mobile alert detail screen", caption: "Alert detail on mobile, with a persistent acknowledge bar." },
+          { src: "/images/work/terpcarehub/mobile-dashboard.png", width: 780, height: 2104, kind: "device", frame: /** @type {const} */ ("phone"), alt: "Mobile dashboard screen", caption: "Dashboard on mobile, led by the alert that still needs acknowledgement." },
         ],
       },
       {
@@ -1989,8 +1989,8 @@ export const caseStudies = [
       exhibit: /** @type {const} */ ({
         "src": "/images/work/terpcare/terpcare-mood-calendar.png",
         "alt": "TerpCare mood calendar",
-        "width": 426,
-        "height": 932,
+        "width": 852,
+        "height": 1864,
         "frame": "phone"
       }),
       titlePlacement: "center",
@@ -2009,9 +2009,9 @@ export const caseStudies = [
         base: "#211f20",
         field: { width: 1116, height: 600, sigma: 55, circles: [{ x: 150, y: 110, r: 310, colour: "#E93C43", alpha: 0.7 }, { x: 1030, y: 570, r: 210, colour: "#FFCC1E", alpha: 0.4 }, { x: 750, y: 150, r: 250, colour: "#A93C52", alpha: 0.8 }] },
         visuals: [
-          { src: "/images/work/terpcare/figma-discussion-recents.png", width: 430, height: 932, alt: "TerpCare discussion board on Recents, with peer posts tagged Need Support", frame: "iphone", rot: 6, at: { x: 15.2, y: 11.6, w: 27.3 } },
-          { src: "/images/work/terpcare/terpcare-mood-calendar.png", width: 426, height: 932, alt: "TerpCare mood calendar for April 2024, with today’s mood faces and a notes field", frame: "iphone", rot: -6, at: { x: 57.8, y: 11.7, w: 27.3 } },
-          { src: "/images/work/terpcare/terpcare-home.png", width: 426, height: 932, alt: "TerpCare home screen with a Good Morning, Terp greeting, important news, and upcoming events", frame: "iphone", rot: 0, at: { x: 38.7, y: 6.7, w: 22.6 } },
+          { src: "/images/work/terpcare/figma-discussion-recents.png", width: 860, height: 1864, alt: "TerpCare discussion board on Recents, with peer posts tagged Need Support", frame: "iphone", rot: 6, at: { x: 15.2, y: 11.6, w: 27.3 } },
+          { src: "/images/work/terpcare/terpcare-mood-calendar.png", width: 852, height: 1864, alt: "TerpCare mood calendar for April 2024, with today’s mood faces and a notes field", frame: "iphone", rot: -6, at: { x: 57.8, y: 11.7, w: 27.3 } },
+          { src: "/images/work/terpcare/terpcare-home.png", width: 852, height: 1864, alt: "TerpCare home screen with a Good Morning, Terp greeting, important news, and upcoming events", frame: "iphone", rot: 0, at: { x: 38.7, y: 6.7, w: 22.6 } },
         ],
         kpi: { eyebrow: "PRODUCT SYSTEM", value: "15 screens", label: "mapped to five persistent destinations", at: { x: 5.4, y: 73.3 } },
         metrics: [
@@ -2091,10 +2091,10 @@ export const caseStudies = [
         base: "#211f20",
         field: { width: 1116, height: 620, sigma: 60, circles: [{ x: 120, y: 620, r: 320, colour: "#E93C43", alpha: 0.65 }, { x: 1100, y: 0, r: 200, colour: "#FFCC1E", alpha: 0.35 }, { x: 650, y: 450, r: 250, colour: "#A93C52", alpha: 0.75 }] },
         visuals: [
-          { src: "/images/work/terpcare/figma-discussion-recents.png", width: 430, height: 932, alt: "TerpCare discussion board on Recents, with peer posts tagged Need Support", frame: "iphone", at: { x: 2.7, y: 9, w: 22 } },
-          { src: "/images/work/terpcare/figma-discussion-create.png", width: 430, height: 932, alt: "TerpCare create discussion composer open over the discussion board, with a Tags control and a Post button", frame: "iphone", at: { x: 26.9, y: 9, w: 22 } },
-          { src: "/images/work/terpcare/figma-resources-therapy.png", width: 430, height: 932, alt: "TerpCare campus resources on the Therapy tab, with provider cards showing specialty, rating, and a link to availability", frame: "iphone", at: { x: 51.1, y: 9.7, w: 22 } },
-          { src: "/images/work/terpcare/figma-book-appointment.png", width: 430, height: 932, alt: "TerpCare booking screen showing a counselor’s photo, specialty, reviews, and an availability calendar", frame: "iphone", at: { x: 75.3, y: 9.7, w: 22 } },
+          { src: "/images/work/terpcare/figma-discussion-recents.png", width: 860, height: 1864, alt: "TerpCare discussion board on Recents, with peer posts tagged Need Support", frame: "iphone", at: { x: 2.7, y: 9, w: 22 } },
+          { src: "/images/work/terpcare/figma-discussion-create.png", width: 860, height: 1864, alt: "TerpCare create discussion composer open over the discussion board, with a Tags control and a Post button", frame: "iphone", at: { x: 26.9, y: 9, w: 22 } },
+          { src: "/images/work/terpcare/figma-resources-therapy.png", width: 860, height: 1864, alt: "TerpCare campus resources on the Therapy tab, with provider cards showing specialty, rating, and a link to availability", frame: "iphone", at: { x: 51.1, y: 9.7, w: 22 } },
+          { src: "/images/work/terpcare/figma-book-appointment.png", width: 860, height: 1864, alt: "TerpCare booking screen showing a counselor’s photo, specialty, reviews, and an availability calendar", frame: "iphone", at: { x: 75.3, y: 9.7, w: 22 } },
         ],
         annotations: [
           { type: "focus", num: "01", on: 0, at: { x: 8.9, y: 40.5, w: 18.7, h: 3.9 } },
@@ -2225,14 +2225,14 @@ export const caseStudies = [
         ],
         media: [
           { src: "/images/work/terpcare/figma-campaign-news.png", width: 430, height: 932, alt: "TerpCare Campaign and News screen exported from Figma", caption: "Campaign & News — campus initiatives and timely stories share one editorial feed." },
-          { src: "/images/work/terpcare/figma-discussion-recents.png", width: 430, height: 932, alt: "TerpCare Discussion Board recents screen exported from Figma", caption: "Discussion recents — tagged posts make peer experiences easier to scan." },
-          { src: "/images/work/terpcare/figma-discussion-create.png", width: 430, height: 932, alt: "TerpCare Create Post screen exported from Figma", caption: "Create post — a focused composer supports topic, privacy, and support tagging." },
-          { src: "/images/work/terpcare/figma-resources-therapy.png", width: 430, height: 932, alt: "TerpCare Therapy Resources screen exported from Figma", caption: "Therapy resources — provider cards make campus and specialist options comparable." },
-          { src: "/images/work/terpcare/figma-book-appointment.png", width: 430, height: 932, alt: "TerpCare appointment booking screen exported from Figma", caption: "Book appointment — counselor context and calendar selection stay in one path." },
+          { src: "/images/work/terpcare/figma-discussion-recents.png", width: 860, height: 1864, alt: "TerpCare Discussion Board recents screen exported from Figma", caption: "Discussion recents — tagged posts make peer experiences easier to scan." },
+          { src: "/images/work/terpcare/figma-discussion-create.png", width: 860, height: 1864, alt: "TerpCare Create Post screen exported from Figma", caption: "Create post — a focused composer supports topic, privacy, and support tagging." },
+          { src: "/images/work/terpcare/figma-resources-therapy.png", width: 860, height: 1864, alt: "TerpCare Therapy Resources screen exported from Figma", caption: "Therapy resources — provider cards make campus and specialist options comparable." },
+          { src: "/images/work/terpcare/figma-book-appointment.png", width: 860, height: 1864, alt: "TerpCare appointment booking screen exported from Figma", caption: "Book appointment — counselor context and calendar selection stay in one path." },
           { src: "/images/work/terpcare/figma-login.png", width: 430, height: 932, alt: "TerpCare login screen exported from Figma", caption: "Log in — a quiet first-use screen keeps account entry straightforward." },
-          { src: "/images/work/terpcare/terpcare-home.png", width: 426, height: 932, alt: "TerpCare home screen", caption: "Home — campus news and events create a familiar, timely starting point." },
+          { src: "/images/work/terpcare/terpcare-home.png", width: 852, height: 1864, alt: "TerpCare home screen", caption: "Home — campus news and events create a familiar, timely starting point." },
           { src: "/images/work/terpcare/terpcare-discussion.png", width: 430, height: 932, alt: "TerpCare discussion board", caption: "Discussion — public and private posting paths organize peer conversation." },
-          { src: "/images/work/terpcare/terpcare-mood-calendar.png", width: 426, height: 932, alt: "TerpCare mood calendar", caption: "Mood calendar — a visual history makes reflection easy to revisit." },
+          { src: "/images/work/terpcare/terpcare-mood-calendar.png", width: 852, height: 1864, alt: "TerpCare mood calendar", caption: "Mood calendar — a visual history makes reflection easy to revisit." },
         ],
       },
       {

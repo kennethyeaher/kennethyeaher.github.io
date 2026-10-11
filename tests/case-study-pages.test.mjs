@@ -196,7 +196,7 @@ test("device exhibits preserve captions and source dimensions", () => {
   for (const slug of ["frontground", "terpcarehub"]) {
     const html = pages.get(slug);
     assert.match(html, /data-device-frame="browser"/);
-    assert.match(html, /width="1919" height="1079"|width="1489" height="1600"/);
+    assert.match(html, /width="1919" height="1079"|width="3024" height="3250"/);
   }
 });
 
@@ -363,7 +363,8 @@ test("TerpCareHub's overview laptop scrolls the full home page on hover or focus
   // keyboard focus reaches the frame, which is described by its caption.
   assert.match(laptop, /<div class="scroller-focus" tabindex="0" role="img" aria-label="[^"]+" aria-describedby="overview-scroller-caption"/);
   assert.deepEqual([texts(laptop, "caption-title")[0], texts(laptop, "caption-body")[0]], ["Home, desktop", "The redesigned hero states the promise in the university’s own colours, using the product’s real interface language behind it."]);
-  assert.ok(statSync(join(projectRoot, "public/images/work/terpcarehub/home-full.webp")).size < 400 * 1024, "the home page export stays under 400 KB");
+  // the 2x export (3024 wide) is 650 KB; the sized copies carry the page, so the bound moves with them.
+  assert.ok(statSync(join(projectRoot, "public/images/work/terpcarehub/home-full.webp")).size < 700 * 1024, "the home page export stays under 700 KB");
 });
 
 test("TerpCareHub's core flows open with a scroll walkthrough beside a pinned phone", () => {
