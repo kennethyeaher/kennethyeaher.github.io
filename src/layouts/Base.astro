@@ -10,9 +10,11 @@ interface Props {
   description?: string;
   image?: string;
   imageAlt?: string;
+  /** A case study title: the header shows a breadcrumb back to Work in place of the name. */
+  crumb?: string;
 }
 
-const { title, description, image, imageAlt } = Astro.props;
+const { title, description, image, imageAlt, crumb } = Astro.props;
 const pageTitle = title ? `${title} | ${profile.name}` : `${profile.name} | Portfolio`;
 const pageDescription = description ?? profile.intro;
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site).href;
@@ -24,7 +26,7 @@ const ogImage = new URL(image ?? "/images/portfolio-preview-2026.png", Astro.sit
   <head>
     <meta charset="utf-8" />
     <script is:inline>
-      // with scripts on, the collapsed menu is the first paint, so the no-script link row never shifts the page.
+      // with scripts on, the theme cord shows from the first paint.
       document.documentElement.classList.add("nav-ready");
       // apply the saved preference before the first paint, including when storage is unavailable.
       try {
@@ -51,9 +53,9 @@ const ogImage = new URL(image ?? "/images/portfolio-preview-2026.png", Astro.sit
         event.viewTransition.finished.finally(() => nameCard(card, false));
       });
     </script>
-    <!-- the home h1 (the lcp text) is fraunces, and the header controls are jetbrains mono, which has no metric matched fallback. -->
+    <!-- the home h1 (the lcp text) is fraunces, and the header name and links are geist, which has no metric matched fallback. -->
     <link rel="preload" href="/fonts/fraunces/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="/fonts/jetbrains-mono/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/geist/geist-regular.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#f8fafb" />
@@ -75,7 +77,7 @@ const ogImage = new URL(image ?? "/images/portfolio-preview-2026.png", Astro.sit
   </head>
   <body>
     <a class="skip-link" href="#main-content">Skip to content</a>
-    <Nav />
+    <Nav crumb={crumb} />
     <main id="main-content">
       <slot />
     </main>

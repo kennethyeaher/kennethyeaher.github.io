@@ -7,8 +7,7 @@
    and jetbrains mono were cut to wght 400 to 500 with the fonttools instancer, by scripts/instance-fonts.py.
    fraunces keeps google's file, which still carries wght 100 to 900, because narrowing its axis moved glyph widths
    and rewrapped a heading; the font-weight range below clamps it to 400 to 500. one variable file serves both weights. only latin and latin-ext
-   ship; the site has no greek, cyrillic or vietnamese text. fraunces and jetbrains mono latin are preloaded in
-   Base.astro. */
+   ship; the site has no greek, cyrillic or vietnamese text. fraunces latin is preloaded in Base.astro. */
 @font-face {
   font-family: "Fraunces";
   font-style: normal;
@@ -56,6 +55,15 @@
   font-display: swap;
   src: url("/fonts/newsreader/newsreader-latin-ext.woff2") format("woff2");
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* geist (ofl, vercel's npm package geist 1.4.2) for the v3 shell: the name, breadcrumb, nav and footer. one static
+   regular file covers latin and latin-ext, and it is preloaded in Base.astro because the name paints first. */
+@font-face {
+  font-family: "Geist";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/geist/geist-regular.woff2") format("woff2");
 }
 
 /* metric-matched fallbacks, so text keeps its line breaks when the web fonts swap in. widths were
@@ -171,6 +179,7 @@
   --display: "Fraunces", "Fraunces Fallback Iowan", "Fraunces Fallback Georgia", "Iowan Old Style", Baskerville, Georgia, serif;
   --body: "Newsreader", "Newsreader Fallback Iowan", "Newsreader Fallback Georgia", "Iowan Old Style", Georgia, serif;
   --mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+  --ui-sans: "Geist", var(--ui);
   --page-gutter: 24px;
   --content-max: 1800px;
   --header-height: 64px;
@@ -251,99 +260,88 @@ button {
   transform: translateY(0);
 }
 
+/* the v3 header (figma 176:1721, 177:1801): no bar and no rule. the name, or the case study breadcrumb, sits 28px
+   from the top in geist 15 (24px on phones); the cord hangs from the top edge at the right. */
 .site-header {
   position: relative;
   z-index: 50;
+  display: flex;
+  width: min(100%, var(--content-max));
   height: var(--header-height);
-  border-bottom: 1px solid var(--rule);
-  background: color-mix(in srgb, var(--canvas) 96%, transparent);
+  margin: 0 auto;
+  padding: 28px var(--page-gutter) 0;
+  align-items: flex-start;
+  gap: 32px;
 }
 
-.site-nav,
 .footer-inner {
   width: min(100%, var(--content-max));
   margin: 0 auto;
   padding-inline: var(--page-gutter);
 }
 
-.site-nav {
-  display: flex;
-  height: 100%;
-  align-items: center;
-  justify-content: space-between;
-  gap: 32px;
+.brand-name,
+.breadcrumb,
+.primary-links {
+  font: 15px / 20px var(--ui-sans);
 }
 
-.brand-lockup {
+.brand-name,
+.breadcrumb a {
+  color: var(--muted);
+  white-space: nowrap;
+  transition: color 180ms ease;
+}
+
+.breadcrumb a {
+  display: flex;
+  gap: 8px;
+}
+
+.brand-name:hover,
+.brand-name:focus-visible,
+.breadcrumb a:hover,
+.breadcrumb a:focus-visible {
+  color: var(--ink);
+}
+
+.breadcrumb {
   display: flex;
   min-width: 0;
-  align-items: baseline;
-  gap: 18px;
-  font-family: var(--mono);
-  font-size: 13px;
-  letter-spacing: -0.02em;
-  text-transform: uppercase;
+  gap: 8px;
 }
 
-.brand-name {
-  color: var(--ink-strong);
-  font-weight: 500;
+/* figma draws the slash #b7c0c8: halfway from --muted to the canvas, which holds in both themes. */
+.breadcrumb-slash {
+  color: color-mix(in srgb, var(--muted) 50%, var(--canvas));
 }
 
-.brand-role {
+.breadcrumb-current {
   overflow: hidden;
-  color: var(--muted);
+  color: var(--ink);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+.site-nav {
+  margin-right: 56px;
+  margin-left: auto;
+}
+
 .primary-links {
   display: flex;
-  align-items: center;
-  gap: 34px;
-  font-family: var(--mono);
-  font-size: 13px;
-  text-transform: uppercase;
+  gap: 20px;
 }
 
 .nav-link {
-  position: relative;
   color: var(--muted);
   transition: color 180ms ease;
-}
-
-.nav-link::after {
-  position: absolute;
-  right: 0;
-  bottom: -8px;
-  left: 0;
-  height: 1px;
-  content: "";
-  transform: scaleX(0);
-  transform-origin: left;
-  background: currentColor;
-  transition: transform 180ms ease;
 }
 
 .nav-link:hover,
 .nav-link:focus-visible,
 .nav-link.is-active {
-  color: var(--accent);
-}
-
-.nav-link:hover::after,
-.nav-link:focus-visible::after,
-.nav-link.is-active::after {
-  transform: scaleX(1);
-}
-
-.menu-toggle {
-  display: none;
-  border: 0;
-  background: transparent;
-  font-family: var(--mono);
-  font-size: 13px;
-  text-transform: uppercase;
+  color: var(--ink);
 }
 
 .site-footer {
@@ -439,49 +437,23 @@ button {
 }
 
 @media (max-width: 860px) {
-  /* home v2 mobile (figma 131:1974): the name alone, in a 56px bar; the subtitle would otherwise sit under it. */
+  /* home v3 mobile (figma 177:1723): the name sits 24px from the top. */
   :root {
     --header-height: 56px;
   }
 
-  .brand-lockup {
-    font-size: 12px;
+  /* until the rail lands, the links wrap to a row under the name, where figma puts the phone nav. */
+  .site-header {
+    height: auto;
+    min-height: var(--header-height);
+    padding-top: 24px;
+    flex-wrap: wrap;
+    row-gap: 12px;
   }
 
-  .brand-role {
-    display: none;
-  }
-
-  .menu-toggle {
-    display: block;
-    min-width: 48px;
-    min-height: 48px;
-  }
-
-  .primary-links {
-    position: absolute;
-    top: calc(100% + 1px);
-    right: 0;
-    left: 0;
-    display: none;
-    min-height: calc(100vh - var(--header-height));
-    padding: 34px var(--page-gutter) 64px;
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 22px;
-    background: var(--canvas);
-    font-family: var(--display);
-    font-size: clamp(34px, 10vw, 48px);
-    text-transform: none;
-  }
-
-  .primary-links.is-open {
-    z-index: 1;
-    display: flex;
-  }
-
-  .nav-link::after {
-    bottom: 0;
+  .site-nav {
+    flex-basis: 100%;
+    margin: 0;
   }
 }
 
@@ -563,16 +535,13 @@ button {
     --cord-pull: var(--accent); --cord-ring: var(--ink);
   }
 }
-.nav-controls { display: flex; align-items: center; gap: 18px; margin-left: auto; }
-/* the theme pull cord (figma 26:113, motion 32:450 to 32:474) hangs 44px under the header rule at the right gutter.
-   it sits out of flow, so showing it never moves the nav, and it shows from the first paint whenever scripts run
-   (the head script adds nav-ready); without scripts it has nothing to do and stays hidden. the button is a 44px
-   wide hit area around the cord; --pull (0 to 28) stretches the line to 72px and carries the ring down with it. */
-.site-nav { position: relative; }
-.theme-cord { position: absolute; top: calc(100% + 1px); right: calc(var(--page-gutter) - 10px); display: flex; width: 44px; height: 60px; justify-content: center; padding: 0; border: 0; background: transparent; cursor: grab; touch-action: none; -webkit-tap-highlight-color: transparent; }
+/* the theme pull cord (figma 26:113, motion 32:450 to 32:474) hangs from the top edge at the right gutter (v3, figma
+   176:1721 and 177:1723 draw it at full size on both widths). it sits out of flow, so showing it never moves the
+   header, and it shows from the first paint whenever scripts run (the head script adds nav-ready); without scripts it
+   has nothing to do and stays hidden. the button is a 44px wide hit area around the cord; --pull (0 to 28) stretches
+   the line to 72px and carries the ring down with it. */
+.theme-cord { position: absolute; top: 0; right: calc(var(--page-gutter) - 10px); display: flex; width: 44px; height: 60px; justify-content: center; padding: 0; border: 0; background: transparent; cursor: grab; touch-action: none; -webkit-tap-highlight-color: transparent; }
 html:not(.nav-ready) .theme-cord { display: none; }
-/* the open phone menu covers the cord, so it leaves the tab order too. */
-.site-nav:has(.primary-links.is-open) .theme-cord { visibility: hidden; }
 .theme-cord:active { cursor: grabbing; }
 .theme-cord:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; border-radius: 4px; }
 .theme-cord-visual { --pull: 0; display: flex; align-self: flex-start; flex-direction: column; align-items: center; transform-origin: top center; }
@@ -584,17 +553,12 @@ html:not(.nav-ready) .theme-cord { display: none; }
 .theme-cord.is-dragging :is(.theme-cord-line, .theme-cord-knob) { transition-property: background-color, border-color; }
 /* the theme cross-fades over 250ms; the cord keeps its own transitions so its spring runs through the fade. */
 :root.theme-fading, :root.theme-fading :not(.theme-cord, .theme-cord *), :root.theme-fading ::before, :root.theme-fading ::after { transition: color 250ms, background-color 250ms, border-color 250ms, fill 250ms, stroke 250ms, outline-color 250ms, text-decoration-color 250ms, box-shadow 250ms; }
-@media (max-width: 860px) {
-  /* the 375 frame (131:1977) draws the cord at 0.8x, centred 14px inside the gutter. */
-  .theme-cord { right: calc(var(--page-gutter) - 8px); height: 48px; }
-  .theme-cord-visual { scale: 0.8; }
-}
 @media (prefers-reduced-motion: reduce) {
   .theme-cord-line, .theme-cord-knob { transition: none; }
 }
 /* figma 26:105: a 3px rule coloured track under the header, filled in the case study accent. it is the first thing in
    main, so it rests under the header and sticks to the top of the viewport once the header scrolls away; it sits
-   below the header's layer so the open menu covers it. under reduced motion the script sets the fill directly, so it
+   below the header's layer so the cord hangs over it. under reduced motion the script sets the fill directly, so it
    still follows the scroll position with no animation. */
 .reading-progress { position: sticky; z-index: 40; top: 0; height: 3px; background: var(--rule); pointer-events: none; }
 .reading-progress span { display: block; height: 100%; transform: scaleX(var(--reading-progress, 0)); transform-origin: left; background: var(--reading-accent, var(--accent)); }
@@ -621,18 +585,6 @@ html:not(.nav-ready) .theme-cord { display: none; }
   [style*="view-transition-name"] { view-transition-name: none !important; }
   .reveal-ready [data-reveal] { opacity: 1; transform: none; }
 }
-@media (max-width: 620px) {
-  .site-nav { gap: 12px; }
-  .nav-controls { gap: 8px; }
-}
-
-@media (max-width: 860px) {
-  html:not(.nav-ready) .site-header { height: auto; }
-  html:not(.nav-ready) .site-nav { flex-wrap: wrap; padding-block: 12px; }
-  html:not(.nav-ready) .menu-toggle { display: none; }
-  html:not(.nav-ready) .primary-links { position: static; display: flex; min-height: 0; flex-direction: row; padding: 8px 0; font: 12px var(--mono); }
-}
-
 /* annotated cursor, figma 161:1721: over the four data-cursor targets the native arrow hides and the note is the
    pointer. a 10px annotate dot with a 2px --canvas ring sits centred on the tip, a 14px leader and a chip in the mono
    face hang off it on the dot's centre line, flipped left within 160px of the right edge. the script writes only the

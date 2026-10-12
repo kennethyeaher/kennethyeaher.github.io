@@ -2,6 +2,13 @@
 // shared navigation for the portfolio.
 import { profile } from "@/data/portfolio.mjs";
 
+interface Props {
+  /** The case study title: the top left shows a breadcrumb back to Work instead of the name. */
+  crumb?: string;
+}
+
+const { crumb } = Astro.props;
+
 const links = [
   { href: "/", label: "Work" },
   { href: "/about", label: "About" },
@@ -17,25 +24,22 @@ function isActive(href: string): boolean {
 }
 ---
 
+{/* the v3 header (figma 176:1721, 177:1801): no bar and no rule, the name or a breadcrumb at the top left, and
+    the cord hanging from the top edge at the top right. */}
 <header class="site-header">
+  {
+    crumb ? (
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="/"><span aria-hidden="true">←</span>Work</a>
+        <span class="breadcrumb-slash" aria-hidden="true">/</span>
+        <span class="breadcrumb-current" aria-current="page">{crumb}</span>
+      </nav>
+    ) : (
+      <a class="brand-name" href="/">{profile.name}</a>
+    )
+  }
   <nav class="site-nav" aria-label="Primary navigation">
-    <a class="brand-lockup" href="/" aria-label={`${profile.name}, Work`}>
-      <span class="brand-name">{profile.name}</span>
-      <span class="brand-role">{profile.roleLine}</span>
-    </a>
-
-    <div class="nav-controls">
-      <button
-        class="menu-toggle"
-        type="button"
-        aria-expanded="false"
-        aria-controls="primary-links"
-        data-nav-toggle
-      >
-        <span data-menu-label>Menu</span>
-      </button>
-    </div>
-    <div class="primary-links" id="primary-links" data-nav-links>
+    <div class="primary-links">
       {
         links.map((link) => (
           <a
@@ -50,9 +54,9 @@ function isActive(href: string): boolean {
         ))
       }
     </div>
-    {/* after the links, so focus reaches it last, matching where it hangs. */}
-    <button class="theme-cord" type="button" data-theme-toggle data-cursor="cord" aria-label="Dark theme" aria-pressed="false">
-      <span class="theme-cord-visual" aria-hidden="true"><span class="theme-cord-line"></span><span class="theme-cord-knob"></span></span>
-    </button>
   </nav>
+  {/* after the links, so focus reaches it last, matching where it hangs. */}
+  <button class="theme-cord" type="button" data-theme-toggle data-cursor="cord" aria-label="Dark theme" aria-pressed="false">
+    <span class="theme-cord-visual" aria-hidden="true"><span class="theme-cord-line"></span><span class="theme-cord-knob"></span></span>
+  </button>
 </header>

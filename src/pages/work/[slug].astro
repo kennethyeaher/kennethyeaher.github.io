@@ -31,7 +31,7 @@ const accentDark = liftToContrast(accent, "#344553");
 
 ---
 
-<Base title={project.title} description={project.summary} image={`/images/social/${project.slug}.png`} imageAlt={`${project.title}, ${project.role}, ${project.year}`}>
+<Base title={project.title} description={project.summary} image={`/images/social/${project.slug}.png`} imageAlt={`${project.title}, ${project.role}, ${project.year}`} crumb={project.title}>
   <div class="reading-progress" data-reading-progress aria-hidden="true" style={`--reading-accent: ${accent}; --reading-accent-dark: ${accentDark}`}><span></span></div>
   <ExhibitCaseStudy project={project} next={next} />
 </Base>
