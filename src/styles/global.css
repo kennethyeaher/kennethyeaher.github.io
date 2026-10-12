@@ -473,9 +473,11 @@ main.beside-rail {
 }
 
 /* at 980 and below, where the chapter rail hides too, the rail becomes a row under the name (figma 177:1723): the
-   same links and squares, 20px apart, 12px under the name. */
+   same links and squares, 20px apart, 12px under the name. the header shares the home content's 20px margin from here
+   down, so the name lines up with the thesis. */
 @media (max-width: 980px) {
   .site-header {
+    --page-gutter: 20px;
     height: auto;
     min-height: var(--header-height);
     flex-wrap: wrap;

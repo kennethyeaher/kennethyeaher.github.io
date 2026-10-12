@@ -6,10 +6,7 @@ interface Props {
   project: {
     slug: string;
     cardTitle: string;
-    category: string;
     year: string;
-    role: string;
-    summary: string;
     cardImage: string;
     cardAlt: string;
     cover: {
@@ -33,12 +30,11 @@ const { project } = Astro.props;
   <figure class="project-media">
     <ProjectCover project={project} />
   </figure>
-  <div class="project-heading">
+  <div class="project-caption">
     <h3>{project.cardTitle}</h3>
-    <span>{project.year}</span>
+    <span class="project-caption-slash" aria-hidden="true">/</span>
+    <span class="project-year">{project.year}</span>
   </div>
-  <p class="project-role">{project.category} · {project.role}</p>
-  <p class="project-summary">{project.summary}</p>
 </a>
 
 <style>
@@ -68,44 +64,26 @@ const { project } = Astro.props;
     transition: opacity 300ms ease;
   }
 
-  /* home v2 card meta (figma 131:1851, 131:1997): serif title and line, mono only for the year. */
-  .project-heading {
+  /* home v3 caption (figma 176:1753, 177:1754): "{name} / {year}" in geist 15, 12px under the cover. the name is ink,
+     the slash takes the breadcrumb's lighter tone, the year is muted. */
+  .project-caption {
     display: flex;
-    margin-top: 20px;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
+    margin-top: 12px;
+    align-items: baseline;
+    gap: 8px;
+    color: var(--muted);
+    font: 15px / 20px var(--ui-sans);
   }
 
-  .project-heading h3 {
+  .project-caption h3 {
     margin: 0;
-    color: var(--ink-strong);
-    font-family: var(--display);
-    font-size: clamp(26px, 2.22vw, 32px);
-    font-weight: 400;
-    letter-spacing: -0.015em;
-    line-height: 1.1;
+    color: var(--ink);
+    font: inherit;
     transition: color 220ms ease;
   }
 
-  .project-heading span {
-    color: var(--muted);
-    font: 12px / 1.3 var(--mono);
-    letter-spacing: -0.02em;
-    text-transform: uppercase;
-  }
-
-  .project-role {
-    margin: 8px 0 0;
-    color: var(--color-muted-label);
-    font: 15px / 1.3 var(--body);
-  }
-
-  .project-summary {
-    margin: 8px 0 0;
-    color: var(--ink);
-    font-size: 17px;
-    line-height: 1.5;
+  .project-caption-slash {
+    color: color-mix(in srgb, var(--muted) 50%, var(--canvas));
   }
 
   .project-card:hover .project-media::after,
@@ -113,20 +91,9 @@ const { project } = Astro.props;
     opacity: 1;
   }
 
-  .project-card:hover .project-heading h3,
-  .project-card:focus-visible .project-heading h3 {
+  .project-card:hover .project-caption h3,
+  .project-card:focus-visible .project-caption h3 {
     color: var(--accent);
-  }
-
-  @media (max-width: 760px) {
-    .project-heading {
-      margin-top: 10px;
-    }
-
-    .project-role,
-    .project-summary {
-      margin-top: 10px;
-    }
   }
 
   @media (prefers-reduced-motion: reduce) {
