@@ -50,7 +50,8 @@ const ogImage = new URL(image ?? "/images/portfolio-preview-2026.png", Astro.sit
         if (!event.viewTransition) return;
         const card = cardFor(window["navigation"]?.activation?.from?.url);
         nameCard(card, true);
-        event.viewTransition.finished.finally(() => nameCard(card, false));
+        // finished rejects when the transition fails; the name is cleared either way, so the rejection is dropped.
+        event.viewTransition.finished.finally(() => nameCard(card, false)).catch(() => {});
       });
     </script>
     <!-- the home h1 (the lcp text) is fraunces, and the header name and links are geist, which has no metric matched fallback. -->

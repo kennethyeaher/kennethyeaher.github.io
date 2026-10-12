@@ -53,6 +53,7 @@ test("the Work page renders the approved thesis and the design-first project ord
   assert.doesNotMatch(workHtml.replace(/<script[\s\S]*?<\/script>/g, ""), /view-transition-name/);
   assert.match(workHtml, /addEventListener\("pageswap"/);
   assert.match(workHtml, /addEventListener\("pagereveal"/);
+  assert.match(workHtml, /event\.viewTransition\.finished\.finally\(\(\) => nameCard\(card, false\)\)\.catch\(\(\) => \{\}\);/);
   assert.equal((workHtml.match(/data-cover-gradient/g) ?? []).length, 8);
   assert.doesNotMatch(workHtml, /\.mp4|data-cover-video/);
   assert.doesNotMatch(workHtml, /Read case study/);
