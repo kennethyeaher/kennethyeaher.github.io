@@ -364,16 +364,22 @@ test("the pin zoom keeps its budget, its reduced-motion rule, its notes active s
   assert.match(script, /move\(st, s, x, y, 360\)/);
   assert.match(script, /move\(st, 1, 0, 0, 240\)/);
   // reduced motion: no scale animation, a 120ms view transition crossfade instead.
-  assert.match(globalCss, /@media \(prefers-reduced-motion: reduce\) \{\n  \.stage-zoom, \.is-zoomed \.annotation-focus\.is-zoom-active \{ transition: none; \}\n(?:  \/\*[^*]*\*\/\n)?  \.annotation-focus, \.annotation-badge \{ transition: none !important; \}\n  ::view-transition-group\(root\) \{ animation-duration: 120ms; \}\n\}/);
+  assert.match(globalCss, /@media \(prefers-reduced-motion: reduce\) \{\n  \.stage-zoom, \.is-zoomed :is\(\.annotation-focus, \.leader-target\)\.is-zoom-active \{ transition: none; \}\n(?:  \/\*[^*]*\*\/\n)?  \.annotation-focus, \.annotation-badge, \.annotation-leader, \.leader-label \{ transition: none !important; \}\n  ::view-transition-group\(root\) \{ animation-duration: 120ms; \}\n\}/);
   assert.match(script, /reduce && document\.startViewTransition \? document\.startViewTransition\(swap\) : swap\(\)/);
   const assetDir = join(projectRoot, "dist", "_astro");
   const builtCss = readdirSync(assetDir).filter((name) => name.endsWith(".css")).map((name) => readFileSync(join(assetDir, name), "utf8")).join("\n");
-  assert.match(builtCss, /prefers-reduced-motion: ?reduce\) ?\{\.stage-zoom,\.is-zoomed \.annotation-focus\.is-zoom-active\{transition: ?none\}\.annotation-focus,\.annotation-badge\{transition: ?none ?!important\}::view-transition-group\(root\)\{animation-duration: ?\.12s\}\}/);
-  // while zoomed every badge hides and the active outline is held at 1.5px and a 10px radius on screen.
-  assert.match(globalCss, /\.is-zoomed \.annotation-badge, \.is-zoomed \.annotation-focus:not\(\.is-zoom-active\) \{ visibility: hidden; \}/);
-  // no leader stage zooms, so no zoom rule touches a leader.
-  assert.doesNotMatch(globalCss, /\.is-zoomed[^{]*leader|\.annotation-leader, \.leader-label \{ transition/);
-  assert.doesNotMatch(script, /leader/);
+  assert.match(builtCss, /prefers-reduced-motion: ?reduce\) ?\{\.stage-zoom,\.is-zoomed :is\(\.annotation-focus, ?\.leader-target\)\.is-zoom-active\{transition: ?none\}\.annotation-focus,\.annotation-badge,\.annotation-leader,\.leader-label\{transition: ?none ?!important\}::view-transition-group\(root\)\{animation-duration: ?\.12s\}\}/);
+  // while zoomed every badge and every leader, line and label hides, and the active outline, a focus box's or a
+  // leader's target region (figma 197:1727), is held at 1.5px and a 10px radius on screen.
+  assert.match(globalCss, /\.is-zoomed \.annotation-badge, \.is-zoomed \.annotation-focus:not\(\.is-zoom-active\), \.is-zoomed \.annotation-leader \{ visibility: hidden; \}/);
+  assert.match(globalCss, /\.is-zoomed :is\(\.annotation-focus, \.leader-target\)\.is-zoom-active \{ border-width: 0; border-radius: calc\(10px/);
+  // a leader zooms from its label, framing its target region, and only when it has one; the label keeps its text at
+  // the start once it is a button, which would otherwise centre it.
+  assert.match(script, /const target = leader \? el\.nextElementSibling as HTMLElement \| null : el;\n\s*if \(!target\?\.matches\("\.annotation-focus, \.leader-target"\)\) continue;/);
+  assert.match(script, /el\.querySelector<HTMLElement>\(leader \? "\.leader-label" : "\.annotation-badge"\)/);
+  const leaderSource = readFileSync(join(projectRoot, "src", "components", "exhibits", "AnnotationLeader.astro"), "utf8");
+  assert.match(leaderSource, /\.leader-label \{[^}]*text-align: start; \}/);
+  assert.match(leaderSource, /\.leader-target \{ position: absolute; z-index: 3; border-radius: 10px; pointer-events: none; \}/);
   assert.match(globalCss, /box-shadow: inset 0 0 0 calc\(1\.5px \/ var\(--zoom-scale, 1\)\) var\(--color-annotate\)/);
   assert.match(globalCss, /border-radius: calc\(10px \/ var\(--zoom-scale, 1\)\)/);
   // the notes active state is the :target one, in the same rule.

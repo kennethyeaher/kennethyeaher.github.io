@@ -598,13 +598,13 @@ test("sohive renders the v2 exhibit layout from its prose mock", () => {
   assert.match(page, /href="\/work\/terpcare"/);
 });
 
-test("exactly the seven small pinned stages zoom to the active annotation (figma 168:1745)", () => {
-  // every data-pin-zoom element across the six pages, by page and stage id; the walkthrough gives one exhibit two
-  // stage elements (its pinned stage, and the one static step with a focus box). the leader stages, frontground's
-  // solution and sohive's feed, do not zoom and render as before.
+test("exactly the eleven small pinned stages zoom to the active annotation (figma 168:1745, 197:1727)", () => {
+  // every data-pin-zoom element across the eight pages, by page and stage id; the pair and the walkthrough give one
+  // exhibit several stage elements (each feed stage zooms on its own; the walkthrough's pinned stage, and the one
+  // static step with a focus box). frontground's solution and sohive's feed zoom from their leaders (197:1727).
   const expected = {
     ovara: ["the-finding"], "kairo-health": ["field-by-tier"], "usm-venture-benchmark": ["validation-grid"], "college-park-capstone": ["the-persona"],
-    frontground: [], terpcare: ["core-flows"], sohive: [],
+    frontground: ["the-solution"], terpcare: ["core-flows"], sohive: ["the-feed-0", "the-feed-1"],
     terpcarehub: ["core-flows-walkthrough-1", "core-flows-walkthrough-pin", "where-it-landed"],
   };
   for (const [slug, page] of pages) {
@@ -619,15 +619,18 @@ test("exactly the seven small pinned stages zoom to the active annotation (figma
       // the zoom layer wraps the content once, right after the field (and veil), and holds every annotation.
       assert.equal([...stage.matchAll(/data-zoom-layer/g)].length, 1, `${slug} ${match[1]} has one zoom layer`);
       assert.match(stage, /class="stage-field"[^>]*><\/span>\s*(<span class="stage-veil"[^>]*><\/span>\s*)?<div class="stage-zoom" data-zoom-layer[^>]*>/);
-      const annotations = [...stage.matchAll(/<span class="annotation annotation-focus[^"]*"[^>]*data-annotation="(\d\d)"([^>]*)>/g)];
+      const annotations = [...stage.matchAll(/<span class="annotation annotation-(focus|leader)[^"]*"[^>]*data-annotation="(\d\d)"([^>]*)>/g)];
       assert.ok(annotations.length > 0, `${slug} ${match[1]} has annotations`);
       assert.ok(stage.indexOf("data-zoom-layer") < annotations[0].index, `${slug} ${match[1]} annotations sit in the layer`);
-      // numbers rise in order, so ‹ and › step through them as the notes do.
-      assert.deepEqual(annotations.map((a) => a[1]), [...annotations.map((a) => a[1])].sort());
-      // no leader sits in a zoom stage.
-      assert.doesNotMatch(stage, /annotation-leader/, `${slug} ${match[1]} has no leader`);
+      // numbers rise in order, badges and leaders together, so ‹ and › step through them as the notes do.
+      assert.deepEqual(annotations.map((a) => a[2]), [...annotations.map((a) => a[2])].sort());
+      // a leader carries its label as the bar title and is followed by its invisible target region, which sets the zoom.
+      for (const annotation of annotations.filter((a) => a[1] === "leader")) {
+        assert.match(annotation[3], /data-zoom-title="[^"]+"/, `${slug} leader ${annotation[2]} title`);
+        assert.match(stage.slice(annotation.index), /^<span[^>]*>(?:\s*<span class="leader-[^"]+"[^>]*>(?:<span[^>]*>[^<]*<\/span>)*<\/span>)+\s*<\/span>\s*<span class="leader-target" style="left: [\d.]+%; top: [\d.]+%; width: [\d.]+%; height: [\d.]+%" aria-hidden="true"/, `${slug} leader ${annotation[2]} target`);
+      }
       // without scripts every badge is still the link to its note, or the aria-hidden marker it is today; the script
-      // makes the markers real buttons. a link's note must exist with a title the bar can use.
+      // makes the markers and leader labels real buttons. a link's note must exist with a title the bar can use.
       for (const [badge] of stage.matchAll(/<(?:a|span) class="annotation-badge"[^>]*>/g)) {
         if (badge.startsWith("<a")) {
           const note = badge.match(/href="#([^"]+)"/)?.[1];
@@ -646,10 +649,33 @@ test("exactly the seven small pinned stages zoom to the active annotation (figma
   assert.equal([...terpcarehub.matchAll(/data-annotation="02" data-zoom-title="Cost is visible before the click"/g)].length, 2);
   assert.equal([...terpcarehub.matchAll(/data-walk-screen="[12]" aria-hidden="true" inert/g)].length, 2);
   assert.doesNotMatch(terpcarehub, /data-walk-screen="0"[^>]*(aria-hidden|inert)/);
-  // the alert badges have no numbered caption, so they carry no title and the bar shows the number alone.
+  // the alert badges have no numbered caption, so their bar titles come from the lede, set in the data (197:1727).
   const landed = terpcarehub.slice(terpcarehub.indexOf('data-pin-zoom="where-it-landed"'), terpcarehub.indexOf('class="exhibit-pins"'));
-  assert.equal([...landed.matchAll(/data-annotation="0\d"/g)].length, 3);
-  assert.doesNotMatch(landed, /data-zoom-title/);
+  assert.deepEqual([...landed.matchAll(/data-annotation="(0\d)" data-zoom-title="([^"]+)"/g)].map((m) => [m[1], m[2]]), [
+    ["01", "Severity tag applied at ingest"], ["02", "Source badge and timestamp"], ["03", "Acknowledged, not swiped away"],
+  ]);
+  // each leader's target region is its zoomAt, a share of its stage; only these nine leaders have one.
+  const targets = (page, from) => [...page.slice(page.indexOf(`data-pin-zoom="${from}"`)).split(/<div class="exhibit-stage/)[0].matchAll(/data-annotation="(\d\d)" data-zoom-title="([^"]+)"[\s\S]*?<span class="leader-target" style="([^"]+)"/g)].map((m) => [m[1], m[2], m[3]]);
+  const box = (x, y, w, h) => `left: ${x}%; top: ${y}%; width: ${w}%; height: ${h}%`;
+  assert.deepEqual(targets(pages.get("frontground"), "the-solution"), [
+    ["01", "Chart is context", box(27.78, 23.91, 20.88, 17.5)],
+    ["02", "Queue is the working surface", box(27.78, 42.97, 40.95, 34.38)],
+    ["03", "Requests keep a status", box(69.89, 23.91, 14.96, 53.44)],
+    ["04", "Triage carries a letter, not only a colour", box(54.84, 48.75, 3.94, 29.06)],
+  ]);
+  const sohive = pages.get("sohive");
+  assert.deepEqual(targets(sohive, "the-feed-0"), [
+    ["01", "Date and time", box(31.27, 29.0, 37.45, 4.83)],
+    ["02", "Title on colour", box(31.27, 34.0, 37.45, 7.33)],
+    ["03", "Going, one action", box(31.27, 41.17, 37.45, 3.67)],
+  ]);
+  assert.deepEqual(targets(sohive, "the-feed-1"), [
+    ["01", "Gradient, not a stock photo", box(46.44, 9.17, 44.19, 28.33)],
+    ["02", "RSVP in a fixed bar", box(49.25, 81.67, 38.76, 6.0)],
+  ]);
+  assert.equal([...pages.values()].flatMap((page) => [...page.matchAll(/class="leader-target"/g)]).length, 9);
+  // the feed's first leader names only the date and time strip it points at.
+  assert.doesNotMatch(sohive, /Place and time/);
   // and no other stage on any page carries the attribute (the heatmap, matrix, pins and rows stay as they are).
   const marked = [...pages.values()].flatMap((page) => [...page.matchAll(/data-pin-zoom="/g)]).length;
   assert.equal(marked, Object.values(expected).flat().length);

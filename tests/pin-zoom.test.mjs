@@ -73,3 +73,15 @@ test("a two-line bar's measured room keeps the outline clear of it, inside the s
   // a phone stage: the two-line room lowers the scale against the one-line one.
   assert.ok(frame(phone, { x: 120, y: 60, w: 40, h: 60 }, Infinity, room).s < frame(phone, { x: 120, y: 60, w: 40, h: 60 }).s);
 });
+
+test("a tall narrow target is framed by its height, centred on it, inside the stage (Frontground 04, figma 197:1727)", () => {
+  // the triage column, zoomAt { x: 54.84, y: 48.75, w: 3.94, h: 29.06 } on the 1116 by 640 stage: 44 by 186.
+  const box = { x: 0.5484 * 1116, y: 0.4875 * 640, w: 0.0394 * 1116, h: 0.2906 * 640 };
+  const view = frame(wide, box);
+  // the width alone would allow 1116 / (44 + 48) = 12.7, so the height sets it: (640 - 48) / (186 + 48) = 2.53.
+  near(view.s, 592 / (box.h + 48), "height bound");
+  assert.ok(view.s < 4 && view.s < 1116 / (box.w + 48), "under the 4x clamp and the width bound");
+  near(view.x + wide.w / view.s / 2, box.x + box.w / 2, "centred on the column");
+  assert.ok(view.y >= 0 && view.y + wide.h / view.s <= wide.h + 0.01, "inside the stage");
+  assert.ok(view.y + wide.h / view.s - (box.y + box.h) >= 24 + 48 / view.s - 0.01, "the bar room stays under the column");
+});
