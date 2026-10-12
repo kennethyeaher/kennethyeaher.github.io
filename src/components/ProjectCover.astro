@@ -56,8 +56,11 @@ const fields = gradientFields(project.cover.palette).map((colour, index) => ({ c
   .project-cover { position: relative; overflow: hidden; width: 100%; height: 100%; isolation: isolate; background: #17344f var(--cover-poster) center / cover; }
   .cover-scrim { position: absolute; z-index: 1; inset: 0; background: linear-gradient(90deg, rgb(9 24 40 / 84%), rgb(9 24 40 / 16%)); pointer-events: none; }
   .cover-label { position: absolute; z-index: 3; top: 50%; left: 6%; width: 34%; transform: translateY(-50%); color: #fff; }
-  .cover-label span { display: block; font-family: var(--ui); font-size: clamp(20px, 2.5vw, 44px); font-weight: 650; letter-spacing: -0.035em; line-height: 1.08; text-wrap: balance; }
-  .cover-label small { display: block; margin-top: 14px; font-family: var(--ui); font-size: clamp(10px, 1vw, 14px); line-height: 1.45; opacity: .85; }
+  /* the label scales with the card (figma 176:1721): the old 684px card at 1440 had a 36px title, a 14px category and a
+     14px gap, so each is that share of the cover's width, about 24px at today's 454px card. phones keep the proportions. */
+  .is-card { container-type: inline-size; }
+  .cover-label span { display: block; font-family: var(--ui); font-size: 5.263cqi; font-weight: 650; letter-spacing: -0.035em; line-height: 1.08; text-wrap: balance; }
+  .cover-label small { display: block; margin-top: 2.047cqi; font-family: var(--ui); font-size: 2.047cqi; line-height: 1.45; opacity: .85; }
 
   /* live gradient for home cards. the poster stays the fallback when scripts are off. */
   .is-card { background-image: none; background-color: var(--cover-base, #17344f); }
@@ -94,8 +97,4 @@ const fields = gradientFields(project.cover.palette).map((colour, index) => ({ c
   }
   @keyframes cover-drift-a { to { --drift-a: 360deg; } }
   @keyframes cover-drift-b { to { --drift-b: 360deg; } }
-  @media (max-width: 620px) {
-    .cover-label span { font-size: clamp(18px, 5vw, 28px); }
-    .cover-label small { margin-top: 8px; font-size: 9px; }
-  }
 </style>
