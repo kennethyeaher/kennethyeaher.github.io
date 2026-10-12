@@ -38,22 +38,26 @@ function isActive(href: string): boolean {
       <a class="brand-name" href="/">{profile.name}</a>
     )
   }
-  <nav class="site-nav" aria-label="Primary navigation">
-    <div class="primary-links">
+  {/* a fixed rail at the left edge (figma 176:1721), a row under the name at 980px and below, where the chapter rail
+      hides too. case studies give the desktop spot to their chapter rail (figma 177:1801). */}
+  <nav class:list={["site-nav", crumb && "is-case"]} aria-label="Primary navigation">
+    <ul class="rail">
       {
         links.map((link) => (
-          <a
-            href={link.href}
-            class:list={["nav-link", !link.external && isActive(link.href) && "is-active"]}
-            aria-current={!link.external && isActive(link.href) ? "page" : undefined}
-            target={link.external ? "_blank" : undefined}
-            rel={link.external ? "noreferrer" : undefined}
-          >
-            {link.label}
-          </a>
+          <li>
+            <a
+              href={link.href}
+              class="rail-link"
+              aria-current={!link.external && isActive(link.href) ? "page" : undefined}
+              target={link.external ? "_blank" : undefined}
+              rel={link.external ? "noreferrer" : undefined}
+            >
+              {link.label}
+            </a>
+          </li>
         ))
       }
-    </div>
+    </ul>
   </nav>
   {/* after the links, so focus reaches it last, matching where it hangs. */}
   <button class="theme-cord" type="button" data-theme-toggle data-cursor="cord" aria-label="Dark theme" aria-pressed="false">

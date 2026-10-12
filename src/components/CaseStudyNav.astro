@@ -9,22 +9,22 @@ interface Props {
   chapters: Chapter[];
 }
 
-// the exhibit rail (figma 61:921) numbers each chapter and marks the active one with a longer dash.
+// the v3 chapter rail (figma 177:1801): the shell's .rail and .rail-link in the same fixed spot, sentence case, with the
+// square on the active chapter. the breadcrumb in the header replaces the old back link.
 const { chapters } = Astro.props;
 ---
 
-<aside class="case-rail is-numbered" aria-label="Case study navigation" data-case-nav>
-  <a class="back-link" href="/" aria-label="Back to Work"><span aria-hidden="true">← </span>Back</a>
-  <ol>
+<aside class="case-rail" aria-label="Case study navigation" data-case-nav>
+  <ol class="rail">
     {
       chapters.map((chapter, index) => (
         <li>
           <a
+            class="rail-link"
             href={`#${chapter.id}`}
             data-section-link={chapter.id}
             aria-current={index === 0 ? "location" : undefined}
           >
-            <span class="chapter-number">{String(index + 1).padStart(2, "0")}</span>
             {chapter.label}
           </a>
         </li>
@@ -34,7 +34,6 @@ const { chapters } = Astro.props;
 </aside>
 
 <div class="case-mobile-nav" data-case-nav>
-  <a class="back-link" href="/">Back to Work</a>
   <label for="case-chapter-select">Jump to chapter</label>
   <select id="case-chapter-select" data-chapter-select>
     {chapters.map((chapter) => <option value={chapter.id}>{chapter.label}</option>)}
@@ -42,78 +41,18 @@ const { chapters } = Astro.props;
 </div>
 
 <style>
-  .case-rail {
-    position: sticky;
-    top: 28px;
-    align-self: start;
-    padding-top: 14px;
-  }
-
-  .back-link {
-    display: inline-block;
-    color: var(--ink-strong);
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.01em;
-    text-transform: uppercase;
-    transition: color 180ms ease;
-  }
-
-  .back-link:hover,
-  .back-link:focus-visible {
-    color: var(--accent);
-  }
-
-  .case-rail ol {
-    display: grid;
-    margin: 28px 0 0;
-    padding: 0;
-    gap: 12px;
-    list-style: none;
-  }
-
-  .case-rail li {
-    min-width: 0;
-  }
-
-  .case-rail li a {
-    display: block;
-    color: var(--muted);
-    font-size: 14px;
-    line-height: 1.35;
-    transition:
-      color 180ms ease,
-      transform 180ms var(--ease-out);
-  }
-
-  .case-rail li a:hover,
-  .case-rail li a:focus-visible,
-  .case-rail li a[aria-current="location"] {
-    transform: translateX(4px);
-    color: var(--accent);
+  /* the aside keeps the layout's first column; its list takes the shell rail's spot (global.css .site-nav), which
+     case studies hide on desktop. */
+  .case-rail .rail {
+    position: fixed;
+    z-index: 10;
+    top: 40vh;
+    left: calc(var(--page-gutter) - 10px);
   }
 
   .case-mobile-nav {
     display: none;
   }
-
-  .is-numbered .back-link { font-size: 12px; letter-spacing: -0.02em; }
-  .is-numbered ol { gap: 14px; margin-top: 22px; }
-  .is-numbered li a {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: var(--muted);
-    font: 12px / 1.3 var(--mono);
-    letter-spacing: -0.02em;
-    text-transform: uppercase;
-  }
-  .is-numbered li a::before { flex: none; width: 8px; height: 1.5px; content: ""; background: var(--rule); transition: width 240ms var(--ease-out), background-color 240ms ease; }
-  .is-numbered .chapter-number { margin-right: 6px; }
-  .is-numbered li a:hover,
-  .is-numbered li a:focus-visible,
-  .is-numbered li a[aria-current="location"] { transform: none; color: var(--ink-strong); }
-  .is-numbered li a[aria-current="location"]::before { width: 18px; background: var(--accent); }
 
   @media (max-width: 980px) {
     .case-rail {
@@ -126,10 +65,6 @@ const { chapters } = Astro.props;
       grid-template-columns: 1fr auto;
       align-items: end;
       gap: 10px 18px;
-    }
-
-    .case-mobile-nav .back-link {
-      grid-column: 1 / -1;
     }
 
     .case-mobile-nav label {

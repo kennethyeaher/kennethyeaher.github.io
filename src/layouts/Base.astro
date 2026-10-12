@@ -78,7 +78,7 @@ const ogImage = new URL(image ?? "/images/portfolio-preview-2026.png", Astro.sit
   <body>
     <a class="skip-link" href="#main-content">Skip to content</a>
     <Nav crumb={crumb} />
-    <main id="main-content">
+    <main id="main-content" class:list={[!crumb && "beside-rail"]}>
       <slot />
     </main>
     <Footer />
