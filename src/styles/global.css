@@ -381,50 +381,38 @@ main.beside-rail {
   padding-left: 96px;
 }
 
+/* the v3 footer (figma 176:1721, 177:1723): no rule. the credit on the left, LinkedIn, GitHub and Email on the right
+   40px apart, all geist 15 in --muted; on phones the credit takes its own line and the links follow, 24px apart. */
 .site-footer {
   margin-top: 96px;
-  border-top: 1px solid var(--rule);
 }
 
 .footer-inner {
   display: flex;
-  min-height: 66px;
+  padding-block: 24px 48px;
   align-items: center;
   justify-content: space-between;
-  gap: 24px;
-  font-family: var(--mono);
-  font-size: 12px;
-  text-transform: uppercase;
+  gap: 12px 40px;
+  color: var(--muted);
+  font: 15px / 20px var(--ui-sans);
 }
 
 .footer-credit {
-  display: flex;
   margin: 0;
-  align-items: center;
-  gap: 10px;
-}
-
-.footer-credit img {
-  width: 28px;
-  height: 28px;
-  border: 1px solid var(--rule);
-  border-radius: 50%;
-  object-fit: cover;
 }
 
 .footer-links {
   display: flex;
-  gap: 28px;
+  gap: 40px;
 }
 
 .footer-links a {
-  color: var(--muted);
   transition: color 180ms ease;
 }
 
 .footer-links a:hover,
 .footer-links a:focus-visible {
-  color: var(--accent);
+  color: var(--ink);
 }
 
 .reveal-ready [data-reveal] {
@@ -523,10 +511,12 @@ main.beside-rail {
   }
 
   .footer-inner {
-    padding-block: 18px;
     align-items: flex-start;
     flex-direction: column;
-    gap: 12px;
+  }
+
+  .footer-links {
+    gap: 24px;
   }
 }
 
