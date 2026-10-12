@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { readFileSync, statSync } from "node:fs";
+import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import test, { before } from "node:test";
 import assert from "node:assert/strict";
@@ -653,4 +653,77 @@ test("exactly the seven small pinned stages zoom to the active annotation (figma
   // and no other stage on any page carries the attribute (the heatmap, matrix, pins and rows stay as they are).
   const marked = [...pages.values()].flatMap((page) => [...page.matchAll(/data-pin-zoom="/g)]).length;
   assert.equal(marked, Object.values(expected).flat().length);
+});
+
+// mono labels on phones (figma 174:1721): at 390 no mono text is under 11px, and badge and leader numerals are not
+// under 10px. the build has no browser, so this resolves the built css the way a 390 screen would: every rule whose
+// width conditions hold at 390 applies in source order, :root custom properties resolve, and each selector that sets
+// the mono family takes its last font size. a clamp counts at its floor, and an em size only fails if it shrinks.
+test("no mono text renders under 11px at 390, badge numerals under 10px", () => {
+  const assetDir = join(projectRoot, "dist", "_astro");
+  const css = readdirSync(assetDir).filter((name) => name.endsWith(".css")).map((name) => readFileSync(join(assetDir, name), "utf8")).join("\n");
+  const holds = (media) => [...media.matchAll(/\((max-width:|width ?<=|min-width:|width ?>=)\s*(\d+(?:\.\d+)?)px\)/g)].every(([, kind, px]) => (/max|<=/.test(kind) ? 390 <= Number(px) : 390 >= Number(px)));
+  // [selectors, declarations] for every style rule that applies at 390, in source order.
+  const rules = [];
+  const walk = (text) => {
+    let i = 0;
+    while (i < text.length) {
+      const open = text.indexOf("{", i);
+      if (open < 0) break;
+      const prelude = text.slice(i, open).trim();
+      let depth = 1, j = open + 1;
+      for (; depth; j++) depth += text[j] === "{" ? 1 : text[j] === "}" ? -1 : 0;
+      const body = text.slice(open + 1, j - 1);
+      if (prelude.startsWith("@media")) { if (holds(prelude)) walk(body); }
+      else if (prelude.startsWith("@supports") || prelude.startsWith("@layer")) walk(body);
+      else if (!prelude.startsWith("@")) rules.push([prelude.split(",").map((s) => s.trim()), body]);
+      i = j;
+    }
+  };
+  walk(css);
+
+  const root = {};
+  const decls = (body) => [...body.matchAll(/(--[\w-]+|[a-z-]+)\s*:\s*([^;]+)/g)].map(([, prop, value]) => [prop, value.trim()]);
+  for (const [selectors, body] of rules) if (selectors.includes(":root")) for (const [prop, value] of decls(body)) if (prop.startsWith("--")) root[prop] = value;
+  const resolve = (value) => {
+    let out = value;
+    for (let k = 0; k < 5 && out.includes("var("); k++) out = out.replace(/var\((--[\w-]+)(?:,\s*((?:[^()]|\([^()]*\))*))?\)/g, (_, name, fallback) => root[name] ?? fallback ?? "");
+    return out;
+  };
+  const px = (size) => {
+    const clamp = size.match(/^clamp\(\s*([\d.]+)px/);
+    if (clamp) return Number(clamp[1]);
+    if (/^[\d.]+px$/.test(size)) return parseFloat(size);
+    if (/^[\d.]+rem$/.test(size)) return parseFloat(size) * 16;
+    // a relative size scales its parent's text, which is checked on its own; only a shrink could fall under the floor.
+    if (/^[\d.]+em$/.test(size)) return parseFloat(size) >= 1 ? Infinity : 0;
+    return NaN;
+  };
+
+  const type = new Map();
+  for (const [selectors, body] of rules) {
+    for (const [prop, raw] of decls(body)) {
+      if (prop !== "font" && prop !== "font-size" && prop !== "font-family") continue;
+      const value = resolve(raw);
+      for (const selector of selectors) {
+        const entry = type.get(selector) ?? {};
+        if (prop === "font-size") entry.size = value;
+        else if (prop === "font-family") entry.mono = /JetBrains Mono/.test(value);
+        else {
+          const shorthand = value.match(/((?:clamp\((?:[^()]|\([^()]*\))*\)|[\d.]+px))\s*(?:\/\s*\S+)?\s+(.+)$/);
+          if (shorthand) { entry.size = shorthand[1]; entry.mono = /JetBrains Mono/.test(shorthand[2]); }
+        }
+        type.set(selector, entry);
+      }
+    }
+  }
+
+  const mono = [...type].filter(([, entry]) => entry.mono && entry.size);
+  assert.ok(mono.length > 40, `found ${mono.length} mono selectors`);
+  for (const [selector, { size }] of mono) {
+    const floor = /annotation-badge|leader-number/.test(selector) ? 10 : 11;
+    assert.ok(px(size) >= floor, `${selector} is ${size} at 390, under ${floor}px`);
+  }
+  // the badges and leader numerals are in the set, so the 10px floor is really checked.
+  assert.ok(mono.some(([selector]) => /annotation-badge/.test(selector)) && mono.some(([selector]) => /leader-number/.test(selector)));
 });

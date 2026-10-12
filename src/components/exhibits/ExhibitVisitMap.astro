@@ -80,9 +80,9 @@ const dotX = stages.map((_, index) => 5.5 + index * 175.2);
   /* offsets from figma 90:2322, measured from each stage number: name +16, rail +56, breaks label +84,
      breaks +102, response label +206, response +224. */
   .visit-stages li { display: flex; flex-direction: column; }
-  .stage-num { color: var(--muted); font: 10px / 13px var(--mono); letter-spacing: 0.06em; }
+  .stage-num { color: var(--muted); font: var(--label-micro, 10px) / 13px var(--mono); letter-spacing: var(--label-micro-tracking, 0.06em); }
   .stage-name { margin-top: 3px; color: var(--ink-strong); font: 500 15px / 20px var(--ui); }
-  .stage-label { font: 10px / 13px var(--mono); letter-spacing: 0.06em; text-transform: uppercase; }
+  .stage-label { font: var(--label-micro, 10px) / 13px var(--mono); letter-spacing: var(--label-micro-tracking, 0.06em); text-transform: uppercase; }
   .stage-label.is-breaks { margin-top: 48px; }
   .is-care .is-breaks { color: var(--care); }
   .is-time .is-breaks { color: var(--time); }

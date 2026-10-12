@@ -62,9 +62,9 @@ const accentIndex = columns.findIndex((name) => name === accent);
   /* the card keeps figma's colours in both themes: it is a white object on a dark stage. */
   .matrix-card { width: max-content; padding: 28px; border-radius: 14px; background: #fff; box-shadow: 0 24px 48px rgb(3 13 26 / 40%); }
   .matrix { border-collapse: collapse; table-layout: fixed; }
-  .matrix caption { padding-bottom: 16px; color: #6b6567; font: 10px / 13px var(--mono); letter-spacing: 0.08em; text-align: left; white-space: pre; }
+  .matrix caption { padding-bottom: 16px; color: #6b6567; font: var(--label-micro, 10px) / 13px var(--mono); letter-spacing: var(--label-micro-tracking, 0.08em); text-align: left; white-space: pre; }
   .matrix th, .matrix td { position: relative; border-bottom: 1px solid #e6e1e2; text-align: left; vertical-align: top; }
-  .matrix thead th { padding: 10px 14px; background: #2e2b2c; color: #fff; font: 400 10px / 13px var(--mono); letter-spacing: 0.08em; text-transform: uppercase; }
+  .matrix thead th { padding: 10px 14px; background: #2e2b2c; color: #fff; font: 400 var(--label-micro, 10px) / 13px var(--mono); letter-spacing: var(--label-micro-tracking, 0.08em); text-transform: uppercase; }
   .matrix thead th.is-accent { background: #dc3139; }
   .matrix tbody th { padding: 16px 14px; color: #211f20; font: 500 14px / 1.4 var(--ui); }
   .matrix tbody td { padding: 16px 14px; color: #3a3536; font: 15px / 1.4 var(--body); }

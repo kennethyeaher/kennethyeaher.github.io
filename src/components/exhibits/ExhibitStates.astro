@@ -36,7 +36,7 @@ const named = tiles.map((tile, index) => ({ ...tile, name: parts[index * 2], lin
   .state-tile picture { display: block; width: 74.7%; }
   .state-tile img { display: block; width: 100%; height: auto; border-radius: 10px; box-shadow: 0 8px 20px -4px rgb(0 0 0 / 8%); }
   .exhibit-states p { margin: 0; }
-  .state-name { color: var(--muted); font: 10px / 1.3 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; }
+  .state-name { color: var(--muted); font: var(--label-micro, 10px) / 1.3 var(--mono); letter-spacing: var(--label-micro-tracking, 0.06em); text-transform: uppercase; }
   .state-line { color: var(--secondary); font: 15px / 21px var(--body); }
   .states-caption { margin-top: 32px; }
   .states-caption :global(.exhibit-caption) { max-width: 640px; }

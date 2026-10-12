@@ -502,6 +502,18 @@ main.beside-rail {
   }
 }
 
+/* mono labels on phones (figma 174:1721): at 640 and below Label/Micro goes from 10px to 11px at 5% tracking, and the
+   badge and leader numerals from 9px to 10px in the same 22px circle. the loop tag and the source link take the
+   Label/Micro size too. these are only set here; each component falls back to its desktop size, so desktop never
+   changes. */
+@media (max-width: 640px) {
+  :root {
+    --label-micro: 11px;
+    --label-micro-tracking: 0.05em;
+    --badge-numeral: 10px;
+  }
+}
+
 @media (max-width: 620px) {
   /* the 375 frames use a 20px gutter. */
   :root {

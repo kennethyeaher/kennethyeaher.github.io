@@ -37,9 +37,14 @@ const box = vertical
   .on-dark .leader-number { color: var(--color-annotate-on-stage); }
   .on-light .leader-number { color: var(--color-annotate-on-light-stage); }
   .on-light .leader-anchor { background: var(--color-annotate-on-light-stage); }
-  /* labels keep figma's 13px, and shrink with a narrow stage (below 534 wide) so neighbours never collide, down to 10px. */
+  /* labels keep figma's 13px, and shrink with a narrow stage (below 534 wide) so neighbours never collide, down to 10px.
+     on phones the numeral holds the 10px badge size (global.css --badge-numeral). */
   .leader-text { font: 500 clamp(10px, 2.43cqw, 13px) / 1.4 var(--ui); }
-  .leader-number { font-size: clamp(9px, 1.87cqw, 10px); }
+  .leader-number { font-size: var(--badge-numeral, clamp(9px, 1.87cqw, 10px)); }
+  /* the dot centres on the label, so on phones the larger numeral keeps the line it had and the dot never moves. */
+  @media (max-width: 640px) {
+    .leader-number { line-height: calc(1.3 * clamp(9px, 1.87cqw, 10px)); }
+  }
   .on-light .leader-text { color: #273440; }
   .on-dark .leader-text { color: #fff; text-shadow: 0 1px 6px rgb(0 0 0 / 45%); }
 </style>

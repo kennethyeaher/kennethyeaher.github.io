@@ -82,7 +82,7 @@ const stepX = [56, 221, 386, 551, 716];
   .rail-step.is-marked { fill: var(--color-annotate); }
   .timeline-steps { margin: 0; padding: 0; list-style: none; }
   .timeline-steps li { position: absolute; top: 193px; display: grid; gap: 6px; width: 140px; }
-  .step-num { color: var(--muted); font: 10px / 1.3 var(--mono); letter-spacing: 0.06em; }
+  .step-num { color: var(--muted); font: var(--label-micro, 10px) / 1.3 var(--mono); letter-spacing: var(--label-micro-tracking, 0.06em); }
   .step-title { color: var(--ink-strong); font: 500 13px / 1.4 var(--ui); }
   .step-body { color: var(--secondary); font: 14px / 20px var(--body); }
   .is-marked .step-num, .is-marked .step-title { color: var(--color-annotate); }

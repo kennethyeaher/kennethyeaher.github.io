@@ -36,7 +36,7 @@ const position = place ?? `left: ${at!.x}%; top: ${at!.y}%; width: ${at!.w}%; he
     border-radius: 50%;
     background: var(--color-annotate);
     color: var(--on-annotate);
-    font: 9px / 1 var(--mono);
+    font: var(--badge-numeral, 9px) / 1 var(--mono);
     text-decoration: none;
   }
   /* the visible badge stays 22px; the hit area grows to 44px for touch. */

@@ -23,16 +23,16 @@ const { strip } = Astro.props;
 </div>
 <style>
   .journey-strip:not(:first-child) { margin-top: 32px; }
-  .strip-label { margin: 0; color: var(--muted); font: 10px / 1.3 var(--mono); letter-spacing: 0.08em; white-space: pre-wrap; }
+  .strip-label { margin: 0; color: var(--muted); font: var(--label-micro, 10px) / 1.3 var(--mono); letter-spacing: var(--label-micro-tracking, 0.08em); white-space: pre-wrap; }
   .journey-strip ul { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 14px 0 0; padding: 0; list-style: none; }
   .journey-strip li { display: grid; gap: 6px; padding: 16px; border: 1px solid var(--rule); border-radius: 10px; background: var(--surface); }
   .journey-strip li.is-highlight { padding: 15.5px; border: 1.5px solid var(--color-annotate); }
-  .strip-tier { color: var(--muted); font: 10px / 1.3 var(--mono); letter-spacing: 0.08em; }
+  .strip-tier { color: var(--muted); font: var(--label-micro, 10px) / 1.3 var(--mono); letter-spacing: var(--label-micro-tracking, 0.08em); }
   .is-highlight .strip-tier { color: var(--color-annotate); }
   .strip-value { color: var(--ink-strong); font: 400 24px / 1.2 var(--display); }
   .strip-route { color: var(--ink); font: 500 13px / 1.4 var(--ui); }
   .journey-strip li.is-mechanism { align-content: start; gap: 6px; padding: 17px; }
   .is-mechanism .strip-value { font-size: 20px; line-height: 23px; }
-  .strip-commitment { color: var(--muted); font: 10px / 1.3 var(--mono); letter-spacing: 0.08em; }
+  .strip-commitment { color: var(--muted); font: var(--label-micro, 10px) / 1.3 var(--mono); letter-spacing: var(--label-micro-tracking, 0.08em); }
   .strip-note { max-width: 760px; margin: 14px 0 0; color: var(--secondary); font: 15px / 1.5 var(--body); }
 </style>

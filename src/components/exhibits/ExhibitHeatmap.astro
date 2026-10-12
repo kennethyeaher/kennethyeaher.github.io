@@ -100,11 +100,11 @@ const columnHeight = (rows: number) => 32 + rows * 57 + 4;
   /* the card keeps figma's colours in both themes: it is a white object on a dark stage. */
   .heatmap-card { display: flex; gap: 48px; width: max-content; padding: 36px 40px; border-radius: 14px; background: #fff; box-shadow: 0 24px 48px rgb(3 13 26 / 40%); }
   .heatmap { width: 422px; margin: -8px -6px; border-collapse: separate; border-spacing: 6px 8px; table-layout: fixed; }
-  .heatmap caption { padding: 0 6px; color: #5d6b78; font: 10px / 1.3 var(--mono); letter-spacing: 0.08em; text-align: left; }
+  .heatmap caption { padding: 0 6px; color: #5d6b78; font: var(--label-micro, 10px) / 1.3 var(--mono); letter-spacing: var(--label-micro-tracking, 0.08em); text-align: left; }
   .heatmap th, .heatmap td { position: relative; padding: 0; text-align: left; }
   .heatmap thead th { height: 32px; vertical-align: bottom; font-weight: 400; }
   .heatmap-col { display: block; color: #0f2233; font: 500 13px / 1.3 var(--ui); }
-  .heatmap-n { display: block; margin-top: 2px; color: #5d6b78; font: 10px / 1.3 var(--mono); letter-spacing: 0.04em; }
+  .heatmap-n { display: block; margin-top: 2px; color: #5d6b78; font: var(--label-micro, 10px) / 1.3 var(--mono); letter-spacing: var(--label-micro-tracking, 0.04em); }
   .heatmap tbody th { height: 49px; color: #0f2233; font: 500 13px / 1.3 var(--ui); vertical-align: middle; }
   .heatmap tbody td { height: 49px; padding: 0 12px; border-radius: 6px; color: #0f2233; font: 400 20px / 25px var(--display); }
   .heatmap tbody td.is-empty { background: #eef2f4; color: #5d6b78; font: 11px / 1.3 var(--mono); }
