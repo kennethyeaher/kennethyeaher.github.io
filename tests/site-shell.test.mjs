@@ -285,18 +285,19 @@ test("the pin zoom keeps its budget, its reduced-motion rule, its notes active s
   assert.match(script, /if \(s < 1\.5\) return null;/);
   // the layer carries one translate and scale, identity at rest; 360 in and between notes, 240 out, from the script.
   assert.match(globalCss, /\.stage-zoom \{ position: relative; height: 100%; translate: 0px 0px; scale: 1; transform-origin: 0 0; transition: translate var\(--zoom-ms, 0ms\) var\(--ease-out\), scale var\(--zoom-ms, 0ms\) var\(--ease-out\); \}/);
-  // a leader label keeps its text at the start once it is a button, which would otherwise centre it.
-  assert.match(readFileSync(join(projectRoot, "src", "components", "exhibits", "AnnotationLeader.astro"), "utf8"), /\.leader-label \{[^}]*text-align: start; \}/);
   assert.match(script, /move\(st, s, x, y, 360\)/);
   assert.match(script, /move\(st, 1, 0, 0, 240\)/);
   // reduced motion: no scale animation, a 120ms view transition crossfade instead.
-  assert.match(globalCss, /@media \(prefers-reduced-motion: reduce\) \{\n  \.stage-zoom, \.is-zoomed \.annotation-focus\.is-zoom-active, \.is-zoomed \.leader-anchor\.is-zoom-active \{ transition: none; \}\n(?:  \/\*[^*]*\*\/\n)?  \.annotation-focus, \.annotation-badge, \.annotation-leader, \.leader-label \{ transition: none !important; \}\n  ::view-transition-group\(root\) \{ animation-duration: 120ms; \}\n\}/);
+  assert.match(globalCss, /@media \(prefers-reduced-motion: reduce\) \{\n  \.stage-zoom, \.is-zoomed \.annotation-focus\.is-zoom-active \{ transition: none; \}\n(?:  \/\*[^*]*\*\/\n)?  \.annotation-focus, \.annotation-badge \{ transition: none !important; \}\n  ::view-transition-group\(root\) \{ animation-duration: 120ms; \}\n\}/);
   assert.match(script, /reduce && document\.startViewTransition \? document\.startViewTransition\(swap\) : swap\(\)/);
   const assetDir = join(projectRoot, "dist", "_astro");
   const builtCss = readdirSync(assetDir).filter((name) => name.endsWith(".css")).map((name) => readFileSync(join(assetDir, name), "utf8")).join("\n");
-  assert.match(builtCss, /prefers-reduced-motion: ?reduce\) ?\{\.stage-zoom,\.is-zoomed \.annotation-focus\.is-zoom-active,\.is-zoomed \.leader-anchor\.is-zoom-active\{transition: ?none\}\.annotation-focus,\.annotation-badge,\.annotation-leader,\.leader-label\{transition: ?none ?!important\}::view-transition-group\(root\)\{animation-duration: ?\.12s\}\}/);
+  assert.match(builtCss, /prefers-reduced-motion: ?reduce\) ?\{\.stage-zoom,\.is-zoomed \.annotation-focus\.is-zoom-active\{transition: ?none\}\.annotation-focus,\.annotation-badge\{transition: ?none ?!important\}::view-transition-group\(root\)\{animation-duration: ?\.12s\}\}/);
   // while zoomed every badge hides and the active outline is held at 1.5px and a 10px radius on screen.
-  assert.match(globalCss, /\.is-zoomed \.annotation-badge, \.is-zoomed \.annotation-focus:not\(\.is-zoom-active\), \.is-zoomed \.annotation-leader:not\(:has\(\.is-zoom-active\)\),\n\.is-zoomed \.annotation-leader:has\(\.is-zoom-active\) :is\(\.leader-line, \.leader-label\) \{ visibility: hidden; \}/);
+  assert.match(globalCss, /\.is-zoomed \.annotation-badge, \.is-zoomed \.annotation-focus:not\(\.is-zoom-active\) \{ visibility: hidden; \}/);
+  // no leader stage zooms, so no zoom rule touches a leader.
+  assert.doesNotMatch(globalCss, /\.is-zoomed[^{]*leader|\.annotation-leader, \.leader-label \{ transition/);
+  assert.doesNotMatch(script, /leader/);
   assert.match(globalCss, /box-shadow: inset 0 0 0 calc\(1\.5px \/ var\(--zoom-scale, 1\)\) var\(--color-annotate\)/);
   assert.match(globalCss, /border-radius: calc\(10px \/ var\(--zoom-scale, 1\)\)/);
   // the notes active state is the :target one, in the same rule.

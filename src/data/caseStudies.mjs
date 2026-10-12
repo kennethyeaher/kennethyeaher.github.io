@@ -43,7 +43,7 @@
  * @typedef {{ label: string, title: string, body: string, screen: ExhibitVisual, focus?: { num: string, at: { x: number, y: number, w: number, h: number } } }} WalkthroughStep
  * @typedef {{ figma: string, base: string, field: StageField, veil?: boolean, tag: string, at: { x: number, y: number, w: number }, steps: WalkthroughStep[], zoom?: true }} ExhibitWalkthrough
  * @typedef {ExhibitBase & { kind: "rows", visuals: ExhibitVisual[], captions: ExhibitCaption[], annotations?: ExhibitAnnotation[], fields?: StageField[], base?: string, walkthrough?: ExhibitWalkthrough }} RowsExhibit
- * @typedef {ExhibitBase & { kind: "pair", stages: { ratio?: string, base?: string, field?: StageField, visuals: ExhibitVisual[], annotations?: ExhibitAnnotation[] }[], captions: ExhibitCaption[], zoom?: true }} PairExhibit
+ * @typedef {ExhibitBase & { kind: "pair", stages: { ratio?: string, base?: string, field?: StageField, visuals: ExhibitVisual[], annotations?: ExhibitAnnotation[] }[], captions: ExhibitCaption[] }} PairExhibit
  *   two stages side by side, each captioned; annotation theme on-light suits a pale stage.
  * @typedef {{ label: string, highlight?: string, cards?: ([string, string, string] | [string, string, string, string])[], note?: string }} ExhibitStrip
  *   three part cards are a tier, a value and a route; four part cards add a commitment line; a strip with no cards is a label and a note.
@@ -1769,7 +1769,7 @@ export const caseStudies = [
         footnote: "Refiling is the one that matters most and gets the least attention. Every other stage depends on that last step being done correctly every day.",
       },
       {
-        kind: "stage", id: "the-solution", chapter: "The solution", figma: "57:782", size: "wide", ratio: "1116 / 640", zoom: true,
+        kind: "stage", id: "the-solution", chapter: "The solution", figma: "57:782", size: "wide", ratio: "1116 / 640",
         lede: [
           "I designed against what they told me, brought it back, and changed it. The triage colours, the split of the exam form into two pages, and the decision to keep orders on their own screen all came out of that loop rather than out of my first draft. I am still in contact with a couple of the providers I met, which is the part of this I am most glad about.",
           "The first screen a clinician sees answers who is in front of me right now. Arrivals, acuity, and open requests get the space. The trend chart is context and it sits to the side. That ordering came straight out of the interviews, where nobody described their day in terms of analytics and everybody described it in terms of the waiting room.",
@@ -2333,7 +2333,7 @@ export const caseStudies = [
         ],
       },
       {
-        kind: "pair", id: "the-feed", chapter: "The feed", figma: "58:870", zoom: true,
+        kind: "pair", id: "the-feed", chapter: "The feed", figma: "58:870",
         eyebrow: "WHERE IT LANDED",
         heading: "Insight 1: The event card is the product",
         lede: [

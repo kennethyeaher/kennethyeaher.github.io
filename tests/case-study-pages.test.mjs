@@ -569,12 +569,13 @@ test("sohive renders the v2 exhibit layout from its prose mock", () => {
   assert.match(page, /href="\/work\/terpcare"/);
 });
 
-test("exactly the nine small pinned stages zoom to the active annotation (figma 168:1745)", () => {
-  // every data-pin-zoom element across the eight pages, by page and stage id; the pair and the walkthrough give
-  // one exhibit several stage elements (the walkthrough's pinned stage, and the one static step with a focus box).
+test("exactly the seven small pinned stages zoom to the active annotation (figma 168:1745)", () => {
+  // every data-pin-zoom element across the six pages, by page and stage id; the walkthrough gives one exhibit two
+  // stage elements (its pinned stage, and the one static step with a focus box). the leader stages, frontground's
+  // solution and sohive's feed, do not zoom and render as before.
   const expected = {
     ovara: ["the-finding"], "kairo-health": ["field-by-tier"], "usm-venture-benchmark": ["validation-grid"], "college-park-capstone": ["the-persona"],
-    frontground: ["the-solution"], terpcare: ["core-flows"], sohive: ["the-feed-0", "the-feed-1"],
+    frontground: [], terpcare: ["core-flows"], sohive: [],
     terpcarehub: ["core-flows-walkthrough-1", "core-flows-walkthrough-pin", "where-it-landed"],
   };
   for (const [slug, page] of pages) {
@@ -589,17 +590,15 @@ test("exactly the nine small pinned stages zoom to the active annotation (figma 
       // the zoom layer wraps the content once, right after the field (and veil), and holds every annotation.
       assert.equal([...stage.matchAll(/data-zoom-layer/g)].length, 1, `${slug} ${match[1]} has one zoom layer`);
       assert.match(stage, /class="stage-field"[^>]*><\/span>\s*(<span class="stage-veil"[^>]*><\/span>\s*)?<div class="stage-zoom" data-zoom-layer[^>]*>/);
-      const annotations = [...stage.matchAll(/<span class="annotation annotation-(focus|leader)[^"]*"[^>]*data-annotation="(\d\d)"([^>]*)>/g)];
+      const annotations = [...stage.matchAll(/<span class="annotation annotation-focus[^"]*"[^>]*data-annotation="(\d\d)"([^>]*)>/g)];
       assert.ok(annotations.length > 0, `${slug} ${match[1]} has annotations`);
       assert.ok(stage.indexOf("data-zoom-layer") < annotations[0].index, `${slug} ${match[1]} annotations sit in the layer`);
       // numbers rise in order, so ‹ and › step through them as the notes do.
-      assert.deepEqual(annotations.map((a) => a[2]), [...annotations.map((a) => a[2])].sort());
-      // a leader carries its label as the bar title and a focus badge its note's or step's title, or none (the number alone).
-      for (const annotation of annotations) {
-        if (annotation[1] === "leader") assert.match(annotation[3], /data-zoom-title="[^"]+"/, `${slug} leader ${annotation[2]} title`);
-      }
+      assert.deepEqual(annotations.map((a) => a[1]), [...annotations.map((a) => a[1])].sort());
+      // no leader sits in a zoom stage.
+      assert.doesNotMatch(stage, /annotation-leader/, `${slug} ${match[1]} has no leader`);
       // without scripts every badge is still the link to its note, or the aria-hidden marker it is today; the script
-      // makes the markers and leader labels real buttons. a link's note must exist with a title the bar can use.
+      // makes the markers real buttons. a link's note must exist with a title the bar can use.
       for (const [badge] of stage.matchAll(/<(?:a|span) class="annotation-badge"[^>]*>/g)) {
         if (badge.startsWith("<a")) {
           const note = badge.match(/href="#([^"]+)"/)?.[1];

@@ -22,12 +22,11 @@ export function initializePinZoom() {
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
   let active: { st: Stage; entry: Entry; opener: HTMLElement; sizes: Map<Element, string>; bar: HTMLElement; stop: () => void } | null = null;
 
-  /** wire a stage's annotations in number order; span badges and leader labels become real buttons */
+  /** wire a stage's annotations in number order; span badges become real buttons */
   function build(stage: HTMLElement) {
     const st: Stage = { stage, layer: stage.querySelector<HTMLElement>("[data-zoom-layer]")!, entries: [] };
     for (const el of stage.querySelectorAll<HTMLElement>("[data-annotation]")) {
-      const focus = el.classList.contains("annotation-focus");
-      let trigger = el.querySelector<HTMLElement>(focus ? ".annotation-badge" : ".leader-label")!;
+      let trigger = el.querySelector<HTMLElement>(".annotation-badge")!;
       const { annotation: num = "", zoomTitle: title } = el.dataset;
       const text = title ? `${num} · ${title}` : num;
       if (trigger.tagName === "SPAN") {
@@ -36,7 +35,7 @@ export function initializePinZoom() {
         trigger.setAttribute("aria-label", `Annotation ${text}`);
       }
       const note = document.getElementById(trigger.getAttribute("href")?.slice(1) ?? "");
-      const entry: Entry = { target: focus ? el : el.querySelector<HTMLElement>(".leader-anchor")!, trigger, note, text };
+      const entry: Entry = { target: el, trigger, note, text };
       st.entries.push(entry);
       const go = (event: Event) => { event.preventDefault(); event.stopPropagation(); open(st, entry, trigger); };
       trigger.addEventListener("click", go);

@@ -152,7 +152,7 @@ function sectionFor(exhibit: any) {
               </>
             )}
             {exhibit.kind === "pair" && (
-              <ExhibitPair id={exhibit.id} palette={palette} stages={exhibit.stages} captions={exhibit.captions} zoom={exhibit.zoom === true} />
+              <ExhibitPair id={exhibit.id} palette={palette} stages={exhibit.stages} captions={exhibit.captions} />
             )}
             {exhibit.kind === "custom" && exhibit.graphic === "visit-map" && (
               <ExhibitVisitMap text={exhibit.text} legend={exhibit.legend} categories={exhibit.categories} footnote={exhibit.footnote} label={exhibit.heading} />
