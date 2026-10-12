@@ -276,10 +276,12 @@ test("the footer carries LinkedIn, GitHub and Email, and Email opens a message t
 test("the pin zoom keeps its budget, its reduced-motion rule, its notes active state and the chip off a zoomed stage", () => {
   const script = readFileSync(join(projectRoot, "src", "scripts", "pin-zoom.ts"), "utf8");
   assert.ok(gzipSync(script).length < 3072, `the zoom script stays under 3 KB gzipped, even unminified (${gzipSync(script).length})`);
-  // the framing rule in one exported function: 24 or 16 of padding, 48 of bar room, 1.5 to 4, centred, inside the stage.
+  // the framing rule in one exported function: 24 or 16 of padding, the bar's measured room (48 for one line), 1.5 to 4, centred, inside the stage.
   assert.match(script, /export function frame\(/);
   assert.match(script, /const pad = stage\.w < 500 \? 16 : 24;/);
-  assert.match(script, /Math\.min\(stage\.w \/ \(box\.w \+ 2 \* pad\), \(stage\.h - 48\) \/ \(box\.h \+ 2 \* pad\), 4, cap\)/);
+  assert.match(script, /cap = Infinity, room = 48\)/);
+  assert.match(script, /Math\.min\(stage\.w \/ \(box\.w \+ 2 \* pad\), \(stage\.h - room\) \/ \(box\.h \+ 2 \* pad\), 4, cap\)/);
+  assert.match(script, /rect\(entry\.target\), cap, bar\.offsetHeight \+ 12\)/);
   assert.match(script, /if \(s < 1\.5\) return null;/);
   // the layer carries one translate and scale, identity at rest; 360 in and between notes, 240 out, from the script.
   assert.match(globalCss, /\.stage-zoom \{ position: relative; height: 100%; translate: 0px 0px; scale: 1; transform-origin: 0 0; transition: translate var\(--zoom-ms, 0ms\) var\(--ease-out\), scale var\(--zoom-ms, 0ms\) var\(--ease-out\); \}/);
@@ -301,8 +303,9 @@ test("the pin zoom keeps its budget, its reduced-motion rule, its notes active s
   assert.match(readFileSync(join(projectRoot, "src", "components", "exhibits", "Notes.astro"), "utf8"), /\.exhibit-notes li:is\(:target, \[data-active\]\) \.note-title \{ text-decoration: underline;/);
   assert.match(builtCss, /li\[data-astro-cid-\w+\]:is\(:target,\[data-active\]\) \.note-title\[data-astro-cid-\w+\]\{text-decoration:underline;text-decoration-color:var\(--color-annotate\);text-underline-offset:3px\}/);
   // the bar: an --ink-strong pill 8px in, mono 11 on --canvas, 44px hit areas, the ends disabled by colour.
-  assert.match(globalCss, /\.zoom-bar \{ position: absolute; z-index: 5; bottom: 8px; left: 8px;[^}]*background: var\(--ink-strong\); color: var\(--canvas\); \}/);
-  assert.match(globalCss, /\.zoom-title \{[^}]*font: 500 11px \/ normal var\(--mono\);/);
+  assert.match(globalCss, /\.zoom-bar \{ position: absolute; z-index: 5; bottom: 8px; left: 8px; display: flex; align-items: flex-end;[^}]*background: var\(--ink-strong\); color: var\(--canvas\); \}/);
+  // a long title wraps to two lines, the bar growing upward with the controls on its last line.
+  assert.match(globalCss, /\.zoom-title \{ display: -webkit-box; overflow: hidden; margin-block: 7px; font: 500 11px \/ 14px var\(--mono\); -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; \}/);
   assert.match(globalCss, /\.zoom-bar button::before \{ position: absolute; inset: -8px -6px; content: ""; \}/);
   assert.match(globalCss, /\.zoom-bar button\[aria-disabled="true"\] \{ color: var\(--muted\); cursor: default; \}/);
   // the annotated cursor's chip stays off over a zoomed stage; the zoom never follows hover or scroll.

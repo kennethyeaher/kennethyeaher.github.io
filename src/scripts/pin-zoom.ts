@@ -6,16 +6,16 @@ interface Entry { target: HTMLElement; trigger: HTMLElement; note: HTMLElement |
 interface Stage { stage: HTMLElement; layer: HTMLElement; entries: Entry[] }
 
 /** the view (scale s, stage pixel x y at its top left) for an outline, or null under 1.5x: the outline plus 24px (16px
- * under 500 wide) plus 48 on-screen px for the bar, at the stage's ratio, centred, inside the stage (an outline at the
- * foot may push it past the foot by its bar room); cap is the phone cap */
-export function frame(stage: { w: number; h: number }, box: { x: number; y: number; w: number; h: number }, cap = Infinity) {
+ * under 500 wide) plus room on-screen px for the bar, at the stage's ratio, centred, inside the stage (or past the
+ * foot by the room an outline there needs); cap is the phone cap */
+export function frame(stage: { w: number; h: number }, box: { x: number; y: number; w: number; h: number }, cap = Infinity, room = 48) {
   const pad = stage.w < 500 ? 16 : 24;
-  const s = Math.min(stage.w / (box.w + 2 * pad), (stage.h - 48) / (box.h + 2 * pad), 4, cap);
+  const s = Math.min(stage.w / (box.w + 2 * pad), (stage.h - room) / (box.h + 2 * pad), 4, cap);
   if (s < 1.5) return null;
   const w = stage.w / s;
   const h = stage.h / s;
   const clamp = (v: number, max: number) => Math.min(Math.max(v, 0), max);
-  return { s, x: clamp(box.x + box.w / 2 - w / 2, stage.w - w), y: clamp(box.y + box.h / 2 + 24 / s - h / 2, Math.max(stage.h, box.y + box.h + pad + 48 / s) - h) };
+  return { s, x: clamp(box.x + box.w / 2 - w / 2, stage.w - w), y: clamp(box.y + box.h / 2 + room / 2 / s - h / 2, Math.max(stage.h, box.y + box.h + pad + room / s) - h) };
 }
 
 export function initializePinZoom() {
@@ -59,26 +59,26 @@ export function initializePinZoom() {
     reduce && document.startViewTransition ? document.startViewTransition(swap) : swap();
   }
 
-  /** zoom a stage to one annotation, from rest or from the current view */
+  /** zoom a stage to one annotation, from rest or the current view; the bar goes in first, its height the room */
   function open(st: Stage, entry: Entry, opener: HTMLElement) {
     if (active?.st !== st) exit();
+    const bar = active?.bar ?? st.stage.appendChild(document.querySelector<HTMLTemplateElement>("[data-zoom-bar]")!.content.firstElementChild!.cloneNode(true) as HTMLElement);
+    const [title, prev, next, close] = bar.querySelectorAll<HTMLElement>("span, button");
+    title.textContent = entry.text;
     const sr = st.stage.getBoundingClientRect();
     const lr = st.layer.getBoundingClientRect();
     const k = lr.width / sr.width;
     const rect = (el: Element) => { const r = el.getBoundingClientRect(); return { x: (r.left - lr.left) / k, y: (r.top - lr.top) / k, w: r.width / k, h: r.height / k }; };
     const cap = Math.min(...[...st.stage.querySelectorAll<HTMLImageElement>(".frame-iphone img")].map((img) => +img.getAttribute("width")! / rect(img).w));
-    const view = frame({ w: sr.width, h: sr.height }, rect(entry.target), cap);
-    if (!view && !active) return mark(st, entry);
+    const view = frame({ w: sr.width, h: sr.height }, rect(entry.target), cap, bar.offsetHeight + 12);
+    if (!view && !active) return bar.remove(), mark(st, entry);
     const { s, x, y } = view ?? { s: 1, x: 0, y: 0 };
     if (!active) {
-      const bar = document.querySelector<HTMLTemplateElement>("[data-zoom-bar]")!.content.firstElementChild!.cloneNode(true) as HTMLElement;
-      const [prev, next, close] = bar.querySelectorAll("button");
       prev.addEventListener("click", () => step(-1));
       next.addEventListener("click", () => step(1));
       close.addEventListener("click", () => exit(true));
-      st.stage.append(bar);
       st.stage.classList.add("is-zoomed");
-      // exits: leaving the viewport, or the opener's screen going aria-hidden (the walkthrough moving on)
+      // exits: leaving the viewport, or the opener's screen going aria-hidden
       const io = new IntersectionObserver(([e]) => { if (!e.isIntersecting) exit(); });
       io.observe(st.stage);
       const mo = new MutationObserver(() => { if (opener.closest("[aria-hidden='true']")) exit(); });
@@ -90,8 +90,6 @@ export function initializePinZoom() {
     mark(st, entry);
     move(st, s, x, y, 360);
     const index = st.entries.indexOf(entry);
-    const [title, prev, next] = active.bar.querySelectorAll<HTMLElement>("span, button");
-    title.textContent = entry.text;
     prev.setAttribute("aria-disabled", String(!index));
     next.setAttribute("aria-disabled", String(index === st.entries.length - 1));
     for (const img of st.stage.querySelectorAll("img")) {

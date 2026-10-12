@@ -717,7 +717,8 @@ html:not(.nav-ready) .theme-cord { display: none; }
    an inset spread shadow on the box's outer edge (the border goes to 0, box-sizing keeps the box), since chrome snaps
    a border under 1px up to 1px. a leader keeps its 9px dot the same way.
    the bar is an --ink-strong pill 8px in from the stage's foot: "NN · title" in mono 11 on --canvas, then ‹ › ✕ at 32
-   by 28 with 44px hit areas, the ends disabled by colour. reduced motion: no scale animation; the script crossfades
+   by 28 with 44px hit areas, the ends disabled by colour. a long title wraps to two lines and the bar grows upward,
+   the controls on its last line; the script measures the bar for the room under the outline. reduced motion: no scale animation; the script crossfades
    the views through a 120ms view transition. */
 .stage-zoom { position: relative; height: 100%; translate: 0px 0px; scale: 1; transform-origin: 0 0; transition: translate var(--zoom-ms, 0ms) var(--ease-out), scale var(--zoom-ms, 0ms) var(--ease-out); }
 .is-zoomed .annotation-badge, .is-zoomed .annotation-focus:not(.is-zoom-active), .is-zoomed .annotation-leader:not(:has(.is-zoom-active)),
@@ -726,8 +727,10 @@ html:not(.nav-ready) .theme-cord { display: none; }
 .is-zoomed .annotation-focus.on-light.is-zoom-active { box-shadow: inset 0 0 0 calc(1.5px / var(--zoom-scale, 1)) var(--color-annotate-on-light-stage); }
 /* the reveal animation above would keep the dot at scale 1, so it is dropped while the dot is held. */
 .is-zoomed .leader-anchor.is-zoom-active { scale: calc(1 / var(--zoom-scale, 1)); animation: none; transition: scale var(--zoom-ms, 0ms) var(--ease-out); }
-.zoom-bar { position: absolute; z-index: 5; bottom: 8px; left: 8px; display: flex; align-items: center; gap: 16px; max-width: calc(100% - 16px); padding: 4px 6px 4px 14px; border-radius: 999px; background: var(--ink-strong); color: var(--canvas); }
-.zoom-title { overflow: hidden; font: 500 11px / normal var(--mono); white-space: nowrap; text-overflow: ellipsis; }
+.zoom-bar { position: absolute; z-index: 5; bottom: 8px; left: 8px; display: flex; align-items: flex-end; gap: 16px; max-width: calc(100% - 16px); padding: 4px 6px 4px 14px; border-radius: 18px; background: var(--ink-strong); color: var(--canvas); }
+/* 14px lines, 7px margins: one line sits centred on the 28px controls; margins rather than padding, so the clamp's
+   hidden third line cannot show in the padding. */
+.zoom-title { display: -webkit-box; overflow: hidden; margin-block: 7px; font: 500 11px / 14px var(--mono); -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; }
 .zoom-controls { display: flex; flex: none; }
 .zoom-bar button { position: relative; display: grid; place-items: center; width: 32px; height: 28px; padding: 0; border: 0; border-radius: 999px; background: none; color: var(--canvas); font: 500 14px / 1 var(--ui); cursor: pointer; }
 .zoom-bar button::before { position: absolute; inset: -8px -6px; content: ""; }

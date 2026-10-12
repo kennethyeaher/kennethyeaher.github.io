@@ -55,3 +55,21 @@ test("the scale is clamped to 1.5 to 4, lowered by a phone screen's cap, and und
   near(frame(wide, { x: 100, y: 100, w: 50, h: 50 }, 2.91).s, 2.91, "phone cap");
   assert.equal(frame(wide, { x: 100, y: 100, w: 50, h: 50 }, 1.2), null);
 });
+
+test("a two-line bar's measured room keeps the outline clear of it, inside the stage and past the foot", () => {
+  // one line: 36 tall + 8 inset + 4 gap = 48, the default; two lines: 50 + 12 = 62.
+  const room = 62;
+  assert.deepEqual(frame(wide, { x: 500, y: 100, w: 100, h: 300 }, Infinity, 48), frame(wide, { x: 500, y: 100, w: 100, h: 300 }));
+  const box = { x: 500, y: 100, w: 100, h: 300 };
+  const view = frame(wide, box, Infinity, room);
+  near(view.s, (640 - room) / 348, "height bound (640 - 62) / (300 + 48)");
+  const gap = (view.y + wide.h / view.s - (box.y + box.h)) * view.s;
+  assert.ok(gap >= 24 * view.s + room - 0.01, `gap under the outline ${gap}`);
+  // on the foot, the view's bottom sits pad + room / s under the outline, past the stage.
+  const footBox = { x: 1016, y: 590, w: 100, h: 50 };
+  const foot = frame(wide, footBox, Infinity, room);
+  near(foot.y + wide.h / foot.s, 640 + 24 + room / foot.s, "bottom past the foot by the two-line room");
+  assert.ok((foot.y + wide.h / foot.s - (footBox.y + footBox.h)) * foot.s >= room, "the bar's top stays under the outline");
+  // a phone stage: the two-line room lowers the scale against the one-line one.
+  assert.ok(frame(phone, { x: 120, y: 60, w: 40, h: 60 }, Infinity, room).s < frame(phone, { x: 120, y: 60, w: 40, h: 60 }).s);
+});
