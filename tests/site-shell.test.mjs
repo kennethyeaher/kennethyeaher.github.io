@@ -43,7 +43,8 @@ test("the rendered shell provides theme choice and keeps accessible fallbacks", 
   // the pin and loop toggle set cursor: pointer at two classes' worth, so the rule needs the html type to win the tie.
   assert.match(builtCss, /\.pin\[data-astro-cid-\w+\]\{[^}]*cursor:pointer/);
   assert.match(builtCss, /\.loop-toggle\[data-astro-cid-\w+\]\{[^}]*cursor:pointer/);
-  assert.match(html, /data-nav-toggle/);
+  // v3 has no menu button; the links are always on screen.
+  assert.doesNotMatch(html, /data-nav-toggle|menu-toggle/);
   assert.match(html, /data-theme-toggle/);
   assert.match(html, /aria-label="Dark theme"/);
   assert.match(globalCss, /prefers-color-scheme: dark/);
@@ -65,7 +66,8 @@ test("the theme switch is the pull cord: a real button that hangs out of flow an
   assert.doesNotMatch(readFileSync(join(projectRoot, "src", "scripts", "exhibits.ts"), "utf8"), /setAttribute\("aria-label", dark/);
   // shown by css from the first paint, never revealed by script, so it cannot shift the header.
   assert.doesNotMatch(cord, /\shidden/);
-  assert.match(globalCss, /\.theme-cord \{ position: absolute;/);
+  // v3 hangs it from the top edge (figma 176:1721), not under a header rule.
+  assert.match(globalCss, /\.theme-cord \{ position: absolute; top: 0;/);
   assert.match(globalCss, /html:not\(\.nav-ready\) \.theme-cord \{ display: none; \}/);
   // rests at 44px, pulls 28px further to 72px, and springs back on stiffness 300, damping 18.
   assert.match(globalCss, /\.theme-cord-line \{[^}]*height: 44px;/);
@@ -171,30 +173,71 @@ test("annotation motion follows the exhibit note and stays off under reduced mot
   assert.doesNotMatch(block.replace(/\/\*[\s\S]*?\*\//g, ""), /infinite|alternate|pulse/);
 });
 
-test("the collapsed menu is the first paint when scripts run, so the nav never shifts the page", () => {
-  const html = readFileSync(join(projectRoot, "dist", "work", "kairo-health", "index.html"), "utf8");
-  const head = html.slice(0, html.indexOf("<body"));
-  assert.match(head, /document\.documentElement\.classList\.add\("nav-ready"\)/);
-  // without scripts the class never lands, and the link row fallback still applies.
-  assert.match(globalCss, /html:not\(\.nav-ready\) \.primary-links/);
-});
-
-test("the open phone menu makes the page behind it inert and hands focus in and back out", () => {
+test("the v3 header is the name or a breadcrumb with no bar, rule or menu (figma 176:1721, 177:1801)", () => {
+  const home = readFileSync(join(projectRoot, "dist", "index.html"), "utf8");
+  const header = (html) => html.slice(html.indexOf('<header class="site-header">'), html.indexOf("</header>"));
+  assert.match(header(home), /^<header class="site-header">\s*<a class="brand-name" href="\/">Kenneth Yeaher<\/a>/);
+  assert.doesNotMatch(header(home), /class="breadcrumb"/);
+  for (const slug of ["kairo-health", "ovara"]) {
+    const html = readFileSync(join(projectRoot, "dist", "work", slug, "index.html"), "utf8");
+    const title = html.match(/<h1 id="case-title"[^>]*>([^<]+)<\/h1>/)[1];
+    // back to work, a decorative slash in a lighter tone, then the title in ink, marked as the current page.
+    assert.match(header(html), new RegExp(`^<header class="site-header">\\s*<nav class="breadcrumb" aria-label="Breadcrumb">\\s*<a href="/"><span aria-hidden="true">←</span>Work</a>\\s*<span class="breadcrumb-slash" aria-hidden="true">/</span>\\s*<span class="breadcrumb-current" aria-current="page">${title}</span>\\s*</nav>`));
+    assert.doesNotMatch(header(html), /class="brand-name"/);
+  }
+  for (const html of [home]) assert.doesNotMatch(html, /data-nav-toggle|data-menu-label|brand-role|brand-lockup/);
+  // no bar: no border, no background on the header.
+  const rule = globalCss.match(/\n\.site-header \{([^}]*)\}/)[1];
+  assert.doesNotMatch(rule, /border|background/);
+  assert.match(globalCss, /\.brand-name,\n\.breadcrumb,\n\.rail \{\n  font: 15px \/ 20px var\(--ui-sans\);/);
+  assert.match(globalCss, /--ui-sans: "Geist", var\(--ui\);/);
+  assert.match(globalCss, /\.brand-name,\n\.breadcrumb a \{\n  color: var\(--muted\);/);
+  assert.match(globalCss, /\.breadcrumb-slash \{\n  color: color-mix\(in srgb, var\(--muted\) 50%, var\(--canvas\)\);/);
+  assert.match(globalCss, /\.breadcrumb-current \{\n[^}]*color: var\(--ink\);/);
+  // the menu script is gone; the head still adds nav-ready so the cord shows from the first paint.
   const site = readFileSync(join(projectRoot, "src", "scripts", "site.ts"), "utf8");
-  assert.match(site, /const behind = \[document\.querySelector\("main"\), document\.querySelector\("\.site-footer"\)\];/);
-  assert.match(site, /behind\.forEach\(\(element\) => element\?\.toggleAttribute\("inert", open\)\);/);
-  assert.match(site, /if \(open\) links\.querySelector\("a"\)\?\.focus\(\);\s*else if \(returnFocus\) toggle\.focus\(\);/);
-  assert.match(site, /event\.key === "Escape"[^\n]*setMenuOpen\(false, true\)/);
-  // leaving the phone layout closes the menu, so nothing stays inert behind a menu that no longer shows.
-  assert.match(site, /phoneMenu\.addEventListener\("change"/);
-  // and the cord, which the open menu covers, leaves the tab order with it.
-  assert.match(globalCss, /\.site-nav:has\(\.primary-links\.is-open\) \.theme-cord \{ visibility: hidden; \}/);
+  assert.doesNotMatch(site, /setMenuOpen|data-nav-toggle|inert/);
+  assert.match(home.slice(0, home.indexOf("<body")), /document\.documentElement\.classList\.add\("nav-ready"\)/);
+  assert.doesNotMatch(globalCss, /menu-toggle|primary-links|is-open/);
 });
 
-test("the phone header is 56px, per figma 32:363, and reading progress rests right under it", () => {
-  const phone = globalCss.slice(globalCss.indexOf("@media (max-width: 860px) {\n  /* home v2 mobile"));
+test("the primary rail is fixed at the left edge, squares the current page and turns into a row at 980 (figma 176:1721, 177:1723)", () => {
+  const rail = (html) => html.slice(html.indexOf('aria-label="Primary navigation"'), html.indexOf("</nav>", html.indexOf('aria-label="Primary navigation"')));
+  const current = (html) => [...rail(html).matchAll(/<a [^>]*aria-current="page"[^>]*>\s*([^<]+?)\s*</g)].map(([, label]) => label);
+  const labels = (html) => [...rail(html).matchAll(/<a [^>]*class="rail-link"[^>]*>\s*([^<]+?)\s*</g)].map(([, label]) => label);
+  const pages = { "index.html": "Work", "about/index.html": "About", "work/ovara/index.html": "Work" };
+  for (const [file, active] of Object.entries(pages)) {
+    const html = readFileSync(join(projectRoot, "dist", file), "utf8");
+    // plain links in a list, so the rail works with scripts off; resume still opens the pdf.
+    assert.match(html, /<nav class="site-nav( is-case)?" aria-label="Primary navigation">\s*<ul class="rail">/, file);
+    assert.deepEqual(labels(html), ["Work", "About", "Resume"], file);
+    assert.deepEqual(current(html), [active], file);
+    assert.match(rail(html), /<a href="\/resume\/kyresume\.pdf" class="rail-link" target="_blank" rel="noreferrer">/, file);
+  }
+  // case studies hand the desktop spot to the chapter rail, and keep the row on phones.
+  assert.match(readFileSync(join(projectRoot, "dist", "work", "ovara", "index.html"), "utf8"), /<nav class="site-nav is-case"/);
+  assert.match(readFileSync(join(projectRoot, "dist", "index.html"), "utf8"), /<main id="main-content" class="beside-rail">/);
+
+  assert.match(globalCss, /\.site-nav \{\n  position: fixed;\n  top: 40vh;\n  left: calc\(var\(--page-gutter\) - 10px\);\n\}/);
+  assert.match(globalCss, /\.rail \{\n[^}]*flex-direction: column;\n  gap: 14px;/);
+  assert.match(globalCss, /\.rail-link \{\n[^}]*gap: 6px;\n  color: var\(--muted\);/);
+  assert.match(globalCss, /\.rail-link::before \{\n[^}]*width: 4px;\n  height: 4px;/);
+  assert.match(globalCss, /\.rail-link\[aria-current\] \{\n  color: var\(--color-annotate\);\n\}/);
+  assert.match(globalCss, /\.rail-link\[aria-current\]::before \{\n  background: currentColor;\n\}/);
+  assert.match(globalCss, /\.site-nav\.is-case \{\n  display: none;\n\}/);
+  // dims by colour, never opacity.
+  for (const [, body] of globalCss.matchAll(/\.(?:rail|rail-link|site-nav)[^{]*\{([^}]*)\}/g)) assert.doesNotMatch(body, /opacity/);
+  // at 980, where the chapter rail hides, the rail is a row under the name, case studies included.
+  const narrow = globalCss.slice(globalCss.indexOf("@media (max-width: 980px) {\n  .site-header {"));
+  assert.match(narrow, /\.site-nav,\n  \.site-nav\.is-case \{\n    position: static;\n    display: block;/);
+  assert.match(narrow, /\.rail \{\n    flex-direction: row;/);
+  assert.match(narrow, /main\.beside-rail \{\n    padding-left: 0;/);
+});
+
+test("the phone header is 56px with the name 24px down, and reading progress rests right under it", () => {
+  const phone = globalCss.slice(globalCss.indexOf("@media (max-width: 860px) {\n  /* home v3 mobile"));
   assert.match(phone, /--header-height: 56px;/);
-  assert.match(phone, /\.brand-role \{\s*display: none;/);
+  assert.match(phone, /\.site-header \{\n    padding-top: 24px;/);
   // sticky at the top of the viewport with no offset: the header is not sticky, so the bar rests under it and
   // takes the top once the header scrolls away, whatever the header's height.
   assert.match(globalCss, /\.reading-progress \{ position: sticky; z-index: 40; top: 0;/);
@@ -219,8 +262,17 @@ test("fonts are self-hosted with their licences, preloaded where they paint firs
     }
   }
 
+  // geist sets the v3 shell: one static regular file, under its own licence.
+  const geist = faces.filter((body) => body.includes('font-family: "Geist"'));
+  assert.equal(geist.length, 1);
+  assert.match(geist[0], /font-weight: 400;/);
+  assert.match(geist[0], /font-display: swap;/);
+  assert.match(geist[0], /url\("\/fonts\/geist\/geist-regular\.woff2"\)/);
+  assert.ok(statSync(join(projectRoot, "public", "fonts", "geist", "geist-regular.woff2")).size > 0);
+  assert.match(readFileSync(join(projectRoot, "public", "fonts", "geist", "OFL.txt"), "utf8"), /SIL Open Font License, Version 1\.1/);
+
   const preloads = [...html.matchAll(/<link rel="preload" href="([^"]+)" as="font" type="font\/woff2" crossorigin>/g)].map(([, href]) => href);
-  assert.deepEqual(preloads, ["/fonts/fraunces/fraunces-latin.woff2", "/fonts/jetbrains-mono/jetbrains-mono-latin.woff2"]);
+  assert.deepEqual(preloads, ["/fonts/fraunces/fraunces-latin.woff2", "/fonts/geist/geist-regular.woff2"]);
   for (const href of preloads) assert.ok(existsSync(join(projectRoot, "public", href)));
   // the metric matched fallbacks stay in every serif stack.
   assert.match(globalCss, /--display: "Fraunces", "Fraunces Fallback Iowan", "Fraunces Fallback Georgia"/);
@@ -263,14 +315,24 @@ test("the home h1 keeps its own fallbacks, one pair per optical size, so its lin
   assert.doesNotMatch(globalCss, /local\("Iowan Old Style"\)/);
 });
 
-test("the footer carries LinkedIn, GitHub and Email, and Email opens a message to kyeaher@umd.edu", () => {
+test("the footer carries the credit, then LinkedIn, GitHub and Email, and Email opens a message to kyeaher@umd.edu", () => {
   for (const page of ["index.html", "about/index.html", "work/terpcarehub/index.html"]) {
     const html = readFileSync(join(projectRoot, "dist", page), "utf8");
     const footer = html.slice(html.indexOf('<footer class="site-footer"'), html.indexOf("</footer>"));
+    // v3 (figma 176:1721): the credit as plain text first, and no avatar.
+    assert.match(footer, /<div class="footer-inner">\s*<p class="footer-credit">Designed \+ developed by Ken<\/p>\s*<nav class="footer-links"/, page);
+    assert.doesNotMatch(footer, /<img/, page);
     const links = [...footer.matchAll(/<a href="([^"]+)"[^>]*>([^<]+)<\/a>/g)].map(([, href, label]) => [label, href]);
     assert.deepEqual(links.map(([label]) => label), ["LinkedIn", "GitHub", "Email"], page);
     assert.equal(links[2][1], "mailto:kyeaher@umd.edu");
   }
+  assert.ok(!existsSync(join(projectRoot, "public", "images", "kenneth-avatar.webp")), "the avatar is gone");
+  // no rule; geist 15 in --muted with the links 40px apart, and on phones a column, left aligned, links 24px apart.
+  assert.doesNotMatch(globalCss.match(/\n\.site-footer \{([^}]*)\}/)[1], /border/);
+  assert.match(globalCss, /\.footer-inner \{\n[^}]*justify-content: space-between;\n  gap: 12px 40px;\n  color: var\(--muted\);\n  font: 15px \/ 20px var\(--ui-sans\);/);
+  assert.match(globalCss, /\.footer-links \{\n  display: flex;\n  gap: 40px;\n\}/);
+  const phone = globalCss.slice(globalCss.indexOf("@media (max-width: 620px) {\n  /* the 375 frames"));
+  assert.match(phone, /\.footer-inner \{\n    align-items: flex-start;\n    flex-direction: column;\n  \}\n\n  \.footer-links \{\n    gap: 24px;\n  \}/);
 });
 
 test("the pin zoom keeps its budget, its reduced-motion rule, its notes active state and the chip off a zoomed stage", () => {

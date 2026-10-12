@@ -64,6 +64,28 @@ test("chapter links and mobile wayfinding target every project section", () => {
   }
 });
 
+test("the chapter rail matches the v3 rail: same spot, no numbers, the square on the active chapter, no back link (figma 177:1801)", () => {
+  for (const [slug, html] of pages) {
+    const aside = html.slice(html.indexOf('<aside class="case-rail"'), html.indexOf("</aside>"));
+    const chapters = [...aside.matchAll(/<a class="rail-link" href="#([^"]+)" data-section-link="\1"( aria-current="location")?[^>]*>\s*([^<]+?)\s*<\/a>/g)];
+    const project = projects.find((entry) => entry.slug === slug);
+    // the chapter names keep their words, and the first starts active until the scroll tracking moves it.
+    assert.deepEqual(chapters.map(([, , , label]) => label), project.exhibits.map((exhibit) => exhibit.chapter), slug);
+    assert.deepEqual(chapters.map(([, , current]) => Boolean(current)), chapters.map((_, index) => index === 0), slug);
+    assert.match(aside, /<ol class="rail"/, slug);
+    // the breadcrumb replaces both back links.
+    assert.doesNotMatch(html, /class="back-link"|Back to Work|chapter-number|is-numbered/, slug);
+  }
+  const nav = readFileSync(join(projectRoot, "src", "components", "CaseStudyNav.astro"), "utf8");
+  assert.match(nav, /\.case-rail \.rail \{\n    position: fixed;\n    z-index: 10;\n    top: 40vh;\n    left: calc\(var\(--page-gutter\) - 10px\);/);
+  assert.match(nav, /@media \(max-width: 980px\) \{\n    \.case-rail \{\n      display: none;/);
+  assert.doesNotMatch(nav.slice(nav.indexOf("<style>")), /opacity/);
+  // the scroll tracking still moves aria-current across the rail links and the select.
+  const site = readFileSync(join(projectRoot, "src", "scripts", "site.ts"), "utf8");
+  assert.match(site, /link\.setAttribute\("aria-current", "location"\)/);
+  assert.match(site, /if \(chapterSelect\) chapterSelect\.value = sectionId;/);
+});
+
 test("public case studies keep caveats and future-improvement notes out of the reader experience", () => {
   for (const html of pages.values()) {
     const text = html
@@ -146,14 +168,16 @@ test("every loop control joins its media tag as one pill and never sits on the d
   assert.equal(loops, 9);
 });
 
-test("reading progress matches figma 26:105: a sticky rule track under the header, filled in the case study accent", () => {
+test("reading progress matches figma 26:105, filled in the case study accent, with its empty track hidden (v3)", () => {
   for (const [slug, html] of pages) {
     const project = projects.find((entry) => entry.slug === slug);
     // the first thing in main, so it rests under the header and pins once the header scrolls away.
     const bar = html.match(/<main id="main-content">\s*<div class="reading-progress" data-reading-progress aria-hidden="true" style="--reading-accent: (#[0-9a-fA-F]{6}); --reading-accent-dark: (#[0-9a-fA-F]{6})"><span><\/span><\/div>/);
     assert.ok(bar, `${slug} opens main with the reading progress bar`);
     assert.equal(bar[1], project.cover.accent ?? project.cover.palette[1]);
-    assert.ok(contrast(bar[2], "#344553") >= 3, `${slug} dark fill reaches 3:1 on the dark track`);
+    // lifted to 3:1 against the old dark track (dark --rule), so it clears the darker dark canvas it sits on too.
+    assert.ok(contrast(bar[2], "#344553") >= 3, `${slug} dark fill reaches 3:1 on the dark rule`);
+    assert.ok(contrast(bar[2], "#111923") >= 3, `${slug} dark fill reaches 3:1 on the dark canvas`);
     // the dark fill is the same hue, lighter, with chroma cut only where srgb runs out.
     const [lightness, chroma, hue] = hexToOklch(bar[1]);
     const [darkLightness, darkChroma, darkHue] = hexToOklch(bar[2]);
@@ -164,7 +188,9 @@ test("reading progress matches figma 26:105: a sticky rule track under the heade
   assert.match(pages.get("terpcarehub"), /--reading-accent: #E21833;/);
 
   const globalCss = readFileSync(join(projectRoot, "src", "styles", "global.css"), "utf8");
-  assert.match(globalCss, /\.reading-progress \{ position: sticky; z-index: 40; top: 0; height: 3px; background: var\(--rule\); pointer-events: none; \}/);
+  // no track: only the fill shows, so the top of the page has no line under the header.
+  assert.match(globalCss, /\.reading-progress \{ position: sticky; z-index: 40; top: 0; height: 3px; pointer-events: none; \}/);
+  for (const [, body] of globalCss.matchAll(/\.reading-progress \{([^}]*)\}/g)) assert.doesNotMatch(body, /background/);
   // the scroll timeline only runs where motion is welcome; under reduced motion the script sets the fill directly.
   const start = globalCss.indexOf("@media (prefers-reduced-motion: no-preference)");
   const motion = globalCss.slice(start, globalCss.indexOf("@media (prefers-reduced-motion: reduce)", start));
@@ -241,7 +267,8 @@ test("USM renders the v2 exhibit layout from the approved spec", () => {
   const sectionIds = [...usm.matchAll(/<section[^>]*\bid="([^"]+)"[^>]*data-case-section/g)].map((match) => match[1]);
   assert.deepEqual(sectionIds, chapters);
   for (const id of chapters) assert.match(usm, new RegExp(`href="#${id}"`));
-  assert.match(usm, /<span class="chapter-number"[^>]*>05<\/span>\s*The VC lens/);
+  // v3 chapter rail: sentence case, no numbers.
+  assert.match(usm, /<a class="rail-link" href="#the-vc-lens" data-section-link="the-vc-lens"[^>]*>\s*The VC lens\s*<\/a>/);
   // 05 the vc lens has no exhibit in figma, so it is a prose chapter; the decision framework stays in 04.
   assert.doesNotMatch(usm, /id="reflection"/);
   const vcLens = usm.slice(usm.indexOf('id="the-vc-lens"'), usm.indexOf("data-project-pager"));
