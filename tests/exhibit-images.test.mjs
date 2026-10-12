@@ -101,3 +101,30 @@ test("every exhibit's widest copy is at least twice its rendered width at 1440, 
     assert.ok(widest >= needed, `${name}: widest copy is ${widest}, a 2x screen at ${cssWidth} css px needs ${needed}`);
   }
 });
+
+// on a 390 phone (a 350px column) every placed exhibit gets a copy covering its drawn width at 2x and 3x. the drawn
+// width is the bounding box, so a turned visual (the usm briefs) needs more than its unturned width. this picks
+// the copy the way a browser does: the narrowest one at least as wide as the sizes claim times the dpr.
+test("every placed exhibit's phone copy covers its drawn width at 390 on 2x and 3x screens", () => {
+  const column = 350;
+  let checked = 0;
+  for (const slug of slugs) {
+    const html = readFileSync(join(projectRoot, "dist/work", slug, "index.html"), "utf8");
+    const placed = /<div class="exhibit-visual visual-image is-placed" style="[^"]*width: ([\d.]+)%(?:; rotate: (-?[\d.]+)deg)?[^"]*"[^>]*>\s*<picture[^>]*>\s*<source type="image\/webp" srcset="([^"]+)" sizes="([^"]+)"[^>]*>\s*<img[^>]*width="(\d+)" height="(\d+)"/g;
+    for (const [, width, rotate = "0", srcset, sizes, w, h] of html.matchAll(placed)) {
+      const turn = (Math.abs(Number(rotate)) * Math.PI) / 180;
+      const drawn = column * (Number(width) / 100) * (Math.cos(turn) + (Number(h) / Number(w)) * Math.sin(turn));
+      const phone = sizes.match(/^\(max-width: 620px\) calc\(\(100vw - 40px\) \* ([\d.]+)\)/);
+      assert.ok(phone, `${slug} ${srcset.split(" ")[0]} has a phone sizes clause`);
+      const claim = column * Number(phone[1]);
+      const copies = srcset.split(", ").map((entry) => Number(entry.match(/ (\d+)w$/)[1])).sort((a, b) => a - b);
+      for (const dpr of [2, 3]) {
+        const picked = copies.find((copy) => copy >= claim * dpr) ?? copies.at(-1);
+        const needed = Math.min(Math.ceil(drawn * dpr) - 1, copies.at(-1));
+        assert.ok(picked >= needed, `${slug} ${srcset.split(" ")[0]} at ${dpr}x: picks ${picked}, draws ${drawn.toFixed(1)} css px`);
+      }
+      checked += 1;
+    }
+  }
+  assert.ok(checked >= 7, `only ${checked} placed exhibits found`);
+});

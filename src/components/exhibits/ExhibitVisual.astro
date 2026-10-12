@@ -62,9 +62,13 @@ const share = visual.at ? (Number(style?.match(/width: ([\d.]+)%/)?.[1]) || visu
 const zoom = visual.crop ? 1 / visual.crop.w : 1;
 // a rows or pair stage (stageWidth given) is the full column once those layouts stack under 760px.
 const column = `min(1116px, 100vw - 48px)`;
+// phones have a 20px gutter, so the column is 100vw - 40px there, and they claim the drawn width: a turned visual's
+// bounding box (figma's at.w) is wider than its unturned box, and a 3x phone needs a copy that wide (the usm briefs).
+const drawn = visual.at && visual.rot ? Math.max(share, visual.at.w) : share;
+const phone = `(max-width: 620px) calc((100vw - 40px) * ${((drawn / 100) * zoom).toFixed(3)})`;
 const sizes = stageWidth
-  ? `(max-width: 760px) calc(${column} * ${((share / 100) * zoom).toFixed(3)}), calc(${column} * ${((share / 100) * zoom * stageWidth).toFixed(3)})`
-  : `calc(${column} * ${((share / 100) * zoom).toFixed(3)})`;
+  ? `${phone}, (max-width: 760px) calc(${column} * ${((share / 100) * zoom).toFixed(3)}), calc(${column} * ${((share / 100) * zoom * stageWidth).toFixed(3)})`
+  : `${phone}, calc(${column} * ${((share / 100) * zoom).toFixed(3)})`;
 const cropStyle = visual.crop && `width: ${(100 / visual.crop.w).toFixed(3)}%; left: ${(-100 * visual.crop.x / visual.crop.w).toFixed(3)}%; top: ${(-100 * visual.crop.y / visual.crop.h).toFixed(3)}%`;
 const eager = priority || visual.priority === true;
 ---
