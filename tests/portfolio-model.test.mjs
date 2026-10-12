@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 
 import {
   experience,
+  homeNow,
   getAdjacentProject,
   getFeaturedProjects,
   getProjectBySlug,
@@ -97,6 +98,27 @@ test("professional history includes the supplied Towers internship and Frontgrou
         year === "2022" && organization === "Frontground" && role === "Founder",
     ),
   );
+});
+
+test("home v3 keeps Currently and Previously as short prose, and the compact history stays in the data", () => {
+  assert.deepEqual(homeNow, {
+    currently: ["Studying HCIM @ UMD", "in College Park, Maryland"],
+    previously:
+      "Screened deals @ USM Maryland Momentum Fund, analyzed data @ Towers Surgical Partners, founded Frontground, and more.",
+  });
+  // the home page no longer renders `experience`, but all six entries stay, in order, without the phone subset.
+  assert.deepEqual(
+    experience.map(({ year, organization, role }) => `${year} ${organization} ${role}`),
+    [
+      "2026 USM Maryland Momentum Fund Summer Investment Associate",
+      "2026 USM Maryland Momentum Fund Venture Fellow",
+      "2025 Towers Surgical Partners Data Analyst",
+      "2024 Towers Surgical Partners Data Analyst Intern",
+      "2022 Frontground Founder",
+      "2021 hiveSocial Product Design Intern",
+    ],
+  );
+  assert.ok(experience.every((entry) => !("compact" in entry)));
 });
 
 test("every featured project carries a project-palette motion cover and a substantial case narrative", () => {

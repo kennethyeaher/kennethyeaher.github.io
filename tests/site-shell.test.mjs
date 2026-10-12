@@ -232,6 +232,8 @@ test("the primary rail is fixed at the left edge, squares the current page and t
   assert.match(narrow, /\.site-nav,\n  \.site-nav\.is-case \{\n    position: static;\n    display: block;/);
   assert.match(narrow, /\.rail \{\n    flex-direction: row;/);
   assert.match(narrow, /main\.beside-rail \{\n    padding-left: 0;/);
+  // the header takes the home content's 20px margin from 980 down, so the name lines up with the thesis.
+  assert.match(narrow, /^@media \(max-width: 980px\) \{\n  \.site-header \{\n    --page-gutter: 20px;/);
 });
 
 test("the phone header is 56px with the name 24px down, and reading progress rests right under it", () => {

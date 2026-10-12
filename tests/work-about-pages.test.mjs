@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import test, { before } from "node:test";
 import assert from "node:assert/strict";
+import { getFeaturedProjects } from "../src/data/portfolio.mjs";
 
 const projectRoot = new URL("..", import.meta.url).pathname;
 let workHtml = "";
@@ -58,20 +59,53 @@ test("the Work page renders the approved thesis and the design-first project ord
   assert.doesNotMatch(workHtml, /project-media is-contained/);
 });
 
-test("home v2 follows figma 131:1693 and 131:1973: a work header, a compact job list on phones, serif card lines", () => {
-  assert.match(workHtml, /<h2 id="work-title"[^>]*>Selected work<\/h2>\s*<p[^>]*>08 projects<\/p>/);
-  // card titles sit under the work header; the view transition names the clicked card's h3.
-  assert.equal((workHtml.match(/<div class="project-heading"[^>]*>\s*<h3/g) ?? []).length, 8);
+test("home v3 follows figma 176:1721 and 177:1723: Currently and Previously under the thesis, name / year captions", () => {
+  // no visible work header or project count; the h2 stays for screen readers so the card h3s keep a parent.
+  assert.match(workHtml, /<h2 id="work-title" class="sr-only"[^>]*>Selected work<\/h2>/);
+  assert.doesNotMatch(workHtml, /class="work-header"|\d\d projects/);
+  // the experience list no longer renders on the home page.
+  assert.doesNotMatch(workHtml, /experience-list|experience-year|is-compact/);
+
+  // Currently is two lines and Previously one sentence, where each "@" holds to the word before it.
+  const now = workHtml.match(/<dl class="home-now"[^>]*>([\s\S]*?)<\/dl>/)?.[1];
+  assert.ok(now, "the Currently and Previously list renders");
+  const pairs = [...now.matchAll(/<dt[^>]*>([^<]+)<\/dt>\s*(?:<!--[\s\S]*?-->\s*)?<dd[^>]*>([\s\S]*?)<\/dd>/g)].map(([, label, body]) => [label, body.replace(/<span[^>]*>([^<]*)<\/span>/g, "$1|").replace(/\|$/, "")]);
+  assert.deepEqual(pairs, [
+    ["Currently", "Studying HCIM @ UMD|in College Park, Maryland"],
+    ["Previously", "Screened deals\u00a0@ USM Maryland Momentum Fund, analyzed data\u00a0@ Towers Surgical Partners, founded Frontground, and more."],
+  ]);
+  assert.doesNotMatch(visibleText(now), /\b(19|20)\d\d\b/, "no years");
+
+  // each card is its cover, then "{name} / {year}" with an aria-hidden slash; no category, role or summary.
+  const captions = [...workHtml.matchAll(/<div class="project-caption"[^>]*>\s*<h3[^>]*>([^<]+)<\/h3>\s*<span class="project-caption-slash" aria-hidden="true"[^>]*>\/<\/span>\s*<span class="project-year"[^>]*>(\d{4})<\/span>\s*<\/div>\s*<\/a>/g)].map((match) => `${match[1]} / ${match[2]}`);
+  assert.deepEqual(captions, getFeaturedProjects().map((project) => `${project.cardTitle} / ${project.year}`));
+  assert.doesNotMatch(workHtml, /class="project-(role|summary|heading)"/);
   assert.match(workHtml, /card\.querySelector\("h3"\)\.style\.viewTransitionName/);
-  // the three entries the phone layout keeps, in order.
-  const compact = [...workHtml.matchAll(/<li class="is-compact"[^>]*>\s*<span class="experience-year"[^>]*>(\d{4})<\/span>\s*<span class="experience-org"[^>]*>([^<]+)<\/span>\s*<span class="experience-role"[^>]*>([^<]+)<\/span>/g)].map((match) => match.slice(1).join(" "));
-  assert.deepEqual(compact, ["2026 USM Maryland Momentum Fund Summer Investment Associate", "2025 Towers Surgical Partners Data Analyst", "2022 Frontground Founder"]);
-  assert.equal((workHtml.match(/<li[^>]*>\s*<span class="experience-year"/g) ?? []).length, 6);
 
   const css = [...workHtml.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map((match) => readFileSync(join(projectRoot, "dist", match[1]), "utf8")).join("\n");
-  assert.match(css, /\.home-intro\[[^\]]+\]\{[^}]*padding-top:96px;padding-bottom:64px/);
-  assert.match(css, /\.project-role\[[^\]]+\]\{[^}]*color:var\(--color-muted-label\);font:15px ?\/ ?1\.3 var\(--body\)/);
-  assert.match(css, /\.project-summary\[[^\]]+\]\{[^}]*color:var\(--ink\);font-size:17px/);
+  const rule = (selector, scope = css) => scope.match(new RegExp(`(?:^|[{}\\s])${selector}\\[[^\\]]+\\]\\{([^}]*)\\}`))?.[1] ?? "";
+  // a 924px column centred on the screen (x=258 at 1440) clear of the rail; the credit 140px under the grid.
+  assert.match(rule("\\.home-page"), /^width:min\(924px,100% - 48px\);margin-bottom:116px;margin-left:max\(24px,50% - 510px\)$/);
+  assert.match(rule("\\.home-intro"), /^padding-top:288px;padding-bottom:96px$/);
+  assert.match(rule("\\.home-thesis\\[[^\\]]+\\] h1"), /font-size:72px;font-weight:400;letter-spacing:-\.02em;line-height:74px/);
+  assert.match(rule("\\.home-now"), /^display:flex;margin:48px 0 0;gap:48px;font:15px \/ 22px var\(--ui-sans\)$/);
+  assert.match(rule("\\.home-now-currently"), /^flex:0 280px$/);
+  assert.match(rule("\\.home-now-previously"), /^flex:0 470px$/);
+  assert.match(rule("\\.home-now\\[[^\\]]+\\] dt"), /^color:var\(--muted\)$/);
+  assert.match(rule("\\.home-now\\[[^\\]]+\\] dd"), /color:var\(--ink\)$/);
+  assert.match(rule("\\.work-grid"), /grid-template-columns:repeat\(2,minmax\(0,1fr\)\);gap:40px 16px$/);
+  assert.match(rule("\\.project-caption"), /^display:flex;margin-top:12px;align-items:baseline;gap:8px;color:var\(--muted\);font:15px \/ 20px var\(--ui-sans\)$/);
+  assert.match(rule("\\.project-caption\\[[^\\]]+\\] h3"), /color:var\(--ink\)/);
+  assert.match(rule("\\.project-caption-slash"), /^color:color-mix\(in srgb,var\(--muted\) 50%,var\(--canvas\)\)$/);
+
+  // at 980 and below the 20px margin and the stack, 24px apart; at 760 the 40px thesis and one column of cards.
+  const at = (width) => css.slice(css.indexOf(`@media(width<=${width}px){.home-`));
+  assert.match(rule("\\.home-page", at(980)), /^width:auto;margin-left:0;padding-inline:20px$/);
+  assert.match(rule("\\.home-now", at(980)), /^flex-direction:column;margin-top:32px;gap:24px$/);
+  assert.match(rule("\\.home-intro", at(980)), /padding-bottom:56px/);
+  assert.match(rule("\\.home-thesis\\[[^\\]]+\\] h1", at(760)), /font-size:40px;line-height:42px/);
+  assert.match(rule("\\.work-grid", at(760)), /^grid-template-columns:1fr;gap:32px$/);
+  assert.match(rule("\\.home-page", at(620)), /^margin-bottom:-16px$/);
 });
 
 test("the About page is HCI-focused and renders no fake photo placeholders", () => {
