@@ -69,7 +69,8 @@ export function initializePointerNote(): void {
     const over = event.target instanceof Element ? event.target : null;
     const element = over?.closest<HTMLElement>("[data-cursor]");
     const selecting = !(getSelection()?.isCollapsed ?? true);
-    if (!element || selecting || over?.closest("input, select, textarea, [contenteditable]")) return hide();
+    // the chip stays off over a zoomed stage (figma 168:1745); the bar says what the view is.
+    if (!element || selecting || over?.closest("input, select, textarea, [contenteditable], .is-zoomed")) return hide();
     show(element);
     // one write per frame, however many moves arrive.
     if (target && !frame) frame = requestAnimationFrame(place);

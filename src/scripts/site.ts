@@ -1,5 +1,6 @@
 import { initializeTheme, initializeCoverGradients, initializeExhibitLoops, initializeAnnotationFallback, initializeMetricCounters, initializeCoverDepth, initializeReadingProgress, initializeMediaControls, initializeScrollers, initializeWalkthroughs } from "./exhibits";
 import { initializePointerNote } from "./pointer-note";
+import { initializePinZoom } from "./pin-zoom";
 
 /**
  * Initialize navigation, theme choice, motion, and exhibit controls.
@@ -16,6 +17,7 @@ function initializeSite(): void {
   initializeWalkthroughs();
   initializeScrollers();
   initializePointerNote();
+  initializePinZoom();
 
   const toggle = document.querySelector<HTMLButtonElement>("[data-nav-toggle]");
   const links = document.querySelector<HTMLElement>("[data-nav-links]");
