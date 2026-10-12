@@ -1,13 +1,13 @@
 /**
- * zoom on the active pin, figma 168:1745: a click, tap, enter or space on a badge of a data-pin-zoom stage, or a click
- * on its note card, zooms the stage's layer to that annotation at 1.5x to 4x, with a bar carrying "NN · title" and ‹ › ✕.
- * escape, ✕, a click outside or leaving the viewport zoom out; focus returns to the opener. never on hover.
+ * zoom on the active pin, figma 168:1745: a click, tap, enter or space on a badge of a data-pin-zoom stage (or a click
+ * on its note card) zooms the stage's layer to that annotation at 1.5x to 4x, with a bar: "NN · title" and ‹ › ✕.
  */
 interface Entry { target: HTMLElement; trigger: HTMLElement; note: HTMLElement | null; text: string }
 interface Stage { stage: HTMLElement; layer: HTMLElement; entries: Entry[] }
 
 /** the view (scale s, stage pixel x y at its top left) for an outline, or null under 1.5x: the outline plus 24px (16px
- * under 500 wide) plus 48 on-screen px for the bar, at the stage's ratio, centred, inside the stage; cap is the phone cap. */
+ * under 500 wide) plus 48 on-screen px for the bar, at the stage's ratio, centred, inside the stage (an outline at the
+ * foot may push it past the foot by its bar room); cap is the phone cap */
 export function frame(stage: { w: number; h: number }, box: { x: number; y: number; w: number; h: number }, cap = Infinity) {
   const pad = stage.w < 500 ? 16 : 24;
   const s = Math.min(stage.w / (box.w + 2 * pad), (stage.h - 48) / (box.h + 2 * pad), 4, cap);
@@ -15,14 +15,14 @@ export function frame(stage: { w: number; h: number }, box: { x: number; y: numb
   const w = stage.w / s;
   const h = stage.h / s;
   const clamp = (v: number, max: number) => Math.min(Math.max(v, 0), max);
-  return { s, x: clamp(box.x + box.w / 2 - w / 2, stage.w - w), y: clamp(box.y + box.h / 2 + 24 / s - h / 2, stage.h - h) };
+  return { s, x: clamp(box.x + box.w / 2 - w / 2, stage.w - w), y: clamp(box.y + box.h / 2 + 24 / s - h / 2, Math.max(stage.h, box.y + box.h + pad + 48 / s) - h) };
 }
 
 export function initializePinZoom() {
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
   let active: { st: Stage; entry: Entry; opener: HTMLElement; sizes: Map<Element, string>; bar: HTMLElement; stop: () => void } | null = null;
 
-  /** wire a stage's annotations, in number order; span badges and leader labels become real buttons */
+  /** wire a stage's annotations in number order; span badges and leader labels become real buttons */
   function build(stage: HTMLElement) {
     const st: Stage = { stage, layer: stage.querySelector<HTMLElement>("[data-zoom-layer]")!, entries: [] };
     for (const el of stage.querySelectorAll<HTMLElement>("[data-annotation]")) {
@@ -53,7 +53,7 @@ export function initializePinZoom() {
     }
   }
 
-  /** move the layer over ms; under reduced motion the views crossfade through a 120ms view transition instead */
+  /** move the layer over ms, or under reduced motion crossfade the views through a 120ms view transition */
   function move(st: Stage, s: number, x: number, y: number, ms: number) {
     const swap = () => { st.layer.style.cssText = `--zoom-scale: ${s}; --zoom-ms: ${ms}ms; translate: ${-x * s}px ${-y * s}px; scale: ${s}`; };
     reduce && document.startViewTransition ? document.startViewTransition(swap) : swap();
@@ -61,7 +61,7 @@ export function initializePinZoom() {
 
   /** zoom a stage to one annotation, from rest or from the current view */
   function open(st: Stage, entry: Entry, opener: HTMLElement) {
-    if (active && active.st !== st) exit();
+    if (active?.st !== st) exit();
     const sr = st.stage.getBoundingClientRect();
     const lr = st.layer.getBoundingClientRect();
     const k = lr.width / sr.width;
@@ -78,13 +78,13 @@ export function initializePinZoom() {
       close.addEventListener("click", () => exit(true));
       st.stage.append(bar);
       st.stage.classList.add("is-zoomed");
-      // exits: the stage leaving the viewport, or the opener's screen going aria-hidden (the walkthrough moving on)
+      // exits: leaving the viewport, or the opener's screen going aria-hidden (the walkthrough moving on)
       const io = new IntersectionObserver(([e]) => { if (!e.isIntersecting) exit(); });
       io.observe(st.stage);
       const mo = new MutationObserver(() => { if (opener.closest("[aria-hidden='true']")) exit(); });
       mo.observe(st.stage, { subtree: true, attributeFilter: ["aria-hidden"] });
       active = { st, entry, opener, sizes: new Map(), bar, stop: () => { io.disconnect(); mo.disconnect(); } };
-      if (document.activeElement === opener) close.focus();
+      if (document.activeElement === opener) close.focus({ preventScroll: true });
     }
     active.entry = entry;
     mark(st, entry);
@@ -103,13 +103,13 @@ export function initializePinZoom() {
     }
   }
 
-  /** the previous or next annotation, one move away. */
+  /** the previous or next annotation */
   function step(by: number) {
     const entry = active?.st.entries[active.st.entries.indexOf(active.entry) + by];
     if (entry) open(active!.st, entry, active!.opener);
   }
 
-  /** zoom back out, restore sizes, drop the bar; focus returns to the opener once the badges are back */
+  /** zoom back out, restore sizes, drop the bar; focus returns once the badges are back, after either motion */
   function exit(back = false) {
     if (!active) return;
     const { st, opener, sizes, bar, stop } = active;
@@ -123,10 +123,10 @@ export function initializePinZoom() {
     setTimeout(() => {
       if (active?.st !== st) st.stage.classList.remove("is-zoomed");
       if (!active && (back || had === document.body || bar.contains(had))) opener.focus({ preventScroll: true });
-    }, reduce ? 0 : 240);
+    }, 240);
   }
 
-  // a phones-only stage (the alert badges) is left alone from 761px, where stages stop stacking, decided at load.
+  // a phones-only stage (the alert badges) is left alone from 761px, where stages stop stacking; decided at load
   document.querySelectorAll<HTMLElement>(matchMedia("(min-width: 761px)").matches ? "[data-pin-zoom]:not([data-pin-zoom-phone])" : "[data-pin-zoom]").forEach(build);
   document.addEventListener("keydown", (event) => { if (event.key === "Escape") exit(true); });
   document.addEventListener("click", (event) => { if (active && !active.st.stage.contains(event.target as Node)) exit(); });

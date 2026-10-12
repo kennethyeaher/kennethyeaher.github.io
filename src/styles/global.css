@@ -735,5 +735,8 @@ html:not(.nav-ready) .theme-cord { display: none; }
 .zoom-bar button:focus-visible { outline: 2px solid var(--canvas); outline-offset: -2px; }
 @media (prefers-reduced-motion: reduce) {
   .stage-zoom, .is-zoomed .annotation-focus.is-zoom-active, .is-zoomed .leader-anchor.is-zoom-active { transition: none; }
+  /* the site's reduce rule above gives every change a 0.01ms transition, visibility included, and a badge coming back
+     cannot take focus during it; the badges and leaders return at once instead, so focus can land on them. */
+  .annotation-focus, .annotation-badge, .annotation-leader, .leader-label { transition: none !important; }
   ::view-transition-group(root) { animation-duration: 120ms; }
 }

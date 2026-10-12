@@ -30,7 +30,8 @@ const box = vertical
   .is-vertical .leader-line { width: 1px; min-height: 1px; height: auto; transform-origin: center top; }
   .on-light .leader-line { background: rgb(38 51 64 / 45%); }
   .on-dark .leader-line { background: rgb(255 255 255 / 70%); }
-  .leader-label { display: grid; flex: none; gap: 2px; padding-left: 10px; white-space: nowrap; }
+  /* text-align is pinned because the label becomes a button once its stage zooms (figma 168:1745), and a button centres text. */
+  .leader-label { display: grid; flex: none; gap: 2px; padding-left: 10px; white-space: nowrap; text-align: start; }
   .is-left .leader-label { padding: 0 10px 0 0; justify-items: end; text-align: right; }
   .is-vertical .leader-label { padding: 10px 0 0; justify-items: center; text-align: center; }
   .leader-number { color: var(--color-annotate); font: 10px / 1.3 var(--mono); letter-spacing: 0.06em; }

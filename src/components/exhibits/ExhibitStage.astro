@@ -74,6 +74,9 @@ const field = (preset.circles as { x: number; y: number; r: number; colour: numb
     background: var(--stage-base);
     isolation: isolate;
   }
+  /* a zoom stage clips instead of hiding, so neither focus on a clipped leader label nor a script can scroll its content
+     (figma 168:1745); the zoomed layer would otherwise give the box scrollable overflow. */
+  .exhibit-stage[data-pin-zoom] { overflow: clip; }
   .exhibit-stage::after {
     position: absolute;
     z-index: 10;

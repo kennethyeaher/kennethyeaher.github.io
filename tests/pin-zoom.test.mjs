@@ -33,12 +33,17 @@ test("the view keeps the stage's aspect ratio and is centred on the outline plus
   near(view.y + wide.h / view.s / 2, box.y + box.h / 2 + 24 / view.s, "centred on the outline plus half of 48 / s");
 });
 
-test("the view never leaves the stage", () => {
+test("the view never leaves the stage, except past the foot by the bar room an outline there needs", () => {
   const corner = frame(wide, { x: 0, y: 0, w: 100, h: 50 });
   assert.deepEqual([corner.x, corner.y], [0, 0]);
-  const far = frame(wide, { x: 1016, y: 590, w: 100, h: 50 });
-  near(far.x, wide.w - wide.w / far.s, "right edge");
-  near(far.y, wide.h - wide.h / far.s, "bottom edge");
+  // an outline 60 above the foot: the view stops at the stage's edges.
+  const low = frame(wide, { x: 1016, y: 530, w: 100, h: 50 });
+  near(low.x, wide.w - wide.w / low.s, "right edge");
+  near(low.y, wide.h - wide.h / low.s, "bottom edge");
+  // an outline on the foot: the view's bottom sits pad + 48 / s under it, past the stage, so the bar never covers it.
+  const foot = frame(wide, { x: 1016, y: 590, w: 100, h: 50 });
+  near(foot.y + wide.h / foot.s, 640 + 24 + 48 / foot.s, "bottom past the foot by the bar room");
+  assert.ok(foot.y > wide.h - wide.h / foot.s, "the view overshoots the foot");
 });
 
 test("the scale is clamped to 1.5 to 4, lowered by a phone screen's cap, and under 1.5 there is no zoom", () => {
