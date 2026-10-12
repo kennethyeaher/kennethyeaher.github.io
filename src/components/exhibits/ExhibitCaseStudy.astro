@@ -123,7 +123,7 @@ function sectionFor(exhibit: any) {
                       // a leader placed on the stage itself (frontground 90:2382), its box a share of the stage.
                       ? <AnnotationLeader num={annotation.num} label={annotation.label} at={annotation.at} order={Number(annotation.num) - 1} vertical={annotation.type === "leader-vertical"} direction={annotation.direction} zoomAt={exhibit.zoom ? annotation.zoomAt : undefined} />
                       // with captions rather than notes (terpcarehub 90:1769), focus badges are markers with nothing to link to.
-                      : <ExhibitVisual visual={exhibit.visuals[annotation.on]} stageRatio={stageRatio(exhibit)} idPrefix={exhibit.id} annotations={[{ ...annotation, title: exhibit.notes?.find((note: any) => note.n === annotation.num)?.title }]} overlay linkNotes={Boolean(exhibit.notes)} />
+                      : <ExhibitVisual visual={exhibit.visuals[annotation.on]} stageRatio={stageRatio(exhibit)} idPrefix={exhibit.id} annotations={[{ ...annotation, title: exhibit.notes?.find((note: any) => note.n === annotation.num)?.title ?? annotation.title }]} overlay linkNotes={Boolean(exhibit.notes)} />
                   ))}
                 </ExhibitStage>
                 {exhibit.notes && <Notes notes={exhibit.notes} idPrefix={exhibit.id} />}

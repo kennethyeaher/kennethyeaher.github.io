@@ -21,12 +21,13 @@
  * @typedef {{
  *   type: "focus" | "leader" | "leader-vertical", num: string, label?: string,
  *   on?: number, at?: Box, target?: string, direction?: "left" | "right", theme?: "on-dark" | "on-light",
- *   zoomAt?: { x: number, y: number, w: number, h: number }
+ *   zoomAt?: { x: number, y: number, w: number, h: number }, title?: string
  * }} ExhibitAnnotation
  *   on is the index of the visual the box sits on; native targets name a row or cell instead; with
  *   neither, the box is a share of the stage itself. zoomAt, on a leader or leader-vertical, is the region the
  *   leader points at, a share of the stage like a focus box with no on (figma 197:1727): on a zoom stage the region,
- *   not the label box, sets the zoom; a leader without it does not zoom.
+ *   not the label box, sets the zoom; a leader without it does not zoom. title, on a focus box with no note, is the
+ *   zoom bar's title after the number, from the case study copy (figma 197:1727); a note's title wins.
  * @typedef {{ n: string, title: string, body: string }} ExhibitNote
  * @typedef {{ tag?: string, title: string, body: string }} ExhibitCaption
  * @typedef {{ eyebrow: string, value: string, label: string, at?: { x: number, y: number } }} ExhibitKpi
@@ -1103,7 +1104,8 @@ export const caseStudies = [
       },
       {
         kind: "stage", id: "where-it-landed", chapter: "Where it landed", figma: "90:1755", size: "wide", ratio: "1116 / 790",
-        // figma 168:1745: the alert badges zoom on phones only; at 1440 the 1.5x instance already reads at 12px.
+        // figma 168:1745: the alert badges zoom on phones only; at 1440 the 1.5x instance already reads at 12px. their bar
+        // titles come from the lede (figma 197:1727).
         zoom: "phone",
         lede: [
           "The provider card carries the decision. Availability, plan acceptance, and expected cost sit on the card itself. Cost was the blocker that ended the search in the journey map, and pushing it to a detail page would rebuild the same dead end one screen further in.",
@@ -1117,9 +1119,9 @@ export const caseStudies = [
         field: { width: 1116, height: 790, sigma: 45, circles: [{ x: 451, y: 520, r: 260, colour: "#E21833", alpha: 0.9 }, { x: 801, y: 30, r: 190, colour: "#FF7A45", alpha: 0.9 }, { x: 801, y: 570, r: 210, colour: "#4A0512", alpha: 0.9 }] },
         visuals: [{ src: "/images/work/terpcarehub/alert-detail.png", width: 3024, height: 3250, alt: "Alert detail page with severity banner and source verification panel", frame: "browser", url: "terpcarehub · alert", screen: { w: 640, h: 520 }, zoom: 1.5, at: { x: 6.99, y: 6.08, w: 86.02 } }],
         annotations: [
-          { type: "focus", num: "01", on: 0, at: { x: 4.6, y: 20.3, w: 90.8, h: 6.1 } },
-          { type: "focus", num: "02", on: 0, at: { x: 4.6, y: 37.1, w: 37.5, h: 7.1 } },
-          { type: "focus", num: "03", on: 0, at: { x: 64.1, y: 69, w: 32.6, h: 15.9 } },
+          { type: "focus", num: "01", on: 0, at: { x: 4.6, y: 20.3, w: 90.8, h: 6.1 }, title: "Severity tag applied at ingest" },
+          { type: "focus", num: "02", on: 0, at: { x: 4.6, y: 37.1, w: 37.5, h: 7.1 }, title: "Source badge and timestamp" },
+          { type: "focus", num: "03", on: 0, at: { x: 64.1, y: 69, w: 32.6, h: 15.9 }, title: "Acknowledged, not swiped away" },
         ],
         // figma 119:71, below the alert stage: three pins on the find care screen, each linked to its note.
         pins: {
@@ -2354,7 +2356,7 @@ export const caseStudies = [
             field: { width: 534, height: 600, sigma: 55, circles: [{ x: 100, y: 120, r: 220, colour: "#0069D9", alpha: 0.85 }, { x: 490, y: 510, r: 190, colour: "#00A650", alpha: 0.75 }] },
             visuals: [{ src: "/images/work/sohive/sohive-feed-screen.png", width: 658, height: 1423, alt: "sohive home feed on black, with a blue Terp Startup Mixer card and a green Late Night Study Jam card above a post from the African Student Association", frame: "iphone", at: { x: 27.53, y: 8.67, w: 44.94 } }],
             annotations: [
-              { type: "leader", num: "01", label: "Place and time", at: { x: 67.84, y: 29.4, w: 27.66, h: 5.5 }, zoomAt: { x: 31.27, y: 29.0, w: 37.45, h: 4.83 } },
+              { type: "leader", num: "01", label: "Date and time", at: { x: 67.84, y: 29.4, w: 27.66, h: 5.5 }, zoomAt: { x: 31.27, y: 29.0, w: 37.45, h: 4.83 } },
               { type: "leader", num: "02", label: "Title on colour", direction: "left", at: { x: 4.49, y: 34.43, w: 27.79, h: 5.5 }, zoomAt: { x: 31.27, y: 34.0, w: 37.45, h: 7.33 } },
               { type: "leader", num: "03", label: "Going, one action", at: { x: 65.59, y: 40.09, w: 29.91, h: 5.5 }, zoomAt: { x: 31.27, y: 41.17, w: 37.45, h: 3.67 } },
             ],
