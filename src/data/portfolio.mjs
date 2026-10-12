@@ -28,10 +28,18 @@ export const profile = {
 };
 
 /**
- * Compact professional history shown beside the home-page thesis. `compact` marks the three
- * entries the phone layout keeps (figma 131:1980).
- * NOTE: `experience` is the compact home-page list pinned by
- * tests/portfolio-model.test.mjs, and `roles` below is the full About-page
+ * The two short lines under the home thesis (home v3, figma 176:1721 and 177:1723): where Ken is now, one line per
+ * entry, and one sentence on where he has been.
+ */
+export const homeNow = {
+  currently: ["Studying HCIM @ UMD", "in College Park, Maryland"],
+  previously:
+    "Screened deals @ USM Maryland Momentum Fund, analyzed data @ Towers Surgical Partners, founded Frontground, and more.",
+};
+
+/**
+ * Compact professional history. Home v3 no longer renders it; the home page shows `homeNow` instead.
+ * NOTE: `experience` is pinned by tests/portfolio-model.test.mjs, and `roles` below is the full About-page
  * timeline. They overlap on purpose; do not reconcile or merge them.
  */
 export const experience = [
@@ -39,7 +47,6 @@ export const experience = [
     year: "2026",
     organization: "USM Maryland Momentum Fund",
     role: "Summer Investment Associate",
-    compact: true,
   },
   {
     year: "2026",
@@ -50,7 +57,6 @@ export const experience = [
     year: "2025",
     organization: "Towers Surgical Partners",
     role: "Data Analyst",
-    compact: true,
   },
   {
     year: "2024",
@@ -61,7 +67,6 @@ export const experience = [
     year: "2022",
     organization: "Frontground",
     role: "Founder",
-    compact: true,
   },
   {
     year: "2021",
@@ -72,7 +77,7 @@ export const experience = [
 
 /**
  * Full About-page career timeline.
- * NOTE: `experience` above is the compact home-page list pinned by
+ * NOTE: `experience` above is the compact history pinned by
  * tests/portfolio-model.test.mjs, and `roles` is the full About-page
  * timeline. They overlap on purpose; do not reconcile or merge them.
  */

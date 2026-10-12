@@ -1,9 +1,8 @@
 ---
-// Work index: the thesis beside a compact job list, then the project grid (home v2, figma 131:1693 and 131:1973).
+// Work index: the thesis over Currently and Previously, then the project grid (home v3, figma 176:1721 and 177:1723).
 import Base from "@/layouts/Base.astro";
-import ExperienceList from "@/components/ExperienceList.astro";
 import ProjectCard from "@/components/ProjectCard.astro";
-import { experience, getFeaturedProjects, profile } from "@/data/portfolio.mjs";
+import { getFeaturedProjects, homeNow, profile } from "@/data/portfolio.mjs";
 
 const projects = getFeaturedProjects();
 ---
@@ -14,9 +13,16 @@ const projects = getFeaturedProjects();
       <div class="home-thesis" data-reveal>
         <h1 id="home-title">{profile.headline}</h1>
       </div>
-      <div class="home-experience" data-reveal>
-        <ExperienceList entries={experience} />
-      </div>
+      <dl class="home-now" data-reveal>
+        <div class="home-now-currently">
+          <dt>Currently</dt>
+          <dd>{homeNow.currently.map((line) => <span>{line}</span>)}</dd>
+        </div>
+        <div class="home-now-previously">
+          <dt>Previously</dt>
+          <dd>{homeNow.previously}</dd>
+        </div>
+      </dl>
     </section>
 
     <section class="work" aria-labelledby="work-title">
@@ -36,32 +42,57 @@ const projects = getFeaturedProjects();
 </Base>
 
 <style>
+  /* above 980 a 924px column centred on the screen (x=258 at 1440), kept 120px from the left edge to clear the rail.
+     main.beside-rail pads 96px on the left, so the centre sits 48px left of the middle of this box. */
   .home-page {
-    width: min(100%, var(--content-max));
-    margin: 0 auto;
-    padding-inline: var(--page-gutter);
+    width: min(924px, 100% - 48px);
+    margin-left: max(24px, (100% - 924px) / 2 - 48px);
   }
 
+  /* the thesis tops out at y=352 in the 1440 frame, level with the rail. */
   .home-intro {
-    display: grid;
-    padding-top: 96px;
-    padding-bottom: 64px;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: 24px;
-    align-items: end;
+    padding-top: 288px;
+    padding-bottom: 96px;
   }
 
   .home-thesis h1 {
-    max-width: 660px;
     margin: 0;
     color: var(--ink-strong);
     /* the h1's own metric matched fallbacks, sized for its desktop optical size (see global.css). */
     font-family: "Fraunces", "Fraunces Home Wide Fallback Iowan", "Fraunces Home Wide Fallback Georgia", var(--display);
-    /* 68px at 1440, as in the frame. */
-    font-size: clamp(48px, 4.72vw, 68px);
+    font-size: 72px;
     font-weight: 400;
-    letter-spacing: -0.025em;
-    line-height: 0.98;
+    letter-spacing: -0.02em;
+    line-height: 74px;
+  }
+
+  /* geist 15/22, labels muted and text in ink; Currently 280px and Previously 470px, 48px apart. */
+  .home-now {
+    display: flex;
+    margin: 48px 0 0;
+    gap: 48px;
+    font: 15px / 22px var(--ui-sans);
+  }
+
+  .home-now-currently {
+    flex: 0 1 280px;
+  }
+
+  .home-now-previously {
+    flex: 0 1 470px;
+  }
+
+  .home-now dt {
+    color: var(--muted);
+  }
+
+  .home-now dd {
+    margin: 6px 0 0;
+    color: var(--ink);
+  }
+
+  .home-now dd span {
+    display: block;
   }
 
   .work-header {
@@ -87,32 +118,47 @@ const projects = getFeaturedProjects();
     gap: 56px 24px;
   }
 
-  @media (max-width: 1020px) {
-    .home-intro {
-      grid-template-columns: 1fr;
-      gap: 44px;
+  @media (max-width: 980px) {
+    .home-page {
+      width: auto;
+      margin: 0;
+      padding-inline: 20px;
     }
 
-    .home-thesis h1 {
-      max-width: 720px;
+    .home-intro {
+      padding-top: 96px;
+      padding-bottom: 56px;
+    }
+
+    .home-now {
+      flex-direction: column;
+      margin-top: 32px;
+      gap: 24px;
+    }
+
+    .home-now-currently,
+    .home-now-previously {
+      flex: none;
+    }
+
+    .home-now dd {
+      margin-top: 4px;
     }
   }
 
   @media (max-width: 760px) {
+    /* y=152 in the 375 frame. */
     .home-intro {
-      padding-top: 72px;
-      padding-bottom: 40px;
-      gap: 36px;
+      padding-top: 76px;
     }
 
     .home-thesis h1 {
       font-family: "Fraunces", "Fraunces Home Small Fallback Iowan", "Fraunces Home Small Fallback Georgia", var(--display);
-      /* 44px at 375, as in the frame. */
-      font-size: clamp(42px, 11.75vw, 58px);
-      line-height: 1.02;
+      font-size: 40px;
+      line-height: 42px;
     }
 
-    /* the mobile frame goes straight from the job list to the first card. */
+    /* the mobile frame goes straight from Previously to the first card. */
     .work-header {
       position: absolute;
       width: 1px;

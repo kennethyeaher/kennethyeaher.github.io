@@ -105,42 +105,42 @@
 }
 
 /* the home h1's own fallbacks. fraunces sets its optical size from the font size, so it is relatively wider at
-   the 44px phone size than at the 68px desktop size, and one size-adjust cannot match its widths at both. the
-   small faces apply up to 760px and the wide faces above it (src/pages/index.astro). each value sits inside the
-   size-adjust range that sets "I'm Ken, a product designer and data scientist." on the same lines as fraunces at
-   375 (44px) or 1440 (68px), and at as many nearby widths as allow it; around 390, 480 and 700 no small value
-   fits those widths and 375 together. ascent and descent are fraunces' hhea values (1956 and 510 of 2000)
+   the 40px phone size than at the 72px desktop size, and one size-adjust cannot match its widths at both. the
+   small faces apply up to 760px and the wide faces above it (src/pages/index.astro). each value sits in the middle of
+   the size-adjust range that sets "I'm Ken, a product designer and data scientist." on the same lines as fraunces at
+   every column width tried: 280 to 720 for the small faces at 40px, 741 to 924 for the wide faces at 72px
+   (.private/v3-home/tools/fallback-fit.mjs). ascent and descent are fraunces' hhea values (1956 and 510 of 2000)
    divided by size-adjust. */
 @font-face {
   font-family: "Fraunces Home Small Fallback Iowan";
   src: local("Iowan Old Style Roman"), local("IowanOldStyle-Roman");
-  size-adjust: 101%;
-  ascent-override: 96.83%;
-  descent-override: 25.25%;
+  size-adjust: 101.25%;
+  ascent-override: 96.59%;
+  descent-override: 25.19%;
   line-gap-override: 0%;
 }
 @font-face {
   font-family: "Fraunces Home Small Fallback Georgia";
   src: local("Georgia");
-  size-adjust: 101.5%;
-  ascent-override: 96.35%;
-  descent-override: 25.12%;
+  size-adjust: 102%;
+  ascent-override: 95.88%;
+  descent-override: 25.00%;
   line-gap-override: 0%;
 }
 @font-face {
   font-family: "Fraunces Home Wide Fallback Iowan";
   src: local("Iowan Old Style Roman"), local("IowanOldStyle-Roman");
-  size-adjust: 99%;
-  ascent-override: 98.79%;
-  descent-override: 25.76%;
+  size-adjust: 95.5%;
+  ascent-override: 102.41%;
+  descent-override: 26.70%;
   line-gap-override: 0%;
 }
 @font-face {
   font-family: "Fraunces Home Wide Fallback Georgia";
   src: local("Georgia");
-  size-adjust: 99%;
-  ascent-override: 98.79%;
-  descent-override: 25.76%;
+  size-adjust: 96%;
+  ascent-override: 101.88%;
+  descent-override: 26.56%;
   line-gap-override: 0%;
 }
 
