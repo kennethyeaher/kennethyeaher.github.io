@@ -568,3 +568,61 @@ test("sohive renders the v2 exhibit layout from its prose mock", () => {
   assert.match(page, /<span class="count-number"[^>]*>114<\/span>/);
   assert.match(page, /href="\/work\/terpcare"/);
 });
+
+test("exactly the nine small pinned stages zoom to the active annotation (figma 168:1745)", () => {
+  // every data-pin-zoom element across the eight pages, by page and stage id; the pair and the walkthrough give
+  // one exhibit several stage elements (the walkthrough's pinned stage, and the one static step with a focus box).
+  const expected = {
+    ovara: ["the-finding"], "kairo-health": ["field-by-tier"], "usm-venture-benchmark": ["validation-grid"], "college-park-capstone": ["the-persona"],
+    frontground: ["the-solution"], terpcare: ["core-flows"], sohive: ["the-feed-0", "the-feed-1"],
+    terpcarehub: ["core-flows-walkthrough-1", "core-flows-walkthrough-pin", "where-it-landed"],
+  };
+  for (const [slug, page] of pages) {
+    const stages = [...page.matchAll(/<div class="exhibit-stage[^"]*"[^>]*data-pin-zoom="([^"]+)"([^>]*)>/g)];
+    assert.deepEqual(stages.map((match) => match[1]), expected[slug], slug);
+    // the alert badges zoom on phones only; every other stage everywhere.
+    for (const match of stages) assert.equal(/data-pin-zoom-phone/.test(match[2]), match[1] === "where-it-landed", `${slug} ${match[1]} phone only`);
+    for (const match of stages) {
+      const start = match.index;
+      const end = Math.min(...['<figcaption', 'class="exhibit-notes"', 'class="stage-caption"', 'class="walk-text"', 'class="exhibit-pins"', "</section>"].map((marker) => page.indexOf(marker, start)).filter((index) => index > 0));
+      const stage = page.slice(start, end);
+      // the zoom layer wraps the content once, right after the field (and veil), and holds every annotation.
+      assert.equal([...stage.matchAll(/data-zoom-layer/g)].length, 1, `${slug} ${match[1]} has one zoom layer`);
+      assert.match(stage, /class="stage-field"[^>]*><\/span>\s*(<span class="stage-veil"[^>]*><\/span>\s*)?<div class="stage-zoom" data-zoom-layer[^>]*>/);
+      const annotations = [...stage.matchAll(/<span class="annotation annotation-(focus|leader)[^"]*"[^>]*data-annotation="(\d\d)"([^>]*)>/g)];
+      assert.ok(annotations.length > 0, `${slug} ${match[1]} has annotations`);
+      assert.ok(stage.indexOf("data-zoom-layer") < annotations[0].index, `${slug} ${match[1]} annotations sit in the layer`);
+      // numbers rise in order, so ‹ and › step through them as the notes do.
+      assert.deepEqual(annotations.map((a) => a[2]), [...annotations.map((a) => a[2])].sort());
+      // a leader carries its label as the bar title and a focus badge its note's or step's title, or none (the number alone).
+      for (const annotation of annotations) {
+        if (annotation[1] === "leader") assert.match(annotation[3], /data-zoom-title="[^"]+"/, `${slug} leader ${annotation[2]} title`);
+      }
+      // without scripts every badge is still the link to its note, or the aria-hidden marker it is today; the script
+      // makes the markers and leader labels real buttons. a link's note must exist with a title the bar can use.
+      for (const [badge] of stage.matchAll(/<(?:a|span) class="annotation-badge"[^>]*>/g)) {
+        if (badge.startsWith("<a")) {
+          const note = badge.match(/href="#([^"]+)"/)?.[1];
+          assert.ok(note, `${slug} ${badge} links its note`);
+          assert.match(page, new RegExp(`<li id="${note}"[^>]*>[\\s\\S]*?class="note-title"`), `${slug} ${note} exists`);
+        } else assert.match(badge, /aria-hidden="true"/, `${slug} ${badge}`);
+        assert.doesNotMatch(badge, /<button/);
+      }
+    }
+    // one bar template per page with the three named controls and the polite title.
+    assert.equal([...page.matchAll(/<template data-zoom-bar>/g)].length, 1, `${slug} bar template`);
+    assert.match(page, /<template data-zoom-bar><div class="zoom-bar"><span class="zoom-title" aria-live="polite"><\/span><div class="zoom-controls"><button type="button" aria-label="Previous note">‹<\/button><button type="button" aria-label="Next note">›<\/button><button type="button" aria-label="Close zoom">✕<\/button><\/div><\/div><\/template>/);
+  }
+  // the walkthrough's badge takes its step's title, and its inactive screens are inert as well as hidden.
+  const terpcarehub = pages.get("terpcarehub");
+  assert.equal([...terpcarehub.matchAll(/data-annotation="02" data-zoom-title="Cost is visible before the click"/g)].length, 2);
+  assert.equal([...terpcarehub.matchAll(/data-walk-screen="[12]" aria-hidden="true" inert/g)].length, 2);
+  assert.doesNotMatch(terpcarehub, /data-walk-screen="0"[^>]*(aria-hidden|inert)/);
+  // the alert badges have no numbered caption, so they carry no title and the bar shows the number alone.
+  const landed = terpcarehub.slice(terpcarehub.indexOf('data-pin-zoom="where-it-landed"'), terpcarehub.indexOf('class="exhibit-pins"'));
+  assert.equal([...landed.matchAll(/data-annotation="0\d"/g)].length, 3);
+  assert.doesNotMatch(landed, /data-zoom-title/);
+  // and no other stage on any page carries the attribute (the heatmap, matrix, pins and rows stay as they are).
+  const marked = [...pages.values()].flatMap((page) => [...page.matchAll(/data-pin-zoom="/g)]).length;
+  assert.equal(marked, Object.values(expected).flat().length);
+});

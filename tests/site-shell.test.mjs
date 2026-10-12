@@ -272,3 +272,43 @@ test("the footer carries LinkedIn, GitHub and Email, and Email opens a message t
     assert.equal(links[2][1], "mailto:kyeaher@umd.edu");
   }
 });
+
+test("the pin zoom keeps its budget, its reduced-motion rule, its notes active state and the chip off a zoomed stage", () => {
+  const script = readFileSync(join(projectRoot, "src", "scripts", "pin-zoom.ts"), "utf8");
+  assert.ok(gzipSync(script).length < 3072, `the zoom script stays under 3 KB gzipped, even unminified (${gzipSync(script).length})`);
+  // the framing rule in one exported function: 24 or 16 of padding, 48 of bar room, 1.5 to 4, centred, inside the stage.
+  assert.match(script, /export function frame\(/);
+  assert.match(script, /const pad = stage\.w < 500 \? 16 : 24;/);
+  assert.match(script, /Math\.min\(stage\.w \/ \(box\.w \+ 2 \* pad\), \(stage\.h - 48\) \/ \(box\.h \+ 2 \* pad\), 4, cap\)/);
+  assert.match(script, /if \(s < 1\.5\) return null;/);
+  // the layer carries one translate and scale, identity at rest; 360 in and between notes, 240 out, from the script.
+  assert.match(globalCss, /\.stage-zoom \{ position: relative; height: 100%; translate: 0px 0px; scale: 1; transform-origin: 0 0; transition: translate var\(--zoom-ms, 0ms\) var\(--ease-out\), scale var\(--zoom-ms, 0ms\) var\(--ease-out\); \}/);
+  assert.match(script, /move\(st, s, x, y, 360\)/);
+  assert.match(script, /move\(st, 1, 0, 0, 240\)/);
+  // reduced motion: no scale animation, a 120ms view transition crossfade instead.
+  assert.match(globalCss, /@media \(prefers-reduced-motion: reduce\) \{\n  \.stage-zoom, \.is-zoomed \.annotation-focus\.is-zoom-active, \.is-zoomed \.leader-anchor\.is-zoom-active \{ transition: none; \}\n  ::view-transition-group\(root\) \{ animation-duration: 120ms; \}\n\}/);
+  assert.match(script, /reduce && document\.startViewTransition \? document\.startViewTransition\(swap\) : swap\(\)/);
+  const assetDir = join(projectRoot, "dist", "_astro");
+  const builtCss = readdirSync(assetDir).filter((name) => name.endsWith(".css")).map((name) => readFileSync(join(assetDir, name), "utf8")).join("\n");
+  assert.match(builtCss, /prefers-reduced-motion: ?reduce\) ?\{\.stage-zoom,\.is-zoomed \.annotation-focus\.is-zoom-active,\.is-zoomed \.leader-anchor\.is-zoom-active\{transition: ?none\}::view-transition-group\(root\)\{animation-duration: ?\.12s\}\}/);
+  // while zoomed every badge hides and the active outline is held at 1.5px and a 10px radius on screen.
+  assert.match(globalCss, /\.is-zoomed \.annotation-badge, \.is-zoomed \.annotation-focus:not\(\.is-zoom-active\), \.is-zoomed \.annotation-leader:not\(:has\(\.is-zoom-active\)\),\n\.is-zoomed \.annotation-leader:has\(\.is-zoom-active\) :is\(\.leader-line, \.leader-label\) \{ visibility: hidden; \}/);
+  assert.match(globalCss, /box-shadow: inset 0 0 0 calc\(1\.5px \/ var\(--zoom-scale, 1\)\) var\(--color-annotate\)/);
+  assert.match(globalCss, /border-radius: calc\(10px \/ var\(--zoom-scale, 1\)\)/);
+  // the notes active state is the :target one, in the same rule.
+  assert.match(readFileSync(join(projectRoot, "src", "components", "exhibits", "Notes.astro"), "utf8"), /\.exhibit-notes li:is\(:target, \[data-active\]\) \.note-title \{ text-decoration: underline;/);
+  assert.match(builtCss, /li\[data-astro-cid-\w+\]:is\(:target,\[data-active\]\) \.note-title\[data-astro-cid-\w+\]\{text-decoration:underline;text-decoration-color:var\(--color-annotate\);text-underline-offset:3px\}/);
+  // the bar: an --ink-strong pill 8px in, mono 11 on --canvas, 44px hit areas, the ends disabled by colour.
+  assert.match(globalCss, /\.zoom-bar \{ position: absolute; z-index: 5; bottom: 8px; left: 8px;[^}]*background: var\(--ink-strong\); color: var\(--canvas\); \}/);
+  assert.match(globalCss, /\.zoom-title \{[^}]*font: 500 11px \/ normal var\(--mono\);/);
+  assert.match(globalCss, /\.zoom-bar button::before \{ position: absolute; inset: -8px -6px; content: ""; \}/);
+  assert.match(globalCss, /\.zoom-bar button\[aria-disabled="true"\] \{ color: var\(--muted\); cursor: default; \}/);
+  // the annotated cursor's chip stays off over a zoomed stage; the zoom never follows hover or scroll.
+  assert.match(readFileSync(join(projectRoot, "src", "scripts", "pointer-note.ts"), "utf8"), /\.is-zoomed"\)\) return hide\(\);/);
+  assert.doesNotMatch(script, /mouseover|mouseenter|pointerover|"scroll"|overflow/);
+  // exits and focus: escape, close, a click outside, the stage leaving the viewport; focus back to the opener without scrolling.
+  assert.match(script, /event\.key === "Escape"\) exit\(true\)/);
+  assert.match(script, /new IntersectionObserver\(\(\[e\]\) => \{ if \(!e\.isIntersecting\) exit\(\); \}\)/);
+  assert.match(script, /opener\.focus\(\{ preventScroll: true \}\)/);
+  assert.match(script, /document\.querySelectorAll<HTMLElement>\(matchMedia\("\(min-width: 761px\)"\)\.matches \? "\[data-pin-zoom\]:not\(\[data-pin-zoom-phone\]\)" : "\[data-pin-zoom\]"\)/);
+});
