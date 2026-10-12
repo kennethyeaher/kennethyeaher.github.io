@@ -1,7 +1,9 @@
 ---
-// a muted looping clip that only plays while in view, with a poster. its pause control sits in the stage's
-// media tag (figma 132:1838), never on the device, and finds this clip by the video's id.
-// under reduced motion, or without scripts, the poster stays as the still.
+// a muted looping clip that only plays while in view, over a still of its first frame. its pause control sits in
+// the stage's media tag (figma 132:1838), never on the device, and finds this clip by the video's id.
+// the still is a lazy img, not the video's poster attribute, which loads up front even with preload="none". an
+// unloaded video paints nothing, so the still shows through until the clip has a frame: under reduced motion,
+// without scripts, and before playback.
 import { loopId } from "@/utils/loop.mjs";
 
 interface Props {
@@ -17,11 +19,18 @@ const { src, poster, width, height, label, name } = Astro.props;
 const loopName = name ? `${name} loop` : "loop";
 ---
 <div class="exhibit-loop" data-exhibit-loop data-loop-name={loopName}>
-  <video id={loopId(loopName)} muted loop playsinline preload="none" poster={poster} width={width} height={height} aria-label={label}>
+  <img class="loop-still" src={poster} alt="" width={width} height={height} loading="lazy" decoding="async" />
+  <video id={loopId(loopName)} muted loop playsinline preload="none" width={width} height={height} aria-label={label}>
     <source data-src={src} type="video/mp4" />
   </video>
 </div>
 <style>
   .exhibit-loop { position: relative; }
-  .exhibit-loop video { display: block; width: 100%; height: auto; }
+  .loop-still { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: cover; }
+  .exhibit-loop video { position: relative; display: block; width: 100%; height: auto; }
+  /* without scripts the clip never loads, and chrome forces its controls on with a grey fill over the still.
+     opacity, not visibility, so the video keeps its label. */
+  @media (scripting: none) {
+    .exhibit-loop video { opacity: 0; pointer-events: none; }
+  }
 </style>

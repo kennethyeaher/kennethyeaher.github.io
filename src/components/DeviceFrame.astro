@@ -80,7 +80,7 @@ const hasScreen = Astro.slots.has("default");
     filter: drop-shadow(0 2px 3px rgb(0 0 0 / 14%)) drop-shadow(0 28px 28px rgb(0 0 0 / 22%));
   }
   .frame-iphone .device-screen { position: absolute; inset: 2.5cqw; border-radius: 14cqw; background: #edf0f2; }
-  .frame-iphone .device-screen img, .frame-iphone .device-screen :global(video) { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+  .frame-iphone .device-screen img, .frame-iphone .device-screen :global(video), .frame-iphone .device-screen :global(.loop-still) { width: 100%; height: 100%; object-fit: cover; object-position: top; }
   .iphone-island { position: absolute; z-index: 1; top: 5.333cqw; left: 50%; width: 28cqw; height: 8cqw; translate: -50% 0; border-radius: 4cqw; background: #000; }
   .iphone-home { position: absolute; z-index: 1; bottom: 6cqw; left: 50%; width: 32cqw; height: 1.333cqw; translate: -50% 0; border-radius: 1cqw; background: #000; opacity: 0.55; }
   .iphone-button { position: absolute; width: 1cqw; border-radius: 0.5cqw; background: #333840; }
@@ -107,6 +107,6 @@ const hasScreen = Astro.slots.has("default");
   /* figma 50:541 keeps the screen at 16:10 and lets the image fill it, so annotation boxes measured on
      the frame land on the same pixels whatever the capture's own proportions. */
   .frame-browser .device-screen { aspect-ratio: var(--screen-w, 880) / var(--screen-h, 550); border-radius: 0; background: #edf0f2; }
-  .frame-browser .device-screen img, .frame-browser .device-screen :global(video) { width: 100%; height: 100%; object-fit: cover; object-position: left top; }
+  .frame-browser .device-screen img, .frame-browser .device-screen :global(video), .frame-browser .device-screen :global(.loop-still) { width: 100%; height: 100%; object-fit: cover; object-position: left top; }
   .frame-browser .device-screen :global(.exhibit-loop) { height: 100%; }
 </style>

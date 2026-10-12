@@ -203,7 +203,7 @@ export function initializeCoverGradients(): void {
   gradients.forEach((gradient) => observer.observe(gradient));
 }
 
-/** play each exhibit loop only while it is in view; a visitor pause sticks, and reduced motion keeps the poster. */
+/** play each exhibit loop only while it is in view; a visitor pause sticks, and reduced motion keeps the still. */
 export function initializeExhibitLoops(): void {
   const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
   document.querySelectorAll<HTMLElement>("[data-exhibit-loop]").forEach((loop) => {

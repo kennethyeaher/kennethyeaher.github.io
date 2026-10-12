@@ -278,10 +278,12 @@ test("Ovara renders the v2 exhibit layout from the approved spec", () => {
   assert.match(ovara, /<span class="browser-address"[^>]*>ovara · county level<\/span>/);
   assert.match(ovara, /data-count-to="1029"[^>]*data-count-grouped/);
   assert.match(ovara, /data-count-to="10.9" data-count-rest="M" data-count-decimals="1"/);
-  // three dashboard rows, each a recorded loop with a poster and its own named control.
+  // three dashboard rows, each a recorded loop over a lazy still and its own named control. no poster attribute,
+  // which would load up front even with preload="none".
   assert.equal([...ovara.matchAll(/class="exhibit-row"/g)].length, 3);
+  assert.doesNotMatch(ovara, /<video[^>]*\sposter=/);
   for (const name of ["state", "county", "findings"]) {
-    assert.match(ovara, new RegExp(`poster="/images/work/ovara/ovara-${name}-loop-poster\\.webp"`));
+    assert.match(ovara, new RegExp(`<img class="loop-still"[^>]*src="/images/work/ovara/ovara-${name}-loop-poster\\.webp" alt="" width="\\d+" height="\\d+" loading="lazy" decoding="async"[^>]*>\\s*<video id="clip-${name}-loop"`));
     assert.match(ovara, new RegExp(`data-src="/images/work/ovara/ovara-${name}-loop\\.mp4"`));
     assert.match(ovara, new RegExp(`data-loop-name="${name} loop"`));
     assert.match(ovara, new RegExp(`class="loop-toggle"[^>]*data-loop-toggle aria-controls="clip-${name.replace(/ /g, "-")}-loop" hidden[^>]*><span data-loop-action[^>]*>Pause</span><span class="loop-name"[^>]*> ${name} loop</span></button></span>`));

@@ -106,7 +106,7 @@ const eager = priority || visual.priority === true;
   .is-overlay :global(.annotation-badge) { pointer-events: auto; }
   .exhibit-visual picture { display: block; }
   .visual-sheet { display: block; width: 100%; height: auto; border-radius: 4px; box-shadow: 0 24px 48px rgb(3 13 26 / 45%); }
-  .visual-sheet :global(video) { border-radius: 4px; }
+  .visual-sheet :global(video), .visual-sheet :global(.loop-still) { border-radius: 4px; }
   /* figma 55:676: the cropped kpi floats with a softer, tinted shadow and a 10px radius. */
   .visual-crop { position: relative; overflow: hidden; border-radius: 10px; box-shadow: 0 24px 48px -6px rgb(13 5 26 / 35%); }
   .visual-crop img { position: absolute; max-width: none; height: auto; }
