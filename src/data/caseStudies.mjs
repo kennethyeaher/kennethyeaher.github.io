@@ -78,13 +78,13 @@ export const caseStudies = [
     summary:
       "A 29-profile benchmark of university venture ecosystems, turning fragmented public and licensed evidence into 22 normalized fields, a validated comparison matrix, and board-ready investment synthesis.",
     cardImage: "/images/work/usm-venture-benchmark/cover-poster.png",
-    cardAlt: "USM Venture Benchmark motion cover in crimson, rose, slate, and deep ink",
+    cardAlt: "USM Venture Benchmark motion cover in navy, crimson, rose and cream",
     heroImage: "/images/work/usm-venture-benchmark/cover-poster.png",
-    heroAlt: "USM Venture Benchmark motion cover in crimson, rose, slate, and deep ink",
+    heroAlt: "USM Venture Benchmark motion cover in navy, crimson, rose and cream",
     cover: {
       variant: "usm-benchmark",
       poster: "/images/work/usm-venture-benchmark/cover-poster.png",
-      palette: ["#111111", "#E21833", "#A61022", "#F2B8BE", "#F6F3EE", "#6A737B"],
+      palette: ["#1B2A4A", "#E21833", "#A61022", "#F2B8BE", "#F6F3EE", "#4A6080"],
       exhibit: /** @type {const} */ ({
         "src": "/images/work/usm-venture-benchmark/brief-overview-redacted.png",
         "alt": "Redacted finished benchmark brief overview showing the page hierarchy, metric row, executive summary, and chart column",
