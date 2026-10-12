@@ -19,7 +19,7 @@ interface Props {
   };
   stageRatio?: number;
   priority?: boolean;
-  annotations?: { type: "focus" | "leader" | "leader-vertical"; num: string; label?: string; at?: Box; theme?: "on-dark" | "on-light" }[];
+  annotations?: { type: "focus" | "leader" | "leader-vertical"; num: string; label?: string; at?: Box; theme?: "on-dark" | "on-light"; title?: string }[];
   /** false when the exhibit has captions rather than notes, so focus badges have nothing to link to. */
   linkNotes?: boolean;
   idPrefix?: string;
@@ -94,7 +94,7 @@ const eager = priority || visual.priority === true;
   {annotations.filter((annotation) => annotation.at).map((annotation) => {
     const order = Number(annotation.num) - 1;
     return annotation.type === "focus"
-      ? <AnnotationFocus num={annotation.num} at={annotation.at!} order={order} noteId={linkNotes ? `${idPrefix}-note-${annotation.num}` : undefined} />
+      ? <AnnotationFocus num={annotation.num} at={annotation.at!} order={order} noteId={linkNotes ? `${idPrefix}-note-${annotation.num}` : undefined} title={annotation.title} />
       : <AnnotationLeader num={annotation.num} label={annotation.label ?? ""} at={annotation.at!} order={order} vertical={annotation.type === "leader-vertical"} theme={annotation.theme} />;
   })}
   <slot />

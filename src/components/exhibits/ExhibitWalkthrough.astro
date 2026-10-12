@@ -13,7 +13,8 @@ interface Step { label: string; title: string; body: string; screen: Screen; foc
 interface Props {
   id: string;
   palette: string[];
-  walkthrough: { base: string; field: any; veil?: boolean; tag: string; at: { x: number; y: number; w: number }; steps: Step[] };
+  /** zoom marks the stages that hold a focus box as zoomable (figma 168:1745): the pinned stage, and on phones the step's own. */
+  walkthrough: { base: string; field: any; veil?: boolean; tag: string; at: { x: number; y: number; w: number }; steps: Step[]; zoom?: boolean };
 }
 const { id, palette, walkthrough } = Astro.props;
 const { steps, at } = walkthrough;
@@ -28,7 +29,7 @@ const sizes = `(max-width: 767px) min(256px, calc((100vw - 40px) * 0.76)), calc(
     {steps.map((step, index) => (
       <li class:list={["walk-step", index === 0 && "is-active"]} data-walk-step={index}>
         <div class="walk-static">
-          <ExhibitStage palette={palette} size="square" field={walkthrough.field} base={walkthrough.base} veil={walkthrough.veil}>
+          <ExhibitStage palette={palette} size="square" field={walkthrough.field} base={walkthrough.base} veil={walkthrough.veil} zoom={walkthrough.zoom && step.focus ? `${id}-${index}` : undefined}>
             <div class="walk-phone" style={phone}>
               <DeviceFrame frame="iphone" src={step.screen.src} alt={step.screen.alt}>
                 <div class="walk-capture" style={`aspect-ratio: ${step.screen.width} / ${step.screen.height}`}>
@@ -36,7 +37,7 @@ const sizes = `(max-width: 767px) min(256px, calc((100vw - 40px) * 0.76)), calc(
                     <source type="image/webp" srcset={srcset(step.screen)} sizes={sizes} />
                     <img src={step.screen.src} alt={step.screen.alt} width={step.screen.width} height={step.screen.height} loading="lazy" decoding="async" />
                   </picture>
-                  {step.focus && <AnnotationFocus num={step.focus.num} at={step.focus.at} order={0} onLight />}
+                  {step.focus && <AnnotationFocus num={step.focus.num} at={step.focus.at} order={0} onLight title={step.title} />}
                 </div>
               </DeviceFrame>
             </div>
@@ -51,23 +52,24 @@ const sizes = `(max-width: 767px) min(256px, calc((100vw - 40px) * 0.76)), calc(
     ))}
   </ol>
   <div class="walk-pin">
-    <ExhibitStage palette={palette} size="square" field={walkthrough.field} base={walkthrough.base} veil={walkthrough.veil}>
+    <ExhibitStage palette={palette} size="square" field={walkthrough.field} base={walkthrough.base} veil={walkthrough.veil} zoom={walkthrough.zoom ? `${id}-pin` : undefined}>
       <div class="walk-phone" style={phone}>
         <DeviceFrame frame="iphone" src={steps[0].screen.src} alt="">
+          {/* an inactive screen is also inert, since its badge is a button once the stage zooms. */}
           {steps.map((step, index) => (
-            <div class:list={["walk-screen", index === 0 && "is-active"]} data-walk-screen={index} aria-hidden={index === 0 ? undefined : "true"}>
+            <div class:list={["walk-screen", index === 0 && "is-active"]} data-walk-screen={index} aria-hidden={index === 0 ? undefined : "true"} inert={index === 0 ? undefined : true}>
               <div class="walk-capture" style={`aspect-ratio: ${step.screen.width} / ${step.screen.height}`}>
                 <picture>
                   <source type="image/webp" srcset={srcset(step.screen)} sizes={sizes} />
                   <img src={step.screen.src} alt={step.screen.alt} width={step.screen.width} height={step.screen.height} loading="lazy" decoding="async" />
                 </picture>
-                {step.focus && <AnnotationFocus num={step.focus.num} at={step.focus.at} order={0} onLight />}
+                {step.focus && <AnnotationFocus num={step.focus.num} at={step.focus.at} order={0} onLight title={step.title} />}
               </div>
             </div>
           ))}
         </DeviceFrame>
       </div>
-      <span class="walk-tag"><MediaTag text={walkthrough.tag} /></span>
+      <span class="walk-tag" slot="over"><MediaTag text={walkthrough.tag} /></span>
     </ExhibitStage>
   </div>
 </div>

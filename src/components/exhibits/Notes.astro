@@ -21,5 +21,6 @@ const { notes, idPrefix } = Astro.props;
   .note-number { color: var(--color-annotate); font: 10px / 1.3 var(--mono); letter-spacing: 0.06em; }
   .note-title { color: var(--ink-strong); font: 500 15px / 20px var(--ui); }
   .note-body { margin: 0; color: var(--secondary); font: 15px / 22px var(--body); }
-  .exhibit-notes li:target .note-title { text-decoration: underline; text-decoration-color: var(--color-annotate); text-underline-offset: 3px; }
+  /* the active note: the link's target, or the one the zoom script marks (figma 168:1745), with the same underline. */
+  .exhibit-notes li:is(:target, [data-active]) .note-title { text-decoration: underline; text-decoration-color: var(--color-annotate); text-underline-offset: 3px; }
 </style>

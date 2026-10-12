@@ -11,11 +11,13 @@ interface Props {
   onLight?: boolean;
   noteId?: string;
   order: number;
+  /** the title the zoom bar shows after the number (figma 168:1745): the note's title, or a numbered caption's. */
+  title?: string;
 }
-const { num, at, noteId, order, place, onLight = false } = Astro.props;
+const { num, at, noteId, order, place, onLight = false, title } = Astro.props;
 const position = place ?? `left: ${at!.x}%; top: ${at!.y}%; width: ${at!.w}%; height: ${at!.h ?? 6}%`;
 ---
-<span class:list={["annotation", "annotation-focus", onLight && "on-light"]} style={`${position}; --order: ${order}`} data-annotation>
+<span class:list={["annotation", "annotation-focus", onLight && "on-light"]} style={`${position}; --order: ${order}`} data-annotation={num} data-zoom-title={title}>
   {noteId
     ? <a class="annotation-badge" href={`#${noteId}`} aria-describedby={noteId} data-cursor="pin"><span class="sr-only">Note </span>{num}</a>
     : <span class="annotation-badge" aria-hidden="true">{num}</span>}

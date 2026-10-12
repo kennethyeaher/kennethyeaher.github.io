@@ -15,7 +15,7 @@ const box = vertical
   ? `left: ${at.x}%; top: ${at.y}%; width: ${at.w}%; height: ${at.h ?? 20}%`
   : `left: ${at.x}%; top: ${at.y}%; width: ${at.w}%`;
 ---
-<span class:list={["annotation", "annotation-leader", vertical ? "is-vertical" : `is-${direction}`, theme]} style={`${box}; --order: ${order}`} data-annotation>
+<span class:list={["annotation", "annotation-leader", vertical ? "is-vertical" : `is-${direction}`, theme]} style={`${box}; --order: ${order}`} data-annotation={num} data-zoom-title={label}>
   <span class="leader-anchor" aria-hidden="true"></span>
   <span class="leader-line" aria-hidden="true"></span>
   <span class="leader-label"><span class="leader-number">{num}</span><span class="leader-text">{label}</span></span>

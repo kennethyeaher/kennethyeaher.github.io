@@ -337,6 +337,7 @@ export function initializeWalkthroughs(): void {
       steps.forEach((step, i) => step.classList.toggle("is-active", i === index));
       screens.forEach((screen, i) => {
         screen.classList.toggle("is-active", i === index);
+        screen.inert = i !== index;
         if (i === index) screen.removeAttribute("aria-hidden");
         else screen.setAttribute("aria-hidden", "true");
       });

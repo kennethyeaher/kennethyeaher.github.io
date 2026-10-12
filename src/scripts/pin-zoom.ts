@@ -59,7 +59,7 @@ export function initializePinZoom() {
     reduce && document.startViewTransition ? document.startViewTransition(swap) : swap();
   }
 
-  /** zoom a stage to one annotation, from rest or from the current view. */
+  /** zoom a stage to one annotation, from rest or from the current view */
   function open(st: Stage, entry: Entry, opener: HTMLElement) {
     if (active && active.st !== st) exit();
     const sr = st.stage.getBoundingClientRect();
@@ -109,7 +109,7 @@ export function initializePinZoom() {
     if (entry) open(active!.st, entry, active!.opener);
   }
 
-  /** zoom back out, restore sizes, drop the bar and return focus to the opener. */
+  /** zoom back out, restore sizes, drop the bar; focus returns to the opener once the badges are back */
   function exit(back = false) {
     if (!active) return;
     const { st, opener, sizes, bar, stop } = active;
@@ -120,8 +120,10 @@ export function initializePinZoom() {
     move(st, 1, 0, 0, 240);
     for (const [el, value] of sizes) el.setAttribute("sizes", value);
     bar.remove();
-    setTimeout(() => { if (active?.st !== st) st.stage.classList.remove("is-zoomed"); }, reduce ? 0 : 240);
-    if (back || had === document.body || bar.contains(had)) opener.focus({ preventScroll: true });
+    setTimeout(() => {
+      if (active?.st !== st) st.stage.classList.remove("is-zoomed");
+      if (!active && (back || had === document.body || bar.contains(had))) opener.focus({ preventScroll: true });
+    }, reduce ? 0 : 240);
   }
 
   // a phones-only stage (the alert badges) is left alone from 761px, where stages stop stacking, decided at load.

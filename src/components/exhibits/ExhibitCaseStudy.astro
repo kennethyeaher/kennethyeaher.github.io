@@ -116,14 +116,14 @@ function sectionFor(exhibit: any) {
           <div class="exhibit-body">
             {exhibit.kind === "stage" && (
               <>
-                <ExhibitStage palette={palette} size={exhibit.size} ratio={exhibit.ratio} field={exhibit.field} base={exhibit.base}>
+                <ExhibitStage palette={palette} size={exhibit.size} ratio={exhibit.ratio} field={exhibit.field} base={exhibit.base} zoom={exhibit.zoom ? exhibit.id : undefined} zoomPhone={exhibit.zoom === "phone"}>
                   {exhibit.visuals.map((visual: any) => <ExhibitVisual visual={visual} stageRatio={stageRatio(exhibit)} />)}
                   {[...(exhibit.annotations ?? [])].sort((a: any, b: any) => Number(a.num) - Number(b.num)).map((annotation: any) => (
                     annotation.on === undefined
                       // a leader placed on the stage itself (frontground 90:2382), its box a share of the stage.
                       ? <AnnotationLeader num={annotation.num} label={annotation.label} at={annotation.at} order={Number(annotation.num) - 1} vertical={annotation.type === "leader-vertical"} direction={annotation.direction} />
                       // with captions rather than notes (terpcarehub 90:1769), focus badges are markers with nothing to link to.
-                      : <ExhibitVisual visual={exhibit.visuals[annotation.on]} stageRatio={stageRatio(exhibit)} idPrefix={exhibit.id} annotations={[annotation]} overlay linkNotes={Boolean(exhibit.notes)} />
+                      : <ExhibitVisual visual={exhibit.visuals[annotation.on]} stageRatio={stageRatio(exhibit)} idPrefix={exhibit.id} annotations={[{ ...annotation, title: exhibit.notes?.find((note: any) => note.n === annotation.num)?.title }]} overlay linkNotes={Boolean(exhibit.notes)} />
                   ))}
                 </ExhibitStage>
                 {exhibit.notes && <Notes notes={exhibit.notes} idPrefix={exhibit.id} />}
@@ -152,7 +152,7 @@ function sectionFor(exhibit: any) {
               </>
             )}
             {exhibit.kind === "pair" && (
-              <ExhibitPair id={exhibit.id} palette={palette} stages={exhibit.stages} captions={exhibit.captions} />
+              <ExhibitPair id={exhibit.id} palette={palette} stages={exhibit.stages} captions={exhibit.captions} zoom={exhibit.zoom === true} />
             )}
             {exhibit.kind === "custom" && exhibit.graphic === "visit-map" && (
               <ExhibitVisitMap text={exhibit.text} legend={exhibit.legend} categories={exhibit.categories} footnote={exhibit.footnote} label={exhibit.heading} />
