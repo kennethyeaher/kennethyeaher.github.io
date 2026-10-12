@@ -1,6 +1,7 @@
 /**
  * zoom on the active pin, figma 168:1745: a click, tap, enter or space on a badge of a data-pin-zoom stage (or a click
  * on its note card) zooms the stage's layer to that annotation at 1.5x to 4x, with a bar: "NN · title" and ‹ › ✕.
+ * figma 197:1727: a leader with a target region (the box rendered after it) zooms the same way from its label.
  */
 interface Entry { target: HTMLElement; trigger: HTMLElement; note: HTMLElement | null; text: string }
 interface Stage { stage: HTMLElement; layer: HTMLElement; entries: Entry[] }
@@ -22,11 +23,15 @@ export function initializePinZoom() {
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
   let active: { st: Stage; entry: Entry; opener: HTMLElement; sizes: Map<Element, string>; bar: HTMLElement; stop: () => void } | null = null;
 
-  /** wire a stage's annotations in number order; span badges become real buttons */
+  /** wire a stage's annotations in number order; span badges and leader labels become real buttons, and a leader
+   * frames its target region, not its own box; a leader with no region does not zoom */
   function build(stage: HTMLElement) {
     const st: Stage = { stage, layer: stage.querySelector<HTMLElement>("[data-zoom-layer]")!, entries: [] };
     for (const el of stage.querySelectorAll<HTMLElement>("[data-annotation]")) {
-      let trigger = el.querySelector<HTMLElement>(".annotation-badge")!;
+      const leader = el.classList.contains("annotation-leader");
+      const target = leader ? el.nextElementSibling as HTMLElement | null : el;
+      if (!target?.matches(".annotation-focus, .leader-target")) continue;
+      let trigger = el.querySelector<HTMLElement>(leader ? ".leader-label" : ".annotation-badge")!;
       const { annotation: num = "", zoomTitle: title } = el.dataset;
       const text = title ? `${num} · ${title}` : num;
       if (trigger.tagName === "SPAN") {
@@ -35,7 +40,7 @@ export function initializePinZoom() {
         trigger.setAttribute("aria-label", `Annotation ${text}`);
       }
       const note = document.getElementById(trigger.getAttribute("href")?.slice(1) ?? "");
-      const entry: Entry = { target: el, trigger, note, text };
+      const entry: Entry = { target, trigger, note, text };
       st.entries.push(entry);
       const go = (event: Event) => { event.preventDefault(); event.stopPropagation(); open(st, entry, trigger); };
       trigger.addEventListener("click", go);

@@ -12,17 +12,19 @@ interface Props {
   palette: string[];
   stages: any[];
   captions: { title: string; body: string }[];
+  /** figma 197:1727: each stage zooms on its own to its active leader's region. */
+  zoom?: boolean;
 }
-const { id, palette, stages, captions } = Astro.props;
+const { id, palette, stages, captions, zoom = false } = Astro.props;
 const ratio = (stage: any) => { const [w, h] = (stage.ratio ?? "534 / 560").split("/").map(Number); return w / h; };
 ---
 <div class="exhibit-pair">
   {stages.map((stage, index) => (
     <figure>
-      <ExhibitStage palette={palette} size="pair" ratio={stage.ratio} field={stage.field} base={stage.base}>
+      <ExhibitStage palette={palette} size="pair" ratio={stage.ratio} field={stage.field} base={stage.base} zoom={zoom ? `${id}-${index}` : undefined}>
         {stage.visuals.map((visual: any) => <ExhibitVisual visual={visual} stageRatio={ratio(stage)} stageWidth={534 / 1116} />)}
         {[...(stage.annotations ?? [])].sort((a: any, b: any) => Number(a.num) - Number(b.num)).map((annotation: any) => annotation.on === undefined ? (
-          <AnnotationLeader num={annotation.num} label={annotation.label} at={annotation.at} order={Number(annotation.num) - 1} direction={annotation.direction} theme={annotation.theme} />
+          <AnnotationLeader num={annotation.num} label={annotation.label} at={annotation.at} order={Number(annotation.num) - 1} direction={annotation.direction} theme={annotation.theme} zoomAt={zoom ? annotation.zoomAt : undefined} />
         ) : (
           <ExhibitVisual visual={stage.visuals[annotation.on]} stageRatio={ratio(stage)} idPrefix={`${id}-${index}`} annotations={[annotation]} overlay linkNotes={false} />
         ))}

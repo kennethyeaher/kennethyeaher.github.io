@@ -20,10 +20,13 @@
  *   its chrome scaling with it (terpcarehub 132:1846 is the 640 instance at 1.5x).
  * @typedef {{
  *   type: "focus" | "leader" | "leader-vertical", num: string, label?: string,
- *   on?: number, at?: Box, target?: string, direction?: "left" | "right", theme?: "on-dark" | "on-light"
+ *   on?: number, at?: Box, target?: string, direction?: "left" | "right", theme?: "on-dark" | "on-light",
+ *   zoomAt?: { x: number, y: number, w: number, h: number }
  * }} ExhibitAnnotation
  *   on is the index of the visual the box sits on; native targets name a row or cell instead; with
- *   neither, the box is a share of the stage itself.
+ *   neither, the box is a share of the stage itself. zoomAt, on a leader or leader-vertical, is the region the
+ *   leader points at, a share of the stage like a focus box with no on (figma 197:1727): on a zoom stage the region,
+ *   not the label box, sets the zoom; a leader without it does not zoom.
  * @typedef {{ n: string, title: string, body: string }} ExhibitNote
  * @typedef {{ tag?: string, title: string, body: string }} ExhibitCaption
  * @typedef {{ eyebrow: string, value: string, label: string, at?: { x: number, y: number } }} ExhibitKpi
@@ -43,8 +46,9 @@
  * @typedef {{ label: string, title: string, body: string, screen: ExhibitVisual, focus?: { num: string, at: { x: number, y: number, w: number, h: number } } }} WalkthroughStep
  * @typedef {{ figma: string, base: string, field: StageField, veil?: boolean, tag: string, at: { x: number, y: number, w: number }, steps: WalkthroughStep[], zoom?: true }} ExhibitWalkthrough
  * @typedef {ExhibitBase & { kind: "rows", visuals: ExhibitVisual[], captions: ExhibitCaption[], annotations?: ExhibitAnnotation[], fields?: StageField[], base?: string, walkthrough?: ExhibitWalkthrough }} RowsExhibit
- * @typedef {ExhibitBase & { kind: "pair", stages: { ratio?: string, base?: string, field?: StageField, visuals: ExhibitVisual[], annotations?: ExhibitAnnotation[] }[], captions: ExhibitCaption[] }} PairExhibit
+ * @typedef {ExhibitBase & { kind: "pair", stages: { ratio?: string, base?: string, field?: StageField, visuals: ExhibitVisual[], annotations?: ExhibitAnnotation[] }[], captions: ExhibitCaption[], zoom?: true }} PairExhibit
  *   two stages side by side, each captioned; annotation theme on-light suits a pale stage.
+ *   zoom makes each stage zoom on its own to its leaders' regions (figma 197:1727).
  * @typedef {{ label: string, highlight?: string, cards?: ([string, string, string] | [string, string, string, string])[], note?: string }} ExhibitStrip
  *   three part cards are a tier, a value and a route; four part cards add a commitment line; a strip with no cards is a label and a note.
  * @typedef {ExhibitBase & { kind: "journey", stages: string[], accentStage?: string | null, rows: { label: string, cells: string[] }[], strip?: ExhibitStrip, tones?: string[], figure?: ExhibitVisual & { label: string, caption: string } }} JourneyExhibit
@@ -1769,7 +1773,7 @@ export const caseStudies = [
         footnote: "Refiling is the one that matters most and gets the least attention. Every other stage depends on that last step being done correctly every day.",
       },
       {
-        kind: "stage", id: "the-solution", chapter: "The solution", figma: "57:782", size: "wide", ratio: "1116 / 640",
+        kind: "stage", id: "the-solution", chapter: "The solution", figma: "57:782", size: "wide", ratio: "1116 / 640", zoom: true,
         lede: [
           "I designed against what they told me, brought it back, and changed it. The triage colours, the split of the exam form into two pages, and the decision to keep orders on their own screen all came out of that loop rather than out of my first draft. I am still in contact with a couple of the providers I met, which is the part of this I am most glad about.",
           "The first screen a clinician sees answers who is in front of me right now. Arrivals, acuity, and open requests get the space. The trend chart is context and it sits to the side. That ordering came straight out of the interviews, where nobody described their day in terms of analytics and everybody described it in terms of the waiting room.",
@@ -1779,12 +1783,13 @@ export const caseStudies = [
         base: "#002637",
         field: { width: 1116, height: 640, sigma: 60, circles: [{ x: 120, y: 520, r: 320, colour: "#145676", alpha: 0.9 }, { x: 1070, y: 30, r: 190, colour: "#0C8B44", alpha: 0.9 }, { x: 680, y: 560, r: 260, colour: "#003F5D", alpha: 0.9 }] },
         visuals: [{ src: "/images/work/frontground/frontground-doctor.png", width: 1919, height: 1079, alt: "Frontground clinical dashboard showing patient overview, schedule, open requests, and the patient order queue", frame: "browser", url: "frontground · doctor", screen: { w: 720, h: 405 }, at: { x: 20.4, y: 8.8, w: 64.5 } }],
-        // leaders sit on the stage (spec stagePct), pointing into the screen from outside it.
+        // leaders sit on the stage (spec stagePct), pointing into the screen from outside it. figma 197:1727: each zooms
+        // to the element it points at, the chart, the order table, the request list and the triage column.
         annotations: [
-          { type: "leader", num: "01", label: "Chart is context", direction: "left", at: { x: 2.2, y: 31.8, w: 29.8, h: 5.2 } },
-          { type: "leader", num: "02", label: "Queue is the working surface", direction: "left", at: { x: 2.2, y: 43.2, w: 26.5, h: 5.2 } },
-          { type: "leader", num: "03", label: "Requests keep a status", at: { x: 83.4, y: 27.1, w: 14.8, h: 5.2 } },
-          { type: "leader-vertical", num: "04", label: "Triage carries a letter, not only a colour", at: { x: 46.2, y: 74.7, w: 21.1, h: 15.8 } },
+          { type: "leader", num: "01", label: "Chart is context", direction: "left", at: { x: 2.2, y: 31.8, w: 29.8, h: 5.2 }, zoomAt: { x: 27.78, y: 23.91, w: 20.88, h: 17.5 } },
+          { type: "leader", num: "02", label: "Queue is the working surface", direction: "left", at: { x: 2.2, y: 43.2, w: 26.5, h: 5.2 }, zoomAt: { x: 27.78, y: 42.97, w: 40.95, h: 34.38 } },
+          { type: "leader", num: "03", label: "Requests keep a status", at: { x: 83.4, y: 27.1, w: 14.8, h: 5.2 }, zoomAt: { x: 69.89, y: 23.91, w: 14.96, h: 53.44 } },
+          { type: "leader-vertical", num: "04", label: "Triage carries a letter, not only a colour", at: { x: 46.2, y: 74.7, w: 21.1, h: 15.8 }, zoomAt: { x: 54.84, y: 48.75, w: 3.94, h: 29.06 } },
         ],
         captions: [
           { title: "What the interviews put on the first screen", body: "Nobody described their day in terms of analytics, and everybody described it in terms of the queue. Triage carries a letter as well as a colour, because colour alone fails for colour blind clinicians and on the low cost monitors these facilities run." },
@@ -2333,7 +2338,7 @@ export const caseStudies = [
         ],
       },
       {
-        kind: "pair", id: "the-feed", chapter: "The feed", figma: "58:870",
+        kind: "pair", id: "the-feed", chapter: "The feed", figma: "58:870", zoom: true,
         eyebrow: "WHERE IT LANDED",
         heading: "Insight 1: The event card is the product",
         lede: [
@@ -2341,16 +2346,17 @@ export const caseStudies = [
           "The rule underneath that is that no card needs a photo to look finished. Student organisations post from a phone at eleven at night. Type and colour do the work, and an image is an upgrade rather than a dependency. The same rule is why the event detail screen opens on a gradient rather than a stock photograph.",
         ],
         // figma 58:870 and 90:2616 draw the feed as a pair, not two rows; leader boxes are the instances there,
-        // as shares of each 534 by 600 stage, since the spec export could not tie them to a device.
+        // as shares of each 534 by 600 stage, since the spec export could not tie them to a device. figma 197:1727: each
+        // stage zooms on its own to the region a leader points at, also a share of its stage.
         stages: [
           {
             ratio: "534 / 600", base: "#050505",
             field: { width: 534, height: 600, sigma: 55, circles: [{ x: 100, y: 120, r: 220, colour: "#0069D9", alpha: 0.85 }, { x: 490, y: 510, r: 190, colour: "#00A650", alpha: 0.75 }] },
             visuals: [{ src: "/images/work/sohive/sohive-feed-screen.png", width: 658, height: 1423, alt: "sohive home feed on black, with a blue Terp Startup Mixer card and a green Late Night Study Jam card above a post from the African Student Association", frame: "iphone", at: { x: 27.53, y: 8.67, w: 44.94 } }],
             annotations: [
-              { type: "leader", num: "01", label: "Place and time", at: { x: 67.84, y: 29.4, w: 27.66, h: 5.5 } },
-              { type: "leader", num: "02", label: "Title on colour", direction: "left", at: { x: 4.49, y: 34.43, w: 27.79, h: 5.5 } },
-              { type: "leader", num: "03", label: "Going, one action", at: { x: 65.59, y: 40.09, w: 29.91, h: 5.5 } },
+              { type: "leader", num: "01", label: "Place and time", at: { x: 67.84, y: 29.4, w: 27.66, h: 5.5 }, zoomAt: { x: 31.27, y: 29.0, w: 37.45, h: 4.83 } },
+              { type: "leader", num: "02", label: "Title on colour", direction: "left", at: { x: 4.49, y: 34.43, w: 27.79, h: 5.5 }, zoomAt: { x: 31.27, y: 34.0, w: 37.45, h: 7.33 } },
+              { type: "leader", num: "03", label: "Going, one action", at: { x: 65.59, y: 40.09, w: 29.91, h: 5.5 }, zoomAt: { x: 31.27, y: 41.17, w: 37.45, h: 3.67 } },
             ],
           },
           {
@@ -2358,8 +2364,8 @@ export const caseStudies = [
             field: { width: 534, height: 600, sigma: 55, circles: [{ x: 90, y: 90, r: 230, colour: "#5B8DBE", alpha: 0.8 }, { x: 480, y: 510, r: 180, colour: "#DC3545", alpha: 0.7 }] },
             visuals: [{ src: "/images/work/sohive/sohive-event-screen.png", width: 658, height: 1423, alt: "sohive event detail for Terp Startup Mixer, opening on a gradient, with the host, date, place, who is going, and a fixed RSVP bar", frame: "iphone", at: { x: 46.07, y: 8.67, w: 44.94 } }],
             annotations: [
-              { type: "leader", num: "01", label: "Gradient, not a stock photo", direction: "left", at: { x: 4.49, y: 24.26, w: 46.33, h: 5.5 } },
-              { type: "leader", num: "02", label: "RSVP in a fixed bar", direction: "left", at: { x: 4.49, y: 82.43, w: 46.33, h: 5.5 } },
+              { type: "leader", num: "01", label: "Gradient, not a stock photo", direction: "left", at: { x: 4.49, y: 24.26, w: 46.33, h: 5.5 }, zoomAt: { x: 46.44, y: 9.17, w: 44.19, h: 28.33 } },
+              { type: "leader", num: "02", label: "RSVP in a fixed bar", direction: "left", at: { x: 4.49, y: 82.43, w: 46.33, h: 5.5 }, zoomAt: { x: 49.25, y: 81.67, w: 38.76, h: 6.0 } },
             ],
           },
         ],
