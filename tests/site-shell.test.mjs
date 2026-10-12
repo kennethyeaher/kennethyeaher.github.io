@@ -218,7 +218,7 @@ test("the primary rail is fixed at the left edge, squares the current page and t
   assert.match(readFileSync(join(projectRoot, "dist", "work", "ovara", "index.html"), "utf8"), /<nav class="site-nav is-case"/);
   assert.match(readFileSync(join(projectRoot, "dist", "index.html"), "utf8"), /<main id="main-content" class="beside-rail">/);
 
-  assert.match(globalCss, /\.site-nav \{\n  position: fixed;\n  top: 40vh;\n  left: calc\(var\(--page-gutter\) - 10px\);\n\}/);
+  assert.match(globalCss, /\.site-nav \{\n  position: fixed;\n  top: 200px;\n  left: calc\(var\(--page-gutter\) - 10px\);\n\}/);
   assert.match(globalCss, /\.rail \{\n[^}]*flex-direction: column;\n  gap: 14px;/);
   assert.match(globalCss, /\.rail-link \{\n[^}]*gap: 6px;\n  color: var\(--muted\);/);
   assert.match(globalCss, /\.rail-link::before \{\n[^}]*width: 4px;\n  height: 4px;/);

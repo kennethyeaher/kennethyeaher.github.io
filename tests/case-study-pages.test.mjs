@@ -77,7 +77,7 @@ test("the chapter rail matches the v3 rail: same spot, no numbers, the square on
     assert.doesNotMatch(html, /class="back-link"|Back to Work|chapter-number|is-numbered/, slug);
   }
   const nav = readFileSync(join(projectRoot, "src", "components", "CaseStudyNav.astro"), "utf8");
-  assert.match(nav, /\.case-rail \.rail \{\n    position: fixed;\n    z-index: 10;\n    top: 40vh;\n    left: calc\(var\(--page-gutter\) - 10px\);/);
+  assert.match(nav, /\.case-rail \.rail \{\n    position: fixed;\n    z-index: 10;\n    top: 200px;\n    left: calc\(var\(--page-gutter\) - 10px\);/);
   assert.match(nav, /@media \(max-width: 980px\) \{\n    \.case-rail \{\n      display: none;/);
   assert.doesNotMatch(nav.slice(nav.indexOf("<style>")), /opacity/);
   // the scroll tracking still moves aria-current across the rail links and the select.

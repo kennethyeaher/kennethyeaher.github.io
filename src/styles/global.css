@@ -323,13 +323,13 @@ button {
   white-space: nowrap;
 }
 
-/* the v3 rail (figma 176:1721, 177:1801): fixed at the left edge, 40% down the viewport, geist 15 rows 14px apart. each
+/* the v3 rail (figma 176:1721, 177:1801): fixed at the left edge, 200px from the top (level with the home thesis), geist 15 rows 14px apart. each
    link keeps a 4px slot before it, so the label sits on the gutter and the slot hangs 10px into it; the current item is
    --color-annotate and fills its square, the rest are --muted. it dims by colour, never opacity. CaseStudyNav uses the
    same .rail and .rail-link for its chapters. */
 .site-nav {
   position: fixed;
-  top: 40vh;
+  top: 200px;
   left: calc(var(--page-gutter) - 10px);
 }
 

@@ -86,7 +86,7 @@ test("home v3 follows figma 176:1721 and 177:1723: Currently and Previously unde
   const rule = (selector, scope = css) => scope.match(new RegExp(`(?:^|[{}\\s])${selector}\\[[^\\]]+\\]\\{([^}]*)\\}`))?.[1] ?? "";
   // a 924px column centred on the screen (x=258 at 1440) clear of the rail; the credit 140px under the grid.
   assert.match(rule("\\.home-page"), /^width:min\(924px,100% - 48px\);margin-bottom:116px;margin-left:max\(24px,50% - 510px\)$/);
-  assert.match(rule("\\.home-intro"), /^padding-top:288px;padding-bottom:96px$/);
+  assert.match(rule("\\.home-intro"), /^padding-top:136px;padding-bottom:96px$/);
   assert.match(rule("\\.home-thesis\\[[^\\]]+\\] h1"), /font-size:72px;font-weight:400;letter-spacing:-\.02em;line-height:74px/);
   assert.match(rule("\\.home-now"), /^display:flex;margin:48px 0 0;gap:48px;font:15px \/ 22px var\(--ui-sans\)$/);
   assert.match(rule("\\.home-now-currently"), /^flex:0 280px$/);
