@@ -6,8 +6,8 @@ interface Entry { target: HTMLElement; trigger: HTMLElement; note: HTMLElement |
 interface Stage { stage: HTMLElement; layer: HTMLElement; entries: Entry[] }
 
 /** the view (scale s, stage pixel x y at its top left) for an outline, or null under 1.5x: the outline plus 24px (16px
- * under 500 wide) plus room on-screen px for the bar, at the stage's ratio, centred, inside the stage (or past the
- * foot by the room an outline there needs); cap is the phone cap */
+ * under 500 wide) plus room on-screen px for the bar (its height, inset and gap; 48 for one line), at the stage's ratio,
+ * centred, inside the stage (an outline at the foot may push it past the foot by its bar room); cap is the phone cap */
 export function frame(stage: { w: number; h: number }, box: { x: number; y: number; w: number; h: number }, cap = Infinity, room = 48) {
   const pad = stage.w < 500 ? 16 : 24;
   const s = Math.min(stage.w / (box.w + 2 * pad), (stage.h - room) / (box.h + 2 * pad), 4, cap);
@@ -58,7 +58,8 @@ export function initializePinZoom() {
     reduce && document.startViewTransition ? document.startViewTransition(swap) : swap();
   }
 
-  /** zoom a stage to one annotation, from rest or the current view; the bar goes in first, its height the room */
+  /** zoom a stage to one annotation, from rest or from the current view; the bar goes in first, so its real height
+   * (a title may wrap to two lines) sets the room under the outline */
   function open(st: Stage, entry: Entry, opener: HTMLElement) {
     if (active?.st !== st) exit();
     const bar = active?.bar ?? st.stage.appendChild(document.querySelector<HTMLTemplateElement>("[data-zoom-bar]")!.content.firstElementChild!.cloneNode(true) as HTMLElement);
@@ -77,7 +78,7 @@ export function initializePinZoom() {
       next.addEventListener("click", () => step(1));
       close.addEventListener("click", () => exit(true));
       st.stage.classList.add("is-zoomed");
-      // exits: leaving the viewport, or the opener's screen going aria-hidden
+      // exits: leaving the viewport, or the opener's screen going aria-hidden (the walkthrough moving on)
       const io = new IntersectionObserver(([e]) => { if (!e.isIntersecting) exit(); });
       io.observe(st.stage);
       const mo = new MutationObserver(() => { if (opener.closest("[aria-hidden='true']")) exit(); });

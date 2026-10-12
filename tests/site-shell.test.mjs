@@ -275,7 +275,19 @@ test("the footer carries LinkedIn, GitHub and Email, and Email opens a message t
 
 test("the pin zoom keeps its budget, its reduced-motion rule, its notes active state and the chip off a zoomed stage", () => {
   const script = readFileSync(join(projectRoot, "src", "scripts", "pin-zoom.ts"), "utf8");
-  assert.ok(gzipSync(script).length < 3072, `the zoom script stays under 3 KB gzipped, even unminified (${gzipSync(script).length})`);
+  // the budget is measured on the build: the site bundle holds the zoom module as one block, from frame(), the only
+  // function with the defaults (cap = Infinity, room = 48), to the end of initializePinZoom, before the next function.
+  const bundleDir = join(projectRoot, "dist", "_astro");
+  const bundle = readdirSync(bundleDir).filter((name) => name.endsWith(".js")).map((name) => readFileSync(join(bundleDir, name), "utf8")).find((source) => source.includes("[data-pin-zoom]"));
+  assert.ok(bundle, "a built script carries the zoom module");
+  const start = bundle.search(/function [\w$]+\([\w$]+,[\w$]+,[\w$]+=1\/0,[\w$]+=48\)\{/);
+  const end = bundle.indexOf("}function ", bundle.indexOf("[data-pin-zoom]:not([data-pin-zoom-phone])", start)) + 1;
+  assert.ok(start >= 0 && end > start, "the zoom module is found in the bundle");
+  const zoomBuilt = bundle.slice(start, end);
+  // the block is the zoom module and nothing else: it ends on the outside-click exit and holds no other module's hooks.
+  assert.match(zoomBuilt, /document\.addEventListener\(`click`,[^}]*contains\([^)]*\)[^}]*\}\)\}$/);
+  assert.doesNotMatch(zoomBuilt, /data-pointer-note|data-nav-toggle|data-walk-step/);
+  assert.ok(gzipSync(zoomBuilt).length < 3072, `the zoom script stays under 3 KB minified and gzipped (${gzipSync(zoomBuilt).length})`);
   // the framing rule in one exported function: 24 or 16 of padding, the bar's measured room (48 for one line), 1.5 to 4, centred, inside the stage.
   assert.match(script, /export function frame\(/);
   assert.match(script, /const pad = stage\.w < 500 \? 16 : 24;/);
