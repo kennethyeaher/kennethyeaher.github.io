@@ -1,8 +1,8 @@
 /**
- * annotated cursor per figma 161:1721. over the four data-cursor targets (project cards, loop pills, pins and the
- * pull cord) the native arrow hides and one aria-hidden note is the pointer: a 10px annotate dot centred on the tip,
- * a 14px leader and a chip saying what a click does, moved to the tip once a frame with no easing. everywhere else,
- * a target with an empty label included, the native pointer stays. fine hovering mouse pointers only, never keyboard
+ * annotated cursor per figma 161:1721. over the data-cursor targets (project cards, loop pills, pins, the pull cord
+ * and the About photos, which show their alt text per note 267:1842) the native arrow hides and one aria-hidden note
+ * is the pointer: a 10px annotate dot centred on the tip, a 14px leader and a chip saying what a click does (or, on a
+ * photo, what it shows), moved to the tip once a frame with no easing. everywhere else, a target with an empty label included, the native pointer stays. fine hovering mouse pointers only, never keyboard
  * focus, never under forced colours.
  */
 export function initializePointerNote(): void {
@@ -21,6 +21,7 @@ export function initializePointerNote(): void {
   function label(element: HTMLElement): string {
     const kind = element.dataset.cursor;
     if (kind === "card") return "View case study";
+    if (kind === "photo") return element.querySelector("img")?.alt ?? "";
     if (kind === "cord") return root.dataset.theme === "dark" || (!root.dataset.theme && dark.matches) ? "Pull for light" : "Pull for dark";
     if (kind === "loop") {
       const toggle = element.querySelector<HTMLElement>("[data-loop-toggle]");
