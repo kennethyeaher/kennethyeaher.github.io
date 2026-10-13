@@ -6,6 +6,8 @@
 interface GalleryItem {
   src: string;
   alt: string;
+  /** the cursor chip, when it should say something other than the alt text. */
+  chip?: string;
   width: number;
   height: number;
 }
@@ -52,18 +54,18 @@ const pad = (n: number) => String(n).padStart(2, "0");
               <p class="chapter-line">{chapter.line}</p>
             </div>
             <div class="chapter-photos">
-              <figure class="chapter-photo is-lead" data-cursor="photo" tabindex="0" style={`--i: ${order++}; width: ${(chapter.leadWidth ?? 1) * 100}%; aspect-ratio: ${cropWidth} / ${cropHeight}`}>
+              <figure class="chapter-photo is-lead" data-cursor="photo" tabindex="0" data-cursor-label={lead.chip} style={`--i: ${order++}; width: ${(chapter.leadWidth ?? 1) * 100}%; aspect-ratio: ${cropWidth} / ${cropHeight}`}>
                 <img src={lead.src} alt={lead.alt} width={lead.width} height={lead.height} loading="lazy" decoding="async" />
-                <figcaption aria-hidden="true">{lead.alt}</figcaption>
+                <figcaption aria-hidden="true">{lead.chip ?? lead.alt}</figcaption>
               </figure>
               {chapter.rows.map((row) => (
                 <div class="chapter-row">
                   {row.map((id) => {
                     const item = photo(id);
                     return (
-                      <figure class="chapter-photo" data-cursor="photo" tabindex="0" style={`--i: ${order++}; flex-grow: ${(item.width / item.height).toFixed(4)}; aspect-ratio: ${item.width} / ${item.height}`}>
+                      <figure class="chapter-photo" data-cursor="photo" tabindex="0" data-cursor-label={item.chip} style={`--i: ${order++}; flex-grow: ${(item.width / item.height).toFixed(4)}; aspect-ratio: ${item.width} / ${item.height}`}>
                         <img src={item.src} alt={item.alt} width={item.width} height={item.height} loading="lazy" decoding="async" />
-                        <figcaption aria-hidden="true">{item.alt}</figcaption>
+                        <figcaption aria-hidden="true">{item.chip ?? item.alt}</figcaption>
                       </figure>
                     );
                   })}

@@ -168,6 +168,10 @@ test("about v3 follows figma 255:1842: header, experience, education, interests 
     // chapter 01 ships unlocked; the rest lock only once the script runs.
     assert.equal(/\sdata-unlocked/.test(attributes), index === 0, `${chapter.title} unlocked state`);
   });
+  // the On the field lead shows "Coast to coast" in the cursor chip; its alt stays for screen readers, and no other photo has a chip.
+  assert.deepEqual(aboutGallery.filter((item) => item.chip).map((item) => [item.src, item.chip]), [["/images/about/about-03.jpg", "Coast to coast"]]);
+  assert.equal(alts.get("/images/about/about-03.jpg"), "Carrying the ball upfield in a lacrosse game");
+  assert.deepEqual([...aboutHtml.matchAll(/<figure class="chapter-photo[^"]*"[^>]*data-cursor-label="([^"]*)"[^>]*>\s*<img src="([^"]+)"/g)].map(([, label, src]) => [src, label]), [["/images/about/about-03.jpg", "Coast to coast"]]);
   assert.equal(aboutChapters[0].line, "You’ll either catch me on the lax field saving shots or on the football pitch doing my best Kanté impression.");
   assert.equal(aboutChapters[3].line, "Old Trafford in Manchester, live music at The Dubliner, a night on the beach, and a window seat after dark.");
 

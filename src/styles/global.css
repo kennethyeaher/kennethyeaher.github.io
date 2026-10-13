@@ -654,11 +654,11 @@ html:not(.nav-ready) .theme-cord { display: none; }
 .pointer-dot { position: fixed; z-index: 100; top: 0; left: 0; pointer-events: none; opacity: 0; }
 .pointer-dot.is-on { opacity: 1; }
 .pointer-dot-mark { position: absolute; top: 0; left: 0; box-sizing: border-box; width: 6px; height: 6px; border: 3px solid var(--cord-ring); border-radius: 50%; background: var(--cord-ring); translate: -50% -50%; box-shadow: 0 1px 4px rgb(0 0 0 / 25%); transition: width 150ms var(--ease-out), height 150ms var(--ease-out), border-width 150ms var(--ease-out), background-color 150ms var(--ease-out), scale 150ms var(--ease-out); }
-.pointer-dot.is-ring .pointer-dot-mark { width: 14px; height: 14px; border-width: 1.5px; background: var(--cord-pull); }
+.pointer-dot.is-ring .pointer-dot-mark { width: 24px; height: 24px; border-width: 2px; background: var(--cord-pull); }
 .pointer-dot.is-down .pointer-dot-mark { scale: 0.85; }
-.pointer-dot-chip { position: absolute; top: 0; left: 13px; display: none; padding: 5px 10px; border-radius: 999px; background: var(--ink-strong); color: var(--canvas); font: 500 11px / normal var(--mono); white-space: nowrap; translate: 0 -50%; }
-.pointer-dot.is-left .pointer-dot-chip { right: 13px; left: auto; }
-.pointer-dot.is-photo .pointer-dot-chip { display: block; }
+.pointer-dot-chip { position: absolute; top: 0; left: 20px; display: none; padding: 5px 10px; border-radius: 999px; background: var(--ink-strong); color: var(--canvas); font: 500 11px / normal var(--mono); white-space: nowrap; translate: 0 -50%; }
+.pointer-dot.is-left .pointer-dot-chip { right: 20px; left: auto; }
+.pointer-dot.is-chip .pointer-dot-chip { display: block; }
 @media (prefers-reduced-motion: reduce) {
   .pointer-dot, .pointer-dot * { transition: none !important; }
 }

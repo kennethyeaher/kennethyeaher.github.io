@@ -1,7 +1,8 @@
 /**
  * the dot cursor. on fine hovering mouse pointers the native cursor hides on every page and one aria-hidden dot is the
  * pointer, centred on the tip and moved there once a frame with no easing. over anything interactive it grows into
- * the theme cord's knob; an About photo also shows its alt text in a chip beside the ring (note 267:1842). touch, pen,
+ * a 24px ring. a target's data-cursor-label shows in a chip beside the ring (the cards' "View <name>", the cord's pull
+ * set here from the theme), and an unlabelled About photo shows its alt text (note 267:1842). touch, pen,
  * forced colours, fields, a blurred window, a hidden tab and a pointer outside the window all get the native cursor
  * back. never keyboard focus.
  */
@@ -15,18 +16,32 @@ export function initializePointerDot(): void {
   let x = 0;
   let y = 0;
   let frame = 0;
+  const cord = document.querySelector<HTMLElement>('[data-cursor="cord"]');
+  const dark = window.matchMedia("(prefers-color-scheme: dark)");
 
-  /** write the tip and the target's state; css centres the mark on it. the chip flips left near the right edge. */
+  /** write the tip and the target's state; css centres the mark on it. the chip flips left when, at its real width,
+   * it would come within a 16px gutter of the right edge. */
   function place(): void {
     frame = 0;
     const target = over?.closest<HTMLElement>("a, button, summary, label[for], [data-cursor]");
-    const alt = target?.dataset.cursor === "photo" ? target.querySelector("img")?.alt ?? "" : "";
-    if (alt !== chip!.textContent) chip!.textContent = alt;
+    const label = target?.dataset.cursorLabel ?? (target?.dataset.cursor === "photo" ? target.querySelector("img")?.alt ?? "" : "");
+    if (label !== chip!.textContent) chip!.textContent = label;
     dot!.classList.toggle("is-ring", !!target);
-    dot!.classList.toggle("is-photo", !!alt);
-    dot!.classList.toggle("is-left", innerWidth - x < 200);
+    dot!.classList.toggle("is-chip", !!label);
+    dot!.classList.toggle("is-left", !!label && x + 20 + chip!.offsetWidth + 16 > innerWidth);
     dot!.style.translate = `${x}px ${y}px`;
   }
+
+  /** the cord says which way it pulls, an explicit theme first, then the system's; a resting or dragging dot updates
+   * in place. */
+  function labelCord(): void {
+    if (!cord) return;
+    cord.dataset.cursorLabel = root.dataset.theme === "dark" || (!root.dataset.theme && dark.matches) ? "Pull for light" : "Pull for dark";
+    if (dot!.classList.contains("is-on")) place();
+  }
+  labelCord();
+  new MutationObserver(labelCord).observe(root, { attributeFilter: ["data-theme"] });
+  dark.addEventListener("change", labelCord);
 
   /** the arrow comes back first, then the dot goes. */
   function hide(): void {

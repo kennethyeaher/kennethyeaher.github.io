@@ -204,7 +204,7 @@ export const interests = [
 
 /**
  * About-page photography and the alt text source for the photo chapters. width and height are the files' pixel
- * sizes, which set each photo's share of its justified row.
+ * sizes, which set each photo's share of its justified row. an optional chip replaces the alt text in the cursor chip.
  */
 export const aboutGallery = [
   { src: "/images/about/about-10.jpg", width: 1024, height: 683, alt: "Talking with a teammate on the sideline" },
@@ -220,7 +220,7 @@ export const aboutGallery = [
   { src: "/images/about/about-21.jpg", width: 930, height: 1400, alt: "A pink-lit airplane window at night, rain on the glass" },
   { src: "/images/about/about-01.jpg", width: 788, height: 1400, alt: "Techstars AI Health Baltimore, before the room filled up" },
   { src: "/images/about/about-02.jpg", width: 1050, height: 1400, alt: "With three friends at a PwC recruiting event" },
-  { src: "/images/about/about-03.jpg", width: 1400, height: 900, alt: "Carrying the ball upfield in a lacrosse game" },
+  { src: "/images/about/about-03.jpg", width: 1400, height: 900, alt: "Carrying the ball upfield in a lacrosse game", chip: "Coast to coast" },
   { src: "/images/about/about-04.jpg", width: 1050, height: 1400, alt: "With my parents on the field after a home game" },
   { src: "/images/about/about-05.jpg", width: 1400, height: 538, alt: "The room at a student startup showcase" },
   { src: "/images/about/about-06.jpg", width: 788, height: 1400, alt: "With friends outside the stadium" },

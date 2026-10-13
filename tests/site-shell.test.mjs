@@ -81,6 +81,7 @@ test("the theme switch is the pull cord: a real button that hangs out of flow an
 test("the dot cursor is one aria-hidden dot on every page, the pointer for fine hovering mice only", () => {
   const pagesBuilt = ["index.html", "about/index.html", ...["terpcarehub", "ovara", "kairo-health", "usm-venture-benchmark", "college-park-capstone", "frontground", "terpcare", "sohive"].map((slug) => `work/${slug}/index.html`)];
   const kinds = new Set();
+  const labelled = new Set();
   for (const file of pagesBuilt) {
     const html = readFileSync(join(projectRoot, "dist", file), "utf8");
     // the dot is a single aria-hidden element; the annotated note, its leader and the old cursor-dot class are gone.
@@ -97,9 +98,21 @@ test("the dot cursor is one aria-hidden dot on every page, the pointer for fine 
       else if (kind === "photo") assert.match(tag, /^<figure class="chapter-photo[^"]*" data-cursor="photo" tabindex="0"/, file);
       else if (kind === "pin") assert.match(tag, /^<(button type="button" class="pin"|a class="annotation-badge")/, file);
       else assert.fail(`${file} carries an unknown data-cursor "${kind}"`);
+      // a chip label ships only on cards and photos; the cord's comes from script, the pins, loops and links have none.
+      if (/\sdata-cursor-label="/.test(tag)) labelled.add(kind);
     }
+    assert.equal((html.match(/data-cursor-label="/g) ?? []).length, [...html.matchAll(/<(?:a class="project-card"|figure class="chapter-photo)[^>]*\sdata-cursor-label="/g)].length, `${file} labels only cards and photos`);
   }
   assert.deepEqual([...kinds].sort(), ["card", "cord", "loop", "photo", "pin"]);
+  assert.deepEqual([...labelled].sort(), ["card", "photo"]);
+
+  // every card's chip is "View " plus the project name exactly as its caption shows it.
+  const home = readFileSync(join(projectRoot, "dist", "index.html"), "utf8");
+  const cards = [...home.matchAll(/<a class="project-card"[^>]*\sdata-cursor-label="([^"]*)"[^>]*>[\s\S]*?<h3[^>]*>([^<]*)<\/h3>/g)];
+  assert.equal(cards.length, (home.match(/<a class="project-card"/g) ?? []).length, "every card carries a label");
+  assert.ok(cards.length >= 8);
+  for (const [, label, name] of cards) assert.equal(label, `View ${name}`);
+  assert.ok(cards.some(([, label]) => label === "View Information Science Capstone"));
 
   assert.ok(!existsSync(join(projectRoot, "src", "scripts", "pointer-note.ts")), "the note script is renamed");
   const script = readFileSync(join(projectRoot, "src", "scripts", "pointer-dot.ts"), "utf8");
@@ -126,16 +139,28 @@ test("the dot cursor is one aria-hidden dot on every page, the pointer for fine 
   assert.match(script, /if \(!frame\) frame = requestAnimationFrame\(place\);/);
   assert.match(script, /dot!\.style\.translate = `\$\{x\}px \$\{y\}px`;/);
   assert.doesNotMatch(script, /0\.22|lerp|focusin|"focus"/);
-  // the chip is only an About photo's alt text (note 267:1842): no card, cord, loop or pin labels.
-  assert.match(script, /dataset\.cursor === "photo" \? [^;]*querySelector\("img"\)\?\.alt/);
-  assert.doesNotMatch(script, /View case study|Pull for|note-title| loop`/);
+  // the chip is a target's data-cursor-label, else an About photo's alt text: no loop or pin labels.
+  assert.match(script, /\.dataset\.cursorLabel \?\? \(target\?\.dataset\.cursor === "photo" \? [^;]*querySelector\("img"\)\?\.alt/);
+  assert.doesNotMatch(script, /View case study|note-title| loop`/);
+  // the cord's label is set from script and follows the theme, explicit or system, while the pointer rests or drags.
+  assert.match(script, /root\.dataset\.theme === "dark" \|\| \(!root\.dataset\.theme && dark\.matches\) \? "Pull for light" : "Pull for dark"/);
+  assert.match(script, /cord\.dataset\.cursorLabel = /);
+  assert.match(script, /new MutationObserver\(labelCord\)\.observe\(root, \{ attributeFilter: \["data-theme"\] \}\)/);
+  assert.match(script, /dark\.addEventListener\("change", labelCord\)/);
+  // the chip flips left when its real width would come within the 16px gutter of the window's right edge, not at a
+  // fixed distance.
+  assert.match(script, /x \+ 20 \+ chip!\.offsetWidth \+ 16 > innerWidth/);
+  assert.doesNotMatch(script, /< 200/);
   assert.match(globalCss, /\.pointer-dot-chip \{[^}]*display: none;/);
-  assert.match(globalCss, /\.pointer-dot\.is-photo \.pointer-dot-chip \{ display: block; \}/);
-  // rest: a 6px solid --cord-ring dot centred on the tip. ring: the cord's knob, 14px border-box with a 1.5px
-  // --cord-ring border on --cord-pull, grown over 150ms --ease-out, 0.85 while the button is down.
+  assert.match(globalCss, /\.pointer-dot\.is-chip \.pointer-dot-chip \{ display: block; \}/);
+  // the chip sits 8px clear of the 24px ring's edge, on either side.
+  assert.match(globalCss, /\.pointer-dot-chip \{ position: absolute; top: 0; left: 20px;/);
+  assert.match(globalCss, /\.pointer-dot\.is-left \.pointer-dot-chip \{ right: 20px; left: auto; \}/);
+  // rest: a 6px solid --cord-ring dot centred on the tip. ring: 24px border-box with a 2px --cord-ring border on
+  // --cord-pull, grown over 150ms --ease-out, 0.85 while the button is down.
   assert.match(globalCss, /\.pointer-dot \{ position: fixed; z-index: 100; top: 0; left: 0; pointer-events: none;[^}]*\}/);
   assert.match(globalCss, /\.pointer-dot-mark \{[^}]*box-sizing: border-box; width: 6px; height: 6px; border: 3px solid var\(--cord-ring\); border-radius: 50%; background: var\(--cord-ring\); translate: -50% -50%;[^}]*transition: width 150ms var\(--ease-out\), height 150ms var\(--ease-out\), border-width 150ms var\(--ease-out\), background-color 150ms var\(--ease-out\), scale 150ms var\(--ease-out\);/);
-  assert.match(globalCss, /\.pointer-dot\.is-ring \.pointer-dot-mark \{ width: 14px; height: 14px; border-width: 1\.5px; background: var\(--cord-pull\); \}/);
+  assert.match(globalCss, /\.pointer-dot\.is-ring \.pointer-dot-mark \{ width: 24px; height: 24px; border-width: 2px; background: var\(--cord-pull\); \}/);
   assert.match(globalCss, /\.pointer-dot\.is-down \.pointer-dot-mark \{ scale: 0\.85; \}/);
   assert.match(globalCss, /\.theme-cord-knob \{[^}]*box-sizing: border-box; width: 14px; height: 14px; border: 1\.5px solid var\(--cord-ring\);[^}]*background: var\(--cord-pull\);/);
   // reduced motion: the dot still follows, the size changes are instant.

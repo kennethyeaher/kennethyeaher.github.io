@@ -29,6 +29,7 @@ const { project } = Astro.props;
   href={`/work/${project.slug}`}
   data-tilt-card
   data-cursor="card"
+  data-cursor-label={`View ${project.cardTitle}`}
 >
   <figure class="project-media">
     <ProjectCover project={project} />
