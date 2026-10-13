@@ -13,11 +13,13 @@
  * @typedef {{
  *   src: string, alt: string, width: number, height: number,
  *   frame?: "image" | "iphone" | "browser", rot?: number, at?: Box, loop?: { src: string, poster: string, name?: string },
- *   url?: string, crop?: { x: number, y: number, w: number, h: number }, priority?: boolean, zoom?: number
+ *   url?: string, crop?: { x: number, y: number, w: number, h: number }, priority?: boolean, zoom?: number,
+ *   fit?: "contain", bg?: string
  * }} ExhibitVisual
  *   loop.name tells loop controls apart ("Play state loop"); url is the browser address; crop shows one region of the image as fractions of its size;
  *   priority marks the lcp visual when it is not the hero's last one; zoom draws a resized browser instance larger,
- *   its chrome scaling with it (terpcarehub 132:1846 is the 640 instance at 1.5x).
+ *   its chrome scaling with it (terpcarehub 132:1846 is the 640 instance at 1.5x). fit "contain" shows a phone's whole
+ *   capture, centred on bg (default #ffffff), instead of cropping it from the top; the redesign 2 phones use it.
  * @typedef {{
  *   type: "focus" | "leader" | "leader-vertical", num: string, label?: string,
  *   on?: number, at?: Box, target?: string, direction?: "left" | "right", theme?: "on-dark" | "on-light",
@@ -40,13 +42,17 @@
  * @typedef {{ figma: string, ratio: string, base: string, field: StageField, veil?: boolean, tag: string, touchTag?: string, visual: ExhibitVisual & { url: string, screen: { w: number, h: number } }, caption: ExhibitCaption }} ExhibitScroller
  * @typedef {ExhibitBase & { kind: "hero", visuals: ExhibitVisual[], kpi?: ExhibitKpi, metrics: { value: string, label: string }[], scroller?: ExhibitScroller }} HeroExhibit
  * @typedef {{ figma: string, ratio: string, base: string, field: StageField, active: string, visual: ExhibitVisual, pins: { n: string, at: { x: number, y: number }, title: string, body: string }[], notes: { x: number, width: number }, caption: ExhibitCaption }} ExhibitPins
- * @typedef {ExhibitBase & { kind: "stage", size: "wide" | "square" | "pair", ratio?: string, visuals: ExhibitVisual[], annotations?: ExhibitAnnotation[], notes?: ExhibitNote[], captions?: ExhibitCaption[], pins?: ExhibitPins, zoom?: true | "phone" }} StageExhibit
+ * @typedef {{ base?: string, bases?: string[], veil?: boolean, fields: StageField[], visuals: ExhibitVisual[], captions: ExhibitCaption[], reverse?: true }} StageRows
+ *   rows after a stage's captions or notes, one visual per row on a 600 square stage; reverse puts the caption
+ *   first and runs the row the full 1116, so the stage meets the right edge (frontground 222:440).
+ * @typedef {ExhibitBase & { kind: "stage", size: "wide" | "square" | "pair", ratio?: string, visuals: ExhibitVisual[], annotations?: ExhibitAnnotation[], notes?: ExhibitNote[], captions?: ExhibitCaption[], pins?: ExhibitPins, zoom?: true | "phone", rows?: StageRows }} StageExhibit
  *   zoom marks a small pinned stage that zooms to the active annotation (figma 168:1745); "phone" limits that to phone widths.
  * @typedef {{ width: number, height: number, sigma: number, circles: { x: number, y: number, r: number, colour: string, alpha: number }[] }} StageField
  *   a stage's own colour field from figma, in that stage's pixels.
  * @typedef {{ label: string, title: string, body: string, screen: ExhibitVisual, focus?: { num: string, at: { x: number, y: number, w: number, h: number } } }} WalkthroughStep
  * @typedef {{ figma: string, base: string, field: StageField, veil?: boolean, tag: string, at: { x: number, y: number, w: number }, steps: WalkthroughStep[], zoom?: true }} ExhibitWalkthrough
- * @typedef {ExhibitBase & { kind: "rows", visuals: ExhibitVisual[], captions: ExhibitCaption[], annotations?: ExhibitAnnotation[], fields?: StageField[], base?: string, walkthrough?: ExhibitWalkthrough }} RowsExhibit
+ * @typedef {ExhibitBase & { kind: "rows", visuals: ExhibitVisual[], captions: ExhibitCaption[], annotations?: ExhibitAnnotation[], fields?: StageField[], base?: string, bases?: string[], veil?: boolean, walkthrough?: ExhibitWalkthrough }} RowsExhibit
+ *   a rows exhibit with a walkthrough may have no rows of its own (terpcare book), so visuals and captions can be empty.
  * @typedef {ExhibitBase & { kind: "pair", stages: { ratio?: string, base?: string, field?: StageField, visuals: ExhibitVisual[], annotations?: ExhibitAnnotation[] }[], captions: ExhibitCaption[], zoom?: true }} PairExhibit
  *   two stages side by side, each captioned; annotation theme on-light suits a pale stage.
  *   zoom makes each stage zoom on its own to its leaders' regions (figma 197:1727).
@@ -1165,6 +1171,38 @@ export const caseStudies = [
         ],
       },
       {
+        kind: "rows", id: "booking", chapter: "Booking", figma: "221:340",
+        eyebrow: "FLOWS",
+        heading: "Booking, from card to cancel",
+        lede: [
+          "Every flow in the first redesign stopped one screen short. A student could find care, read an alert and start a submission, but never booked, acknowledged or saw a submission go through. Booking is the first path finished end to end: provider detail, a confirmation that says what was booked and when, and a cancel that says where the time goes.",
+        ],
+        walkthrough: {
+          figma: "221:378",
+          base: "#b3122a",
+          veil: true,
+          tag: "SCROLL · PHONE PINNED",
+          at: { x: 29, y: 7.6, w: 42 },
+          field: { width: 600, height: 600, sigma: 45, circles: [{ x: 180, y: 140, r: 260, colour: "#FFD24D", alpha: 0.9 }, { x: 530, y: 490, r: 230, colour: "#FF7A45", alpha: 0.9 }, { x: 590, y: 50, r: 210, colour: "#7A0718", alpha: 0.9 }] },
+          steps: [
+            { label: "STEP 1", title: "Plan and cost above the slots", body: "The provider detail repeats the two facts that ended the search in the journey map, then offers times for today and tomorrow and an optional reason for the visit.", screen: { src: "/images/work/terpcarehub/mobile-provider-detail.png", width: 780, height: 1688, fit: "contain", bg: "#ffffff", alt: "University Health Center detail with plan accepted, a $0 copay, times for today and tomorrow and a Book today at 2:40 PM button" } },
+            { label: "STEP 2", title: "Booked, with the next two actions", body: "The confirmation says what, where and when, then puts Add to calendar and Cancel appointment together. A different time means cancel this one and pick again, and the screen says so.", screen: { src: "/images/work/terpcarehub/mobile-booking-confirmed.png", width: 780, height: 1688, fit: "contain", bg: "#ffffff", alt: "Booking confirmation saying what was booked, where and when, with Add to calendar and Cancel appointment" } },
+            { label: "STEP 3", title: "Cancel says where the time goes", body: "Cancel your appointment? names the booking and says the slot goes back to other students right away. Keep it is one tap, so a mis-tap costs nothing.", screen: { src: "/images/work/terpcarehub/mobile-cancel-booking.png", width: 780, height: 1688, fit: "contain", bg: "#ffffff", alt: "Cancel your appointment dialog naming the booking, with Keep it and Cancel appointment buttons" } },
+          ],
+        },
+        bases: ["#8a0b1e"],
+        veil: true,
+        fields: [
+          { width: 600, height: 600, sigma: 45, circles: [{ x: 160, y: 560, r: 280, colour: "#E21833", alpha: 0.9 }, { x: 550, y: 50, r: 190, colour: "#FFB547", alpha: 0.9 }, { x: 470, y: 590, r: 210, colour: "#3D0410", alpha: 0.9 }] },
+        ],
+        visuals: [
+          { src: "/images/work/terpcarehub/mobile-programs.png", width: 780, height: 1688, alt: "Wellness programs list with one programme marked Pending review and two marked Verified, and a Submit an event button", frame: "iphone", fit: "contain", bg: "#ffffff", at: { x: 29, y: 7.6, w: 42 } },
+        ],
+        captions: [
+          { title: "Verified and pending review are labelled", body: "A programme submitted through the hub shows as pending review until it is verified, so an official listing and a fresh submission never read the same. Only the Sleep Hygiene Workshop comes from the Submit page; the others are illustrative, and the screen says so." },
+        ],
+      },
+      {
         kind: "section", id: "reflection", chapter: "Reflection", section: "reflection",
         eyebrow: "REFLECTION",
         heading: "What I would test first",
@@ -1808,6 +1846,89 @@ export const caseStudies = [
         ],
       },
       {
+        kind: "stage", id: "offline", chapter: "Offline", figma: "222:284", size: "wide", ratio: "1116 / 640", zoom: "phone",
+        eyebrow: "PROPOSED NEXT",
+        heading: "Built for the clinic when the network drops",
+        lede: [
+          "Liberia’s 2026 Ministry of Health call for an EMR asks for systems that work in low connectivity and sync later. These proposed screens show that path. The original file only ever showed the happy path, and a clinical record is judged on how it handles error and delay.",
+          "The hypothesis is that a visible sync state and an offline queue let clinic staff keep charting through a dropped connection without losing a record. The test is a Wizard of Oz session: the facilitator drops the network by hand, and the pass is whether a nurse can say which records have not been sent yet.",
+        ],
+        base: "#002637",
+        field: { width: 1116, height: 640, sigma: 60, circles: [{ x: 120, y: 520, r: 320, colour: "#145676", alpha: 0.9 }, { x: 1070, y: 30, r: 190, colour: "#0C8B44", alpha: 0.9 }, { x: 680, y: 560, r: 260, colour: "#003F5D", alpha: 0.9 }] },
+        visuals: [
+          { src: "/images/work/frontground/frontground-sync-offline.png", width: 1920, height: 1080, alt: "Frontground dashboard while offline, with a status pill that counts unsent records and a banner saying where they are", frame: "browser", url: "frontground · doctor", screen: { w: 720, h: 405 }, at: { x: 20.4, y: 8.8, w: 64.5 } },
+        ],
+        annotations: [
+          // as on the solution (197:1727), each leader zooms to what it points at, measured on 222:289's capture:
+          // the status pill and banner, then the patient queue. the labels clip at 390, so these zoom on phones only.
+          { type: "leader", num: "01", label: "Offline, with a count", direction: "left", at: { x: 2.1, y: 16.5, w: 29.8, h: 5.2 }, zoomAt: { x: 27.69, y: 16.88, w: 38.17, h: 7.38 } },
+          { type: "leader", num: "02", label: "Charting continues", direction: "left", at: { x: 2.1, y: 50.4, w: 26.5, h: 5.2 }, zoomAt: { x: 27.82, y: 43.13, w: 40.79, h: 33.75 } },
+        ],
+        captions: [
+          { title: "Nothing is lost, and the screen says so", body: "The status pill carries a count, the banner says where the records are and when they will send, and the queue is one tap away. None of it interrupts charting, because the moment the network drops is not the moment to stop a nurse." },
+        ],
+        rows: {
+          base: "#012e42",
+          fields: [
+            { width: 600, height: 600, sigma: 45, circles: [{ x: 160, y: 140, r: 260, colour: "#145676", alpha: 0.9 }, { x: 550, y: 510, r: 190, colour: "#0C8B44", alpha: 0.9 }] },
+            { width: 600, height: 600, sigma: 45, circles: [{ x: 160, y: 140, r: 260, colour: "#145676", alpha: 0.9 }, { x: 550, y: 510, r: 190, colour: "#0C8B44", alpha: 0.9 }] },
+            { width: 600, height: 600, sigma: 45, circles: [{ x: 160, y: 140, r: 260, colour: "#145676", alpha: 0.9 }, { x: 550, y: 510, r: 190, colour: "#0C8B44", alpha: 0.9 }] },
+          ],
+          visuals: [
+            { src: "/images/work/frontground/frontground-sync-failed.png", width: 1920, height: 1080, alt: "Frontground dashboard with a red status pill and a banner saying one record did not send", frame: "browser", url: "frontground", screen: { w: 780, h: 439 }, at: { x: 9.3, y: 25, w: 130 } },
+            { src: "/images/work/frontground/frontground-offline-queue.png", width: 1920, height: 1080, alt: "Frontground offline queue listing records waiting to send, oldest first, with their status", frame: "browser", url: "frontground", screen: { w: 780, h: 439 }, at: { x: 9.3, y: 25, w: 130 } },
+            { src: "/images/work/frontground/frontground-duplicate-check.png", width: 1920, height: 1080, alt: "Frontground duplicate check offering to open an existing record that matches on name and date of birth", frame: "browser", url: "frontground", screen: { w: 780, h: 439 }, at: { x: 9.3, y: 25, w: 130 } },
+          ],
+          captions: [
+            { title: "One record did not send", body: "The pill turns red and names the count. The banner says nothing is lost and offers the queue. Charting is not interrupted." },
+            { title: "Waiting to send, oldest first", body: "Each record shows what it is, when it was saved and its status. A rejected record says why and offers retry or edit, instead of failing quietly." },
+            { title: "A possible duplicate, before save", body: "A match on name and date of birth stops a second record from being created. Open existing record is the default; create a new patient is still one tap away." },
+          ],
+        },
+      },
+      {
+        kind: "stage", id: "triage", chapter: "Triage", figma: "222:392", size: "wide", ratio: "1116 / 640", zoom: "phone",
+        eyebrow: "PROPOSED NEXT",
+        heading: "Triage a nurse can hand to a doctor",
+        lede: [
+          "The nurse flow in the original file was a copy of the doctor flow with a green banner. Triage, the part of a nurse’s day the interviews kept coming back to, was not drawn at all. These screens draw it: intake, assessment, hand-off.",
+          "Triage levels follow the WHO, ICRC and MSF integrated triage tool. Red is seen now, yellow soon, green can wait. Vitals stay in Fahrenheit, because that is what Liberian clinics record.",
+        ],
+        base: "#002637",
+        field: { width: 1116, height: 640, sigma: 60, circles: [{ x: 120, y: 520, r: 320, colour: "#145676", alpha: 0.9 }, { x: 1070, y: 30, r: 190, colour: "#0C8B44", alpha: 0.9 }, { x: 680, y: 560, r: 260, colour: "#003F5D", alpha: 0.9 }] },
+        visuals: [
+          { src: "/images/work/frontground/frontground-triage-assessment.png", width: 1920, height: 1080, alt: "Frontground triage assessment with emergency signs first, vitals in Fahrenheit and a suggested triage level for the nurse to confirm", frame: "browser", url: "frontground · doctor", screen: { w: 720, h: 405 }, at: { x: 20.4, y: 8.8, w: 64.5 } },
+        ],
+        annotations: [
+          // measured on 222:397's capture: the emergency signs, the vitals and the triage level choices.
+          { type: "leader", num: "01", label: "Emergency signs first", direction: "left", at: { x: 2.1, y: 31.4, w: 29.8, h: 5.2 }, zoomAt: { x: 29.44, y: 23.67, w: 15.86, h: 12.66 } },
+          { type: "leader", num: "02", label: "Vitals in Fahrenheit", direction: "left", at: { x: 2.1, y: 48.5, w: 26.5, h: 5.2 }, zoomAt: { x: 29.57, y: 37.03, w: 20.16, h: 13.59 } },
+          { type: "leader-vertical", num: "03", label: "The nurse confirms the level", at: { x: 53.5, y: 53.5, w: 15.4, h: 15.8 }, zoomAt: { x: 60.35, y: 29.06, w: 22.85, h: 20.16 } },
+        ],
+        captions: [
+          { title: "Red is seen now, yellow soon, green can wait", body: "Each level pairs a word with a shape and a colour, so a colour blind clinician or a cheap monitor still reads it. The suggested level comes from the signs and vitals, and the nurse confirms it rather than the form deciding." },
+        ],
+        rows: {
+          reverse: true,
+          base: "#012e42",
+          fields: [
+            { width: 600, height: 600, sigma: 45, circles: [{ x: 440, y: 140, r: 260, colour: "#145676", alpha: 0.9 }, { x: 50, y: 510, r: 190, colour: "#0C8B44", alpha: 0.9 }] },
+            { width: 600, height: 600, sigma: 45, circles: [{ x: 440, y: 140, r: 260, colour: "#145676", alpha: 0.9 }, { x: 50, y: 510, r: 190, colour: "#0C8B44", alpha: 0.9 }] },
+            { width: 600, height: 600, sigma: 45, circles: [{ x: 440, y: 140, r: 260, colour: "#145676", alpha: 0.9 }, { x: 50, y: 510, r: 190, colour: "#0C8B44", alpha: 0.9 }] },
+          ],
+          visuals: [
+            { src: "/images/work/frontground/frontground-triage-handoff.png", width: 1920, height: 1080, alt: "Frontground hand-off screen sending the patient summary and confirmed level to a doctor with an optional note", frame: "browser", url: "frontground", screen: { w: 780, h: 439 }, at: { x: 9.3, y: 25, w: 130 } },
+            { src: "/images/work/frontground/frontground-triage-queue.png", width: 1920, height: 1080, alt: "Frontground patient queue sorted by triage level, each level shown with a shape and a word", frame: "browser", url: "frontground", screen: { w: 780, h: 439 }, at: { x: 9.3, y: 25, w: 130 } },
+            { src: "/images/work/frontground/frontground-vitals-trend.png", width: 1920, height: 1080, alt: "Frontground twelve hour temperature chart with a tooltip showing the value, time and who recorded it", frame: "browser", url: "frontground", screen: { w: 780, h: 439 }, at: { x: 9.3, y: 25, w: 130 } },
+          ],
+          captions: [
+            { title: "The summary goes with the patient", body: "Name, age, sex, the confirmed level and a one-line summary travel to the doctor’s queue with an optional note. Nothing is retyped." },
+            { title: "A queue sorted by level", body: "The legend sits on the list, and each level pairs a shape with a word, so the queue reads in greyscale too." },
+            { title: "Twelve hours of temperature", body: "Hover or tap a point for the value, the time and who recorded it. The chart is context; the queue stays the working surface." },
+          ],
+        },
+      },
+      {
         kind: "section", id: "where-it-stands", chapter: "Where it stands", section: "reflection",
         eyebrow: "WHERE IT STANDS",
         heading: "What the venture taught me and what I still owe it",
@@ -1981,13 +2102,15 @@ export const caseStudies = [
     organization: "University of Maryland",
     cardTitle: "TerpCare",
     category: "Product Design",
-    year: "2024",
+    year: "2024, redesigned 2026",
+    // the home card names the year the work was made; the case study header carries the redesign.
+    cardYear: "2024",
     role: "Product Designer",
     timeline: "Spring 2024",
     team: "Four-person course team",
     skills: ["Secondary research", "Competitive analysis", "Wireframing", "Figma", "Information architecture"],
     summary:
-      "A collaborative campus mental-health app concept that brings resources, peer discussion, mood reflection, and communication paths into one University of Maryland experience.",
+      "A campus mental health concept I built with three classmates in 2024, then redesigned alone in 2026 after a year of HCI coursework. The original stays on this page as it was. The redesign shows what I would change, and why.",
     cardImage: "/images/work/terpcare/cover-gradient-poster.png",
     cardAlt: "TerpCare motion cover in the product's charcoal, red, and gold palette",
     heroImage: "/images/work/terpcare/cover-gradient-poster.png",
@@ -2007,125 +2130,201 @@ export const caseStudies = [
     },
     exhibits: /** @type {Exhibit[]} */ ([
       {
-        kind: "hero", id: "overview", chapter: "Overview", figma: "74:1036",
+        kind: "hero", id: "overview", chapter: "Overview", figma: "216:96",
         eyebrow: "OVERVIEW",
-        heading: "A campus-specific entry point for finding mental-health support",
+        heading: "The first real product I worked on, taken apart and rebuilt",
         lede: [
-          "TerpCare began with a campus pattern: students may know support exists while still feeling unsure where to start, what is available, or how to ask for help. We explored how one university-specific product could make that first step feel more familiar.",
-          "The concept connects resource discovery, mood reflection, peer discussion, events, and messages within one UMD-branded experience.",
-          "We reviewed student stories, campus reporting, public conversations, counseling information, and mental-health product patterns. Three themes repeated: difficulty finding resources, concern about stigma, and the value of open discussion.",
+          "TerpCare started in spring 2024 as a four-person course project: one University of Maryland app for finding mental health support, talking to peers and tracking mood. We delivered a fifteen-screen Figma concept and a pitch. It was the first product I worked on from research to prototype, and I was proud of it.",
+          "Two years and a graduate program later, I opened the file again and could not stop seeing problems. Help sat behind a sign-in. Posts carried usernames. Booking stopped at a calendar. None of it was wrong for a course project, and none of it would hold up for a real student on a bad night.",
+          "So I redesigned it alone, in a new file, with the same scope and a different set of rules. This page keeps the original as it was, then walks through the redesign flow by flow, with the reason behind each change.",
         ],
-        // figma 90:2979: red, gold and plum over the charcoal base.
         base: "#211f20",
         field: { width: 1116, height: 600, sigma: 55, circles: [{ x: 150, y: 110, r: 310, colour: "#E93C43", alpha: 0.7 }, { x: 1030, y: 570, r: 210, colour: "#FFCC1E", alpha: 0.4 }, { x: 750, y: 150, r: 250, colour: "#A93C52", alpha: 0.8 }] },
         visuals: [
-          { src: "/images/work/terpcare/figma-discussion-recents.png", width: 860, height: 1864, alt: "TerpCare discussion board on Recents, with peer posts tagged Need Support", frame: "iphone", rot: 6, at: { x: 15.2, y: 11.6, w: 27.3 } },
-          { src: "/images/work/terpcare/terpcare-mood-calendar.png", width: 852, height: 1864, alt: "TerpCare mood calendar for April 2024, with today’s mood faces and a notes field", frame: "iphone", rot: -6, at: { x: 57.8, y: 11.7, w: 27.3 } },
-          { src: "/images/work/terpcare/terpcare-home.png", width: 852, height: 1864, alt: "TerpCare home screen with a Good Morning, Terp greeting, important news, and upcoming events", frame: "iphone", rot: 0, at: { x: 38.7, y: 6.7, w: 22.6 } },
+          { src: "/images/work/terpcare/terpcare-redesign-home.png", width: 860, height: 1864, alt: "TerpCare 2026 home with Good afternoon, Kara, a Need help now bar first, then check-in and booking cards", frame: "iphone", fit: "contain", bg: "#ffffff", at: { x: 15.2, y: 11.6, w: 27.3 }, rot: 6 },
+          { src: "/images/work/terpcare/terpcare-mood-october.png", width: 860, height: 1864, alt: "TerpCare 2026 mood month for October, with logged days shaded by mood and missed days left blank", frame: "iphone", fit: "contain", bg: "#ffffff", at: { x: 57.8, y: 11.7, w: 27.3 }, rot: -6 },
+          { src: "/images/work/terpcare/terpcare-checkin-choose.png", width: 860, height: 1864, alt: "TerpCare 2026 check-in sheet with five mood words from Great to Struggling and optional tags", frame: "iphone", fit: "contain", bg: "#ffffff", at: { x: 38.7, y: 6.7, w: 22.6 }, rot: 0 },
         ],
-        kpi: { eyebrow: "PRODUCT SYSTEM", value: "15 screens", label: "mapped to five persistent destinations", at: { x: 5.4, y: 73.3 } },
+        kpi: { eyebrow: "REDESIGN, 2026", value: "4 flows", label: "that play end to end, built on one token set", at: { x: 5.4, y: 73.3 } },
         metrics: [
-          { value: "15", label: "high-fidelity screens" },
-          { value: "5", label: "persistent product destinations" },
-          { value: "3", label: "support layers connected" },
+          { value: "15", label: "screens in the 2024 team concept" },
+          { value: "57", label: "screens in the 2026 solo redesign" },
+          { value: "4", label: "flows that play end to end" },
         ],
       },
       {
-        kind: "matrix", id: "the-gap", chapter: "The gap", figma: "74:1071",
-        eyebrow: "THE GAP",
-        heading: "The opportunity sat between therapy apps and campus information sites",
+        kind: "journey", id: "what-changed", chapter: "What changed", figma: "216:203",
+        eyebrow: "WHAT CHANGED",
+        heading: "Five tabs again, with different rules",
         lede: [
-          "Focusing on University of Maryland students ages eighteen to twenty-two gave the team a concrete setting for decisions about language, visual familiarity, and the relationship between campus and outside support.",
-          "Generic therapy apps offered convenience but lacked university context. Counseling centers offered institutional support while spreading information across service pages and appointment pathways. Awareness campaigns normalized conversation without creating an ongoing product relationship.",
-          "That comparison led to a combined strategy: campus resources, communication options, peer discussion, and repeatable mood reflection in one interface.",
+          "The redesign keeps five tabs because the structure was never the problem. What changed is what each tab is allowed to assume. Help has to work before sign-in. Nothing about a student is shared by default. Every task ends with a confirmation and a way out. Those rules come from the reading in my first year of the HCI program: Norman on designing for error, Nielsen on visibility of system status, and the Lean UX habit of writing the hypothesis down before the screen.",
+          "Messages went away, and a profile tab took its place. Its main job is to say what is stored, who can see it, and to let a student export or delete it. The peer board is designed and plays in the file, but it carries crisis wording, so it stays off this page until the Counseling Center has reviewed it.",
         ],
-        // figma 90:3015: a 1000 wide card 107 down and 58 in on a 1116 by 600 stage.
-        base: "#211f20",
-        field: { width: 1116, height: 600, sigma: 60, circles: [{ x: 120, y: 620, r: 320, colour: "#E93C43", alpha: 0.65 }, { x: 1100, y: 0, r: 200, colour: "#FFCC1E", alpha: 0.35 }, { x: 650, y: 450, r: 250, colour: "#A93C52", alpha: 0.75 }] },
-        pad: [9.59, 5.2],
-        label: "BRIEF COMPETITIVE ANALYSIS  ·  THREE KINDS OF SUPPORT STUDENTS ALREADY HAVE",
-        columns: ["Competitors", "Strengths", "Weakness", "Opportunity"],
-        accent: "Opportunity",
-        widths: [200, 230, 250, 264],
-        rows: [
-          ["Therapy apps", "Convenience and accessibility", "Lack of university specific resources, high costs", "Integrate university specific resources"],
-          ["UMD counseling centers", "Direct access to professional support", "Limited availability, potential stigma", "Complement in-person services with online resources, market these services to more UMD students"],
-          ["Mental health awareness campaigns", "Supports raising awareness", "Lack of continuous support, limited interactive features", "Offer an ongoing platform for discussions complementing awareness campaigns"],
-        ],
-        // native annotations name a cell of the rendered table rather than a box.
-        annotations: [
-          { type: "focus", num: "01", target: "Weakness cell, Therapy apps row" },
-          { type: "focus", num: "02", target: "Weakness cell, UMD counseling centers row" },
-          { type: "focus", num: "03", target: "Weakness cell, awareness campaigns row" },
-        ],
-        notes: [
-          { n: "01", title: "Convenient, but not campus", body: "Generic therapy apps offered convenience but lacked university context." },
-          { n: "02", title: "Support behind scattered paths", body: "Counseling centers offered institutional support while spreading information across service pages and appointment pathways." },
-          { n: "03", title: "Awareness without a relationship", body: "Awareness campaigns normalized conversation without creating an ongoing product relationship." },
-        ],
-      },
-      {
-        kind: "journey", id: "five-destinations", chapter: "Five destinations", figma: "74:1194",
-        eyebrow: "FIVE DESTINATIONS",
-        heading: "Five recurring destinations made support feel navigable",
-        lede: [
-          "The structure centers a home feed, campus resources, discussion, messages, and mood tracking. Persistent bottom navigation keeps destinations stable, while notifications and profile settings support continuity.",
-          "Home combines timely campus news and events with a welcome state, giving the product a recognizable daily entry point.",
-          "We sketched onboarding, profile setup, home, calendar, chat, campus resources, campaigns, discussion, notifications, and messaging before building in Figma. Seeing the screens together exposed repeated patterns and made navigation decisions easier to discuss.",
-          "The low-fidelity set kept attention on content order: what a student needs first, what belongs one tap away, and which functions stay visible across the experience. Onboarding, home, and calendar sketches established first-use and return-use rhythm.",
-        ],
-        // figma 90:3077 has no accent destination and reads every row label muted.
-        stages: ["01 Home", "02 Resources", "03 Discussion", "04 Messages", "05 Mood"],
+        stages: ["01 Home", "02 Book", "03 Board", "04 Mood", "05 Profile"],
         accentStage: null,
-        tones: ["muted", "muted", "muted"],
         rows: [
-          { label: "PRIMARY NEED", cells: ["Orient quickly", "Find support", "Hear from peers", "Continue privately", "Reflect over time"] },
-          { label: "CORE SURFACES", cells: ["News, campaigns, events", "Therapy, events, booking", "Recents, tags, create post", "Inbox, chat, notifications", "Calendar, mood, notes"] },
-          { label: "RETURN VALUE", cells: ["A timely campus starting point", "A path from discovery to action", "Shared language around experience", "Conversation continuity", "A personal pattern to revisit"] },
+          { label: "2024 TEAM CONCEPT", cells: ["Campus news, campaigns and events", "Resources: a therapy tab, provider cards, a counselor’s calendar", "Discussion: recents, tags, create post, usernames shown", "A calendar of mood faces with a notes field", "Messages, notifications and account settings"] },
+          { label: "2026 REDESIGN", cells: ["Need help now first, then check-in and booking as two cards", "Brief assessment: in person or virtual, pick a day and time, review, confirm, manage", "Anonymous by default and moderated; held back for a Counseling Center wording review", "A ten-second check-in, no streaks, patterns that never claim a cause", "Privacy and data: what is stored, who sees it, export, delete"] },
+          { label: "THE RULE BEHIND IT", cells: ["Help before sign-in", "Every task ends with closure and a way out", "Nothing shared by default", "Reflection without pressure", "Control over your own data"] },
         ],
-        strip: {
-          label: "PERSISTENT BOTTOM NAVIGATION  ·  NOTIFICATIONS AND PROFILE SUPPORT CONTINUITY",
-          note: "The fifteen supplied screens map back to these five destinations, keeping a broad feature set anchored to a small navigation model.",
-        },
+        strip: { label: "FIVE TABS  ·  HOME, BOOK, BOARD, MOOD, PROFILE", note: "Both versions map to five tabs. The 2024 set put messages in the bar; the 2026 set puts the student’s own data there instead, because a health app has to answer who sees this before it asks for anything." },
+        tones: ["muted", "muted", "muted"],
       },
       {
-        kind: "stage", id: "core-flows", chapter: "Core flows", figma: "74:1169", size: "wide", ratio: "1116 / 620", zoom: true,
-        eyebrow: "CORE FLOWS",
-        heading: "The 15-screen product system turned the structure into a recognizable UMD product",
+        kind: "stage", id: "the-original", chapter: "The original", figma: "216:270", size: "wide", ratio: "1116 / 620", zoom: true,
+        eyebrow: "THE ORIGINAL, 2024",
+        heading: "What four of us built in spring 2024",
         lede: [
-          "The collaborative prototype uses university colors, editorial imagery, and a consistent mobile frame. Home surfaces campus content; discussion gives peer conversation a place; the mood calendar turns reflection into a repeatable action.",
-          "The fifteen-screen inventory shows how onboarding, discovery, care, conversation, reflection, and account continuity fit together. The final concept brings campus context, conversation, and self-reflection into one mobile system.",
-          "I worked across research, wireframing, interface decisions, and prototype refinement, helping the team balance a broad feature set with a simple navigation model.",
+          "The team’s research was secondary: student stories, campus reporting, counseling pages and the mental health apps students already had. Three themes repeated. Resources were hard to find, stigma kept people quiet, and open discussion helped. We answered with five destinations behind a persistent tab bar: home, resources, discussion, messages and mood.",
+          "The fifteen screens did their job as a course deliverable. They showed a recognisable UMD product and a broad feature set held together by a small navigation model. I worked across research, wireframing, interface decisions and prototype refinement, and the team used the prototype as the object we argued over.",
+          "What the screens did not do was handle the hard moments. The notes below are not what we said in 2024. They are what I see now.",
         ],
-        // figma 90:3139: the gap's field on a 620 tall stage.
         base: "#211f20",
         field: { width: 1116, height: 620, sigma: 60, circles: [{ x: 120, y: 620, r: 320, colour: "#E93C43", alpha: 0.65 }, { x: 1100, y: 0, r: 200, colour: "#FFCC1E", alpha: 0.35 }, { x: 650, y: 450, r: 250, colour: "#A93C52", alpha: 0.75 }] },
         visuals: [
-          { src: "/images/work/terpcare/figma-discussion-recents.png", width: 860, height: 1864, alt: "TerpCare discussion board on Recents, with peer posts tagged Need Support", frame: "iphone", at: { x: 2.7, y: 9, w: 22 } },
-          { src: "/images/work/terpcare/figma-discussion-create.png", width: 860, height: 1864, alt: "TerpCare create discussion composer open over the discussion board, with a Tags control and a Post button", frame: "iphone", at: { x: 26.9, y: 9, w: 22 } },
-          { src: "/images/work/terpcare/figma-resources-therapy.png", width: 860, height: 1864, alt: "TerpCare campus resources on the Therapy tab, with provider cards showing specialty, rating, and a link to availability", frame: "iphone", at: { x: 51.1, y: 9.7, w: 22 } },
-          { src: "/images/work/terpcare/figma-book-appointment.png", width: 860, height: 1864, alt: "TerpCare booking screen showing a counselor’s photo, specialty, reviews, and an availability calendar", frame: "iphone", at: { x: 75.3, y: 9.7, w: 22 } },
+          { src: "/images/work/terpcare/figma-discussion-recents.png", width: 860, height: 1864, alt: "TerpCare 2024 discussion board on Recents, every post showing a username", frame: "iphone", fit: "contain", bg: "#262525", at: { x: 2.7, y: 9, w: 22 } },
+          { src: "/images/work/terpcare/figma-discussion-create.png", width: 860, height: 1864, alt: "TerpCare 2024 create discussion composer with a Tags control and a Post button", frame: "iphone", fit: "contain", bg: "#262525", at: { x: 26.9, y: 9, w: 22 } },
+          { src: "/images/work/terpcare/figma-resources-therapy.png", width: 860, height: 1864, alt: "TerpCare 2024 campus resources on the Therapy tab, provider cards led by star ratings", frame: "iphone", fit: "contain", bg: "#262525", at: { x: 51.1, y: 9.7, w: 22 } },
+          { src: "/images/work/terpcare/figma-book-appointment.png", width: 860, height: 1864, alt: "TerpCare 2024 booking screen with a counselor's reviews and an availability calendar", frame: "iphone", fit: "contain", bg: "#262525", at: { x: 75.3, y: 9.7, w: 22 } },
         ],
         annotations: [
-          { type: "focus", num: "01", on: 0, at: { x: 8.9, y: 40.5, w: 18.7, h: 3.9 } },
-          { type: "focus", num: "02", on: 1, at: { x: 8.5, y: 35.2, w: 77.6, h: 31.5 } },
-          { type: "focus", num: "03", on: 2, at: { x: 8.9, y: 32.8, w: 81.7, h: 18.7 } },
-          { type: "focus", num: "04", on: 3, at: { x: 6.1, y: 66.1, w: 87.8, h: 25.6 } },
+          { type: "focus", num: "01", on: 0, at: { x: 9.6, y: 26.7, w: 52, h: 3.9 } },
+          { type: "focus", num: "02", on: 1, at: { x: 9.2, y: 35.4, w: 76.5, h: 31 } },
+          { type: "focus", num: "03", on: 2, at: { x: 9.6, y: 33.1, w: 80.5, h: 18.4 } },
+          { type: "focus", num: "04", on: 3, at: { x: 6.8, y: 65.8, w: 86.5, h: 25.2 } },
         ],
         notes: [
-          { n: "01", title: "Tags make posts scannable", body: "Tagged posts make peer experiences easier to scan." },
-          { n: "02", title: "A focused composer", body: "A focused composer supports topic, privacy, and support tagging." },
-          { n: "03", title: "Comparable provider cards", body: "Provider cards make campus and specialist options comparable." },
-          { n: "04", title: "One booking path", body: "Counselor context and calendar selection stay in one path." },
+          { n: "01", title: "Every post carried a username", body: "Stigma was the second theme in our research, and the board still named everyone by default." },
+          { n: "02", title: "Privacy was a tag, not a default", body: "Who could see a post depended on a tag picked in the composer, which is easy to miss while writing something hard." },
+          { n: "03", title: "Provider cards led with ratings", body: "Ratings and review counts are a shopping pattern. For a first counseling appointment they add a judgment the student does not need to make." },
+          { n: "04", title: "Booking stopped at the calendar", body: "Nothing showed what a student got after picking a time, and nothing offered help sooner than the next open slot." },
+        ],
+      },
+      {
+        kind: "rows", id: "get-support-now", chapter: "Get support now", figma: "218:150",
+        eyebrow: "GET SUPPORT NOW",
+        heading: "Help sits above everything, and works signed out",
+        lede: [
+          "The first rule decided the first screen. Need help now is the top of Home and the only thing on the welcome screen, and it works before a student has an account. The 2024 concept put support three taps in, behind sign-in, on a resources tab.",
+          "The support sheet itself, with crisis lines and Counseling Center hours, is built and plays in the file. It is not on this page yet because those numbers need a check with the Counseling Center before a student could act on them. The campus list below is the part that has been checked.",
+        ],
+        bases: ["#211f20", "#211f20"],
+        veil: true,
+        fields: [
+          { width: 600, height: 600, sigma: 45, circles: [{ x: 160, y: 560, r: 280, colour: "#E93C43", alpha: 0.9 }, { x: 550, y: 50, r: 190, colour: "#FFCC1E", alpha: 0.9 }, { x: 470, y: 590, r: 210, colour: "#A93C52", alpha: 0.9 }] },
+          { width: 600, height: 600, sigma: 45, circles: [{ x: 160, y: 560, r: 280, colour: "#E93C43", alpha: 0.9 }, { x: 550, y: 50, r: 190, colour: "#FFCC1E", alpha: 0.9 }, { x: 470, y: 590, r: 210, colour: "#A93C52", alpha: 0.9 }] },
+        ],
+        visuals: [
+          { src: "/images/work/terpcare/terpcare-redesign-home.png", width: 860, height: 1864, alt: "TerpCare 2026 home led by a Need help now bar, with check-in and booking cards under it", frame: "iphone", fit: "contain", bg: "#ffffff", at: { x: 29, y: 7.6, w: 42 } },
+          { src: "/images/work/terpcare/terpcare-more-campus-support.png", width: 860, height: 1864, alt: "TerpCare more support on campus, a list of UMD services and national lines each with a call button", frame: "iphone", fit: "contain", bg: "#ffffff", at: { x: 29, y: 7.6, w: 42 } },
+        ],
+        captions: [
+          { title: "One bar, always first", body: "The Need help now bar leads Home. Check-in and booking sit under it as two cards, so the urgent path never competes with the routine ones." },
+          { title: "Not an emergency, but you want to talk", body: "UMD services and national lines, each with a call button and nothing else to read first. The numbers were checked against counseling.umd.edu on October 12, 2026, and the screen says so." },
+        ],
+      },
+      {
+        kind: "rows", id: "book", chapter: "Book", figma: "218:230",
+        eyebrow: "BOOK",
+        heading: "One task, finished, with a way out",
+        lede: [
+          "Booking in 2024 stopped at a counselor’s calendar. The redesign treats it as one task with a beginning and an end: choose a format, pick a time, review, and get a confirmation that says what happens next. Cancel and reschedule live on the same screen as the booking, because a student who cannot find the way out will not book again.",
+        ],
+        walkthrough: {
+          figma: "218:268",
+          base: "#211f20",
+          veil: true,
+          tag: "SCROLL · PHONE PINNED",
+          at: { x: 29, y: 7.6, w: 42 },
+          field: { width: 600, height: 600, sigma: 45, circles: [{ x: 180, y: 140, r: 260, colour: "#E93C43", alpha: 0.9 }, { x: 530, y: 490, r: 230, colour: "#FFCC1E", alpha: 0.9 }, { x: 590, y: 50, r: 210, colour: "#A93C52", alpha: 0.9 }] },
+          steps: [
+            { label: "STEP 1", title: "In person or virtual, same counselor time", body: "The format is the first choice and the only one with a note: either way it is the same 30 minutes, and it can change later in Manage.", screen: { src: "/images/work/terpcare/terpcare-book-in-person-or-virtual.png", width: 860, height: 1864, fit: "contain", bg: "#ffffff", alt: "TerpCare booking asking in person or virtual, with a note that both are the same 30 minutes" } },
+            { label: "STEP 2", title: "Pick a day and a time", body: "Taken slots are greyed, not hidden, so the list stays honest about what is left. A link under the button says: need to talk today? Get support now.", screen: { src: "/images/work/terpcare/terpcare-book-choose-a-time.png", width: 860, height: 1864, fit: "contain", bg: "#ffffff", alt: "TerpCare choose a time screen with taken slots greyed out and a Get support now link under the button" } },
+            { label: "STEP 3", title: "Review before you commit", body: "The booking reads back in one card. The optional note says only the counselor you meet will see it.", screen: { src: "/images/work/terpcare/terpcare-book-review.png", width: 860, height: 1864, fit: "contain", bg: "#ffffff", alt: "TerpCare review screen reading the booking back in one card, with an optional note for the counselor" } },
+            { label: "STEP 4", title: "Booked, with what happens next", body: "You are booked, where, and what a brief assessment is. Add to calendar and Manage booking sit together under it.", screen: { src: "/images/work/terpcare/terpcare-book-confirmed.png", width: 860, height: 1864, fit: "contain", bg: "#ffffff", alt: "TerpCare booking confirmed, explaining a brief assessment, with Add to calendar and Manage booking" } },
+          ],
+        },
+        visuals: [],
+        captions: [],
+      },
+      {
+        kind: "stage", id: "mood-check-in", chapter: "Mood check-in", figma: "218:311", size: "wide", ratio: "1116 / 620",
+        eyebrow: "MOOD CHECK-IN",
+        heading: "Ten seconds, no streaks, no verdicts",
+        lede: [
+          "The 2024 mood calendar asked for a face and a note every day and showed the gaps. The redesign asks for one of five words, offers tags, and promises that nothing is shared unless the student chooses. There are no streaks to keep, missed days stay blank, and the month view only ever shows what was logged.",
+          "The patterns screen is the part I rewrote most. It can say that low days often mention sleep. It cannot say that sleep causes low days, and the copy says so.",
+        ],
+        base: "#211f20",
+        field: { width: 1116, height: 620, sigma: 60, circles: [{ x: 120, y: 620, r: 320, colour: "#E93C43", alpha: 0.65 }, { x: 1100, y: 0, r: 200, colour: "#FFCC1E", alpha: 0.35 }, { x: 650, y: 450, r: 250, colour: "#A93C52", alpha: 0.75 }] },
+        visuals: [
+          { src: "/images/work/terpcare/terpcare-checkin-choose.png", width: 860, height: 1864, alt: "TerpCare check-in sheet with five mood words, Okay selected, and optional tags", frame: "iphone", fit: "contain", bg: "#ffffff", at: { x: 2.7, y: 9, w: 22 } },
+          { src: "/images/work/terpcare/terpcare-checkin-saved.png", width: 860, height: 1864, alt: "TerpCare check-in saved, showing four check-ins this week and no streaks to keep", frame: "iphone", fit: "contain", bg: "#ffffff", at: { x: 26.9, y: 9, w: 22 } },
+          { src: "/images/work/terpcare/terpcare-mood-october.png", width: 860, height: 1864, alt: "TerpCare October mood month with nine check-ins and missed days left blank", frame: "iphone", fit: "contain", bg: "#ffffff", at: { x: 51.1, y: 9.7, w: 22 } },
+          { src: "/images/work/terpcare/terpcare-mood-patterns.png", width: 860, height: 1864, alt: "TerpCare patterns in October, saying low days often mention sleep and never claiming a cause", frame: "iphone", fit: "contain", bg: "#ffffff", at: { x: 75.3, y: 9.7, w: 22 } },
+        ],
+        annotations: [
+          { type: "focus", num: "01", on: 0, at: { x: 7.6, y: 45.1, w: 84.9, h: 32 } },
+          { type: "focus", num: "02", on: 1, at: { x: 7.6, y: 17.8, w: 84.9, h: 10.1 } },
+          { type: "focus", num: "03", on: 2, at: { x: 7.6, y: 17.4, w: 84.9, h: 38.8 } },
+          { type: "focus", num: "04", on: 3, at: { x: 7.6, y: 15.5, w: 84.9, h: 21.3 } },
+        ],
+        notes: [
+          { n: "01", title: "Five words, five bar heights", body: "Great to Struggling reads in colour and in shape. Tags are optional, and the footer says nothing is shared unless you choose." },
+          { n: "02", title: "No streaks to keep", body: "Four check-ins this week is a count, not a chain. Missing a day costs nothing, and the screen says so." },
+          { n: "03", title: "Missed days stay blank", body: "The month shows what was logged and nothing else. Only the student can see it." },
+          { n: "04", title: "A pattern is not a cause", body: "Low days often mention sleep is as far as the copy goes. The screen says the numbers are illustrative and never claim a cause." },
+        ],
+        rows: {
+          bases: ["#211f20"],
+          veil: true,
+          fields: [
+            { width: 600, height: 600, sigma: 45, circles: [{ x: 160, y: 560, r: 280, colour: "#E93C43", alpha: 0.9 }, { x: 550, y: 50, r: 190, colour: "#FFCC1E", alpha: 0.9 }, { x: 470, y: 590, r: 210, colour: "#A93C52", alpha: 0.9 }] },
+          ],
+          visuals: [
+            { src: "/images/work/terpcare/terpcare-checkin-dark.png", width: 860, height: 1864, alt: "TerpCare check-in sheet in dark mode, built from the same colour variables", frame: "iphone", fit: "contain", bg: "#101012", at: { x: 29, y: 7.6, w: 42 } },
+          ],
+          captions: [
+            { title: "Dark mode from the same tokens", body: "Dark mode is a second mode on the colour variables, not a second file. The check-in is the same frame in both, which is how the 200% text version was built too." },
+          ],
+        },
+      },
+      {
+        kind: "stage", id: "privacy", chapter: "Privacy", figma: "218:406", size: "wide", ratio: "1116 / 620",
+        eyebrow: "PRIVACY",
+        heading: "Privacy comes before the first check-in",
+        lede: [
+          "For a health product the first question a reviewer asks is what happens to my data, and the 2024 concept had no screen that answered it. The redesign answers it before sign-in and again in the profile tab. Help works without an account. Posts are anonymous by default. Export and delete are one tap deep. The data screens describe a proposed policy for the design, not a live service, and they say so.",
+        ],
+        base: "#211f20",
+        field: { width: 1116, height: 620, sigma: 60, circles: [{ x: 120, y: 620, r: 320, colour: "#E93C43", alpha: 0.65 }, { x: 1100, y: 0, r: 200, colour: "#FFCC1E", alpha: 0.35 }, { x: 650, y: 450, r: 250, colour: "#A93C52", alpha: 0.75 }] },
+        visuals: [
+          { src: "/images/work/terpcare/terpcare-onboarding-welcome.png", width: 860, height: 1864, alt: "TerpCare welcome screen with Need help now at the top and Continue with UMD as the second action", frame: "iphone", fit: "contain", bg: "#ffffff", at: { x: 2.7, y: 9, w: 22 } },
+          { src: "/images/work/terpcare/terpcare-privacy-settings.png", width: 860, height: 1864, alt: "TerpCare privacy and data settings with Anonymous selected by default, Export my data and Delete my account", frame: "iphone", fit: "contain", bg: "#ffffff", at: { x: 26.9, y: 9, w: 22 } },
+          { src: "/images/work/terpcare/terpcare-privacy-what-is-stored.png", width: 860, height: 1864, alt: "TerpCare screen listing what is stored and who sees it for check-ins, bookings, posts and sign-in", frame: "iphone", fit: "contain", bg: "#ffffff", at: { x: 51.1, y: 9.7, w: 22 } },
+          { src: "/images/work/terpcare/terpcare-account-deleted.png", width: 860, height: 1864, alt: "TerpCare account deleted screen that still offers Get support now", frame: "iphone", fit: "contain", bg: "#ffffff", at: { x: 75.3, y: 9.7, w: 22 } },
+        ],
+        annotations: [
+          { type: "focus", num: "01", on: 0, at: { x: 7.6, y: 8.9, w: 84.9, h: 10.5 } },
+          { type: "focus", num: "02", on: 1, at: { x: 7.6, y: 17.8, w: 84.9, h: 12 } },
+          { type: "focus", num: "03", on: 2, at: { x: 4.8, y: 22.4, w: 87.7, h: 35.6 } },
+          { type: "focus", num: "04", on: 3, at: { x: 7.6, y: 82.3, w: 84.9, h: 7.5 } },
+        ],
+        notes: [
+          { n: "01", title: "Get help before sign-in", body: "Continue with UMD is the second action on the screen, not the gate. The footer says help works without signing in." },
+          { n: "02", title: "Anonymous is the default", body: "Posting as a first name is a choice a student makes on purpose. Export and delete are one tap away, not buried." },
+          { n: "03", title: "Each data type names who sees it", body: "Check-ins, bookings, posts and sign-in each say who can see them, and the screen says this is a proposed policy, not a live service." },
+          { n: "04", title: "Leaving still leaves a door open", body: "The account is gone and Get support now still works. Nobody loses help by deleting their data." },
         ],
       },
       {
         kind: "section", id: "reflection", chapter: "Reflection", section: "reflection",
         eyebrow: "REFLECTION",
-        heading: "The strongest design move was connecting scattered moments",
+        heading: "What the redesign taught me about the original",
         lede: [
-          "TerpCare taught me that a product opportunity can come from coordination rather than novelty. The value was in making separate campus resources, conversations, and routines feel like one understandable experience.",
-          "Working with three teammates sharpened how I explain rationale, negotiate ideas, and use a prototype as a shared object for decisions.",
+          "The original was not bad work. It was work done before I knew what to look for. The team found real themes and gave them a shape a reviewer could follow. What it could not do was protect a student on a bad night, because none of us had yet been taught to design for the moment things go wrong.",
+          "The redesign is smaller in some ways. Fewer features, more states, and a privacy screen that took longer to write than any flow. I think that trade is right for a health product, and I would not have made it in 2024.",
+          "Two things stay open, and I would rather say so. The peer board and the crisis numbers need a review from the Counseling Center before they go in front of a student, and nothing here has met a user yet. The test is written: three participants, one task, set up the app and then find out who can see your entries, and a pass means they can name who sees their data and find delete in under a minute. That is the first thing I want to do with this file.",
         ],
       },
     ]),
@@ -2134,9 +2333,9 @@ export const caseStudies = [
       { label: "Open Figma prototype", href: "https://www.figma.com/proto/msVNMnw3Pyj8Zzcpz3buRy/TerpCare?content-scaling=fixed&kind=proto&node-id=79-129&scaling=scale-down&starting-point-node-id=79%3A129&t=QJ3fl96fAEi9nIuB-1" },
     ],
     metrics: [
-      { value: "15", label: "high-fidelity screens" },
-      { value: "5", label: "persistent product destinations" },
-      { value: "3", label: "support layers connected" },
+      { value: "15", label: "screens in the 2024 team concept" },
+      { value: "57", label: "screens in the 2026 solo redesign" },
+      { value: "4", label: "flows that play end to end" },
     ],
     evidence: { projectType: "conceptual prototype", directUserTesting: false, accessibilityValidation: false, operationalTherapistIntegration: false },
     screenInventory: [
@@ -2250,8 +2449,9 @@ export const caseStudies = [
         label: "Reflection",
         heading: "The strongest design move was connecting scattered moments",
         body: [
-          "TerpCare taught me that a product opportunity can come from coordination rather than novelty. The value was in making separate campus resources, conversations, and routines feel like one understandable experience.",
-          "Working with three teammates sharpened how I explain rationale, negotiate ideas, and use a prototype as a shared object for decisions.",
+          "The original was not bad work. It was work done before I knew what to look for. The team found real themes and gave them a shape a reviewer could follow. What it could not do was protect a student on a bad night, because none of us had yet been taught to design for the moment things go wrong.",
+          "The redesign is smaller in some ways. Fewer features, more states, and a privacy screen that took longer to write than any flow. I think that trade is right for a health product, and I would not have made it in 2024.",
+          "Two things stay open, and I would rather say so. The peer board and the crisis numbers need a review from the Counseling Center before they go in front of a student, and nothing here has met a user yet. The test is written: three participants, one task, set up the app and then find out who can see your entries, and a pass means they can name who sees their data and find delete in under a minute. That is the first thing I want to do with this file.",
         ],
       },
     ],
@@ -2396,6 +2596,62 @@ export const caseStudies = [
           "That gave the product a palette before it had a single finished screen. The four pastels in the mark stay decorative and carry avatars, category tiles and gradients. Saturated versions of the same hues carry the event cards, where white type has to hold up. Brand red is reserved and never used for decoration.",
           "The library is fourteen component sets and sixty two variants, every colour bound to one variable collection and every piece of text bound to one of nine shared styles. Changing the brand red is one edit that lands on every screen, which is the difference between a design file and a design system.",
           "The accessibility work is part of that rather than a pass at the end. Every foreground and background pair in the product is checked and written down. One of them, white on the green card, does not clear the small text threshold, so the green card only ever carries large type and the style guide says so out loud.",
+        ],
+      },
+      {
+        kind: "stage", id: "rsvp-outcomes", chapter: "RSVP outcomes", figma: "211:18", size: "wide", ratio: "1116 / 620",
+        eyebrow: "FLOWS",
+        heading: "An RSVP has more than one outcome",
+        lede: [
+          "Tapping RSVP does not always end in a yes. An event can fill up, a host can move the time, and a waitlist place can open with a deadline. Each of those outcomes has its own screen, so nobody has to guess where they stand.",
+        ],
+        base: "#000000",
+        field: { width: 1116, height: 620, sigma: 60, circles: [{ x: 100, y: 560, r: 260, colour: "#DC3545", alpha: 0.85 }, { x: 1050, y: 70, r: 230, colour: "#0069D9", alpha: 0.8 }, { x: 1040, y: 540, r: 160, colour: "#00A650", alpha: 0.7 }, { x: 530, y: -70, r: 150, colour: "#F99953", alpha: 0.55 }] },
+        visuals: [
+          { src: "/images/work/sohive/sohive-rsvp-confirmed.png", width: 856, height: 1852, alt: "sohive event detail with a You're going sheet offering Add to calendar, Share with friends and Undo RSVP", frame: "iphone", fit: "contain", bg: "#000000", at: { x: 2.7, y: 9, w: 22 } },
+          { src: "/images/work/sohive/sohive-rsvp-waitlisted.png", width: 856, height: 1852, alt: "sohive event detail for a full event, showing the student is fourth on the waitlist with a Leave waitlist button", frame: "iphone", fit: "contain", bg: "#000000", at: { x: 26.9, y: 9, w: 22 } },
+          { src: "/images/work/sohive/sohive-event-changed.png", width: 856, height: 1852, alt: "sohive event detail tagged Time changed, with the host's note and Still going or Can't make it buttons", frame: "iphone", fit: "contain", bg: "#000000", at: { x: 51.1, y: 9, w: 22 } },
+          { src: "/images/work/sohive/sohive-waitlist-spot-opened.png", width: 856, height: 1852, alt: "sohive notice that a waitlist spot opened, with a deadline and Keep my spot or Give it up", frame: "iphone", fit: "contain", bg: "#000000", at: { x: 75.3, y: 9, w: 22 } },
+        ],
+        annotations: [
+          { type: "focus", num: "01", on: 0, at: { x: 5.7, y: 74.2, w: 88.6, h: 7.5 } },
+          { type: "focus", num: "02", on: 1, at: { x: 5.7, y: 81, w: 89.4, h: 6.7 } },
+          { type: "focus", num: "03", on: 2, at: { x: 5.7, y: 81, w: 88.6, h: 13.4 } },
+          { type: "focus", num: "04", on: 3, at: { x: 5.3, y: 13.2, w: 89.4, h: 13.4 } },
+        ],
+        notes: [
+          { n: "01", title: "RSVP confirmed", body: "A sheet confirms it and offers the calendar, not just a toast." },
+          { n: "02", title: "RSVP waitlisted", body: "The event is full. You get a place in line and a promise to notify." },
+          { n: "03", title: "Event changed", body: "A time change asks you to confirm, in the host's words." },
+          { n: "04", title: "Waitlist spot opened", body: "A spot opened and has a deadline, so it passes on if you do not act." },
+        ],
+      },
+      {
+        kind: "stage", id: "host-side", chapter: "Host side", figma: "211:50", size: "wide", ratio: "1116 / 620",
+        eyebrow: "FLOWS",
+        heading: "The host's side of the same event",
+        lede: [
+          "Every event has a host on the other side of it. Before publishing, the host sees the card students will see. At the door they check people in by name, they can message everyone going and on the waitlist at once, and afterwards a recap shows who came.",
+        ],
+        base: "#000000",
+        field: { width: 1116, height: 620, sigma: 60, circles: [{ x: 80, y: 80, r: 260, colour: "#0069D9", alpha: 0.85 }, { x: 580, y: 600, r: 220, colour: "#00A650", alpha: 0.75 }, { x: 1090, y: 330, r: 210, colour: "#DC3545", alpha: 0.7 }] },
+        visuals: [
+          { src: "/images/work/sohive/sohive-host-preview.png", width: 856, height: 1852, alt: "sohive event page in host preview, labelled Preview, what students see, with a Publish event button", frame: "iphone", fit: "contain", bg: "#000000", at: { x: 2.7, y: 9, w: 22 } },
+          { src: "/images/work/sohive/sohive-host-door-checkin.png", width: 856, height: 1852, alt: "sohive door check-in list showing 38 of 142 checked in, with a Check in button beside each name", frame: "iphone", fit: "contain", bg: "#000000", at: { x: 26.9, y: 9, w: 22 } },
+          { src: "/images/work/sohive/sohive-host-message.png", width: 856, height: 1852, alt: "sohive message attendees screen addressed to 142 going and 6 on the waitlist", frame: "iphone", fit: "contain", bg: "#000000", at: { x: 51.1, y: 9, w: 22 } },
+          { src: "/images/work/sohive/sohive-host-after-event.png", width: 856, height: 1852, alt: "sohive event recap with counts for checked in, share of RSVPs who came and joins from the waitlist", frame: "iphone", fit: "contain", bg: "#000000", at: { x: 75.3, y: 9, w: 22 } },
+        ],
+        annotations: [
+          { type: "focus", num: "01", on: 0, at: { x: 25.2, y: 12.6, w: 49.6, h: 5.9 } },
+          { type: "focus", num: "02", on: 1, at: { x: 4.9, y: 12.8, w: 90.2, h: 8.7 } },
+          { type: "focus", num: "03", on: 2, at: { x: 4.9, y: 16.1, w: 49.6, h: 5.9 } },
+          { type: "focus", num: "04", on: 3, at: { x: 5.3, y: 21.2, w: 89.4, h: 14.2 } },
+        ],
+        notes: [
+          { n: "01", title: "Host preview", body: "The host sees what students will see before publishing." },
+          { n: "02", title: "Door check-in", body: "Check in by name at the door, with progress against RSVPs." },
+          { n: "03", title: "Message attendees", body: "One message to everyone going and on the waitlist." },
+          { n: "04", title: "Recap", body: "Who came, who came from the waitlist, which orgs showed up." },
         ],
       },
       {

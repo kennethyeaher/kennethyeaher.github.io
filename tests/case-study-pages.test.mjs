@@ -116,7 +116,7 @@ test("the renamed capstone and expanded product evidence render publicly", () =>
   assert.match(usm, /brief-deep-dive-redacted\.png/);
   assert.doesNotMatch(usm, /figma\.com\/design\/Vi6MdEzxLKirckl6xpY2jJ/);
   assert.match(pages.get("college-park-capstone"), /Information Science Capstone/);
-  assert.match(pages.get("terpcare"), /15-screen product system/);
+  assert.match(pages.get("terpcare"), /What four of us built in spring 2024/);
   assert.match(pages.get("kairo-health"), /Deployment routing/);
 });
 
@@ -339,17 +339,22 @@ test("new lede sentences stay off the page until their wording is approved", () 
 test("TerpCareHub renders the v2 exhibit layout from its prose mock", () => {
   const page = pages.get("terpcarehub");
   const sectionIds = [...page.matchAll(/<section[^>]*\bid="([^"]+)"[^>]*data-case-section/g)].map((match) => match[1]);
-  assert.deepEqual(sectionIds, ["overview", "core-flows", "the-measure", "where-it-landed", "design-system", "reflection"]);
+  assert.deepEqual(sectionIds, ["overview", "core-flows", "the-measure", "where-it-landed", "design-system", "booking", "reflection"]);
   assert.match(page, /What I would test first/);
-  // two iphone rows, each a cropped screen loop with its own named control; the find care loop is gone.
-  assert.equal([...page.matchAll(/class="exhibit-row"/g)].length, 2);
+  // two iphone rows in core flows, each a cropped screen loop with its own named control, and booking's programs row; the find care loop is gone.
+  assert.equal([...page.matchAll(/class="exhibit-row"/g)].length, 3);
   assert.doesNotMatch(page, /terpcarehub-find-care-loop/);
   for (const [clip, name] of [["alert", "alert"], ["dashboard", "own items"]]) {
     assert.match(page, new RegExp(`data-src="/images/work/terpcarehub/terpcarehub-${clip}-loop\\.mp4"`));
     assert.match(page, new RegExp(`class="loop-toggle"[^>]*data-loop-toggle aria-controls="clip-${name.replace(/ /g, "-")}-loop" hidden[^>]*><span data-loop-action[^>]*>Pause</span><span class="loop-name"[^>]*> ${name} loop</span></button></span>`));
   }
-  // a veil on each row stage, the overview laptop, the pinned walkthrough stage and its three narrow-screen stages.
-  assert.equal([...page.matchAll(/class="stage-veil"/g)].length, 7);
+  // a veil on each row stage, the overview laptop, and each walkthrough's pinned stage and three narrow-screen stages.
+  assert.equal([...page.matchAll(/class="stage-veil"/g)].length, 12);
+  // booking (221:340): provider detail, confirmed and cancel, pinned, then the programs row.
+  const booking = page.slice(page.indexOf('id="booking"'), page.indexOf('id="reflection"'));
+  assert.deepEqual(texts(booking, "walk-title"), ["Plan and cost above the slots", "Booked, with the next two actions", "Cancel says where the time goes"]);
+  assert.ok(booking.indexOf("data-walkthrough") < booking.indexOf('class="exhibit-row"'), "the walkthrough comes before the programs row");
+  assert.match(booking, /Verified and pending review are labelled/);
   // the minute 22 timeline is html over an svg rail.
   assert.match(page, /<ol class="timeline-steps"/);
   assert.equal([...page.matchAll(/<li[^>]*class="is-marked"[^>]*>/g)].length, 1);
@@ -416,6 +421,22 @@ test("TerpCareHub's core flows open with a scroll walkthrough beside a pinned ph
   assert.equal([...walkthrough.matchAll(/class="annotation annotation-focus on-light"/g)].length, 2, "step 2 outlines the plan and cost row, pinned and stacked");
 });
 
+test("every iphone draws apple's home indicator, and a fitted screen shows the whole capture on its own colour", () => {
+  const frame = readFileSync(join(projectRoot, "src", "components", "DeviceFrame.astro"), "utf8");
+  // 134 by 5 pt, 8 pt above the screen's foot, on a 300 wide frame with a 282 by 602 screen (figma Device/iPhone).
+  assert.match(frame, /\.iphone-home \{[^}]*bottom: 4\.75cqw; left: 50%; width: 29\.29cqw; height: 1\.093cqw;[^}]*border-radius: 0\.5465cqw; background: #000; opacity: 0\.55; \}/);
+  assert.match(frame, /\.device-screen\.is-contain img[^{]*\{ object-fit: contain; object-position: center; \}/);
+  const walk = readFileSync(join(projectRoot, "src", "components", "exhibits", "ExhibitWalkthrough.astro"), "utf8");
+  assert.match(walk, /\.walk-capture\.is-contain \{[^}]*height: 100%;[^}]*\}/);
+  // terpcare's hero home is fitted on white; terpcarehub's find care scroll capture keeps the top crop.
+  const terpcare = pages.get("terpcare");
+  assert.match(terpcare, /<div class="device-screen is-contain" style="background: #ffffff"[^>]*>\s*<picture[^>]*>\s*<source type="image\/webp" srcset="\/images\/exhibits\/sized\/terpcare-redesign-home-/);
+  assert.match(terpcare, /<div class="walk-capture is-contain" style="background: #ffffff"[^>]*>\s*<picture[^>]*>\s*<source type="image\/webp" srcset="\/images\/exhibits\/sized\/terpcare-book-in-person-or-virtual-/);
+  assert.match(pages.get("sohive"), /<div class="device-screen is-contain" style="background: #000000"[^>]*>/);
+  const hub = pages.get("terpcarehub");
+  assert.match(hub, /<div class="walk-capture" style="aspect-ratio: 780 \/ \d+"[^>]*>\s*<picture[^>]*>\s*<source type="image\/webp" srcset="\/images\/exhibits\/sized\/mobile-find-care-/);
+});
+
 test("on phones the walkthrough draws each step's phone 256 wide and whole, as figma 32:393 does", () => {
   const source = readFileSync(join(projectRoot, "src", "components", "exhibits", "ExhibitWalkthrough.astro"), "utf8");
   const phone = source.slice(source.indexOf("@media (max-width: 767px)"));
@@ -441,7 +462,7 @@ test("every sideways scrolling card fades at its right edge while there is more,
   assert.match(css, /\.edge-fade::after \{ position: absolute;[^}]*opacity: 0; pointer-events: none; \}/);
   // only where scroll-driven animation exists; elsewhere the fade stays at 0.
   assert.match(css, /@supports \(animation-timeline: scroll\(\)\) and \(timeline-scope: --edge\) \{\s*\.edge-fade > \.edge-scroll \{ scroll-timeline: --edge inline; \}\s*\.edge-fade::after \{ animation: edge-fade linear both; animation-timeline: --edge; \}\s*@keyframes edge-fade \{ 0%, 92% \{ opacity: 1; \} 100% \{ opacity: 0; \} \}/);
-  for (const [slug, kind] of [["college-park-capstone", "heatmap"], ["college-park-capstone", "journey"], ["terpcare", "matrix"], ["terpcarehub", "timeline"], ["frontground", "visit"]]) {
+  for (const [slug, kind] of [["college-park-capstone", "heatmap"], ["college-park-capstone", "journey"], ["terpcare", "journey"], ["terpcarehub", "timeline"], ["frontground", "visit"]]) {
     assert.match(pages.get(slug), new RegExp(`<div class="edge-fade"[^>]*>\\s*<div class="${kind}-scroll edge-scroll"`), `${slug} wraps its ${kind}`);
   }
 });
@@ -528,7 +549,7 @@ test("the Capstone renders the v2 exhibit layout from its prose mock", () => {
 test("Frontground renders the v2 exhibit layout from its prose mock", () => {
   const page = pages.get("frontground");
   const sectionIds = [...page.matchAll(/<section[^>]*\bid="([^"]+)"[^>]*data-case-section/g)].map((match) => match[1]);
-  assert.deepEqual(sectionIds, ["overview", "core-flows", "the-problem", "the-solution", "the-system", "where-it-stands"]);
+  assert.deepEqual(sectionIds, ["overview", "core-flows", "the-problem", "the-solution", "the-system", "offline", "triage", "where-it-stands"]);
   assert.match(page, /Three columns, three questions/);
   assert.match(page, /What the venture taught me and what I still owe it/);
   // doctor and nurse rows are clean recorded loops; the admin row is a still with no loop tag.
@@ -543,37 +564,54 @@ test("Frontground renders the v2 exhibit layout from its prose mock", () => {
   assert.equal([...page.matchAll(/<li class="is-time"[^>]*>\s*<span class="stage-num"/g)].length, 2);
   assert.match(page, /<svg class="visit-rail"[^>]*aria-hidden="true"/);
   assert.match(page, /Refiling is the one that matters most and gets the least attention\./);
-  // the solution: four leaders on the stage, two pointing in from the left, and the caption under it.
-  assert.equal([...page.matchAll(/class="annotation annotation-leader is-left/g)].length, 2);
-  assert.equal([...page.matchAll(/class="annotation annotation-leader is-vertical/g)].length, 1);
+  // the solution: four leaders on the stage, two pointing in from the left, and the caption under it. offline adds
+  // two from the left, triage two from the left and one vertical.
+  assert.equal([...page.matchAll(/class="annotation annotation-leader is-left/g)].length, 6);
+  assert.equal([...page.matchAll(/class="annotation annotation-leader is-vertical/g)].length, 2);
   assert.match(page, /What the interviews put on the first screen/);
+  // each proposed stage carries three rows after its caption; triage's rows put the caption first (222:440).
+  for (const [id, next, reverse] of [["offline", "triage", false], ["triage", "where-it-stands", true]]) {
+    const chapter = page.slice(page.indexOf(`id="${id}"`), page.indexOf(`id="${next}"`));
+    assert.ok(chapter.indexOf('class="stage-caption"') < chapter.indexOf('class="exhibit-rows'), `${id} rows follow the caption`);
+    assert.equal([...chapter.matchAll(/class="exhibit-row"/g)].length, 3, `${id} rows`);
+    assert.equal(/class="exhibit-rows is-reverse"/.test(chapter), reverse, `${id} reverse`);
+  }
+  assert.equal([...page.matchAll(/class="exhibit-row"/g)].length, 9);
   assert.match(page, /href="\/work\/sohive"/);
 });
 
 test("TerpCare renders the v2 exhibit layout from its prose mock", () => {
   const page = pages.get("terpcare");
   const sectionIds = [...page.matchAll(/<section[^>]*\bid="([^"]+)"[^>]*data-case-section/g)].map((match) => match[1]);
-  assert.deepEqual(sectionIds, ["overview", "the-gap", "five-destinations", "core-flows", "reflection"]);
-  assert.match(page, /The strongest design move was connecting scattered moments/);
-  // the competitive matrix is one real table, its opportunity column accented, three weakness cells boxed.
-  assert.equal([...page.matchAll(/<table class="matrix"/g)].length, 1);
-  assert.match(page, /<th scope="col" class="is-accent"[^>]*>Opportunity<\/th>/);
-  assert.equal([...page.matchAll(/<td class="is-accent"/g)].length, 3);
-  for (const n of ["01", "02", "03"]) assert.match(page, new RegExp(`<li id="the-gap-note-${n}"`));
-  // the five destinations grid is a table with no accent stage, closed by its label and note, no cards.
+  assert.deepEqual(sectionIds, ["overview", "what-changed", "the-original", "get-support-now", "book", "mood-check-in", "privacy", "reflection"]);
+  assert.match(page, /University of Maryland · Product Design · 2024, redesigned 2026/);
+  assert.match(page, /What the redesign taught me about the original/);
+  assert.doesNotMatch(page, /<table class="matrix"/);
+  // what changed reuses the five destinations grid: five tabs, no accent stage, closed by its label and note.
   assert.equal([...page.matchAll(/<th scope="col"[^>]*>\s*<span class="journey-number"/g)].length, 5);
   assert.doesNotMatch(page, /<th scope="col" class="is-accent"[^>]*>\s*<span class="journey-number"/);
-  assert.match(page, /PERSISTENT BOTTOM NAVIGATION  ·  NOTIFICATIONS AND PROFILE SUPPORT CONTINUITY/);
-  // core flows: four phones, four boxes, every badge resolving to its note (three on the matrix, four here).
-  assert.equal([...page.matchAll(/data-device-frame="iphone"/g)].length, 7);
-  assertBadgesResolve(page, 7);
+  assert.match(page, /FIVE TABS  ·  HOME, BOOK, BOARD, MOOD, PROFILE/);
+  // phones: three in the hero, four on each of three stages, two support rows, the dark row, and the book
+  // walkthrough's four stacked steps plus its pinned phone.
+  assert.equal([...page.matchAll(/data-device-frame="iphone"/g)].length, 3 + 12 + 2 + 1 + 5);
+  // the original, mood check-in and privacy each box four regions, every badge resolving to its note.
+  assertBadgesResolve(page, 12);
+  const book = page.slice(page.indexOf('id="book"'), page.indexOf('id="mood-check-in"'));
+  assert.deepEqual(texts(book, "walk-label"), ["STEP 1", "STEP 2", "STEP 3", "STEP 4"]);
+  assert.doesNotMatch(book, /class="exhibit-row"/);
+  const mood = page.slice(page.indexOf('id="mood-check-in"'), page.indexOf('id="privacy"'));
+  assert.ok(mood.indexOf('class="exhibit-notes"') < mood.indexOf('class="exhibit-rows'), "the dark mode row follows the notes");
+  assert.match(mood, /Dark mode from the same tokens/);
   assert.match(page, /href="\/work\/ovara"/);
 });
 
 test("sohive renders the v2 exhibit layout from its prose mock", () => {
   const page = pages.get("sohive");
   const sectionIds = [...page.matchAll(/<section[^>]*\bid="([^"]+)"[^>]*data-case-section/g)].map((match) => match[1]);
-  assert.deepEqual(sectionIds, ["overview", "core-flows", "the-feed", "the-audit", "identity", "reflection"]);
+  assert.deepEqual(sectionIds, ["overview", "core-flows", "the-feed", "the-audit", "identity", "rsvp-outcomes", "host-side", "reflection"]);
+  // two four-phone stages with notes after identity (211:18, 211:50), every badge linked to its note.
+  for (const id of ["rsvp-outcomes", "host-side"]) for (const n of ["01", "02", "03", "04"]) assert.match(page, new RegExp(`<li id="${id}-note-${n}"`));
+  assertBadgesResolve(page, 8);
   assert.match(page, /hiveSocial · Product Design \+ Design Systems · 2022/);
   // the summary is the prose mock's header (90:2555), word for word, in the header and the social meta tags.
   const summary = "A campus events and social network for the University of Maryland. I joined a file called WTM with a placeholder blue button, and left it with a name, a colour system and thirty four screens.";
@@ -598,20 +636,20 @@ test("sohive renders the v2 exhibit layout from its prose mock", () => {
   assert.match(page, /href="\/work\/terpcare"/);
 });
 
-test("exactly the eleven small pinned stages zoom to the active annotation (figma 168:1745, 197:1727)", () => {
+test("exactly the thirteen small pinned stages zoom to the active annotation (figma 168:1745, 197:1727)", () => {
   // every data-pin-zoom element across the eight pages, by page and stage id; the pair and the walkthrough give one
   // exhibit several stage elements (each feed stage zooms on its own; the walkthrough's pinned stage, and the one
   // static step with a focus box). frontground's solution and sohive's feed zoom from their leaders (197:1727).
   const expected = {
     ovara: ["the-finding"], "kairo-health": ["field-by-tier"], "usm-venture-benchmark": ["validation-grid"], "college-park-capstone": ["the-persona"],
-    frontground: ["the-solution"], terpcare: ["core-flows"], sohive: ["the-feed-0", "the-feed-1"],
+    frontground: ["the-solution", "offline", "triage"], terpcare: ["the-original"], sohive: ["the-feed-0", "the-feed-1"],
     terpcarehub: ["core-flows-walkthrough-1", "core-flows-walkthrough-pin", "where-it-landed"],
   };
   for (const [slug, page] of pages) {
     const stages = [...page.matchAll(/<div class="exhibit-stage[^"]*"[^>]*data-pin-zoom="([^"]+)"([^>]*)>/g)];
     assert.deepEqual(stages.map((match) => match[1]), expected[slug], slug);
-    // the alert badges zoom on phones only; every other stage everywhere.
-    for (const match of stages) assert.equal(/data-pin-zoom-phone/.test(match[2]), match[1] === "where-it-landed", `${slug} ${match[1]} phone only`);
+    // the alert badges and frontground's offline and triage leaders zoom on phones only; every other stage everywhere.
+    for (const match of stages) assert.equal(/data-pin-zoom-phone/.test(match[2]), ["where-it-landed", "offline", "triage"].includes(match[1]), `${slug} ${match[1]} phone only`);
     for (const match of stages) {
       const start = match.index;
       const end = Math.min(...['<figcaption', 'class="exhibit-notes"', 'class="stage-caption"', 'class="walk-text"', 'class="exhibit-pins"', "</section>"].map((marker) => page.indexOf(marker, start)).filter((index) => index > 0));
@@ -647,14 +685,14 @@ test("exactly the eleven small pinned stages zoom to the active annotation (figm
   // the walkthrough's badge takes its step's title, and its inactive screens are inert as well as hidden.
   const terpcarehub = pages.get("terpcarehub");
   assert.equal([...terpcarehub.matchAll(/data-annotation="02" data-zoom-title="Cost is visible before the click"/g)].length, 2);
-  assert.equal([...terpcarehub.matchAll(/data-walk-screen="[12]" aria-hidden="true" inert/g)].length, 2);
+  assert.equal([...terpcarehub.matchAll(/data-walk-screen="[12]" aria-hidden="true" inert/g)].length, 4);
   assert.doesNotMatch(terpcarehub, /data-walk-screen="0"[^>]*(aria-hidden|inert)/);
   // the alert badges have no numbered caption, so their bar titles come from the lede, set in the data (197:1727).
   const landed = terpcarehub.slice(terpcarehub.indexOf('data-pin-zoom="where-it-landed"'), terpcarehub.indexOf('class="exhibit-pins"'));
   assert.deepEqual([...landed.matchAll(/data-annotation="(0\d)" data-zoom-title="([^"]+)"/g)].map((m) => [m[1], m[2]]), [
     ["01", "Severity tag applied at ingest"], ["02", "Source badge and timestamp"], ["03", "Acknowledged, not swiped away"],
   ]);
-  // each leader's target region is its zoomAt, a share of its stage; only these nine leaders have one.
+  // each leader's target region is its zoomAt, a share of its stage; only these fourteen leaders have one.
   const targets = (page, from) => [...page.slice(page.indexOf(`data-pin-zoom="${from}"`)).split(/<div class="exhibit-stage/)[0].matchAll(/data-annotation="(\d\d)" data-zoom-title="([^"]+)"[\s\S]*?<span class="leader-target" style="([^"]+)"/g)].map((m) => [m[1], m[2], m[3]]);
   const box = (x, y, w, h) => `left: ${x}%; top: ${y}%; width: ${w}%; height: ${h}%`;
   assert.deepEqual(targets(pages.get("frontground"), "the-solution"), [
@@ -662,6 +700,16 @@ test("exactly the eleven small pinned stages zoom to the active annotation (figm
     ["02", "Queue is the working surface", box(27.78, 42.97, 40.95, 34.38)],
     ["03", "Requests keep a status", box(69.89, 23.91, 14.96, 53.44)],
     ["04", "Triage carries a letter, not only a colour", box(54.84, 48.75, 3.94, 29.06)],
+  ]);
+  // offline and triage (222:289, 222:397) zoom to the pill and banner, the queue, and the triage form's three parts.
+  assert.deepEqual(targets(pages.get("frontground"), "offline"), [
+    ["01", "Offline, with a count", box(27.69, 16.88, 38.17, 7.38)],
+    ["02", "Charting continues", box(27.82, 43.13, 40.79, 33.75)],
+  ]);
+  assert.deepEqual(targets(pages.get("frontground"), "triage"), [
+    ["01", "Emergency signs first", box(29.44, 23.67, 15.86, 12.66)],
+    ["02", "Vitals in Fahrenheit", box(29.57, 37.03, 20.16, 13.59)],
+    ["03", "The nurse confirms the level", box(60.35, 29.06, 22.85, 20.16)],
   ]);
   const sohive = pages.get("sohive");
   assert.deepEqual(targets(sohive, "the-feed-0"), [
@@ -673,7 +721,7 @@ test("exactly the eleven small pinned stages zoom to the active annotation (figm
     ["01", "Gradient, not a stock photo", box(46.44, 9.17, 44.19, 28.33)],
     ["02", "RSVP in a fixed bar", box(49.25, 81.67, 38.76, 6.0)],
   ]);
-  assert.equal([...pages.values()].flatMap((page) => [...page.matchAll(/class="leader-target"/g)]).length, 9);
+  assert.equal([...pages.values()].flatMap((page) => [...page.matchAll(/class="leader-target"/g)]).length, 14);
   // the feed's first leader names only the date and time strip it points at.
   assert.doesNotMatch(sohive, /Place and time/);
   // and no other stage on any page carries the attribute (the heatmap, matrix, pins and rows stay as they are).

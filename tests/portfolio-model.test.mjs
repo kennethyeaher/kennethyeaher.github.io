@@ -337,11 +337,12 @@ const exhibitSlugs = ["kairo-health", "usm-venture-benchmark", "ovara", "terpcar
 
 // figma rails for pages whose spec export carries no chapter list, read from the frame's chapter rail.
 // terpcarehub 90:1631 replaced the find care loop with a walkthrough and dropped the provider card stage.
+// redesign 2 (206:1840) adds booking to terpcarehub, offline and triage to frontground, and two flow stages to sohive.
 const figmaRails = {
   ovara: ["01 Overview", "02 The dashboard", "03 The finding", "04 Corrections", "05 Design", "06 Reflection"],
-  terpcarehub: ["01 Overview", "02 Core flows", "03 The measure", "04 Where it landed", "05 Design system", "06 Reflection"],
-  frontground: ["01 Overview", "02 Core flows", "03 The problem", "04 The solution", "05 The system", "06 Where it stands"],
-  sohive: ["01 Overview", "02 Core flows", "03 The feed", "04 The audit", "05 Identity", "06 Reflection"],
+  terpcarehub: ["01 Overview", "02 Core flows", "03 The measure", "04 Where it landed", "05 Design system", "06 Booking", "07 Reflection"],
+  frontground: ["01 Overview", "02 Core flows", "03 The problem", "04 The solution", "05 The system", "06 Offline", "07 Triage", "08 Where it stands"],
+  sohive: ["01 Overview", "02 Core flows", "03 The feed", "04 The audit", "05 Identity", "06 RSVP outcomes", "07 Host side", "08 Reflection"],
 };
 
 
@@ -376,11 +377,49 @@ test("exhibits are optional and only the converted pages opt in", () => {
   assert.deepEqual(getProjectBySlug("kairo-health").exhibits.map(({ kind }) => kind), ["hero", "stage", "stage", "journey", "section"]);
   assert.deepEqual(getProjectBySlug("usm-venture-benchmark").exhibits.map(({ kind }) => kind), ["hero", "stage", "stage", "journey", "section"]);
   assert.deepEqual(getProjectBySlug("ovara").exhibits.map(({ kind }) => kind), ["hero", "rows", "stage", "custom", "section", "section"]);
-  assert.deepEqual(getProjectBySlug("terpcarehub").exhibits.map(({ kind }) => kind), ["hero", "rows", "custom", "stage", "custom", "section"]);
+  assert.deepEqual(getProjectBySlug("terpcarehub").exhibits.map(({ kind }) => kind), ["hero", "rows", "custom", "stage", "custom", "rows", "section"]);
   assert.deepEqual(getProjectBySlug("college-park-capstone").exhibits.map(({ kind }) => kind), ["hero", "heatmap", "stage", "journey", "section"]);
-  assert.deepEqual(getProjectBySlug("frontground").exhibits.map(({ kind }) => kind), ["hero", "rows", "custom", "stage", "section", "section"]);
-  assert.deepEqual(getProjectBySlug("terpcare").exhibits.map(({ kind }) => kind), ["hero", "matrix", "journey", "stage", "section"]);
-  assert.deepEqual(getProjectBySlug("sohive").exhibits.map(({ kind }) => kind), ["hero", "rows", "pair", "custom", "section", "section"]);
+  assert.deepEqual(getProjectBySlug("frontground").exhibits.map(({ kind }) => kind), ["hero", "rows", "custom", "stage", "section", "stage", "stage", "section"]);
+  assert.deepEqual(getProjectBySlug("terpcare").exhibits.map(({ kind }) => kind), ["hero", "journey", "stage", "rows", "rows", "stage", "stage", "section"]);
+  assert.deepEqual(getProjectBySlug("sohive").exhibits.map(({ kind }) => kind), ["hero", "rows", "pair", "custom", "section", "stage", "stage", "section"]);
+});
+
+/** every phone an exhibit draws: on the exhibit, on a pair stage, on a stage's rows and on walkthrough steps. */
+function phones(exhibit) {
+  const framed = [...(exhibit.visuals ?? []), ...(exhibit.stages ?? []).flatMap((stage) => stage.visuals ?? []), ...(exhibit.rows?.visuals ?? [])];
+  return [...framed.filter(({ frame }) => frame === "iphone"), ...(exhibit.walkthrough?.steps ?? []).map((step) => step.screen)];
+}
+
+test("phones added in redesign 2 fit their screens whole, and the older phones keep cover", () => {
+  const added = { frontground: [], sohive: ["rsvp-outcomes", "host-side"], terpcarehub: ["booking"], terpcare: ["overview", "the-original", "get-support-now", "book", "mood-check-in", "privacy"] };
+  for (const slug of exhibitSlugs) {
+    for (const exhibit of getProjectBySlug(slug).exhibits) {
+      const isNew = (added[slug] ?? []).includes(exhibit.id);
+      for (const visual of phones(exhibit)) {
+        if (isNew) {
+          assert.equal(visual.fit, "contain", `${slug} ${exhibit.id} ${visual.src} fits`);
+          assert.match(visual.bg, /^#[0-9a-f]{6}$/i, `${slug} ${exhibit.id} ${visual.src} has a screen colour`);
+        } else assert.equal(visual.fit, undefined, `${slug} ${exhibit.id} ${visual.src} keeps cover`);
+      }
+    }
+  }
+  // the tall scroll capture stays cropped from the top.
+  const findCare = getProjectBySlug("terpcarehub").exhibits.flatMap(phones).find(({ src }) => src.endsWith("mobile-find-care.png"));
+  assert.ok(findCare && findCare.fit === undefined);
+});
+
+test("terpcare reads as a before and after: the 2024 header facts stay, the year, summary and metrics move", () => {
+  const terpcare = getProjectBySlug("terpcare");
+  assert.equal(terpcare.year, "2024, redesigned 2026");
+  // the home card keeps the year the work was made.
+  assert.equal(terpcare.cardYear, "2024");
+  assert.deepEqual([terpcare.role, terpcare.timeline, terpcare.team], ["Product Designer", "Spring 2024", "Four-person course team"]);
+  const metrics = [["15", "screens in the 2024 team concept"], ["57", "screens in the 2026 solo redesign"], ["4", "flows that play end to end"]];
+  assert.deepEqual(terpcare.metrics.map(({ value, label }) => [value, label]), metrics);
+  assert.deepEqual(terpcare.exhibits[0].metrics.map(({ value, label }) => [value, label]), metrics);
+  assert.equal(terpcare.exhibits.find(({ id }) => id === "the-original").zoom, true);
+  assert.deepEqual(terpcare.sections.find(({ id }) => id === "reflection").body, terpcare.exhibits.at(-1).lede);
+  assert.equal(terpcare.cover.exhibit.src, "/images/work/terpcare/terpcare-mood-calendar.png");
 });
 
 /** split prose into sentences, keeping decimals such as 0.91 and initials inside one sentence. */
@@ -501,6 +540,11 @@ function assertMatchesSpec(slug) {
       assert.deepEqual(built.pins.caption, source.pins.caption);
     }
     if (source.captions && built.kind === "stage") assert.deepEqual(built.captions, source.captions);
+    // a stage's rows (frontground 222:284, 222:392; terpcare 218:311): one visual and caption per row.
+    if (source.rows) {
+      assert.deepEqual(built.rows.visuals.map(({ at }) => at), source.rows.visuals.map(({ stagePct }) => stagePct), `${slug} ${built.id} row boxes`);
+      assert.deepEqual(built.rows.captions, source.rows.captions, `${slug} ${built.id} row captions`);
+    } else if (built.kind === "stage") assert.equal(built.rows, undefined, `${slug} ${built.id} has rows the spec does not`);
     if (source.matrix) assert.deepEqual({ label: built.label, columns: built.columns, rows: built.rows }, source.matrix);
     if (source.heatmap) assert.deepEqual(Object.fromEntries(built.panels.map(({ label, columns, rows }) => [label, { columns, rows }])), source.heatmap);
     if (source.figure) assert.deepEqual([built.figure.label, built.figure.caption, built.figure.src.endsWith("journey-tyler.png")], [source.figure.label, source.figure.caption, true]);

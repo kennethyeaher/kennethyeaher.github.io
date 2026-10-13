@@ -112,6 +112,9 @@
       "The interface states are the part I would point a reviewer at first. An empty result proposes a specific fix and says what that fix will find. Loading names what is being checked. Degraded data is labelled rather than served quietly, which for a health product is the state that matters most. Mobile is designed rather than resized, because mobile-first was the primary need the original research named."
     ],
     [
+      "Every flow in the first redesign stopped one screen short. A student could find care, read an alert and start a submission, but never booked, acknowledged or saw a submission go through. Booking is the first path finished end to end: provider detail, a confirmation that says what was booked and when, and a cancel that says where the time goes."
+    ],
+    [
       "This project taught me to design against a measurement instead of a feature list. Naming time to awareness early made the arguments concrete. It decided where authentication sits, which three facts earn space on a card, and why an empty state has to propose a next move rather than apologize.",
       "The honest limit is that this redesign has not met a user yet, and I know what that costs. The sixty-plus physician interviews behind Frontground and the two survey cohorts in my College Park capstone are both in this portfolio, and both changed decisions I would otherwise have gotten wrong. Research is the part of this work I most want to keep doing.",
       "The plan for that is specific. A five-participant task test on one instruction, find somewhere you could be seen today, with a target of under ninety seconds and no more than one wrong turn. Interviews with three organization wellness chairs about how long publishing an event really takes them today. A feasibility conversation with county communications about whether an institutional feed would clear their approval process at all. I think those three studies would confirm or kill most of what this file assumes, and every persona card already names which one applies to it."
@@ -176,6 +179,14 @@
       "Underneath sits a real system, twenty one colour tokens, a type scale that pairs Figtree for language with IBM Plex Mono for identifiers and dosages, and components with variants so the sidebar is edited once."
     ],
     [
+      "Liberia’s 2026 Ministry of Health call for an EMR asks for systems that work in low connectivity and sync later. These proposed screens show that path. The original file only ever showed the happy path, and a clinical record is judged on how it handles error and delay.",
+      "The hypothesis is that a visible sync state and an offline queue let clinic staff keep charting through a dropped connection without losing a record. The test is a Wizard of Oz session: the facilitator drops the network by hand, and the pass is whether a nurse can say which records have not been sent yet."
+    ],
+    [
+      "The nurse flow in the original file was a copy of the doctor flow with a green banner. Triage, the part of a nurse’s day the interviews kept coming back to, was not drawn at all. These screens draw it: intake, assessment, hand-off.",
+      "Triage levels follow the WHO, ICRC and MSF integrated triage tool. Red is seen now, yellow soon, green can wait. Vitals stay in Fahrenheit, because that is what Liberian clinics record."
+    ],
+    [
       "Raising money for this meant standing in front of judges who had never been inside a Liberian clinic and getting them to the point fast. What worked was not the interface. It was the six stage map. Once someone sees that a record can be lost at six separate moments inside a single visit, the case for the product makes itself, and every screen afterwards reads as an answer rather than as a feature.",
       "Frontground got further than a prototype. It raised $25K without giving up equity, it won the Social Impact Award at Pitch Dingman, and it put me in front of judges and audiences enough times to learn how to defend a decision quickly. The research is the piece I value most, because it is the reason the product had a shape at all.",
       "The honest position is that this never reached a live deployment in a clinic, so nothing here has been measured against real use. Everything in these screens is a decision defended by an interview rather than by an outcome. I would rather say that plainly than dress a design file up as a shipped product.",
@@ -208,6 +219,12 @@
       "The accessibility work is part of that rather than a pass at the end. Every foreground and background pair in the product is checked and written down. One of them, white on the green card, does not clear the small text threshold, so the green card only ever carries large type and the style guide says so out loud."
     ],
     [
+      "Tapping RSVP does not always end in a yes. An event can fill up, a host can move the time, and a waitlist place can open with a deadline. Each of those outcomes has its own screen, so nobody has to guess where they stand."
+    ],
+    [
+      "Every event has a host on the other side of it. Before publishing, the host sees the card students will see. At the door they check people in by name, they can message everyone going and on the waitlist at once, and afterwards a recap shows who came."
+    ],
+    [
       "This was my first product design role, and the thing it taught me is that the interesting decisions are rarely the ones on the screen you are looking at. Counting the artboards, grouping them by job and cutting 114 down to 34 was unglamorous and it decided everything that came after.",
       "The honest position on sohive is that it never shipped, so none of these decisions have been measured against real use. What I can defend is the reasoning: why the shell is black, why the cards rotate colour, why sign up is light, and why the green card is restricted to large type. Every one of those is written down beside the work rather than left for someone to guess at.",
       "Rebuilding it in Figma years later was its own lesson. The original file drifted because it had no components to drift from, and I could see exactly where, because the same nav item is called two different things on two different artboards. That is the argument for a design system in one image, and it is why I build one first now."
@@ -215,29 +232,37 @@
   ],
   "terpcare": [
     [
-      "TerpCare began with a campus pattern: students may know support exists while still feeling unsure where to start, what is available, or how to ask for help. We explored how one university-specific product could make that first step feel more familiar.",
-      "The concept connects resource discovery, mood reflection, peer discussion, events, and messages within one UMD-branded experience.",
-      "We reviewed student stories, campus reporting, public conversations, counseling information, and mental-health product patterns. Three themes repeated: difficulty finding resources, concern about stigma, and the value of open discussion."
+      "TerpCare started in spring 2024 as a four-person course project: one University of Maryland app for finding mental health support, talking to peers and tracking mood. We delivered a fifteen-screen Figma concept and a pitch. It was the first product I worked on from research to prototype, and I was proud of it.",
+      "Two years and a graduate program later, I opened the file again and could not stop seeing problems. Help sat behind a sign-in. Posts carried usernames. Booking stopped at a calendar. None of it was wrong for a course project, and none of it would hold up for a real student on a bad night.",
+      "So I redesigned it alone, in a new file, with the same scope and a different set of rules. This page keeps the original as it was, then walks through the redesign flow by flow, with the reason behind each change."
     ],
     [
-      "Focusing on University of Maryland students ages eighteen to twenty-two gave the team a concrete setting for decisions about language, visual familiarity, and the relationship between campus and outside support.",
-      "Generic therapy apps offered convenience but lacked university context. Counseling centers offered institutional support while spreading information across service pages and appointment pathways. Awareness campaigns normalized conversation without creating an ongoing product relationship.",
-      "That comparison led to a combined strategy: campus resources, communication options, peer discussion, and repeatable mood reflection in one interface."
+      "The redesign keeps five tabs because the structure was never the problem. What changed is what each tab is allowed to assume. Help has to work before sign-in. Nothing about a student is shared by default. Every task ends with a confirmation and a way out. Those rules come from the reading in my first year of the HCI program: Norman on designing for error, Nielsen on visibility of system status, and the Lean UX habit of writing the hypothesis down before the screen.",
+      "Messages went away, and a profile tab took its place. Its main job is to say what is stored, who can see it, and to let a student export or delete it. The peer board is designed and plays in the file, but it carries crisis wording, so it stays off this page until the Counseling Center has reviewed it."
     ],
     [
-      "The structure centers a home feed, campus resources, discussion, messages, and mood tracking. Persistent bottom navigation keeps destinations stable, while notifications and profile settings support continuity.",
-      "Home combines timely campus news and events with a welcome state, giving the product a recognizable daily entry point.",
-      "We sketched onboarding, profile setup, home, calendar, chat, campus resources, campaigns, discussion, notifications, and messaging before building in Figma. Seeing the screens together exposed repeated patterns and made navigation decisions easier to discuss.",
-      "The low-fidelity set kept attention on content order: what a student needs first, what belongs one tap away, and which functions stay visible across the experience. Onboarding, home, and calendar sketches established first-use and return-use rhythm."
+      "The team’s research was secondary: student stories, campus reporting, counseling pages and the mental health apps students already had. Three themes repeated. Resources were hard to find, stigma kept people quiet, and open discussion helped. We answered with five destinations behind a persistent tab bar: home, resources, discussion, messages and mood.",
+      "The fifteen screens did their job as a course deliverable. They showed a recognisable UMD product and a broad feature set held together by a small navigation model. I worked across research, wireframing, interface decisions and prototype refinement, and the team used the prototype as the object we argued over.",
+      "What the screens did not do was handle the hard moments. The notes below are not what we said in 2024. They are what I see now."
     ],
     [
-      "The collaborative prototype uses university colors, editorial imagery, and a consistent mobile frame. Home surfaces campus content; discussion gives peer conversation a place; the mood calendar turns reflection into a repeatable action.",
-      "The fifteen-screen inventory shows how onboarding, discovery, care, conversation, reflection, and account continuity fit together. The final concept brings campus context, conversation, and self-reflection into one mobile system.",
-      "I worked across research, wireframing, interface decisions, and prototype refinement, helping the team balance a broad feature set with a simple navigation model."
+      "The first rule decided the first screen. Need help now is the top of Home and the only thing on the welcome screen, and it works before a student has an account. The 2024 concept put support three taps in, behind sign-in, on a resources tab.",
+      "The support sheet itself, with crisis lines and Counseling Center hours, is built and plays in the file. It is not on this page yet because those numbers need a check with the Counseling Center before a student could act on them. The campus list below is the part that has been checked."
     ],
     [
-      "TerpCare taught me that a product opportunity can come from coordination rather than novelty. The value was in making separate campus resources, conversations, and routines feel like one understandable experience.",
-      "Working with three teammates sharpened how I explain rationale, negotiate ideas, and use a prototype as a shared object for decisions."
+      "Booking in 2024 stopped at a counselor’s calendar. The redesign treats it as one task with a beginning and an end: choose a format, pick a time, review, and get a confirmation that says what happens next. Cancel and reschedule live on the same screen as the booking, because a student who cannot find the way out will not book again."
+    ],
+    [
+      "The 2024 mood calendar asked for a face and a note every day and showed the gaps. The redesign asks for one of five words, offers tags, and promises that nothing is shared unless the student chooses. There are no streaks to keep, missed days stay blank, and the month view only ever shows what was logged.",
+      "The patterns screen is the part I rewrote most. It can say that low days often mention sleep. It cannot say that sleep causes low days, and the copy says so."
+    ],
+    [
+      "For a health product the first question a reviewer asks is what happens to my data, and the 2024 concept had no screen that answered it. The redesign answers it before sign-in and again in the profile tab. Help works without an account. Posts are anonymous by default. Export and delete are one tap deep. The data screens describe a proposed policy for the design, not a live service, and they say so."
+    ],
+    [
+      "The original was not bad work. It was work done before I knew what to look for. The team found real themes and gave them a shape a reviewer could follow. What it could not do was protect a student on a bad night, because none of us had yet been taught to design for the moment things go wrong.",
+      "The redesign is smaller in some ways. Fewer features, more states, and a privacy screen that took longer to write than any flow. I think that trade is right for a health product, and I would not have made it in 2024.",
+      "Two things stay open, and I would rather say so. The peer board and the crisis numbers need a review from the Counseling Center before they go in front of a student, and nothing here has met a user yet. The test is written: three participants, one task, set up the app and then find out who can see your entries, and a pass means they can name who sees their data and find delete in under a minute. That is the first thing I want to do with this file."
     ]
   ]
 }

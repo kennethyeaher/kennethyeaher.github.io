@@ -79,7 +79,7 @@ test("home v3 follows figma 176:1721 and 177:1723: Currently and Previously unde
 
   // each card is its cover, then "{name} / {year}" with an aria-hidden slash; no category, role or summary.
   const captions = [...workHtml.matchAll(/<div class="project-caption"[^>]*>\s*<h3[^>]*>([^<]+)<\/h3>\s*<span class="project-caption-slash" aria-hidden="true"[^>]*>\/<\/span>\s*<span class="project-year"[^>]*>(\d{4})<\/span>\s*<\/div>\s*<\/a>/g)].map((match) => `${match[1]} / ${match[2]}`);
-  assert.deepEqual(captions, getFeaturedProjects().map((project) => `${project.cardTitle} / ${project.year}`));
+  assert.deepEqual(captions, getFeaturedProjects().map((project) => `${project.cardTitle} / ${project.cardYear ?? project.year}`));
   assert.doesNotMatch(workHtml, /class="project-(role|summary|heading)"/);
   assert.match(workHtml, /card\.querySelector\("h3"\)\.style\.viewTransitionName/);
 

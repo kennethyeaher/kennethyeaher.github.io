@@ -76,7 +76,8 @@ function exhibitVisuals() {
   for (const project of projects) {
     for (const exhibit of project.exhibits ?? []) {
       for (const visual of [...(exhibit.visuals ?? []), ...(exhibit.stages ?? []).flatMap((stage) => stage.visuals ?? []), ...(exhibit.tiles ?? []), ...(exhibit.figure ? [exhibit.figure] : []),
-        ...(exhibit.scroller ? [exhibit.scroller.visual] : []), ...(exhibit.walkthrough?.steps ?? []).map((step) => step.screen), ...(exhibit.pins ? [exhibit.pins.visual] : [])]) {
+        ...(exhibit.scroller ? [exhibit.scroller.visual] : []), ...(exhibit.walkthrough?.steps ?? []).map((step) => step.screen), ...(exhibit.pins ? [exhibit.pins.visual] : []),
+        ...(exhibit.rows?.visuals ?? [])]) {
         visuals.set(visual.src, visual);
       }
     }
