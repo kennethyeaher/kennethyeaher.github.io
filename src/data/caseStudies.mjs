@@ -1016,7 +1016,7 @@ export const caseStudies = [
         "src": "/images/work/terpcarehub/mobile-find-care.png",
         "alt": "Mobile find care screen",
         "width": 780,
-        "height": 2680,
+        "height": 1688,
         "frame": "phone"
       }),
       titlePlacement: "center",
@@ -1035,7 +1035,7 @@ export const caseStudies = [
         base: "linear-gradient(144.4deg, #fff1c4 0%, #ffc24d 30%, #f0563a 55.7%, #c21230 71.4%)",
         field: { width: 1116, height: 600, sigma: 0, circles: [] },
         visuals: [
-          { src: "/images/work/terpcarehub/mobile-find-care.png", width: 780, height: 2680, alt: "Mobile find care screen", frame: "iphone", rot: 0, priority: true, at: { x: 26.9, y: 10.7, w: 26.9 } },
+          { src: "/images/work/terpcarehub/mobile-find-care.png", width: 780, height: 1688, alt: "Mobile find care screen", frame: "iphone", fit: "contain", bg: "#ffffff", rot: 0, priority: true, at: { x: 26.9, y: 10.7, w: 26.9 } },
           { src: "/images/work/terpcarehub/provider-card.png", width: 1330, height: 756, alt: "Provider card showing status, next availability, plan acceptance, and cost", rot: 0, rounded: 16, at: { x: 49.1, y: 32.7, w: 40.9 } },
         ],
         metrics: [
@@ -1069,14 +1069,14 @@ export const caseStudies = [
           field: { width: 600, height: 600, sigma: 45, circles: [{ x: 180, y: 140, r: 260, colour: "#FFD24D", alpha: 0.9 }, { x: 530, y: 490, r: 230, colour: "#FF7A45", alpha: 0.9 }, { x: 590, y: 50, r: 210, colour: "#7A0718", alpha: 0.9 }] },
           steps: [
             { label: "STEP 1", title: "Filters are preset", body: "Open now and Takes my plan start switched on, and the list is sorted by soonest appointment.",
-              screen: { src: "/images/work/terpcarehub/mobile-find-care.png", width: 780, height: 2680, alt: "Mobile find care screen with Open now and Takes my plan switched on" } },
-            // the focus box sits on the first card's plan and cost row, as shares of the capture.
+              screen: { src: "/images/work/terpcarehub/mobile-find-care.png", width: 780, height: 1688, alt: "Mobile find care screen with Open now and Takes my plan switched on", fit: "contain", bg: "#ffffff" } },
+            // the focus box sits on the first card's plan and cost row, as shares of the phone-height capture (oct 12 export).
             { label: "STEP 2", title: "Cost is visible before the click", body: "Plan acceptance and expected cost sit on the card itself.",
-              screen: { src: "/images/work/terpcarehub/mobile-find-care.png", width: 780, height: 2680, alt: "Mobile find care screen with the first card's plan and cost row outlined" },
-              focus: { num: "02", at: { x: 8.7, y: 30.6, w: 82.6, h: 5.4 } } },
+              screen: { src: "/images/work/terpcarehub/mobile-find-care.png", width: 780, height: 1688, alt: "Mobile find care screen with the first card's plan and cost row outlined", fit: "contain", bg: "#ffffff" },
+              focus: { num: "02", at: { x: 8.7, y: 48.6, w: 82.6, h: 8.6 } } },
             // rendered from .private/redesign-clips/source/sign-in-to-book.html at 390 by 844, 2x.
             { label: "STEP 3", title: "Sign in only to book", body: "Browsing, filtering and deciding stay open so an urgent decision never hits a login wall.",
-              screen: { src: "/images/work/terpcarehub/mobile-sign-in-to-book.png", width: 780, height: 1688, alt: "Sign in to book sheet over the find care list, with Log in and Sign up buttons" } },
+              screen: { src: "/images/work/terpcarehub/mobile-sign-in-to-book.png", width: 780, height: 1688, alt: "Sign in to book sheet over the find care list, with Log in and Sign up buttons", fit: "contain", bg: "#ffffff" } },
           ],
         },
         // row stages from the prose mock (90:1699, 90:1709): their own base, field and veil.
@@ -1135,7 +1135,7 @@ export const caseStudies = [
           field: { width: 1116, height: 680, sigma: 45, circles: [{ x: 220, y: 180, r: 260, colour: "#FFF4D6", alpha: 0.9 }, { x: 980, y: 600, r: 220, colour: "#FF9A3D", alpha: 0.9 }, { x: 570, y: 30, r: 150, colour: "#F5D77E", alpha: 0.9 }] },
           // the phone is drawn at 1.2x the figma size and runs off the stage's foot (phase 4 rule from 132:1838), so the
           // pinned card text reads at 12px at 1440; the pins moved with it and sit on the same screen pixels.
-          visual: { src: "/images/work/terpcarehub/mobile-find-care.png", width: 780, height: 2680, alt: "Mobile find care screen", at: { x: 15.21, y: 4.4, w: 32.28 } },
+          visual: { src: "/images/work/terpcarehub/mobile-find-care.png", width: 780, height: 1688, alt: "Mobile find care screen", at: { x: 15.21, y: 4.4, w: 32.28 } },
           // each pin's top left on the stage, as figma places it: the status badge, the cost field, the book button.
           pins: [
             { n: "1", at: { x: 42.1, y: 41.2 }, title: "Live status on every card", body: "Open or closed status sits on each provider card, so hours never need a second page." },
@@ -1333,7 +1333,7 @@ export const caseStudies = [
         ],
         media: [
           { src: "/images/work/terpcarehub/interface-states.png", width: 1810, height: 893, alt: "Four interface states with the reasoning written under each", caption: "Empty, loading, degraded, and confirmation states, each annotated with why it behaves that way." },
-          { src: "/images/work/terpcarehub/mobile-find-care.png", width: 780, height: 2680, kind: "device", frame: /** @type {const} */ ("phone"), alt: "Mobile find care screen", caption: "Find care on mobile. Availability keeps a full-width row; nothing is dropped." },
+          { src: "/images/work/terpcarehub/mobile-find-care.png", width: 780, height: 1688, kind: "device", frame: /** @type {const} */ ("phone"), alt: "Mobile find care screen", caption: "Find care on mobile. Availability keeps a full-width row; nothing is dropped." },
           { src: "/images/work/terpcarehub/mobile-alert-detail.png", width: 780, height: 1996, kind: "device", frame: /** @type {const} */ ("phone"), alt: "Mobile alert detail screen", caption: "Alert detail on mobile, with a persistent acknowledge bar." },
           { src: "/images/work/terpcarehub/mobile-dashboard.png", width: 780, height: 2104, kind: "device", frame: /** @type {const} */ ("phone"), alt: "Mobile dashboard screen", caption: "Dashboard on mobile, led by the alert that still needs acknowledgement." },
         ],

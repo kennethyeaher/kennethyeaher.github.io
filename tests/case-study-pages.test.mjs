@@ -428,13 +428,19 @@ test("every iphone draws apple's home indicator, and a fitted screen shows the w
   assert.match(frame, /\.device-screen\.is-contain img[^{]*\{ object-fit: contain; object-position: center; \}/);
   const walk = readFileSync(join(projectRoot, "src", "components", "exhibits", "ExhibitWalkthrough.astro"), "utf8");
   assert.match(walk, /\.walk-capture\.is-contain \{[^}]*height: 100%;[^}]*\}/);
-  // terpcare's hero home is fitted on white; terpcarehub's find care scroll capture keeps the top crop.
+  // terpcare's hero home is fitted on white; terpcarehub's find care is fitted in the hero and walkthrough, cropped on the pins phone.
   const terpcare = pages.get("terpcare");
   assert.match(terpcare, /<div class="device-screen is-contain" style="background: #ffffff"[^>]*>\s*<picture[^>]*>\s*<source type="image\/webp" srcset="\/images\/exhibits\/sized\/terpcare-redesign-home-/);
   assert.match(terpcare, /<div class="walk-capture is-contain" style="background: #ffffff"[^>]*>\s*<picture[^>]*>\s*<source type="image\/webp" srcset="\/images\/exhibits\/sized\/terpcare-book-in-person-or-virtual-/);
   assert.match(pages.get("sohive"), /<div class="device-screen is-contain" style="background: #000000"[^>]*>/);
   const hub = pages.get("terpcarehub");
-  assert.match(hub, /<div class="walk-capture" style="aspect-ratio: 780 \/ \d+"[^>]*>\s*<picture[^>]*>\s*<source type="image\/webp" srcset="\/images\/exhibits\/sized\/mobile-find-care-/);
+  assert.match(hub, /<div class="device-screen is-contain" style="background: #ffffff"[^>]*>\s*<picture[^>]*>\s*<source type="image\/webp" srcset="\/images\/exhibits\/sized\/mobile-find-care-/);
+  assert.equal([...hub.matchAll(/<div class="walk-capture is-contain" style="background: #ffffff"[^>]*>\s*<picture[^>]*>\s*<source type="image\/webp" srcset="\/images\/exhibits\/sized\/mobile-find-care-/g)].length, 4, "steps 1 and 2, stacked and pinned");
+  assert.doesNotMatch(hub, /class="walk-capture" style="aspect-ratio/);
+  const pins = hub.slice(hub.indexOf('class="exhibit-pins"'));
+  assert.match(pins, /<div class="device-screen"[^>]*>\s*<picture[^>]*>\s*<source type="image\/webp" srcset="\/images\/exhibits\/sized\/mobile-find-care-/);
+  // step 2's box is the same plan and cost row, as a share of the phone-height capture.
+  assert.equal([...hub.matchAll(/class="annotation annotation-focus on-light"[^>]*style="left: 8\.7%; top: 48\.6%; width: 82\.6%; height: 8\.6%;/g)].length, 2);
 });
 
 test("on phones the walkthrough draws each step's phone 256 wide and whole, as figma 32:393 does", () => {

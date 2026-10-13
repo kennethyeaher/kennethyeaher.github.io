@@ -394,18 +394,23 @@ test("phones added in redesign 2 fit their screens whole, and the older phones k
   const added = { frontground: [], sohive: ["rsvp-outcomes", "host-side"], terpcarehub: ["booking"], terpcare: ["overview", "the-original", "get-support-now", "book", "mood-check-in", "privacy"] };
   for (const slug of exhibitSlugs) {
     for (const exhibit of getProjectBySlug(slug).exhibits) {
-      const isNew = (added[slug] ?? []).includes(exhibit.id);
       for (const visual of phones(exhibit)) {
-        if (isNew) {
+        // terpcarehub's find care hero and walkthrough screens were re-exported phone height with the status bar (oct 12).
+        const refit = slug === "terpcarehub" && (exhibit.walkthrough?.steps.some(({ screen }) => screen === visual) || visual.src.endsWith("mobile-find-care.png"));
+        if ((added[slug] ?? []).includes(exhibit.id) || refit) {
           assert.equal(visual.fit, "contain", `${slug} ${exhibit.id} ${visual.src} fits`);
           assert.match(visual.bg, /^#[0-9a-f]{6}$/i, `${slug} ${exhibit.id} ${visual.src} has a screen colour`);
         } else assert.equal(visual.fit, undefined, `${slug} ${exhibit.id} ${visual.src} keeps cover`);
       }
     }
   }
-  // the tall scroll capture stays cropped from the top.
-  const findCare = getProjectBySlug("terpcarehub").exhibits.flatMap(phones).find(({ src }) => src.endsWith("mobile-find-care.png"));
-  assert.ok(findCare && findCare.fit === undefined);
+  // find care is one phone-height capture everywhere; the pins phone (119:71) keeps cover so its pins stay on the same pixels.
+  const hub = getProjectBySlug("terpcarehub");
+  const findCare = [hub.cover.exhibit, ...hub.exhibits.flatMap((exhibit) => [...phones(exhibit), ...(exhibit.pins ? [exhibit.pins.visual] : [])]), ...hub.sections.flatMap(({ media }) => media ?? [])]
+    .filter(({ src }) => src.endsWith("mobile-find-care.png"));
+  assert.equal(findCare.length, 6);
+  for (const visual of findCare) assert.deepEqual([visual.width, visual.height], [780, 1688]);
+  assert.equal(hub.exhibits.find(({ pins }) => pins).pins.visual.fit, undefined);
 });
 
 test("terpcare reads as a before and after: the 2024 header facts stay, the year, summary and metrics move", () => {
