@@ -8,7 +8,7 @@ import ExhibitStage from "@/components/exhibits/ExhibitStage.astro";
 import MediaTag from "@/components/exhibits/MediaTag.astro";
 import { exhibitSrcset } from "@/utils/exhibitSrcset";
 
-interface Screen { src: string; width: number; height: number; alt: string }
+interface Screen { src: string; width: number; height: number; alt: string; fit?: "contain"; bg?: string }
 interface Step { label: string; title: string; body: string; screen: Screen; focus?: { num: string; at: { x: number; y: number; w: number; h: number } } }
 interface Props {
   id: string;
@@ -22,6 +22,8 @@ const phone = `--at-x: ${at.x}%; --at-y: ${at.y}%; --at-w: ${at.w}%`;
 /** webp candidates for a screen, from scripts/build-exhibit-images.mjs. */
 const srcset = (screen: Screen) => exhibitSrcset(screen.src);
 // the phone is 42% of a stage that is at most 600 of the 1116 column; on phones it is 256 wide (figma 32:393).
+/** a fitted screen fills the phone's screen and shows the whole capture on its colour; otherwise it keeps its own ratio, cropped at the foot. */
+const captureStyle = (screen: Screen) => screen.fit === "contain" ? `background: ${screen.bg ?? "#ffffff"}` : `aspect-ratio: ${screen.width} / ${screen.height}`;
 const sizes = `(max-width: 767px) min(256px, calc((100vw - 40px) * 0.76)), calc(min(600px, 100vw - 48px) * ${(at.w / 100).toFixed(2)})`;
 ---
 <div class="walkthrough" data-walkthrough id={id}>
@@ -32,7 +34,7 @@ const sizes = `(max-width: 767px) min(256px, calc((100vw - 40px) * 0.76)), calc(
           <ExhibitStage palette={palette} size="square" field={walkthrough.field} base={walkthrough.base} veil={walkthrough.veil} zoom={walkthrough.zoom && step.focus ? `${id}-${index}` : undefined}>
             <div class="walk-phone" style={phone}>
               <DeviceFrame frame="iphone" src={step.screen.src} alt={step.screen.alt}>
-                <div class="walk-capture" style={`aspect-ratio: ${step.screen.width} / ${step.screen.height}`}>
+                <div class:list={["walk-capture", step.screen.fit === "contain" && "is-contain"]} style={captureStyle(step.screen)}>
                   <picture>
                     <source type="image/webp" srcset={srcset(step.screen)} sizes={sizes} />
                     <img src={step.screen.src} alt={step.screen.alt} width={step.screen.width} height={step.screen.height} loading="lazy" decoding="async" />
@@ -58,7 +60,7 @@ const sizes = `(max-width: 767px) min(256px, calc((100vw - 40px) * 0.76)), calc(
           {/* an inactive screen is also inert, since its badge is a button once the stage zooms. */}
           {steps.map((step, index) => (
             <div class:list={["walk-screen", index === 0 && "is-active"]} data-walk-screen={index} aria-hidden={index === 0 ? undefined : "true"} inert={index === 0 ? undefined : true}>
-              <div class="walk-capture" style={`aspect-ratio: ${step.screen.width} / ${step.screen.height}`}>
+              <div class:list={["walk-capture", step.screen.fit === "contain" && "is-contain"]} style={captureStyle(step.screen)}>
                 <picture>
                   <source type="image/webp" srcset={srcset(step.screen)} sizes={sizes} />
                   <img src={step.screen.src} alt={step.screen.alt} width={step.screen.width} height={step.screen.height} loading="lazy" decoding="async" />
@@ -100,6 +102,9 @@ const sizes = `(max-width: 767px) min(256px, calc((100vw - 40px) * 0.76)), calc(
   .walk-capture { position: relative; width: 100%; }
   .walk-capture picture { display: block; }
   .walk-capture img { display: block; width: 100%; height: auto; }
+  .walk-capture.is-contain { height: 100%; }
+  .walk-capture.is-contain picture { height: 100%; }
+  .walk-capture.is-contain img { height: 100%; object-fit: contain; object-position: center; }
   .walk-tag { position: absolute; z-index: 4; top: 3%; left: 3%; }
   @media (prefers-reduced-motion: reduce) {
     .walk-text, .walk-text > *, .walk-screen { transition: none; }

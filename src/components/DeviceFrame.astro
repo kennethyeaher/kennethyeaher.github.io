@@ -17,8 +17,11 @@ interface Props {
   screen?: { w: number; h: number };
   /** a resized instance drawn larger (figma 132:1846): its lights and address scale with it instead of keeping their 880 size. */
   zoom?: number;
+  /** contain shows the whole capture, centred on bg, instead of cropping it from the top (redesign 2 phones). */
+  fit?: "contain";
+  bg?: string;
 }
-const { frame = "tablet", src, alt, width, height, priority = false, decorative = false, url = "kennethyeaher.github.io", srcset, sizes, screen, zoom } = Astro.props;
+const { frame = "tablet", src, alt, width, height, priority = false, decorative = false, url = "kennethyeaher.github.io", srcset, sizes, screen, zoom, fit, bg = "#ffffff" } = Astro.props;
 const screenStyle = frame === "browser" && screen ? `--screen-w: ${screen.w}; --screen-h: ${screen.h}${zoom ? `; --chrome-w: ${screen.w}` : ""}` : undefined;
 const hasScreen = Astro.slots.has("default");
 ---
@@ -42,7 +45,7 @@ const hasScreen = Astro.slots.has("default");
     <span class="iphone-button is-side" aria-hidden="true"></span>
     <span class="iphone-home" aria-hidden="true"></span>
   </>}
-  <div class="device-screen">
+  <div class:list={["device-screen", fit === "contain" && "is-contain"]} style={fit === "contain" ? `background: ${bg}` : undefined}>
     {hasScreen ? <slot /> : (
       <picture>
         {srcset && <source type="image/webp" srcset={srcset} sizes={sizes} />}
@@ -81,8 +84,11 @@ const hasScreen = Astro.slots.has("default");
   }
   .frame-iphone .device-screen { position: absolute; inset: 2.5cqw; border-radius: 14cqw; background: #edf0f2; }
   .frame-iphone .device-screen img, .frame-iphone .device-screen :global(video), .frame-iphone .device-screen :global(.loop-still) { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+  /* a fitted screen keeps the capture's status bar and tab bar, so neither is cropped. */
+  .frame-iphone .device-screen.is-contain img, .frame-iphone .device-screen.is-contain :global(.loop-still) { object-fit: contain; object-position: center; }
   .iphone-island { position: absolute; z-index: 1; top: 5.333cqw; left: 50%; width: 28cqw; height: 8cqw; translate: -50% 0; border-radius: 4cqw; background: #000; }
-  .iphone-home { position: absolute; z-index: 1; bottom: 6cqw; left: 50%; width: 32cqw; height: 1.333cqw; translate: -50% 0; border-radius: 1cqw; background: #000; opacity: 0.55; }
+  /* apple's 134 by 5 pt indicator, 8 pt above the screen's foot, scaled to the 282 by 602 screen. */
+  .iphone-home { position: absolute; z-index: 1; bottom: 4.75cqw; left: 50%; width: 29.29cqw; height: 1.093cqw; translate: -50% 0; border-radius: 0.5465cqw; background: #000; opacity: 0.55; }
   .iphone-button { position: absolute; width: 1cqw; border-radius: 0.5cqw; background: #333840; }
   .iphone-button.is-action { top: 39cqw; left: -1.667cqw; height: 9.333cqw; }
   .iphone-button.is-up { top: 55cqw; left: -1.667cqw; height: 17.333cqw; }
