@@ -8,6 +8,8 @@ interface Props {
     cardTitle: string;
     category: string;
     year: string;
+    /** the card's year when it differs from the case study header's (terpcare: 2024, redesigned 2026). */
+    cardYear?: string;
     cardImage: string;
     cardAlt: string;
     cover: {
@@ -34,7 +36,7 @@ const { project } = Astro.props;
   <div class="project-caption">
     <h3>{project.cardTitle}</h3>
     <span class="project-caption-slash" aria-hidden="true">/</span>
-    <span class="project-year">{project.year}</span>
+    <span class="project-year">{project.cardYear ?? project.year}</span>
   </div>
 </a>
 
