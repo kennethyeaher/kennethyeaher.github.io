@@ -41,7 +41,7 @@ test("explore sits in the rail between Work and About, current on the grid and t
   for (const html of [gridHtml, page("explore", "personal-03")]) {
     const rail = html.slice(html.indexOf('aria-label="Primary navigation"'), html.indexOf("</nav>", html.indexOf('aria-label="Primary navigation"')));
     assert.deepEqual([...rail.matchAll(/class="rail-link"[^>]*>\s*([^<]+?)\s*</g)].map(([, label]) => label), ["Work", "Explore", "About", "Resume"]);
-    assert.match(rail, /<a href="\/explore" class="rail-link" aria-current="page">\s*Explore\s*</);
+    assert.match(rail, /<a href="\/explore" class="rail-link" aria-current="page" data-astro-prefetch="viewport">\s*Explore\s*</);
   }
 });
 

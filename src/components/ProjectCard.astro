@@ -1,5 +1,5 @@
 ---
-// project card linking the displayed work to its case study.
+// project card linking the displayed work to its case study. it prefetches the case study once it scrolls into view.
 import ProjectCover from "@/components/ProjectCover.astro";
 
 interface Props {
@@ -30,6 +30,7 @@ const { project } = Astro.props;
   data-tilt-card
   data-cursor="card"
   data-cursor-label={`View ${project.cardTitle}`}
+  data-astro-prefetch="viewport"
 >
   <figure class="project-media">
     <ProjectCover project={project} />

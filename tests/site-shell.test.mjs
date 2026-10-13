@@ -271,7 +271,7 @@ test("the primary rail is fixed at the left edge, squares the current page and t
     assert.match(html, /<nav class="site-nav( is-case)?" aria-label="Primary navigation">\s*<ul class="rail">/, file);
     assert.deepEqual(labels(html), ["Work", "Explore", "About", "Resume"], file);
     assert.deepEqual(current(html), [active], file);
-    assert.match(rail(html), /<a href="\/resume\/kyresume\.pdf" class="rail-link" target="_blank" rel="noreferrer">/, file);
+    assert.match(rail(html), /<a href="\/resume\/kyresume\.pdf" class="rail-link" target="_blank" rel="noreferrer" data-astro-prefetch="false">/, file);
   }
   // case studies hand the desktop spot to the chapter rail, and keep the row on phones.
   assert.match(readFileSync(join(projectRoot, "dist", "work", "ovara", "index.html"), "utf8"), /<nav class="site-nav is-case"/);
@@ -461,13 +461,15 @@ test("the pin zoom keeps its budget, its reduced-motion rule, its notes active s
   assert.match(script, /document\.querySelectorAll<HTMLElement>\(matchMedia\("\(min-width: 761px\)"\)\.matches \? "\[data-pin-zoom\]:not\(\[data-pin-zoom-phone\]\)" : "\[data-pin-zoom\]"\)/);
 });
 
-test("page to page navigation fades through, keeps the chrome still, carries the dot and prefetches on hover", () => {
+test("page to page navigation fades through, keeps the chrome still, carries the dot and prefetches early", () => {
   const motion = globalCss.match(/@media \(prefers-reduced-motion: no-preference\) \{\n  @view-transition \{ navigation: auto; \}[\s\S]*?\n\}/)?.[0];
   assert.ok(motion, "the no-preference block opens with the view transition opt in");
-  // fade through, not crossfade: the old page is gone at 140ms before the new one starts, 260ms with an 8px rise.
+  // fade through, not crossfade: the old page is gone at 90ms, and the new one starts then, 180ms with an 8px rise.
   // only a page to page transition (the class from pagereveal) fades through; same page ones keep the crossfade.
-  assert.match(motion, /html\.is-page-transition::view-transition-old\(root\) \{ animation: 140ms var\(--ease-out\) both page-fade-out; \}/);
-  assert.match(motion, /html\.is-page-transition::view-transition-new\(root\) \{ animation: 260ms var\(--ease-out\) 140ms both page-fade-in; \}/);
+  assert.match(motion, /html\.is-page-transition::view-transition-old\(root\) \{ animation: 90ms var\(--ease-out\) both page-fade-out; \}/);
+  assert.match(motion, /html\.is-page-transition::view-transition-new\(root\) \{ animation: 180ms var\(--ease-out\) 90ms both page-fade-in; \}/);
+  assert.match(motion, /html\.is-page-transition::view-transition-group\(root\) \{ animation-duration: 270ms; \}/);
+  assert.doesNotMatch(motion, /140ms|260ms/);
   assert.match(motion, /@keyframes page-fade-out \{ to \{ opacity: 0; \} \}/);
   assert.match(motion, /@keyframes page-fade-in \{ from \{ opacity: 0; transform: translateY\(8px\); \} \}/);
   // the chrome swaps at once, no fade and no morph. the dot's wrapper is a 0 by 0 box whose snapshot comes out empty,
@@ -500,7 +502,17 @@ test("page to page navigation fades through, keeps the chrome still, carries the
   assert.match(dotScript, /addEventListener\("pagehide", save\)/);
   assert.match(dotScript, /sessionStorage\.setItem\("portfolio-pointer"/);
 
-  // prefetch: every internal link on hover, so the next page is ready before the click.
+  // prefetch: every internal link on hover, so the next page is ready before the click. the rail links and the project
+  // cards prefetch as soon as they scroll into view; the resume PDF never prefetches.
   const config = readFileSync(join(projectRoot, "astro.config.mjs"), "utf8");
   assert.match(config, /prefetch: \{ prefetchAll: true, defaultStrategy: "hover" \}/);
+  const rail = [...home.matchAll(/<a\b[^>]*class="rail-link"[^>]*>\s*([^<]+?)\s*<\/a>/g)].map(([tag, label]) => [label, tag.match(/data-astro-prefetch="([^"]*)"/)?.[1] ?? null]);
+  assert.deepEqual(rail, [["Work", "viewport"], ["Explore", "viewport"], ["About", "viewport"], ["Resume", "false"]]);
+  const cards = [...home.matchAll(/<a\b[^>]*class="project-card"[^>]*>/g)].map(([tag]) => tag);
+  assert.ok(cards.length > 0, "the home page has project cards");
+  for (const card of cards) assert.match(card, /data-astro-prefetch="viewport"/);
+  for (const page of ["about/index.html", "explore/index.html", "work/ovara/index.html"]) {
+    const html = readFileSync(join(projectRoot, "dist", page), "utf8");
+    for (const [tag] of html.matchAll(/<a\b[^>]*href="\/resume\/[^"]+\.pdf"[^>]*>/g)) assert.match(tag, /data-astro-prefetch="false"/, `${page} resume link`);
+  }
 });

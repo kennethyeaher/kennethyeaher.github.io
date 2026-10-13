@@ -635,11 +635,13 @@ html:not(.nav-ready) .theme-cord { display: none; }
   @view-transition { navigation: auto; }
   ::view-transition-group(*) { animation-duration: 380ms; animation-timing-function: var(--ease-out); }
   /* page to page fades through rather than crossfading, so two pages never show at once: the old page is gone by
-     140ms, then the new one fades in over 260ms with an 8px rise. the head script in Base.astro sets the class from
+     90ms, then the new one fades in over 180ms with an 8px rise. the head script in Base.astro sets the class from
      pagereveal, so same page transitions (the Explore size toggle) keep the crossfade. the card cover and title morphs
      are named groups and run as before. */
-  html.is-page-transition::view-transition-old(root) { animation: 140ms var(--ease-out) both page-fade-out; }
-  html.is-page-transition::view-transition-new(root) { animation: 260ms var(--ease-out) 140ms both page-fade-in; }
+  html.is-page-transition::view-transition-old(root) { animation: 90ms var(--ease-out) both page-fade-out; }
+  html.is-page-transition::view-transition-new(root) { animation: 180ms var(--ease-out) 90ms both page-fade-in; }
+  /* the transition ends when the new root has finished, so input comes back at 270ms; a card morph keeps its 380ms. */
+  html.is-page-transition::view-transition-group(root) { animation-duration: 270ms; }
   @keyframes page-fade-out { to { opacity: 0; } }
   @keyframes page-fade-in { from { opacity: 0; transform: translateY(8px); } }
   /* the chrome stays still: the header, the rail and the cord are their own groups and swap at once, no fade and no

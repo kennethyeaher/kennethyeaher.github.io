@@ -41,7 +41,8 @@ function isActive(href: string): boolean {
     )
   }
   {/* a fixed rail at the left edge (figma 176:1721), a row under the name at 980px and below, where the chapter rail
-      hides too. case studies give the desktop spot to their chapter rail (figma 177:1801). */}
+      hides too. case studies give the desktop spot to their chapter rail (figma 177:1801). the page links prefetch as
+      soon as they show rather than on hover; the resume PDF never prefetches. */}
   <nav class:list={["site-nav", crumb && "is-case"]} aria-label="Primary navigation">
     <ul class="rail">
       {
@@ -53,6 +54,7 @@ function isActive(href: string): boolean {
               aria-current={!link.external && isActive(link.href) ? "page" : undefined}
               target={link.external ? "_blank" : undefined}
               rel={link.external ? "noreferrer" : undefined}
+              data-astro-prefetch={link.external ? "false" : "viewport"}
             >
               {link.label}
             </a>
