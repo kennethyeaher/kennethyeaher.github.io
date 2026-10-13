@@ -202,19 +202,19 @@ test("the home cover gradient registers its animated properties", () => {
   assert.match(globalCss, /@supports \(background: linear-gradient\(in oklab/);
 });
 
-test("the site chrome marks the current place in blue, the annotations stay orange", () => {
-  // --color-mark: #236da9 in light (5.2:1 on --canvas), the dark --accent #8abde7 in both dark blocks (8.9:1).
+test("the cursor's target dot is blue, the site chrome stays orange", () => {
+  // --color-mark: #236da9 in light (5.2:1 on --canvas), the dark --accent #8abde7 in both dark blocks (8.9:1). only the
+  // cursor's target dot uses it; the current rail item, ABOUT ME and the current chapter counter stay --color-annotate.
   assert.equal((globalCss.match(/--color-mark:/g) ?? []).length, 3);
   assert.match(globalCss, /--color-mark: #236da9;/);
   assert.equal((globalCss.match(/--color-mark: #8abde7;/g) ?? []).length, 2);
-  // its three uses: the current rail item (home, About and the case study chapter rail), ABOUT ME and the current
-  // chapter counter.
+  assert.equal((globalCss.match(/var\(--color-mark\)/g) ?? []).length, 1);
   const aboutPage = readFileSync(join(projectRoot, "src", "pages", "about.astro"), "utf8");
   const chapters = readFileSync(join(projectRoot, "src", "components", "AboutChapters.astro"), "utf8");
-  assert.match(globalCss, /\.rail-link\[aria-current\] \{\n  color: var\(--color-mark\);\n\}/);
-  assert.match(aboutPage, /\.about-eyebrow \{[^}]*color: var\(--color-mark\);/);
-  assert.match(chapters, /\.about-chapter\[data-current\] \.chapter-counter \{\s*color: var\(--color-mark\);/);
-  assert.doesNotMatch(aboutPage + chapters, /--color-annotate/);
+  assert.match(globalCss, /\.rail-link\[aria-current\] \{\n  color: var\(--color-annotate\);\n\}/);
+  assert.match(aboutPage, /\.about-eyebrow \{[^}]*color: var\(--color-annotate\);/);
+  assert.match(chapters, /\.about-chapter\[data-current\] \.chapter-counter \{\s*color: var\(--color-annotate\);/);
+  assert.doesNotMatch(aboutPage + chapters, /--color-mark/);
 });
 
 test("one annotation colour is defined for light and both dark theme paths", () => {
@@ -280,7 +280,7 @@ test("the primary rail is fixed at the left edge, squares the current page and t
   assert.match(globalCss, /\.rail \{\n[^}]*flex-direction: column;\n  gap: 14px;/);
   assert.match(globalCss, /\.rail-link \{\n[^}]*gap: 6px;\n  color: var\(--muted\);/);
   assert.match(globalCss, /\.rail-link::before \{\n[^}]*width: 4px;\n  height: 4px;/);
-  assert.match(globalCss, /\.rail-link\[aria-current\] \{\n  color: var\(--color-mark\);\n\}/);
+  assert.match(globalCss, /\.rail-link\[aria-current\] \{\n  color: var\(--color-annotate\);\n\}/);
   assert.match(globalCss, /\.rail-link\[aria-current\]::before \{\n  background: currentColor;\n\}/);
   assert.match(globalCss, /\.site-nav\.is-case \{\n  display: none;\n\}/);
   // dims by colour, never opacity.

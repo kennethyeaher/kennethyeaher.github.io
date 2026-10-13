@@ -328,7 +328,7 @@ button {
 
 /* the v3 rail (figma 176:1721, 177:1801): fixed at the left edge, 200px from the top (level with the home thesis), geist 15 rows 14px apart. each
    link keeps a 4px slot before it, so the label sits on the gutter and the slot hangs 10px into it; the current item is
-   --color-mark and fills its square, the rest are --muted. it dims by colour, never opacity. CaseStudyNav uses the
+   --color-annotate and fills its square, the rest are --muted. it dims by colour, never opacity. CaseStudyNav uses the
    same .rail and .rail-link for its chapters. */
 .site-nav {
   position: fixed;
@@ -367,7 +367,7 @@ button {
 }
 
 .rail-link[aria-current] {
-  color: var(--color-mark);
+  color: var(--color-annotate);
 }
 
 .rail-link[aria-current]::before {
