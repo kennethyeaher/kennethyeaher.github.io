@@ -1,7 +1,8 @@
 /**
  * the dot cursor. on fine hovering mouse pointers the native cursor hides on every page and one aria-hidden dot is the
- * pointer, centred on the tip and moved there once a frame with no easing. at rest it is a 14px solid dot, and over
- * anything interactive it opens into a ring of the same size. a target's data-cursor-label shows in a chip beside the ring (the cards' "View <name>", the cord's pull
+ * pointer, centred on the tip and moved there once a frame with no easing. at rest it is a 14px solid dot, over
+ * anything interactive it shrinks to an 8px blue dot, and over text glyphs outside a target it is a caret. a target's
+ * data-cursor-label shows in a chip beside the dot (the cards' "View <name>", the cord's pull
  * set here from the theme), and an unlabelled About photo shows its alt text (note 267:1842). touch, pen,
  * forced colours, fields, a blurred window, a hidden tab and a pointer outside the window all get the native cursor
  * back. never keyboard focus.
@@ -19,6 +20,16 @@ export function initializePointerDot(): void {
   const cord = document.querySelector<HTMLElement>('[data-cursor="cord"]');
   const dark = window.matchMedia("(prefers-color-scheme: dark)");
 
+  /** whether the tip is on actual glyphs: the caret's text node has non-whitespace text and one of its line boxes
+   * holds the point, so the empty space beside a paragraph stays the dot. caretRangeFromPoint is Safari's. */
+  function onGlyph(): boolean {
+    const node = document.caretPositionFromPoint?.(x, y)?.offsetNode ?? document.caretRangeFromPoint?.(x, y)?.startContainer;
+    if (!(node instanceof Text) || !node.data.trim()) return false;
+    const range = document.createRange();
+    range.selectNodeContents(node);
+    return [...range.getClientRects()].some((r) => x >= r.left && x <= r.right && y >= r.top && y <= r.bottom);
+  }
+
   /** write the tip and the target's state; css centres the mark on it. the chip flips left when, at its real width,
    * it would come within a 16px gutter of the right edge. */
   function place(): void {
@@ -26,9 +37,10 @@ export function initializePointerDot(): void {
     const target = over?.closest<HTMLElement>("a, button, summary, label[for], [data-cursor]");
     const label = target?.dataset.cursorLabel ?? (target?.dataset.cursor === "photo" ? target.querySelector("img")?.alt ?? "" : "");
     if (label !== chip!.textContent) chip!.textContent = label;
-    dot!.classList.toggle("is-ring", !!target);
+    dot!.classList.toggle("is-target", !!target);
+    dot!.classList.toggle("is-text", !target && onGlyph());
     dot!.classList.toggle("is-chip", !!label);
-    dot!.classList.toggle("is-left", !!label && x + 15 + chip!.offsetWidth + 16 > innerWidth);
+    dot!.classList.toggle("is-left", !!label && x + 12 + chip!.offsetWidth + 16 > innerWidth);
     dot!.style.translate = `${x}px ${y}px`;
   }
 
@@ -73,7 +85,7 @@ export function initializePointerDot(): void {
     dot.classList.add("is-down");
   }, { passive: true });
   addEventListener("pointerup", () => dot.classList.remove("is-down"), { passive: true });
-  // scrolling moves targets under a still pointer, so the ring is rechecked at the same spot.
+  // scrolling moves targets and text under a still pointer, so the mark is rechecked at the same spot.
   addEventListener("scroll", () => {
     if (!dot.classList.contains("is-on") || frame) return;
     frame = requestAnimationFrame(() => { over = document.elementFromPoint(x, y); place(); });

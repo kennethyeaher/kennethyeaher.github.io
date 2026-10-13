@@ -166,6 +166,9 @@
   --color-annotate-on-stage: #fb8a5c;
   /* a pale stage stays pale in both themes, so annotations on it keep the light value. */
   --color-annotate-on-light-stage: #c2410c;
+  /* the site chrome's blue for the current place (rail item, About eyebrow, chapter counter) and the cursor over a
+     target: 5.2:1 on --canvas. the dark themes use the dark --accent, 8.9:1. annotations stay --color-annotate. */
+  --color-mark: #236da9;
   /* inactive note text on a pale stage card, the same in both themes: 5.62:1 on white, 5.30:1 on a 92% white
      card over the stage's #ff9a3d, the worst case on terpcarehub 119:71. */
   --color-muted-on-light-stage: #5d6974;
@@ -325,7 +328,7 @@ button {
 
 /* the v3 rail (figma 176:1721, 177:1801): fixed at the left edge, 200px from the top (level with the home thesis), geist 15 rows 14px apart. each
    link keeps a 4px slot before it, so the label sits on the gutter and the slot hangs 10px into it; the current item is
-   --color-annotate and fills its square, the rest are --muted. it dims by colour, never opacity. CaseStudyNav uses the
+   --color-mark and fills its square, the rest are --muted. it dims by colour, never opacity. CaseStudyNav uses the
    same .rail and .rail-link for its chapters. */
 .site-nav {
   position: fixed;
@@ -364,7 +367,7 @@ button {
 }
 
 .rail-link[aria-current] {
-  color: var(--color-annotate);
+  color: var(--color-mark);
 }
 
 .rail-link[aria-current]::before {
@@ -579,7 +582,7 @@ main.beside-rail {
   --canvas: #111923; --surface: #192431; --ink: #d2dce5; --ink-strong: #f0f4f8;
   --muted: #abb9c6; --secondary: #b8c5d0; --rule: #344553;
   --on-accent: #111923; --accent: #8abde7; --accent-strong: #b2d8f5; --accent-soft: #233f57;
-    --color-annotate: #fb8a5c; --on-annotate: #111923; --surface-sunken: #142130;
+    --color-annotate: #fb8a5c; --on-annotate: #111923; --surface-sunken: #142130; --color-mark: #8abde7;
     --color-muted-label: var(--muted);
     --cord-pull: var(--accent); --cord-ring: var(--ink);
 }
@@ -589,7 +592,7 @@ main.beside-rail {
     --canvas: #111923; --surface: #192431; --ink: #d2dce5; --ink-strong: #f0f4f8;
     --muted: #abb9c6; --secondary: #b8c5d0; --rule: #344553;
     --on-accent: #111923; --accent: #8abde7; --accent-strong: #b2d8f5; --accent-soft: #233f57;
-    --color-annotate: #fb8a5c; --on-annotate: #111923; --surface-sunken: #142130;
+    --color-annotate: #fb8a5c; --on-annotate: #111923; --surface-sunken: #142130; --color-mark: #8abde7;
     --color-muted-label: var(--muted);
     --cord-pull: var(--accent); --cord-ring: var(--ink);
   }
@@ -647,17 +650,19 @@ html:not(.nav-ready) .theme-cord { display: none; }
 }
 /* dot cursor: on fine hovering mice the native cursor hides on every page and the dot is the pointer. the script
    writes only the dot's translate (the tip); the mark centres itself on it. at rest a 14px solid --cord-ring dot, the size of the theme
-   cord's knob; over anything interactive it opens into that knob (a 1.5px --cord-ring border on --cord-pull) in 150ms,
-   and presses to 0.85 while the button is down. the shadow is the leader anchor's, so the dot reads on photos. an
-   About photo, a card or the cord adds a chip beside the ring (note 267:1842), flipped left near the right edge. reduced
-   motion: still follows, sizes instant. forced colours: no dot. */
+   cord's knob; over anything interactive it shrinks to an 8px solid --color-mark dot in 120ms and grows back the same
+   way (after rachelchen.tech), and presses to 0.85 while the button is down. over text glyphs outside a target it is a
+   2 by 20px caret, switched with no transition. the shadow is the leader anchor's, so the dot reads on photos. an
+   About photo, a card or the cord adds a chip 8px clear of the shrunk dot (note 267:1842), flipped left near the right
+   edge. reduced motion: still follows, sizes instant. forced colours: no dot. */
 .pointer-dot { position: fixed; z-index: 100; top: 0; left: 0; pointer-events: none; opacity: 0; }
 .pointer-dot.is-on { opacity: 1; }
-.pointer-dot-mark { position: absolute; top: 0; left: 0; box-sizing: border-box; width: 14px; height: 14px; border: 7px solid var(--cord-ring); border-radius: 50%; background: var(--cord-ring); translate: -50% -50%; box-shadow: 0 1px 4px rgb(0 0 0 / 25%); transition: width 150ms var(--ease-out), height 150ms var(--ease-out), border-width 150ms var(--ease-out), background-color 150ms var(--ease-out), scale 150ms var(--ease-out); }
-.pointer-dot.is-ring .pointer-dot-mark { border-width: 1.5px; background: var(--cord-pull); }
+.pointer-dot-mark { position: absolute; top: 0; left: 0; width: 14px; height: 14px; border-radius: 50%; background: var(--cord-ring); translate: -50% -50%; box-shadow: 0 1px 4px rgb(0 0 0 / 25%); transition: width 120ms var(--ease-out), height 120ms var(--ease-out), background-color 120ms var(--ease-out), scale 120ms var(--ease-out); }
+.pointer-dot.is-target .pointer-dot-mark { width: 8px; height: 8px; background: var(--color-mark); }
+.pointer-dot.is-text .pointer-dot-mark { width: 2px; height: 20px; border-radius: 1px; background: var(--cord-ring); transition: none; }
 .pointer-dot.is-down .pointer-dot-mark { scale: 0.85; }
-.pointer-dot-chip { position: absolute; top: 0; left: 15px; display: none; padding: 5px 10px; border-radius: 999px; background: var(--ink-strong); color: var(--canvas); font: 500 11px / normal var(--mono); white-space: nowrap; translate: 0 -50%; }
-.pointer-dot.is-left .pointer-dot-chip { right: 15px; left: auto; }
+.pointer-dot-chip { position: absolute; top: 0; left: 12px; display: none; padding: 5px 10px; border-radius: 999px; background: var(--ink-strong); color: var(--canvas); font: 500 11px / normal var(--mono); white-space: nowrap; translate: 0 -50%; }
+.pointer-dot.is-left .pointer-dot-chip { right: 12px; left: auto; }
 .pointer-dot.is-chip .pointer-dot-chip { display: block; }
 @media (prefers-reduced-motion: reduce) {
   .pointer-dot, .pointer-dot * { transition: none !important; }

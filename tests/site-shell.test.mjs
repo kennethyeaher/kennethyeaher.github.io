@@ -149,20 +149,35 @@ test("the dot cursor is one aria-hidden dot on every page, the pointer for fine 
   assert.match(script, /dark\.addEventListener\("change", labelCord\)/);
   // the chip flips left when its real width would come within the 16px gutter of the window's right edge, not at a
   // fixed distance.
-  assert.match(script, /x \+ 15 \+ chip!\.offsetWidth \+ 16 > innerWidth/);
-  assert.doesNotMatch(script, /< 200/);
+  assert.match(script, /x \+ 12 \+ chip!\.offsetWidth \+ 16 > innerWidth/);
+  assert.doesNotMatch(script, /< 200|x \+ 15/);
   assert.match(globalCss, /\.pointer-dot-chip \{[^}]*display: none;/);
   assert.match(globalCss, /\.pointer-dot\.is-chip \.pointer-dot-chip \{ display: block; \}/);
-  // the chip sits 8px clear of the 14px ring's edge, on either side.
-  assert.match(globalCss, /\.pointer-dot-chip \{ position: absolute; top: 0; left: 15px;/);
-  assert.match(globalCss, /\.pointer-dot\.is-left \.pointer-dot-chip \{ right: 15px; left: auto; \}/);
-  // rest: a 14px solid --cord-ring dot centred on the tip, the knob's size. ring: the same 14px with a 1.5px --cord-ring
-  // border on --cord-pull, opened over 150ms --ease-out, 0.85 while the button is down.
+  // the chip sits 8px clear of the 8px shrunk dot's edge, on either side.
+  assert.match(globalCss, /\.pointer-dot-chip \{ position: absolute; top: 0; left: 12px;/);
+  assert.match(globalCss, /\.pointer-dot\.is-left \.pointer-dot-chip \{ right: 12px; left: auto; \}/);
+  // rest: a 14px solid --cord-ring dot centred on the tip, the knob's size. over a target it shrinks to an 8px solid
+  // --color-mark dot over 120ms --ease-out and grows back the same way; 0.85 while the button is down. no ring.
   assert.match(globalCss, /\.pointer-dot \{ position: fixed; z-index: 100; top: 0; left: 0; pointer-events: none;[^}]*\}/);
-  assert.match(globalCss, /\.pointer-dot-mark \{[^}]*box-sizing: border-box; width: 14px; height: 14px; border: 7px solid var\(--cord-ring\); border-radius: 50%; background: var\(--cord-ring\); translate: -50% -50%;[^}]*transition: width 150ms var\(--ease-out\), height 150ms var\(--ease-out\), border-width 150ms var\(--ease-out\), background-color 150ms var\(--ease-out\), scale 150ms var\(--ease-out\);/);
-  assert.match(globalCss, /\.pointer-dot\.is-ring \.pointer-dot-mark \{ border-width: 1\.5px; background: var\(--cord-pull\); \}/);
+  assert.match(globalCss, /\.pointer-dot-mark \{[^}]*width: 14px; height: 14px; border-radius: 50%; background: var\(--cord-ring\); translate: -50% -50%; box-shadow: 0 1px 4px rgb\(0 0 0 \/ 25%\);[^}]*transition: width 120ms var\(--ease-out\), height 120ms var\(--ease-out\), background-color 120ms var\(--ease-out\), scale 120ms var\(--ease-out\);/);
+  assert.match(globalCss, /\.pointer-dot\.is-target \.pointer-dot-mark \{ width: 8px; height: 8px; background: var\(--color-mark\); \}/);
+  assert.doesNotMatch(globalCss, /is-ring|border-width: 1\.5px; background: var\(--cord-pull\)/);
+  assert.match(script, /dot!\.classList\.toggle\("is-target", !!target\);/);
   assert.match(globalCss, /\.pointer-dot\.is-down \.pointer-dot-mark \{ scale: 0\.85; \}/);
   assert.match(globalCss, /\.theme-cord-knob \{[^}]*box-sizing: border-box; width: 14px; height: 14px; border: 1\.5px solid var\(--cord-ring\);[^}]*background: var\(--cord-pull\);/);
+  // text caret: over actual glyphs outside a target or field the mark is a 2 by 20px, 1px-radius --cord-ring bar on
+  // the tip, with no transition. glyphs come from caretPositionFromPoint, else Safari's caretRangeFromPoint, and count
+  // only when the caret's text node has non-whitespace text and one of its client rects holds the point. checked in
+  // the once-a-frame place().
+  assert.match(globalCss, /\.pointer-dot\.is-text \.pointer-dot-mark \{ width: 2px; height: 20px; border-radius: 1px; background: var\(--cord-ring\); transition: none; \}/);
+  assert.match(script, /document\.caretPositionFromPoint/);
+  assert.match(script, /document\.caretRangeFromPoint/);
+  assert.match(script, /\.data\.trim\(\)/);
+  assert.match(script, /getClientRects\(\)/);
+  assert.match(script, /x >= r\.left && x <= r\.right && y >= r\.top && y <= r\.bottom/);
+  assert.match(script, /function place\(\): void \{[\s\S]*?dot!\.classList\.toggle\("is-text", !target && onGlyph\(\)\);[\s\S]*?\n  \}/);
+  // the dot never takes the pointer, so text selection still works under it.
+  assert.doesNotMatch(globalCss, /user-select: none/);
   // reduced motion: the dot still follows, the size changes are instant.
   assert.match(globalCss, /@media \(prefers-reduced-motion: reduce\) \{\s*\.pointer-dot, \.pointer-dot \* \{ transition: none !important; \}/);
   assert.ok(gzipSync(script).length < 3072, "the cursor script stays under 3 KB gzipped, even unminified");
@@ -185,6 +200,21 @@ test("the home cover gradient registers its animated properties", () => {
     assert.match(globalCss, new RegExp(`@property ${name} \\{`));
   }
   assert.match(globalCss, /@supports \(background: linear-gradient\(in oklab/);
+});
+
+test("the site chrome marks the current place in blue, the annotations stay orange", () => {
+  // --color-mark: #236da9 in light (5.2:1 on --canvas), the dark --accent #8abde7 in both dark blocks (8.9:1).
+  assert.equal((globalCss.match(/--color-mark:/g) ?? []).length, 3);
+  assert.match(globalCss, /--color-mark: #236da9;/);
+  assert.equal((globalCss.match(/--color-mark: #8abde7;/g) ?? []).length, 2);
+  // its three uses: the current rail item (home, About and the case study chapter rail), ABOUT ME and the current
+  // chapter counter.
+  const aboutPage = readFileSync(join(projectRoot, "src", "pages", "about.astro"), "utf8");
+  const chapters = readFileSync(join(projectRoot, "src", "components", "AboutChapters.astro"), "utf8");
+  assert.match(globalCss, /\.rail-link\[aria-current\] \{\n  color: var\(--color-mark\);\n\}/);
+  assert.match(aboutPage, /\.about-eyebrow \{[^}]*color: var\(--color-mark\);/);
+  assert.match(chapters, /\.about-chapter\[data-current\] \.chapter-counter \{\s*color: var\(--color-mark\);/);
+  assert.doesNotMatch(aboutPage + chapters, /--color-annotate/);
 });
 
 test("one annotation colour is defined for light and both dark theme paths", () => {
@@ -250,7 +280,7 @@ test("the primary rail is fixed at the left edge, squares the current page and t
   assert.match(globalCss, /\.rail \{\n[^}]*flex-direction: column;\n  gap: 14px;/);
   assert.match(globalCss, /\.rail-link \{\n[^}]*gap: 6px;\n  color: var\(--muted\);/);
   assert.match(globalCss, /\.rail-link::before \{\n[^}]*width: 4px;\n  height: 4px;/);
-  assert.match(globalCss, /\.rail-link\[aria-current\] \{\n  color: var\(--color-annotate\);\n\}/);
+  assert.match(globalCss, /\.rail-link\[aria-current\] \{\n  color: var\(--color-mark\);\n\}/);
   assert.match(globalCss, /\.rail-link\[aria-current\]::before \{\n  background: currentColor;\n\}/);
   assert.match(globalCss, /\.site-nav\.is-case \{\n  display: none;\n\}/);
   // dims by colour, never opacity.
