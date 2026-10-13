@@ -2,7 +2,11 @@
 // the About photos as four chapters (about v3, figma 255:1842 and 256:1910) that unlock as they scroll in (note 267:1842).
 // chapter 01 ships unlocked; site.ts locks the rest only when motion is allowed, so without scripts, and under
 // reduced motion, every chapter shows. each photo keeps its gallery alt, shown by the annotated cursor on hover and
-// by a caption chip on keyboard focus.
+// by a caption chip on keyboard focus. each photo keeps its jpeg as the src and offers the webp copies
+// scripts/build-about-images.mjs writes, sized to its width in the layout; chapter 01 sits below the fold, so every
+// photo loads lazily.
+import aboutSizes from "@/data/about-sizes.json";
+
 interface GalleryItem {
   src: string;
   alt: string;
@@ -35,6 +39,25 @@ const photo = (id: string) => {
   return item;
 };
 const pad = (n: number) => String(n).padStart(2, "0");
+
+const manifest: Record<string, number[]> = aboutSizes;
+/** the webp copies of a photo, widest last, each with its true width. */
+const srcset = (item: GalleryItem) => {
+  const name = item.src.split("/").pop()!.replace(/\.jpg$/, "");
+  const widths = manifest[name];
+  if (!widths) throw new Error(`${item.src} has no sized copies; run scripts/build-about-images.mjs`);
+  return widths.map((width) => `/images/about/sized/${name}-${width}.webp ${width}w`).join(", ");
+};
+// the photo column: 584px from 1068 up, else the about column less the 340px text column and the rail's 96px; at 980
+// and below, the whole about column inside its 20px margins.
+const desktopColumn = "min(584px, 100vw - 484px)";
+const phoneColumn = "100vw - 40px";
+/** a photo's rendered width as a share of the column, less the row's 12px gaps. */
+const share = (column: string, part: number, gaps: number) => (part === 1 && gaps === 0 ? column : `calc(${gaps ? `(${column} - ${gaps}px)` : `(${column})`} * ${part.toFixed(4)})`);
+const sizes = (part: number, gaps = 0) => {
+  const phone = share(phoneColumn, part, gaps);
+  return `(max-width: 980px) ${phone.startsWith("calc") ? phone : `calc(${phone})`}, ${share(desktopColumn, part, gaps)}`;
+};
 ---
 
 <section class="about-photos" data-about-gallery aria-labelledby="photos-title">
@@ -55,22 +78,26 @@ const pad = (n: number) => String(n).padStart(2, "0");
             </div>
             <div class="chapter-photos">
               <figure class="chapter-photo is-lead" data-cursor="photo" tabindex="0" data-cursor-label={lead.chip} style={`--i: ${order++}; width: ${(chapter.leadWidth ?? 1) * 100}%; aspect-ratio: ${cropWidth} / ${cropHeight}`}>
-                <img src={lead.src} alt={lead.alt} width={lead.width} height={lead.height} loading="lazy" decoding="async" />
+                <img src={lead.src} alt={lead.alt} width={lead.width} height={lead.height} loading="lazy" decoding="async" srcset={srcset(lead)} sizes={sizes(chapter.leadWidth ?? 1)} />
                 <figcaption aria-hidden="true">{lead.chip ?? lead.alt}</figcaption>
               </figure>
-              {chapter.rows.map((row) => (
+              {chapter.rows.map((row) => {
+                const ratio = (id: string) => photo(id).width / photo(id).height;
+                const total = row.reduce((sum, id) => sum + ratio(id), 0);
+                return (
                 <div class="chapter-row">
                   {row.map((id) => {
                     const item = photo(id);
                     return (
                       <figure class="chapter-photo" data-cursor="photo" tabindex="0" data-cursor-label={item.chip} style={`--i: ${order++}; flex-grow: ${(item.width / item.height).toFixed(4)}; aspect-ratio: ${item.width} / ${item.height}`}>
-                        <img src={item.src} alt={item.alt} width={item.width} height={item.height} loading="lazy" decoding="async" />
+                        <img src={item.src} alt={item.alt} width={item.width} height={item.height} loading="lazy" decoding="async" srcset={srcset(item)} sizes={sizes(ratio(id) / total, (row.length - 1) * 12)} />
                         <figcaption aria-hidden="true">{item.chip ?? item.alt}</figcaption>
                       </figure>
                     );
                   })}
                 </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </article>

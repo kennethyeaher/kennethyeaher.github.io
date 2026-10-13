@@ -191,3 +191,40 @@ test("about v3 follows figma 255:1842: header, experience, education, interests 
   const script = [...aboutHtml.matchAll(/<script type="module" src="([^"]+)"/g)].map((match) => readFileSync(join(projectRoot, "dist", match[1]), "utf8")).join("\n");
   assert.match(script, /chapters-ready/);
 });
+
+test("every About photo offers its sized webp copies with sizes that match its width in the chapter layout", () => {
+  const manifest = JSON.parse(readFileSync(join(projectRoot, "src", "data", "about-sizes.json"), "utf8"));
+  const gallery = new Map(aboutGallery.map((item) => [item.src.split("/").pop().replace(/\.jpg$/, ""), item]));
+  // the photo column is 584px from 1068 up, the about column less the 340px text column and the rail's 96px under
+  // that, and the full about column (20px margins) at 980 and below. a row shares the column, less its 12px gaps, by
+  // each photo's aspect ratio; a lead takes its share of the column.
+  const desktop = "min(584px, 100vw - 484px)";
+  const phone = "100vw - 40px";
+  const width = (column, share, gaps) => (share === 1 && gaps === 0 ? column : `calc(${gaps ? `(${column} - ${gaps}px)` : `(${column})`} * ${share.toFixed(4)})`);
+  const expected = aboutChapters.flatMap((chapter) => {
+    const lead = chapter.leadWidth ?? 1;
+    const rows = chapter.rows.flatMap((row) => {
+      const total = row.reduce((sum, id) => sum + gallery.get(id).width / gallery.get(id).height, 0);
+      return row.map((id) => [id, (gallery.get(id).width / gallery.get(id).height) / total, (row.length - 1) * 12]);
+    });
+    return [[chapter.lead, lead, 0], ...rows];
+  }).map(([id, share, gaps]) => {
+    const onPhone = width(phone, share, gaps);
+    return { id, sizes: `(max-width: 980px) ${onPhone.startsWith("calc") ? onPhone : `calc(${onPhone})`}, ${width(desktop, share, gaps)}` };
+  });
+  const images = [...aboutHtml.matchAll(/<img src="\/images\/about\/[^"]+"[^>]*>/g)].map(([tag]) => tag);
+  assert.equal(images.length, expected.length);
+  images.forEach((tag, index) => {
+    const { id, sizes } = expected[index];
+    const item = gallery.get(id);
+    const attr = (name) => tag.match(new RegExp(`\\s${name}="([^"]*)"`))?.[1];
+    // the jpeg stays the src for anything that skips srcset, with its size, alt, lazy loading and async decoding.
+    assert.equal(attr("src"), `/images/about/${id}.jpg`);
+    assert.equal(attr("width"), String(item.width));
+    assert.equal(attr("height"), String(item.height));
+    assert.equal(attr("loading"), "lazy", `${id} loads lazily; chapter 01 sits below the fold`);
+    assert.equal(attr("decoding"), "async");
+    assert.equal(attr("srcset"), manifest[id].map((w) => `/images/about/sized/${id}-${w}.webp ${w}w`).join(", "), `${id} srcset`);
+    assert.equal(attr("sizes"), sizes, `${id} sizes`);
+  });
+});

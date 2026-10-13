@@ -53,7 +53,22 @@ function jpegSize(pathname) {
   throw new Error(`${pathname} has no frame header`);
 }
 
-test("every About chapter photo is a gallery photo with alt text and its real pixel size", () => {
+/** a webp's pixel size, from a lossy VP8 frame, a lossless VP8L bitstream or an extended VP8X canvas. */
+function webpSize(pathname) {
+  const buffer = readFileSync(pathname);
+  assert.equal(buffer.subarray(0, 4).toString(), "RIFF");
+  assert.equal(buffer.subarray(8, 12).toString(), "WEBP");
+  const chunk = buffer.subarray(12, 16).toString();
+  if (chunk === "VP8 ") return { width: buffer.readUInt16LE(26) & 0x3fff, height: buffer.readUInt16LE(28) & 0x3fff };
+  if (chunk === "VP8L") {
+    const bits = buffer.readUInt32LE(21);
+    return { width: (bits & 0x3fff) + 1, height: ((bits >> 14) & 0x3fff) + 1 };
+  }
+  if (chunk === "VP8X") return { width: buffer.readUIntLE(24, 3) + 1, height: buffer.readUIntLE(27, 3) + 1 };
+  throw new Error(`${pathname} has an unexpected webp chunk ${chunk}`);
+}
+
+test("every About chapter photo is a gallery photo with alt text, its real pixel size and sized copies at their real widths", () => {
   const gallery = new Map(aboutGallery.map((item) => [item.src, item]));
   const ids = aboutChapters.flatMap((chapter) => [chapter.lead, ...chapter.rows.flat()]);
   assert.equal(new Set(ids).size, ids.length, "no photo repeats across chapters");
@@ -66,6 +81,25 @@ test("every About chapter photo is a gallery photo with alt text and its real pi
   for (const item of aboutGallery) {
     assert.deepEqual(jpegSize(publicFile(item.src)), { width: item.width, height: item.height }, `${item.src} size`);
   }
+
+  // scripts/build-about-images.mjs writes webp copies at 160, 320, 480, 640, 960 and 1280 below the jpeg's width plus
+  // one at that width, and the manifest the srcsets come from; each copy is as wide as its name and keeps the shape.
+  const manifest = JSON.parse(readFileSync(join(projectRoot, "src/data/about-sizes.json"), "utf8"));
+  const names = aboutGallery.map((item) => item.src.split("/").pop().replace(/\.jpg$/, ""));
+  assert.deepEqual(Object.keys(manifest), [...names].sort());
+  const expected = new Set();
+  for (const [index, item] of aboutGallery.entries()) {
+    const widths = [...[160, 320, 480, 640, 960, 1280].filter((width) => width < item.width), item.width];
+    assert.deepEqual(manifest[names[index]], widths, `${names[index]} widths`);
+    for (const width of widths) {
+      const file = `${names[index]}-${width}.webp`;
+      expected.add(file);
+      const size = webpSize(publicFile(`/images/about/sized/${file}`));
+      assert.equal(size.width, width, `${file} width`);
+      assert.ok(Math.abs(size.height - (width * item.height) / item.width) <= 1, `${file} keeps the photo's shape`);
+    }
+  }
+  assert.deepEqual(readdirSync(publicFile("/images/about/sized")).sort(), [...expected].sort(), "no stray sized copies");
 });
 
 test("the published resume matches the approved master PDF fingerprint", () => {
