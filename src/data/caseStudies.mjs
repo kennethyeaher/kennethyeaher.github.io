@@ -1134,13 +1134,15 @@ export const caseStudies = [
           figma: "119:71", ratio: "1116 / 680", base: "#f6c453", active: "2",
           field: { width: 1116, height: 680, sigma: 45, circles: [{ x: 220, y: 180, r: 260, colour: "#FFF4D6", alpha: 0.9 }, { x: 980, y: 600, r: 220, colour: "#FF9A3D", alpha: 0.9 }, { x: 570, y: 30, r: 150, colour: "#F5D77E", alpha: 0.9 }] },
           // the phone is drawn at 1.2x the figma size and runs off the stage's foot (phase 4 rule from 132:1838), so the
-          // pinned card text reads at 12px at 1440; the pins moved with it and sit on the same screen pixels.
-          visual: { src: "/images/work/terpcarehub/mobile-find-care.png", width: 780, height: 1688, alt: "Mobile find care screen", at: { x: 15.21, y: 4.4, w: 32.28 } },
+          // pinned card text reads at 12px at 1440; the pins moved with it and sit on the same screen pixels. the capture
+          // fits whole like the other find care phones, so at 390 the home indicator clears the tab labels.
+          visual: { src: "/images/work/terpcarehub/mobile-find-care.png", width: 780, height: 1688, alt: "Mobile find care screen", fit: "contain", bg: "#ffffff", at: { x: 15.21, y: 4.4, w: 32.28 } },
           // each pin's top left on the stage, as figma places it: the status badge, the cost field, the book button.
+          // re-measured for the fitted capture, so each pin stays on the same capture pixels it sat on under cover.
           pins: [
-            { n: "1", at: { x: 42.1, y: 41.2 }, title: "Live status on every card", body: "Open or closed status sits on each provider card, so hours never need a second page." },
-            { n: "2", at: { x: 40.7, y: 60 }, title: "Cost before the click", body: "Cost was the blocker that ended the search in the journey map, so availability, plan acceptance, and expected cost sit on the card itself." },
-            { n: "3", at: { x: 42.1, y: 68.1 }, title: "Sign in only to book", body: "Browsing, filtering and deciding stay open so an urgent decision never hits a login wall." },
+            { n: "1", at: { x: 41.9, y: 40.7 }, title: "Live status on every card", body: "Open or closed status sits on each provider card, so hours never need a second page." },
+            { n: "2", at: { x: 40.5, y: 59.1 }, title: "Cost before the click", body: "Cost was the blocker that ended the search in the journey map, so availability, plan acceptance, and expected cost sit on the card itself." },
+            { n: "3", at: { x: 41.9, y: 67.1 }, title: "Sign in only to book", body: "Browsing, filtering and deciding stay open so an urgent decision never hits a login wall." },
           ],
           notes: { x: 55.6, width: 400 },
           caption: { title: "Provider card, design decisions", body: "Hover or tab to a pin to open its note. The active pin and its note are linked by color and number, and both are announced to screen readers." },

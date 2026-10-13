@@ -13,7 +13,7 @@ interface Props {
   palette: string[];
   exhibit: {
     ratio: string; base: string; field: any; active: string;
-    visual: { src: string; width: number; height: number; alt: string; at: { x: number; y: number; w: number } };
+    visual: { src: string; width: number; height: number; alt: string; fit?: "contain"; bg?: string; at: { x: number; y: number; w: number } };
     pins: Pin[];
     notes: { x: number; width: number };
     caption: { title: string; body: string };
@@ -54,7 +54,7 @@ ${pins.map((pin) => `${live(pin.n)} [data-note="${pin.n}"]`).join(", ")}, ${idle
   <div class="pins-layout">
     <ExhibitStage palette={palette} size="wide" ratio={exhibit.ratio} field={exhibit.field} base={exhibit.base}>
       <div class="pins-phone" style={`--x: ${visual.at.x}%; --y: ${visual.at.y}%; --w: ${visual.at.w}%`}>
-        <DeviceFrame frame="iphone" src={visual.src} alt={visual.alt} width={visual.width} height={visual.height} srcset={srcset} sizes={sizes} />
+        <DeviceFrame frame="iphone" src={visual.src} alt={visual.alt} width={visual.width} height={visual.height} srcset={srcset} sizes={sizes} fit={visual.fit} bg={visual.bg} />
         {pins.map((pin) => {
           const at = onPhone(pin);
           return (

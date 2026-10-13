@@ -404,13 +404,15 @@ test("phones added in redesign 2 fit their screens whole, and the older phones k
       }
     }
   }
-  // find care is one phone-height capture everywhere; the pins phone (119:71) keeps cover so its pins stay on the same pixels.
+  // find care is one phone-height capture everywhere; the pins phone (119:71) fits it whole on white too, so its home
+  // indicator clears the tab labels at 390, with its pins re-measured onto the same capture pixels.
   const hub = getProjectBySlug("terpcarehub");
   const findCare = [hub.cover.exhibit, ...hub.exhibits.flatMap((exhibit) => [...phones(exhibit), ...(exhibit.pins ? [exhibit.pins.visual] : [])]), ...hub.sections.flatMap(({ media }) => media ?? [])]
     .filter(({ src }) => src.endsWith("mobile-find-care.png"));
   assert.equal(findCare.length, 6);
   for (const visual of findCare) assert.deepEqual([visual.width, visual.height], [780, 1688]);
-  assert.equal(hub.exhibits.find(({ pins }) => pins).pins.visual.fit, undefined);
+  const { pins } = hub.exhibits.find(({ pins }) => pins);
+  assert.deepEqual([pins.visual.fit, pins.visual.bg], ["contain", "#ffffff"]);
 });
 
 test("terpcare reads as a before and after: the 2024 header facts stay, the year, summary and metrics move", () => {
