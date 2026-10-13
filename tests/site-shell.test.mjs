@@ -31,16 +31,16 @@ test("the rendered shell provides theme choice and keeps accessible fallbacks", 
 
   assert.match(html, /class="skip-link"/);
   assert.doesNotMatch(html, /cursor-dot/);
-  // the one cursor: none sits on a data-cursor target while the note is on, for fine hovering pointers outside
-  // forced colours (figma 161:1721); nothing else in the stylesheet hides the native cursor.
+  // the one cursor: none covers the page while the dot is on, for fine hovering pointers outside forced colours;
+  // nothing else in the stylesheet hides the native cursor.
   assert.equal(globalCss.match(/cursor:\s*none/g).length, 1);
-  assert.match(globalCss, /@media \(hover: hover\) and \(pointer: fine\) and \(not \(forced-colors: active\)\) \{\s*html\.is-pointing \[data-cursor\], html\.is-pointing \[data-cursor\] \* \{ cursor: none; \}\s*\}/);
+  assert.match(globalCss, /@media \(hover: hover\) and \(pointer: fine\) and \(not \(forced-colors: active\)\) \{\s*html\.is-pointing, html\.is-pointing \* \{ cursor: none !important; \}\s*html\.is-pointing :is\(input, select, textarea, \[contenteditable\], \[contenteditable\] \*\) \{ cursor: auto !important; \}\s*\}/);
   // and the same holds for the built stylesheets, component styles included.
   const assetDir = join(projectRoot, "dist", "_astro");
   const builtCss = readdirSync(assetDir).filter((name) => name.endsWith(".css")).map((name) => readFileSync(join(assetDir, name), "utf8")).join("\n");
   assert.equal(builtCss.match(/cursor:\s*none/g).length, 1);
-  assert.match(builtCss, /@media ?\(hover: ?hover\) ?and ?\(pointer: ?fine\) ?and ?\(not ?\(forced-colors: ?active\)\) ?\{html\.is-pointing \[data-cursor\], ?html\.is-pointing \[data-cursor\] \* ?\{cursor: ?none\} ?\}/);
-  // the pin and loop toggle set cursor: pointer at two classes' worth, so the rule needs the html type to win the tie.
+  assert.match(builtCss, /@media ?\(hover: ?hover\) ?and ?\(pointer: ?fine\) ?and ?\(not ?\(forced-colors: ?active\)\) ?\{html\.is-pointing, ?html\.is-pointing \* ?\{cursor: ?none ?!important\} ?html\.is-pointing :is\(input, ?select, ?textarea, ?\[contenteditable\], ?\[contenteditable\] \*\) ?\{cursor: ?auto ?!important\} ?\}/);
+  // the pin and loop toggle set cursor: pointer at two classes' worth, which outranks html.is-pointing *, so the rule is !important.
   assert.match(builtCss, /\.pin\[data-astro-cid-\w+\]\{[^}]*cursor:pointer/);
   assert.match(builtCss, /\.loop-toggle\[data-astro-cid-\w+\]\{[^}]*cursor:pointer/);
   // v3 has no menu button; the links are always on screen.
@@ -78,68 +78,69 @@ test("the theme switch is the pull cord: a real button that hangs out of flow an
   assert.ok(reduced, "no swing under reduced motion");
 });
 
-test("the annotated cursor is one aria-hidden note over exactly five target types, for fine hovering pointers only", () => {
+test("the dot cursor is one aria-hidden dot on every page, the pointer for fine hovering mice only", () => {
   const pagesBuilt = ["index.html", "about/index.html", ...["terpcarehub", "ovara", "kairo-health", "usm-venture-benchmark", "college-park-capstone", "frontground", "terpcare", "sohive"].map((slug) => `work/${slug}/index.html`)];
   const kinds = new Set();
   for (const file of pagesBuilt) {
     const html = readFileSync(join(projectRoot, "dist", file), "utf8");
-    // the note is a single aria-hidden element, and the old cursor-dot class is gone.
-    assert.doesNotMatch(html, /cursor-dot/);
-    const notes = [...html.matchAll(/<div class="pointer-note" data-pointer-note aria-hidden="true">/g)];
-    assert.equal(notes.length, 1, `${file} has one note`);
+    // the dot is a single aria-hidden element; the annotated note, its leader and the old cursor-dot class are gone.
+    assert.doesNotMatch(html, /cursor-dot|pointer-note/);
+    const dots = [...html.matchAll(/<div class="pointer-dot" data-pointer-dot aria-hidden="true"><span class="pointer-dot-mark"><\/span><span class="pointer-dot-chip"><\/span><\/div>/g)];
+    assert.equal(dots.length, 1, `${file} has one dot`);
     for (const [tag] of html.matchAll(/<[a-z]+\b[^>]*\bdata-cursor="[^"]*"[^>]*>/g)) {
       const kind = tag.match(/data-cursor="([^"]*)"/)[1];
       kinds.add(kind);
-      // each kind sits only on its own kind of target.
+      // the data-cursor attributes still mark the targets, each on its own kind of element.
       if (kind === "card") assert.match(tag, /^<a class="project-card"/, file);
       else if (kind === "cord") assert.match(tag, /^<button class="theme-cord"/, file);
       else if (kind === "loop") assert.match(tag, /^<span class="media-tag has-control"/, file);
-      // an About photo's chip is its alt text (note 267:1842).
       else if (kind === "photo") assert.match(tag, /^<figure class="chapter-photo[^"]*" data-cursor="photo" tabindex="0"/, file);
-      else if (kind === "pin") {
-        assert.match(tag, /^<(button type="button" class="pin"|a class="annotation-badge")/, file);
-        // a pin's chip repeats its number and the title of the note it is described by, so that note must exist.
-        const note = tag.match(/aria-describedby="([^"]+)"/)[1];
-        assert.match(html, new RegExp(`id="${note}"[^>]*>[\\s\\S]*?class="note-title"`), `${file} ${note}`);
-      } else assert.fail(`${file} carries an unknown data-cursor "${kind}"`);
+      else if (kind === "pin") assert.match(tag, /^<(button type="button" class="pin"|a class="annotation-badge")/, file);
+      else assert.fail(`${file} carries an unknown data-cursor "${kind}"`);
     }
   }
   assert.deepEqual([...kinds].sort(), ["card", "cord", "loop", "photo", "pin"]);
 
-  const script = readFileSync(join(projectRoot, "src", "scripts", "pointer-note.ts"), "utf8");
-  // the script exits before doing anything on coarse or non hovering pointers, and css hides the note there too.
-  assert.match(script, /if \(!note \|\| !chip \|\| !window\.matchMedia\("\(hover: hover\) and \(pointer: fine\)"\)\.matches\) return;/);
-  assert.match(globalCss, /@media not \(\(hover: hover\) and \(pointer: fine\)\) \{\s*\.pointer-note \{ display: none; \}/);
-  // under forced colours the native pointer is the only one: the script exits and the note is hidden.
+  assert.ok(!existsSync(join(projectRoot, "src", "scripts", "pointer-note.ts")), "the note script is renamed");
+  const script = readFileSync(join(projectRoot, "src", "scripts", "pointer-dot.ts"), "utf8");
+  // fine hovering pointers only: the script exits first, css hides the dot elsewhere, and the native cursor hides only
+  // inside the fine-hover, no-forced-colours query and only while the script has the dot on.
+  assert.match(script, /if \(!dot \|\| !chip \|\| !window\.matchMedia\("\(hover: hover\) and \(pointer: fine\)"\)\.matches\) return;/);
+  assert.match(globalCss, /@media not \(\(hover: hover\) and \(pointer: fine\)\) \{\s*\.pointer-dot \{ display: none; \}/);
+  assert.match(globalCss, /@media \(hover: hover\) and \(pointer: fine\) and \(not \(forced-colors: active\)\) \{\s*html\.is-pointing, html\.is-pointing \* \{ cursor: none !important; \}\s*html\.is-pointing :is\(input, select, textarea, \[contenteditable\], \[contenteditable\] \*\) \{ cursor: auto !important; \}/);
+  assert.equal(globalCss.match(/cursor: none/g).length, 1, "the native cursor hides in one place");
+  // under forced colours the native pointer is the only one.
   assert.match(script, /if \(window\.matchMedia\("\(forced-colors: active\)"\)\.matches\) return;/);
-  assert.match(globalCss, /@media \(forced-colors: active\) \{\s*\.pointer-note \{ display: none; \}/);
-  // the arrow hides only while the note is on: is-pointing is toggled beside is-on, and removed first on the way out.
-  assert.match(script, /note!\.classList\.add\("is-on"\);\s*root\.classList\.add\("is-pointing"\);/);
-  assert.match(script, /root\.classList\.remove\("is-pointing"\);\s*note!\.classList\.remove\("is-on"\);/);
-  assert.equal(script.match(/is-pointing/g).length, 2);
-  // the dot is the pointer: 10px with a canvas ring, centred on the tip by css, placed once a frame with no easing,
-  // no 12px and 16px offsets and no up flip.
-  assert.match(globalCss, /\.pointer-note-dot \{[^}]*width: 10px; height: 10px;[^}]*box-shadow: 0 0 0 2px var\(--canvas\);/);
-  assert.match(globalCss, /\.pointer-note \{[^}]*transform: translate\(-5px, -50%\);/);
-  assert.match(globalCss, /\.pointer-note\.is-left \{ flex-direction: row-reverse; transform: translate\(calc\(5px - 100%\), -50%\); \}/);
-  assert.match(script, /innerWidth - x < 160/);
-  assert.doesNotMatch(script, /0\.22|innerHeight|offsetWidth|offsetHeight|x [+-] 12|y [+-] 16/);
-  assert.match(script, /if \(target && !frame\) frame = requestAnimationFrame\(place\);/);
-  // the dot never appears at a stale spot: on entry the note is placed before it shows.
-  assert.match(script, /place\(\);\s*note!\.classList\.add\("is-on"\);/);
-  // the note also leaves on blur and when the tab hides, so the arrow is back when the visitor returns.
+  assert.match(globalCss, /@media \(forced-colors: active\) \{\s*\.pointer-dot \{ display: none; \}/);
+  // the arrow hides only while the dot is on, and comes back first on the way out.
+  assert.match(script, /dot!?\.classList\.add\("is-on"\);\s*root\.classList\.add\("is-pointing"\);/);
+  assert.match(script, /root\.classList\.remove\("is-pointing"\);\s*dot!\.classList\.remove\("is-on", "is-down"\);/);
+  // the dot hides for touch and pen, over fields, on blur, on a hidden tab and when the pointer leaves the window.
+  assert.match(script, /event\.pointerType !== "mouse"\) return hide\(\);/);
+  assert.match(script, /closest\("input, select, textarea, \[contenteditable\]"\)/);
   assert.match(script, /addEventListener\("blur", hide\)/);
   assert.match(script, /"visibilitychange", \(\) => \{ if \(document\.hidden\) hide\(\); \}/);
-  // labels: the card action from figma 129:1722, the loop's own action word, the pin's number and note title, and
-  // the cord's theme action, which the user set apart from its "Dark theme" name.
-  assert.match(script, /if \(kind === "card"\) return "View case study";/);
-  assert.match(script, /\? "Pull for light" : "Pull for dark"/);
-  assert.match(script, /`\$\{toggle\.querySelector\("\[data-loop-action\]"\)\?\.textContent\} loop`/);
-  assert.match(script, /`\$\{number\} · \$\{title\}`/);
-  // pointer events only: keyboard focus never shows it.
-  assert.doesNotMatch(script, /focusin|"focus"/);
+  assert.match(script, /root\.addEventListener\("pointerleave", hide\)/);
+  // the ring marks anything interactive; placed once a frame with no easing.
+  assert.match(script, /"a, button, summary, label\[for\], \[data-cursor\]"/);
+  assert.match(script, /if \(!frame\) frame = requestAnimationFrame\(place\);/);
+  assert.match(script, /dot!\.style\.translate = `\$\{x\}px \$\{y\}px`;/);
+  assert.doesNotMatch(script, /0\.22|lerp|focusin|"focus"/);
+  // the chip is only an About photo's alt text (note 267:1842): no card, cord, loop or pin labels.
+  assert.match(script, /dataset\.cursor === "photo" \? [^;]*querySelector\("img"\)\?\.alt/);
+  assert.doesNotMatch(script, /View case study|Pull for|note-title| loop`/);
+  assert.match(globalCss, /\.pointer-dot-chip \{[^}]*display: none;/);
+  assert.match(globalCss, /\.pointer-dot\.is-photo \.pointer-dot-chip \{ display: block; \}/);
+  // rest: a 6px solid --cord-ring dot centred on the tip. ring: the cord's knob, 14px border-box with a 1.5px
+  // --cord-ring border on --cord-pull, grown over 150ms --ease-out, 0.85 while the button is down.
+  assert.match(globalCss, /\.pointer-dot \{ position: fixed; z-index: 100; top: 0; left: 0; pointer-events: none;[^}]*\}/);
+  assert.match(globalCss, /\.pointer-dot-mark \{[^}]*box-sizing: border-box; width: 6px; height: 6px; border: 3px solid var\(--cord-ring\); border-radius: 50%; background: var\(--cord-ring\); translate: -50% -50%;[^}]*transition: width 150ms var\(--ease-out\), height 150ms var\(--ease-out\), border-width 150ms var\(--ease-out\), background-color 150ms var\(--ease-out\), scale 150ms var\(--ease-out\);/);
+  assert.match(globalCss, /\.pointer-dot\.is-ring \.pointer-dot-mark \{ width: 14px; height: 14px; border-width: 1\.5px; background: var\(--cord-pull\); \}/);
+  assert.match(globalCss, /\.pointer-dot\.is-down \.pointer-dot-mark \{ scale: 0\.85; \}/);
+  assert.match(globalCss, /\.theme-cord-knob \{[^}]*box-sizing: border-box; width: 14px; height: 14px; border: 1\.5px solid var\(--cord-ring\);[^}]*background: var\(--cord-pull\);/);
+  // reduced motion: the dot still follows, the size changes are instant.
+  assert.match(globalCss, /@media \(prefers-reduced-motion: reduce\) \{\s*\.pointer-dot, \.pointer-dot \* \{ transition: none !important; \}/);
   assert.ok(gzipSync(script).length < 3072, "the cursor script stays under 3 KB gzipped, even unminified");
-  assert.match(globalCss, /@media \(prefers-reduced-motion: reduce\) \{\s*\.pointer-note, \.pointer-note \* \{ transition: none !important; \}/);
 });
 
 test("the interaction system uses blue rather than the previous orange accent", () => {
@@ -352,7 +353,7 @@ test("the pin zoom keeps its budget, its reduced-motion rule, its notes active s
   const zoomBuilt = bundle.slice(start, end);
   // the block is the zoom module and nothing else: it ends on the outside-click exit and holds no other module's hooks.
   assert.match(zoomBuilt, /document\.addEventListener\(`click`,[^}]*contains\([^)]*\)[^}]*\}\)\}$/);
-  assert.doesNotMatch(zoomBuilt, /data-pointer-note|data-nav-toggle|data-walk-step/);
+  assert.doesNotMatch(zoomBuilt, /data-pointer-dot|data-nav-toggle|data-walk-step/);
   assert.ok(gzipSync(zoomBuilt).length < 3072, `the zoom script stays under 3 KB minified and gzipped (${gzipSync(zoomBuilt).length})`);
   // the framing rule in one exported function: 24 or 16 of padding, the bar's measured room (48 for one line), 1.5 to 4, centred, inside the stage.
   assert.match(script, /export function frame\(/);
@@ -393,8 +394,9 @@ test("the pin zoom keeps its budget, its reduced-motion rule, its notes active s
   assert.match(globalCss, /\.zoom-title \{ display: -webkit-box; overflow: hidden; margin-block: 7px; font: 500 11px \/ 14px var\(--mono\); -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; \}/);
   assert.match(globalCss, /\.zoom-bar button::before \{ position: absolute; inset: -8px -6px; content: ""; \}/);
   assert.match(globalCss, /\.zoom-bar button\[aria-disabled="true"\] \{ color: var\(--muted\); cursor: default; \}/);
-  // the annotated cursor's chip stays off over a zoomed stage; the zoom never follows hover or scroll.
-  assert.match(readFileSync(join(projectRoot, "src", "scripts", "pointer-note.ts"), "utf8"), /\.is-zoomed"\)\) return hide\(\);/);
+  // the dot cursor's chip is only an About photo's alt text, so a zoomed stage never shows one; the zoom never follows
+  // hover or scroll.
+  assert.match(readFileSync(join(projectRoot, "src", "scripts", "pointer-dot.ts"), "utf8"), /dataset\.cursor === "photo" \?/);
   assert.doesNotMatch(script, /mouseover|mouseenter|pointerover|"scroll"|overflow/);
   // exits and focus: escape, close, a click outside, the stage leaving the viewport; focus back to the opener without scrolling.
   assert.match(script, /event\.key === "Escape"\) exit\(true\)/);

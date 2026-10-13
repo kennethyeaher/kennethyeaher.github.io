@@ -1,5 +1,5 @@
 import { initializeTheme, initializeCoverGradients, initializeExhibitLoops, initializeAnnotationFallback, initializeMetricCounters, initializeCoverDepth, initializeReadingProgress, initializeMediaControls, initializeScrollers, initializeWalkthroughs } from "./exhibits";
-import { initializePointerNote } from "./pointer-note";
+import { initializePointerDot } from "./pointer-dot";
 import { initializePinZoom } from "./pin-zoom";
 import { initializeAboutChapters } from "./about-chapters";
 
@@ -17,7 +17,7 @@ function initializeSite(): void {
   initializeMetricCounters();
   initializeWalkthroughs();
   initializeScrollers();
-  initializePointerNote();
+  initializePointerDot();
   initializePinZoom();
   initializeAboutChapters();
 

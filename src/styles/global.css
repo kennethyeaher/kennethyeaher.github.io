@@ -645,36 +645,35 @@ html:not(.nav-ready) .theme-cord { display: none; }
   [style*="view-transition-name"] { view-transition-name: none !important; }
   .reveal-ready [data-reveal] { opacity: 1; transform: none; }
 }
-/* annotated cursor, figma 161:1721: over the four data-cursor targets the native arrow hides and the note is the
-   pointer. a 10px annotate dot with a 2px --canvas ring sits centred on the tip, a 14px leader and a chip in the mono
-   face hang off it on the dot's centre line, flipped left within 160px of the right edge. the script writes only the
-   note's translate (the tip); the static transform below moves the dot's centre onto it. the chip is --ink-strong with
-   --canvas text, so it flips with the theme. entering, the leader draws in 120ms and the chip reveals in 160ms; leaving,
-   the arrow returns at once and the note fades out in 100ms. reduced motion: all instant. forced colours: no note. */
-.pointer-note { position: fixed; z-index: 100; top: 0; left: 0; display: flex; align-items: center; transform: translate(-5px, -50%); opacity: 0; pointer-events: none; transition: opacity 100ms; }
-.pointer-note.is-left { flex-direction: row-reverse; transform: translate(calc(5px - 100%), -50%); }
-.pointer-note.is-on { opacity: 1; transition: none; }
-.pointer-note-dot { flex: none; width: 10px; height: 10px; border-radius: 50%; background: var(--color-annotate); box-shadow: 0 0 0 2px var(--canvas); }
-.pointer-note-leader { flex: none; width: 14px; height: 1px; background: var(--color-annotate); transform-origin: left; scale: 0 1; transition: scale 0s 100ms; }
-.pointer-note.is-left .pointer-note-leader { transform-origin: right; }
-.pointer-note-chip { padding: 5px 10px; border-radius: 999px; background: var(--ink-strong); color: var(--canvas); font: 500 11px / normal var(--mono); white-space: nowrap; clip-path: inset(0 100% 0 0 round 999px); transition: clip-path 0s 100ms; }
-.pointer-note.is-left .pointer-note-chip { clip-path: inset(0 0 0 100% round 999px); }
-.pointer-note.is-on .pointer-note-leader { scale: 1 1; transition: scale 120ms var(--ease-out); }
-.pointer-note.is-on .pointer-note-chip { clip-path: inset(0 round 999px); transition: clip-path 160ms var(--ease-out); }
+/* dot cursor: on fine hovering mice the native cursor hides on every page and the dot is the pointer. the script
+   writes only the dot's translate (the tip); the mark centres itself on it. at rest a 6px solid --cord-ring dot; over
+   anything interactive it grows into the theme cord's knob (14px, a 1.5px --cord-ring border on --cord-pull) in 150ms,
+   and presses to 0.85 while the button is down. the shadow is the leader anchor's, so the dot reads on photos. an
+   About photo adds its alt text in a chip beside the ring (note 267:1842), flipped left near the right edge. reduced
+   motion: still follows, sizes instant. forced colours: no dot. */
+.pointer-dot { position: fixed; z-index: 100; top: 0; left: 0; pointer-events: none; opacity: 0; }
+.pointer-dot.is-on { opacity: 1; }
+.pointer-dot-mark { position: absolute; top: 0; left: 0; box-sizing: border-box; width: 6px; height: 6px; border: 3px solid var(--cord-ring); border-radius: 50%; background: var(--cord-ring); translate: -50% -50%; box-shadow: 0 1px 4px rgb(0 0 0 / 25%); transition: width 150ms var(--ease-out), height 150ms var(--ease-out), border-width 150ms var(--ease-out), background-color 150ms var(--ease-out), scale 150ms var(--ease-out); }
+.pointer-dot.is-ring .pointer-dot-mark { width: 14px; height: 14px; border-width: 1.5px; background: var(--cord-pull); }
+.pointer-dot.is-down .pointer-dot-mark { scale: 0.85; }
+.pointer-dot-chip { position: absolute; top: 0; left: 13px; display: none; padding: 5px 10px; border-radius: 999px; background: var(--ink-strong); color: var(--canvas); font: 500 11px / normal var(--mono); white-space: nowrap; translate: 0 -50%; }
+.pointer-dot.is-left .pointer-dot-chip { right: 13px; left: auto; }
+.pointer-dot.is-photo .pointer-dot-chip { display: block; }
 @media (prefers-reduced-motion: reduce) {
-  .pointer-note, .pointer-note * { transition: none !important; }
+  .pointer-dot, .pointer-dot * { transition: none !important; }
 }
 @media not ((hover: hover) and (pointer: fine)) {
-  .pointer-note { display: none; }
+  .pointer-dot { display: none; }
 }
 @media (forced-colors: active) {
-  .pointer-note { display: none; }
+  .pointer-dot { display: none; }
 }
-/* the one place the native cursor hides: a data-cursor target, and only while the note is on. it also covers the
-   cord's grab and grabbing, since the dot is the pointer there too. the html type is there for specificity: the pin
-   and the loop toggle set cursor: pointer at two classes' worth from component styles that load after this file. */
+/* the one place the native cursor hides, and only while the dot is on. !important beats the cursor rules set in
+   component styles (the cord's grab and grabbing among them), since the dot is the pointer there too. fields keep
+   their own cursor. */
 @media (hover: hover) and (pointer: fine) and (not (forced-colors: active)) {
-  html.is-pointing [data-cursor], html.is-pointing [data-cursor] * { cursor: none; }
+  html.is-pointing, html.is-pointing * { cursor: none !important; }
+  html.is-pointing :is(input, select, textarea, [contenteditable], [contenteditable] *) { cursor: auto !important; }
 }
 
 /* sideways scrolling cards (heatmap, journey, matrix, timeline, visit map) fade at the right edge while more
