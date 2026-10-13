@@ -48,11 +48,25 @@ const ogImage = new URL(image ?? "/images/portfolio-preview-2026.png", Astro.sit
       addEventListener("pagereveal", (event) => {
         document.querySelectorAll(".project-card").forEach((card) => nameCard(card, false));
         if (!event.viewTransition) return;
+        // a page to page transition fades through (global.css); same page ones keep the crossfade.
+        document.documentElement.classList.add("is-page-transition");
         const card = cardFor(window["navigation"]?.activation?.from?.url);
         nameCard(card, true);
         // finished rejects when the transition fails; the name is cleared either way, so the rejection is dropped.
         event.viewTransition.finished.finally(() => nameCard(card, false)).catch(() => {});
+        event.viewTransition.finished.finally(() => document.documentElement.classList.remove("is-page-transition")).catch(() => {});
       });
+      // the dot cursor carries over: src/scripts/pointer-dot.ts saves where it was as the last page went, and it is put
+      // back here before the first paint, so the native arrow never shows. fine hovering mice only, and only straight
+      // after a navigation, not when the tab comes back much later.
+      try {
+        const pointer = JSON.parse(sessionStorage.getItem("portfolio-pointer") ?? "null");
+        if (pointer && Date.now() - pointer.t < 10000 && matchMedia("(hover: hover) and (pointer: fine)").matches && !matchMedia("(forced-colors: active)").matches) {
+          document.documentElement.classList.add("is-pointing");
+          document.documentElement.style.setProperty("--pointer-x", `${pointer.x}px`);
+          document.documentElement.style.setProperty("--pointer-y", `${pointer.y}px`);
+        }
+      } catch {}
     </script>
     <!-- the home h1 (the lcp text) is fraunces, and the header name and links are geist, which has no metric matched fallback. -->
     <link rel="preload" href="/fonts/fraunces/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin />

@@ -6,6 +6,8 @@ export default defineConfig({
   // astro 7 defaults to 'jsx', which can drop the spaces between inline elements. true is the astro 5 behaviour
   // every page was checked against.
   compressHTML: true,
+  // every internal link fetches its page on hover, so a click finds it cached and the view transition starts at once.
+  prefetch: { prefetchAll: true, defaultStrategy: "hover" },
   vite: {
     build: {
       // vite 8 minifies css with lightningcss, and lightningcss 1.33.0 folds animation-timeline into the animation

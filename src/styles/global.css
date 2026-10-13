@@ -634,6 +634,26 @@ html:not(.nav-ready) .theme-cord { display: none; }
 @media (prefers-reduced-motion: no-preference) {
   @view-transition { navigation: auto; }
   ::view-transition-group(*) { animation-duration: 380ms; animation-timing-function: var(--ease-out); }
+  /* page to page fades through rather than crossfading, so two pages never show at once: the old page is gone by
+     140ms, then the new one fades in over 260ms with an 8px rise. the head script in Base.astro sets the class from
+     pagereveal, so same page transitions (the Explore size toggle) keep the crossfade. the card cover and title morphs
+     are named groups and run as before. */
+  html.is-page-transition::view-transition-old(root) { animation: 140ms var(--ease-out) both page-fade-out; }
+  html.is-page-transition::view-transition-new(root) { animation: 260ms var(--ease-out) 140ms both page-fade-in; }
+  @keyframes page-fade-out { to { opacity: 0; } }
+  @keyframes page-fade-in { from { opacity: 0; transform: translateY(8px); } }
+  /* the chrome stays still: the header, the rail and the cord are their own groups and swap at once, no fade and no
+     morph, so the breadcrumb and the name trade places without moving. the dot is kept out of the root too, and holds
+     its old look until the new page's dot (restored before first paint by the head script) takes over. its wrapper is
+     a 0 by 0 box whose snapshot comes out empty, so the mark and the chip carry the names. */
+  .site-header { view-transition-name: site-header; }
+  .site-nav { view-transition-name: site-nav; }
+  .theme-cord { view-transition-name: theme-cord; }
+  .pointer-dot-mark { view-transition-name: pointer-dot; }
+  .pointer-dot-chip { view-transition-name: pointer-chip; }
+  ::view-transition-group(site-header), ::view-transition-group(site-nav), ::view-transition-group(theme-cord), ::view-transition-group(pointer-dot), ::view-transition-group(pointer-chip) { animation: none; }
+  ::view-transition-old(site-header), ::view-transition-old(site-nav), ::view-transition-old(theme-cord), ::view-transition-new(pointer-dot), ::view-transition-new(pointer-chip) { display: none; }
+  ::view-transition-new(site-header), ::view-transition-new(site-nav), ::view-transition-new(theme-cord), ::view-transition-old(pointer-dot), ::view-transition-old(pointer-chip) { animation: none; }
   @supports ((animation-timeline: view()) and (animation-range: entry 0% entry 100%)) {
     [data-reveal]:not(.section-rule) { animation: enter-content linear both; animation-timeline: view(); animation-range: entry 0% entry 20%; }
     .reveal-ready [data-reveal] { opacity: 1; transform: none; }
@@ -654,9 +674,10 @@ html:not(.nav-ready) .theme-cord { display: none; }
    way (after rachelchen.tech), and presses to 0.85 while the button is down. over text glyphs outside a target it is a
    2 by 20px caret, switched with no transition. the shadow is the leader anchor's, so the dot reads on photos. an
    About photo, a card or the cord adds a chip 8px clear of the shrunk dot (note 267:1842), flipped left near the right
-   edge. reduced motion: still follows, sizes instant. forced colours: no dot. */
-.pointer-dot { position: fixed; z-index: 100; top: 0; left: 0; pointer-events: none; opacity: 0; }
-.pointer-dot.is-on { opacity: 1; }
+   edge. reduced motion: still follows, sizes instant. forced colours: no dot. a new page puts the dot back where the
+   last one left it before first paint: the head script sets html.is-pointing and the --pointer-x and y it saved. */
+.pointer-dot { position: fixed; z-index: 100; top: 0; left: 0; pointer-events: none; opacity: 0; translate: var(--pointer-x, 0px) var(--pointer-y, 0px); }
+.pointer-dot.is-on, html.is-pointing .pointer-dot { opacity: 1; }
 .pointer-dot-mark { position: absolute; top: 0; left: 0; width: 14px; height: 14px; border-radius: 50%; background: var(--cord-ring); translate: -50% -50%; box-shadow: 0 1px 4px rgb(0 0 0 / 25%); transition: width 120ms var(--ease-out), height 120ms var(--ease-out), background-color 120ms var(--ease-out), scale 120ms var(--ease-out); }
 .pointer-dot.is-target .pointer-dot-mark { width: 8px; height: 8px; background: var(--color-mark); }
 .pointer-dot.is-text .pointer-dot-mark { width: 2px; height: 20px; border-radius: 1px; background: var(--cord-ring); transition: none; }

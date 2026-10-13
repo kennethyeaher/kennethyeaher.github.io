@@ -93,4 +93,28 @@ export function initializePointerDot(): void {
   addEventListener("blur", hide);
   document.addEventListener("visibilitychange", () => { if (document.hidden) hide(); });
   root.addEventListener("pointerleave", hide);
+
+  /** the dot crosses pages: as this page goes, where the dot is, or that it is off, is saved for the next one's head
+   * script, which puts it back before the first paint. */
+  function save(): void {
+    try {
+      if (root.classList.contains("is-pointing")) sessionStorage.setItem("portfolio-pointer", JSON.stringify({ x, y, t: Date.now() }));
+      else sessionStorage.removeItem("portfolio-pointer");
+    } catch {}
+  }
+  addEventListener("pageswap", save);
+  addEventListener("pagehide", save);
+  // the head script restored it: pick up its spot and work out the target and chip there, then own the translate.
+  if (root.classList.contains("is-pointing")) {
+    x = parseFloat(root.style.getPropertyValue("--pointer-x")) || 0;
+    y = parseFloat(root.style.getPropertyValue("--pointer-y")) || 0;
+    root.style.removeProperty("--pointer-x");
+    root.style.removeProperty("--pointer-y");
+    over = document.elementFromPoint(x, y);
+    if (over?.closest("input, select, textarea, [contenteditable]")) hide();
+    else {
+      place();
+      dot.classList.add("is-on");
+    }
+  }
 }

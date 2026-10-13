@@ -460,3 +460,47 @@ test("the pin zoom keeps its budget, its reduced-motion rule, its notes active s
   assert.match(script, /opener\.focus\(\{ preventScroll: true \}\)/);
   assert.match(script, /document\.querySelectorAll<HTMLElement>\(matchMedia\("\(min-width: 761px\)"\)\.matches \? "\[data-pin-zoom\]:not\(\[data-pin-zoom-phone\]\)" : "\[data-pin-zoom\]"\)/);
 });
+
+test("page to page navigation fades through, keeps the chrome still, carries the dot and prefetches on hover", () => {
+  const motion = globalCss.match(/@media \(prefers-reduced-motion: no-preference\) \{\n  @view-transition \{ navigation: auto; \}[\s\S]*?\n\}/)?.[0];
+  assert.ok(motion, "the no-preference block opens with the view transition opt in");
+  // fade through, not crossfade: the old page is gone at 140ms before the new one starts, 260ms with an 8px rise.
+  // only a page to page transition (the class from pagereveal) fades through; same page ones keep the crossfade.
+  assert.match(motion, /html\.is-page-transition::view-transition-old\(root\) \{ animation: 140ms var\(--ease-out\) both page-fade-out; \}/);
+  assert.match(motion, /html\.is-page-transition::view-transition-new\(root\) \{ animation: 260ms var\(--ease-out\) 140ms both page-fade-in; \}/);
+  assert.match(motion, /@keyframes page-fade-out \{ to \{ opacity: 0; \} \}/);
+  assert.match(motion, /@keyframes page-fade-in \{ from \{ opacity: 0; transform: translateY\(8px\); \} \}/);
+  // the chrome swaps at once, no fade and no morph. the dot's wrapper is a 0 by 0 box whose snapshot comes out empty,
+  // so its mark and chip are the named parts, out of the root and holding their old look.
+  for (const [selector, name] of [["site-header", "site-header"], ["site-nav", "site-nav"], ["theme-cord", "theme-cord"], ["pointer-dot-mark", "pointer-dot"], ["pointer-dot-chip", "pointer-chip"]]) assert.match(motion, new RegExp(`\\.${selector} \\{ view-transition-name: ${name}; \\}`));
+  assert.match(motion, /::view-transition-group\(site-header\), ::view-transition-group\(site-nav\), ::view-transition-group\(theme-cord\), ::view-transition-group\(pointer-dot\), ::view-transition-group\(pointer-chip\) \{ animation: none; \}/);
+  assert.match(motion, /::view-transition-old\(site-header\), ::view-transition-old\(site-nav\), ::view-transition-old\(theme-cord\), ::view-transition-new\(pointer-dot\), ::view-transition-new\(pointer-chip\) \{ display: none; \}/);
+  assert.match(motion, /::view-transition-new\(site-header\), ::view-transition-new\(site-nav\), ::view-transition-new\(theme-cord\), ::view-transition-old\(pointer-dot\), ::view-transition-old\(pointer-chip\) \{ animation: none; \}/);
+  // reduced motion keeps its short root fade and gets no names.
+  assert.doesNotMatch(globalCss.replace(motion, ""), /view-transition-name: (site-header|site-nav|theme-cord|pointer-dot|pointer-chip)/);
+  assert.match(globalCss.replace(motion, ""), /::view-transition-group\(root\) \{ animation-duration: 120ms; \}/);
+  const assetDir = join(projectRoot, "dist", "_astro");
+  const builtCss = readdirSync(assetDir).filter((name) => name.endsWith(".css")).map((name) => readFileSync(join(assetDir, name), "utf8")).join("\n");
+  assert.match(builtCss, /@keyframes page-fade-in ?\{ ?(?:from|0%) ?\{ ?opacity: ?0; ?transform: ?translateY\(8px\) ?\} ?\}/);
+  assert.match(builtCss, /\.site-header ?\{ ?view-transition-name: ?site-header ?\}/);
+
+  // the head script marks a page to page transition and puts the dot back before the first paint, fine hovering mice only.
+  const home = readFileSync(join(projectRoot, "dist", "index.html"), "utf8");
+  const head = home.slice(0, home.indexOf("</head>"));
+  assert.match(head, /classList\.add\("is-page-transition"\)/);
+  assert.match(head, /classList\.remove\("is-page-transition"\)/);
+  assert.match(head, /sessionStorage\.getItem\("portfolio-pointer"\)/);
+  assert.match(head, /matchMedia\("\(hover: hover\) and \(pointer: fine\)"\)\.matches && !matchMedia\("\(forced-colors: active\)"\)\.matches/);
+  assert.match(head, /classList\.add\("is-pointing"\)/);
+  assert.match(head, /--pointer-x/);
+  assert.match(globalCss, /\.pointer-dot \{ position: fixed; z-index: 100; top: 0; left: 0; pointer-events: none; opacity: 0; translate: var\(--pointer-x, 0px\) var\(--pointer-y, 0px\); \}/);
+  assert.match(globalCss, /\.pointer-dot\.is-on, html\.is-pointing \.pointer-dot \{ opacity: 1; \}/);
+  const dotScript = readFileSync(join(projectRoot, "src", "scripts", "pointer-dot.ts"), "utf8");
+  assert.match(dotScript, /addEventListener\("pageswap", save\)/);
+  assert.match(dotScript, /addEventListener\("pagehide", save\)/);
+  assert.match(dotScript, /sessionStorage\.setItem\("portfolio-pointer"/);
+
+  // prefetch: every internal link on hover, so the next page is ready before the click.
+  const config = readFileSync(join(projectRoot, "astro.config.mjs"), "utf8");
+  assert.match(config, /prefetch: \{ prefetchAll: true, defaultStrategy: "hover" \}/);
+});
