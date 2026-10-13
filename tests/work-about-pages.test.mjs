@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import test, { before } from "node:test";
 import assert from "node:assert/strict";
-import { getFeaturedProjects } from "../src/data/portfolio.mjs";
+import { aboutChapters, aboutGallery, experience, getFeaturedProjects } from "../src/data/portfolio.mjs";
 
 const projectRoot = new URL("..", import.meta.url).pathname;
 let workHtml = "";
@@ -110,9 +110,80 @@ test("home v3 follows figma 176:1721 and 177:1723: Currently and Previously unde
 });
 
 test("the About page is HCI-focused and renders no fake photo placeholders", () => {
-  assert.match(aboutHtml, /Human-computer interaction is the thread connecting my work/);
-  assert.match(aboutHtml, /iPad-first electronic medical record/);
+  const text = visibleText(aboutHtml);
+  assert.match(text, /I’m a Master of Science in Human-Computer Interaction student at the University of Maryland, and I start projects by learning how people actually navigate a system before I decide what to build, measure, or recommend\./);
+  assert.match(text, /I was born in Monrovia, Liberia, where many clinics still run on paper\. That gap pulled me toward healthcare access, product research, and the decisions behind both\./);
   assert.match(aboutHtml, /USM Maryland Momentum Fund/);
   assert.match(aboutHtml, /data-about-gallery/);
   assert.doesNotMatch(aboutHtml, /placeholder/i);
+});
+
+test("about v3 follows figma 255:1842: header, experience, education, interests and four photo chapters", () => {
+  const text = visibleText(aboutHtml);
+  // no visible headline: an sr-only h1 carries the heading, under the "ABOUT ME" eyebrow.
+  assert.match(aboutHtml, /<h1 class="sr-only"[^>]*>About Kenneth Yeaher<\/h1>/);
+  assert.match(aboutHtml, /class="about-eyebrow"[^>]*>About me</);
+  assert.equal((aboutHtml.match(/<h1[\s>]/g) ?? []).length, 1);
+  assert.doesNotMatch(text, /Human-computer interaction is the thread connecting my work|iPad-first electronic medical record/);
+  assert.match(text, /Open to product, venture, data, and HCI opportunities where research can shape what gets built\./);
+  assert.doesNotMatch(aboutHtml, /—/, "no em dashes");
+
+  // practice areas, the long role list, credentials and the old grid are gone.
+  const headings = [...aboutHtml.matchAll(/<h2[^>]*>([^<]+)<\/h2>/g)].map(([, heading]) => heading.trim());
+  assert.deepEqual(headings, ["Experience", "Education", "Beyond the work", "Photos"]);
+  assert.doesNotMatch(text, /Practice areas|Credentials|Photo journal/);
+  assert.doesNotMatch(aboutHtml, /gallery-grid|role-bullets|cred-row/);
+
+  // six experience rows: year, company, role.
+  const rows = [...aboutHtml.matchAll(/<li class="experience-row"[^>]*>\s*<span[^>]*>([^<]+)<\/span>\s*<span[^>]*>([^<]+)<\/span>\s*<span[^>]*>([^<]+)<\/span>\s*<\/li>/g)].map((match) => match.slice(1).join(" | "));
+  assert.deepEqual(rows, experience.map((row) => `${row.year} | ${row.organization} | ${row.role}`));
+
+  // education: the MS is expected in 2028 with the new course order, the BS drops INST346, and no course notes.
+  assert.match(text, /Master of Science, Human-Computer Interaction University of Maryland · Expected May 2028/);
+  assert.match(text, /Bachelor of Science, Information Science University of Maryland · Graduated Dec 2024/);
+  const codes = [...aboutHtml.matchAll(/<span class="course-code"[^>]*>([^<]+)<\/span>/g)].map(([, code]) => code);
+  assert.deepEqual(codes, ["INST630", "INST631", "INST711", "INST737", "INST762", "INST610", "BMGT468R", "INST402", "INST408A", "INST362", "INST327", "INST314", "INST326"]);
+  assert.doesNotMatch(text, /INST346|Notable courses|End to end data science pipeline/);
+
+  // beyond the work: six interests, sports now travels for matches whenever it can.
+  assert.equal((aboutHtml.match(/class="interest"/g) ?? []).length, 6);
+  assert.match(text, /a massive Maryland Lacrosse fan\. I travel for matches whenever I can\./);
+
+  // four chapters, each with its counter, title, line and photos in order, every photo carrying its gallery alt.
+  const alts = new Map(aboutGallery.map((item) => [item.src, item.alt]));
+  const chapters = [...aboutHtml.matchAll(/<article class="about-chapter"([^>]*)>([\s\S]*?)<\/article>/g)];
+  assert.equal(chapters.length, 4);
+  assert.deepEqual(aboutChapters.map((chapter) => chapter.title), ["On the field", "In the room", "With my people", "On the road"]);
+  chapters.forEach(([, attributes, body], index) => {
+    const chapter = aboutChapters[index];
+    assert.match(body, new RegExp(`class="chapter-counter"[^>]*>0${index + 1} / 04<`));
+    assert.match(body, new RegExp(`<h3 class="chapter-title"[^>]*>${chapter.title}</h3>`));
+    assert.ok(visibleText(body).includes(chapter.line), `${chapter.title} line`);
+    const images = [...body.matchAll(/<img src="([^"]+)" alt="([^"]*)"/g)];
+    assert.deepEqual(images.map(([, src]) => src), [chapter.lead, ...chapter.rows.flat()].map((id) => `/images/about/${id}.jpg`));
+    for (const [, src, alt] of images) {
+      assert.ok(alts.get(src), `${src} has gallery alt text`);
+      assert.equal(alt.replaceAll("&#39;", "'"), alts.get(src));
+    }
+    // chapter 01 ships unlocked; the rest lock only once the script runs.
+    assert.equal(/\sdata-unlocked/.test(attributes), index === 0, `${chapter.title} unlocked state`);
+  });
+  assert.equal(aboutChapters[0].line, "You’ll either catch me on the lax field saving shots or on the football pitch doing my best Kanté impression.");
+  assert.equal(aboutChapters[3].line, "Old Trafford in Manchester, live music at The Dubliner, a night on the beach, and a window seat after dark.");
+
+  // locking lives only under no-preference motion, so reduced motion (and no script) shows every chapter.
+  const css = [...aboutHtml.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map((match) => readFileSync(join(projectRoot, "dist", match[1]), "utf8")).join("\n");
+  const locked = [...css.matchAll(/\.chapters-ready/g)].map((match) => match.index);
+  assert.ok(locked.length > 0, "chapter lock rules exist");
+  const motionBlocks = [...css.matchAll(/@media\s*\(prefers-reduced-motion:\s*no-preference\)\s*\{/g)].map((match) => {
+    let depth = 1;
+    let end = match.index + match[0].length;
+    while (depth > 0 && end < css.length) depth += css[end] === "{" ? 1 : css[end] === "}" ? -1 : 0, end += 1;
+    return [match.index, end];
+  });
+  for (const position of locked) {
+    assert.ok(motionBlocks.some(([start, end]) => position > start && position < end), `.chapters-ready rule at ${position} sits outside the no-preference block`);
+  }
+  const script = [...aboutHtml.matchAll(/<script type="module" src="([^"]+)"/g)].map((match) => readFileSync(join(projectRoot, "dist", match[1]), "utf8")).join("\n");
+  assert.match(script, /chapters-ready/);
 });

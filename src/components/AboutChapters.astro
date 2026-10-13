@@ -1,0 +1,271 @@
+---
+// the About photos as four chapters (about v3, figma 255:1842 and 256:1910) that unlock as they scroll in (note 267:1842).
+// chapter 01 ships unlocked; site.ts locks the rest only when motion is allowed, so without scripts, and under
+// reduced motion, every chapter shows. each photo keeps its gallery alt, shown by the annotated cursor on hover and
+// by a caption chip on keyboard focus.
+interface GalleryItem {
+  src: string;
+  alt: string;
+  width: number;
+  height: number;
+}
+
+interface Chapter {
+  title: string;
+  line: string;
+  lead: string;
+  rows: string[][];
+  leadWidth?: number;
+  leadCrop?: number[];
+}
+
+interface Props {
+  chapters: Chapter[];
+  gallery: GalleryItem[];
+}
+
+const { chapters, gallery } = Astro.props;
+
+/** look a photo up by file name; the data test guarantees every chapter photo is in the gallery. */
+const photo = (id: string) => {
+  const item = gallery.find((entry) => entry.src === `/images/about/${id}.jpg`);
+  if (!item) throw new Error(`${id} is not in aboutGallery`);
+  return item;
+};
+const pad = (n: number) => String(n).padStart(2, "0");
+---
+
+<section class="about-photos" data-about-gallery aria-labelledby="photos-title">
+  <h2 id="photos-title" class="about-label">Photos</h2>
+  {
+    chapters.map((chapter, index) => {
+      const lead = photo(chapter.lead);
+      const [cropWidth, cropHeight] = chapter.leadCrop ?? [lead.width, lead.height];
+      let order = 0;
+      return (
+        <article class="about-chapter" data-chapter data-unlocked={index === 0 ? "" : undefined} data-current={index === 0 ? "" : undefined} style={`--count: ${chapter.rows.flat().length + 1}`}>
+          {index > 0 && <span class="chapter-rule" aria-hidden="true" />}
+          <div class="chapter-grid">
+            <div class="chapter-text">
+              <p class="chapter-counter">{pad(index + 1)} / {pad(chapters.length)}</p>
+              <h3 class="chapter-title">{chapter.title}</h3>
+              <p class="chapter-line">{chapter.line}</p>
+            </div>
+            <div class="chapter-photos">
+              <figure class="chapter-photo is-lead" data-cursor="photo" tabindex="0" style={`--i: ${order++}; width: ${(chapter.leadWidth ?? 1) * 100}%; aspect-ratio: ${cropWidth} / ${cropHeight}`}>
+                <img src={lead.src} alt={lead.alt} width={lead.width} height={lead.height} loading="lazy" decoding="async" />
+                <figcaption aria-hidden="true">{lead.alt}</figcaption>
+              </figure>
+              {chapter.rows.map((row) => (
+                <div class="chapter-row">
+                  {row.map((id) => {
+                    const item = photo(id);
+                    return (
+                      <figure class="chapter-photo" data-cursor="photo" tabindex="0" style={`--i: ${order++}; flex-grow: ${(item.width / item.height).toFixed(4)}; aspect-ratio: ${item.width} / ${item.height}`}>
+                        <img src={item.src} alt={item.alt} width={item.width} height={item.height} loading="lazy" decoding="async" />
+                        <figcaption aria-hidden="true">{item.alt}</figcaption>
+                      </figure>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
+          </div>
+        </article>
+      );
+    })
+  }
+</section>
+
+<style>
+  /* the label 48px over chapter 01; later chapters open on a rule 56px under the last photo row, with the counter and
+     the lead photo 28px under the rule. the text column is 340px (copy 280 wide), the photos 584 at 1440. */
+  .about-photos > .about-label {
+    margin-bottom: 48px;
+  }
+
+  .about-chapter + .about-chapter {
+    margin-top: 56px;
+  }
+
+  .chapter-rule {
+    position: relative;
+    display: block;
+    height: 1px;
+    margin-bottom: 27px;
+  }
+
+  .chapter-rule::after {
+    position: absolute;
+    inset: 0;
+    content: "";
+    background: var(--rule);
+    transform-origin: left;
+  }
+
+  .chapter-grid {
+    display: grid;
+    align-items: start;
+    grid-template-columns: 340px minmax(0, 1fr);
+  }
+
+  .chapter-text {
+    position: sticky;
+    top: 120px;
+    max-width: 300px;
+  }
+
+  .chapter-counter {
+    margin: 0;
+    color: var(--muted);
+    font: 11px / 15px var(--mono);
+  }
+
+  .about-chapter[data-current] .chapter-counter {
+    color: var(--color-annotate);
+  }
+
+  .chapter-title {
+    margin: 9px 0 0;
+    color: var(--ink-strong);
+    font-family: var(--display);
+    font-size: 32px;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    line-height: 38px;
+  }
+
+  .chapter-line {
+    max-width: 280px;
+    margin: 14px 0 0;
+    color: var(--muted);
+    font: 14px / 21px var(--ui-sans);
+  }
+
+  .chapter-photos {
+    display: grid;
+    gap: 12px;
+  }
+
+  /* every photo in a row shares one height: each grows by its own aspect ratio from a zero basis. */
+  .chapter-row {
+    display: flex;
+    gap: 12px;
+  }
+
+  .chapter-photo {
+    position: relative;
+    min-width: 0;
+    margin: 0;
+    overflow: hidden;
+    background: var(--surface-sunken);
+  }
+
+  .chapter-row .chapter-photo {
+    flex-basis: 0;
+    flex-shrink: 1;
+  }
+
+  .chapter-photo img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .chapter-photo:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  /* the keyboard twin of the annotated cursor: the alt text in the cursor's chip, inside the photo's lower left. */
+  .chapter-photo figcaption {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    max-width: calc(100% - 20px);
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: var(--ink-strong);
+    color: var(--canvas);
+    font: 500 11px / normal var(--mono);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .chapter-photo:focus-visible figcaption {
+    opacity: 1;
+  }
+
+  /* the unlock (note 267:1842). site.ts adds .chapters-ready only when motion is allowed, so every rule that hides
+     anything sits in this block: without scripts, or under reduced motion, every chapter is open. a locked chapter
+     keeps its rule and counter, and its title ghosts at 25% by colour; on unlock the rule draws in 500ms, the title
+     rises 12px to full ink 80ms later, the lead unmasks bottom up as it settles from 108%, each smaller photo 90ms
+     after the one before, and the line fades in last. */
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.chapters-ready) .chapter-rule {
+      background: color-mix(in srgb, var(--rule) 25%, var(--canvas));
+    }
+
+    :global(.chapters-ready) .chapter-rule::after {
+      transition: scale 500ms var(--ease-out);
+    }
+
+    :global(.chapters-ready) .chapter-counter {
+      transition: color 500ms var(--ease-out) 80ms;
+    }
+
+    :global(.chapters-ready) .chapter-title {
+      transition:
+        color 500ms var(--ease-out) 80ms,
+        translate 500ms var(--ease-out) 80ms;
+    }
+
+    /* an explicit end inset, since clip-path cannot interpolate from an inset to none. */
+    :global(.chapters-ready) .chapter-photo {
+      clip-path: inset(0 0 0 0);
+      transition: clip-path 900ms cubic-bezier(0.2, 0.8, 0.2, 1) calc(160ms + var(--i) * 90ms);
+    }
+
+    :global(.chapters-ready) .chapter-photo img {
+      transition: scale 900ms cubic-bezier(0.2, 0.8, 0.2, 1) calc(160ms + var(--i) * 90ms);
+    }
+
+    :global(.chapters-ready) .chapter-line {
+      transition: opacity 500ms var(--ease-out) calc(400ms + var(--count) * 90ms);
+    }
+
+    :global(.chapters-ready) .about-chapter:not([data-unlocked]) .chapter-rule::after {
+      scale: 0 1;
+    }
+
+    :global(.chapters-ready) .about-chapter:not([data-unlocked]) .chapter-title {
+      color: color-mix(in srgb, var(--ink-strong) 25%, var(--canvas));
+      translate: 0 12px;
+    }
+
+    :global(.chapters-ready) .about-chapter:not([data-unlocked]) .chapter-photo {
+      clip-path: inset(100% 0 0 0);
+    }
+
+    :global(.chapters-ready) .about-chapter:not([data-unlocked]) .chapter-photo img {
+      scale: 1.08;
+    }
+
+    :global(.chapters-ready) .about-chapter:not([data-unlocked]) .chapter-line {
+      opacity: 0;
+    }
+  }
+
+  /* phones: text over photos, the same unlock, no sticky column. */
+  @media (max-width: 980px) {
+    .chapter-grid {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 20px;
+    }
+
+    .chapter-text {
+      position: static;
+    }
+  }
+</style>

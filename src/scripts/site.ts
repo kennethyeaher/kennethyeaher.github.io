@@ -1,6 +1,7 @@
 import { initializeTheme, initializeCoverGradients, initializeExhibitLoops, initializeAnnotationFallback, initializeMetricCounters, initializeCoverDepth, initializeReadingProgress, initializeMediaControls, initializeScrollers, initializeWalkthroughs } from "./exhibits";
 import { initializePointerNote } from "./pointer-note";
 import { initializePinZoom } from "./pin-zoom";
+import { initializeAboutChapters } from "./about-chapters";
 
 /**
  * Initialize navigation, theme choice, motion, and exhibit controls.
@@ -18,6 +19,7 @@ function initializeSite(): void {
   initializeScrollers();
   initializePointerNote();
   initializePinZoom();
+  initializeAboutChapters();
 
   document.documentElement.classList.add("nav-ready");
 

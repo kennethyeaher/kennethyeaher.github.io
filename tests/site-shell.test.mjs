@@ -78,7 +78,7 @@ test("the theme switch is the pull cord: a real button that hangs out of flow an
   assert.ok(reduced, "no swing under reduced motion");
 });
 
-test("the annotated cursor is one aria-hidden note over exactly four target types, for fine hovering pointers only", () => {
+test("the annotated cursor is one aria-hidden note over exactly five target types, for fine hovering pointers only", () => {
   const pagesBuilt = ["index.html", "about/index.html", ...["terpcarehub", "ovara", "kairo-health", "usm-venture-benchmark", "college-park-capstone", "frontground", "terpcare", "sohive"].map((slug) => `work/${slug}/index.html`)];
   const kinds = new Set();
   for (const file of pagesBuilt) {
@@ -94,6 +94,8 @@ test("the annotated cursor is one aria-hidden note over exactly four target type
       if (kind === "card") assert.match(tag, /^<a class="project-card"/, file);
       else if (kind === "cord") assert.match(tag, /^<button class="theme-cord"/, file);
       else if (kind === "loop") assert.match(tag, /^<span class="media-tag has-control"/, file);
+      // an About photo's chip is its alt text (note 267:1842).
+      else if (kind === "photo") assert.match(tag, /^<figure class="chapter-photo[^"]*" data-cursor="photo" tabindex="0"/, file);
       else if (kind === "pin") {
         assert.match(tag, /^<(button type="button" class="pin"|a class="annotation-badge")/, file);
         // a pin's chip repeats its number and the title of the note it is described by, so that note must exist.
@@ -102,7 +104,7 @@ test("the annotated cursor is one aria-hidden note over exactly four target type
       } else assert.fail(`${file} carries an unknown data-cursor "${kind}"`);
     }
   }
-  assert.deepEqual([...kinds].sort(), ["card", "cord", "loop", "pin"]);
+  assert.deepEqual([...kinds].sort(), ["card", "cord", "loop", "photo", "pin"]);
 
   const script = readFileSync(join(projectRoot, "src", "scripts", "pointer-note.ts"), "utf8");
   // the script exits before doing anything on coarse or non hovering pointers, and css hides the note there too.

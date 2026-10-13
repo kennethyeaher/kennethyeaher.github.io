@@ -4,7 +4,7 @@ import { join } from "node:path";
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { aboutGallery, profile, projects } from "../src/data/portfolio.mjs";
+import { aboutChapters, aboutGallery, profile, projects } from "../src/data/portfolio.mjs";
 
 const projectRoot = new URL("..", import.meta.url).pathname;
 const publicRoot = join(projectRoot, "public");
@@ -36,6 +36,35 @@ test("every published portfolio media reference resolves to a non-empty real fil
     const absolutePath = publicFile(mediaPath);
     assert.equal(existsSync(absolutePath), true, `${mediaPath} is missing`);
     assert.ok(statSync(absolutePath).size > 0, `${mediaPath} is empty`);
+  }
+});
+
+/** a jpeg's pixel size, read from its first start-of-frame marker. */
+function jpegSize(pathname) {
+  const bytes = readFileSync(pathname);
+  let offset = 2;
+  while (offset < bytes.length) {
+    const marker = bytes[offset + 1];
+    if (marker >= 0xc0 && marker <= 0xcf && ![0xc4, 0xc8, 0xcc].includes(marker)) {
+      return { width: bytes.readUInt16BE(offset + 7), height: bytes.readUInt16BE(offset + 5) };
+    }
+    offset += 2 + bytes.readUInt16BE(offset + 2);
+  }
+  throw new Error(`${pathname} has no frame header`);
+}
+
+test("every About chapter photo is a gallery photo with alt text and its real pixel size", () => {
+  const gallery = new Map(aboutGallery.map((item) => [item.src, item]));
+  const ids = aboutChapters.flatMap((chapter) => [chapter.lead, ...chapter.rows.flat()]);
+  assert.equal(new Set(ids).size, ids.length, "no photo repeats across chapters");
+  for (const id of ids) {
+    const item = gallery.get(`/images/about/${id}.jpg`);
+    assert.ok(item, `${id} is in aboutGallery`);
+    assert.ok(item.alt.trim().length > 0, `${id} has alt text`);
+    assert.doesNotMatch(item.alt, /—/);
+  }
+  for (const item of aboutGallery) {
+    assert.deepEqual(jpegSize(publicFile(item.src)), { width: item.width, height: item.height }, `${item.src} size`);
   }
 });
 

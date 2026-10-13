@@ -8,12 +8,9 @@ export const profile = {
   headline: "I’m Ken, a product designer and data scientist.",
   intro:
     "I study how people move through systems, build with the data those systems leave behind, and use both to decide what should exist next.",
-  aboutHeadline: "I build where people, data, and decisions meet.",
   aboutParagraphs: [
-    "Human-computer interaction is the thread connecting my work. I’m a Master of Science in Human-Computer Interaction student at the University of Maryland, and I start projects by learning how people actually navigate a system before I decide what to build, measure, or recommend.",
-    "That approach is personal. I was born in Monrovia, Liberia, where many clinics still run on paper. The gap between what technology can do and who can reliably use it pulled me toward healthcare access, product research, and the decisions behind both.",
-    "I have built and evaluated companies. As the founder of Frontground, I raised $25K in non-dilutive funding and ran physician interviews for an iPad-first electronic medical record for low-resource clinics. At the USM Maryland Momentum Fund, I screened companies, led sourcing-stage diligence, supported expert panels, and co-authored investment work for the fund’s leadership.",
-    "I also work from raw data to a decision someone can act on. At Towers Surgical Partners, I built Python ETL pipelines and Tableau dashboards that helped leadership see provider coverage, referral patterns, and revenue-cycle problems more clearly. Across product, venture, and data work, my job is the same: find the signal, explain it plainly, and make the next move more useful for the people involved.",
+    "I’m a Master of Science in Human-Computer Interaction student at the University of Maryland, and I start projects by learning how people actually navigate a system before I decide what to build, measure, or recommend.",
+    "I was born in Monrovia, Liberia, where many clinics still run on paper. That gap pulled me toward healthcare access, product research, and the decisions behind both.",
   ],
   availability:
     "Open to product, venture, data, and HCI opportunities where research can shape what gets built.",
@@ -38,9 +35,8 @@ export const homeNow = {
 };
 
 /**
- * Compact professional history. Home v3 no longer renders it; the home page shows `homeNow` instead.
- * NOTE: `experience` is pinned by tests/portfolio-model.test.mjs, and `roles` below is the full About-page
- * timeline. They overlap on purpose; do not reconcile or merge them.
+ * Compact professional history: the About page's Experience list (about v3, figma 255:1842). Home v3 shows `homeNow`
+ * instead. Pinned by tests/portfolio-model.test.mjs.
  */
 export const experience = [
   {
@@ -75,122 +71,13 @@ export const experience = [
   },
 ];
 
-/**
- * Full About-page career timeline.
- * NOTE: `experience` above is the compact history pinned by
- * tests/portfolio-model.test.mjs, and `roles` is the full About-page
- * timeline. They overlap on purpose; do not reconcile or merge them.
- */
-export const roles = [
-  {
-    title: "Summer Investment Associate",
-    organization: "USM Maryland Momentum Fund",
-    location: "Baltimore, MD",
-    period: "June 2026 to Present",
-    bullets: [
-      "Joining the investment team to support sourcing and diligence across early stage deals, building on a fellowship that earned a return offer for the role.",
-      "Contributing to founder diligence and the structured analysis behind investment memos delivered to fund partners.",
-      "Tracking deal flow and market research to help surface high potential companies for the fund.",
-    ],
-  },
-  {
-    title: "Venture Fellow",
-    organization: "USM Maryland Momentum Fund",
-    location: "Baltimore, MD",
-    period: "Jan 2026 to June 2026",
-    bullets: [
-      "Led sourcing stage diligence on early stage startups, building structured theses across technology, market, business model, traction, team, and moat from primary founder materials and external research.",
-      "Drove founder diligence calls with structured question sets on moat defensibility, unit economics, scalability, and failure modes, then coauthored the resulting investment memos delivered to the fund partners.",
-      "Surfaced a deal highest conviction risks, including pre revenue projections, manufacturing scale up, and customer concentration, and issued pursue, track, or pass recommendations grounded in them.",
-    ],
-  },
-  {
-    title: "Data Analyst",
-    organization: "Towers Surgical Partners",
-    location: "Rockville, MD",
-    period: "Jan 2025 to June 2025",
-    bullets: [
-      "Architected an end to end Python ETL pipeline aggregating provider data across fragmented healthcare directories, reducing manual research workload 70 percent and accelerating provider network expansion analysis.",
-      "Delivered Tableau dashboards analyzing referral flow, revenue, and procedure trends to improve decision visibility for leadership.",
-      "Analyzed reimbursement and claims data to surface revenue cycle inefficiencies during litigation billing review, building a pipeline that processed 5,000 plus insurance documents.",
-      "Built geographic coverage models across major US metros to guide provider recruitment priorities.",
-    ],
-  },
-  {
-    title: "Data Analyst Intern",
-    organization: "Towers Surgical Partners",
-    location: "Rockville, MD",
-    period: "May 2024 to Dec 2024",
-    bullets: [
-      "Built internal tracking tools adopted by leadership to monitor provider network growth, enabling the team to prioritize outreach and manage a growing portfolio of partner relationships.",
-      "Scraped and verified physician data across 100 major US metro areas for NGYNSS, a national gynecological specialist directory supporting patient navigation and healthcare market analysis.",
-    ],
-  },
-  {
-    title: "Founder",
-    organization: "Frontground",
-    location: "College Park, MD",
-    period: "Sept 2022 to May 2024",
-    bullets: [
-      "Founded and led an early stage health tech startup from concept to go to market, securing $25K in non dilutive funding across competitive pitch processes, including the Pitch Dingman Competition Social Impact Award.",
-      "Ran physician interviews across Liberian healthcare facilities to validate product market fit and map adoption barriers, turning primary field research into the product roadmap.",
-      "Built and managed relationships with physicians and health administrators in Monrovia and university advisors, converting their feedback into product and partnership decisions.",
-    ],
-  },
-  {
-    title: "Product Design Intern",
-    organization: "hiveSocial",
-    location: "Remote",
-    period: "Nov 2021 to Mar 2022",
-    bullets: [
-      "Designed product flows and interface mockups in Figma and Adobe XD for an early stage social platform, translating product requirements into clickable prototypes.",
-      "Partnered with founders and engineers to iterate on user interface decisions, contributing visual and interaction design across multiple product surfaces.",
-    ],
-  },
-];
-
-/**
- * Four practice areas for the About page, HCI first and venture last.
- * Every claimed capability cites a case study that exists on this site.
- */
-export const practiceAreas = [
-  {
-    number: "01",
-    title: "HCI and UX research",
-    blurb: "Understanding people before building product.",
-    skills: ["User interviews", "Field research", "Personas", "Journey mapping", "Usability studies"],
-    caseStudy: { label: "Information Science Capstone", href: "/work/college-park-capstone" },
-  },
-  {
-    number: "02",
-    title: "Data and analytics",
-    blurb: "Pipelines and analysis that turn fragmented data into a decision.",
-    skills: ["Python (pandas, NumPy)", "SQL", "ETL pipelines", "Tableau", "Power BI"],
-    caseStudy: { label: "Ovara", href: "/work/ovara" },
-  },
-  {
-    number: "03",
-    title: "ML and evaluation",
-    blurb: "Experiments designed so the result survives scrutiny.",
-    skills: ["PyTorch", "scikit-learn", "LLM evaluation", "Experimental design", "Bootstrap testing"],
-    caseStudy: { label: "Kairo Health", href: "/work/kairo-health" },
-  },
-  {
-    number: "04",
-    title: "Product and venture",
-    blurb: "Diligence, benchmarking, and product market validation.",
-    skills: ["Investment diligence", "Venture benchmarking", "PMF validation", "Fundraising"],
-    caseStudy: { label: "USM Venture Benchmark", href: "/work/usm-venture-benchmark" },
-  },
-];
-
 /** Education entries for the About page, newest first. */
 export const education = [
   {
     degree: "Master of Science, Human-Computer Interaction",
     school: "University of Maryland",
     location: "College Park, MD",
-    period: "Expected May 2027",
+    period: "Expected May 2028",
     activities: [
       "Phi Kappa Phi Honor Society",
       "Investing Club",
@@ -202,9 +89,16 @@ export const education = [
       "Interdisciplinary graduate study in human-computer interaction, combining research methods, interaction design, and usability evaluation to understand how people use technology and design systems around their needs.",
     notableCourses: [
       {
-        code: "INST664",
-        title: "Transforming Unstructured Content with AI",
-        note: "Building applied AI pipelines that turn unstructured text, images, and audio into structured data, spanning NLP representation, entity extraction, OCR, and LLM prompting, with attention to evaluation and bias.",
+        code: "INST630",
+        title: "Programming Human-Centered Interfaces",
+      },
+      {
+        code: "INST631",
+        title: "Fundamentals of Human-Computer Interaction",
+      },
+      {
+        code: "INST711",
+        title: "Interaction Design Studio",
       },
       {
         code: "INST737",
@@ -215,16 +109,6 @@ export const education = [
         code: "INST762",
         title: "Visual Analytics",
         note: "Interactive visual interfaces for analytical reasoning, pairing human perception with machine learning to explore real-world datasets.",
-      },
-      {
-        code: "INST627",
-        title: "Data Analytics for Information Professionals",
-        note: "Inferential statistics on structured data, covering study design, hypothesis testing, and multiple regression, with analysis in R.",
-      },
-      {
-        code: "INFM600",
-        title: "Information Management Ecosystems",
-        note: "Models and methods for managing information across teams, organizations, and platforms, including data modeling, descriptive statistics, and visualization.",
       },
       {
         code: "INST610",
@@ -286,71 +170,7 @@ export const education = [
         title: "Object-Oriented Programming",
         note: "Object oriented programming in Python, covering design, inheritance, testing, and documentation through applied projects.",
       },
-      {
-        code: "INST346",
-        title: "Technologies, Infrastructure, and Architecture",
-        note: "Computing infrastructure from hardware and networking to client server and cloud architectures, including deploying a virtual system in a distributed environment.",
-      },
     ],
-  },
-];
-
-/** Honors, programs, and certifications shown as About-page credential rows. */
-export const credentials = [
-  {
-    name: "Phi Kappa Phi Honor Society",
-    meta: "University of Maryland",
-    detail: "Graduate honor society.",
-  },
-  {
-    name: "USM Maryland Momentum Fund",
-    meta: "Venture Fellow, 2026",
-    detail: "Fellowship on the investment team of the University System of Maryland's early stage fund.",
-  },
-  {
-    name: "Startup Shell Founder",
-    meta: "Fall 2022 cohort",
-    detail: "UMD's student run startup incubator, joined while building Frontground.",
-  },
-  {
-    name: "VC University",
-    meta: "NVCA and Berkeley Law, Apr 2026",
-    detail: "10 week program on fund economics, term sheets, deal structuring, and cap table modeling, taught by partners at Andreessen Horowitz, Bessemer, and Forerunner.",
-  },
-  {
-    name: "Neo4j Graph Data Science Certification",
-    meta: "Neo4j, Mar 2026",
-    detail: "Graph data science with Neo4j, covering Cypher, graph algorithms, and applied analytics on connected data.",
-  },
-  {
-    name: "Neo4j Certified Professional",
-    meta: "Neo4j, Feb 2026",
-    detail: "Core Neo4j and Cypher query language proficiency for designing and querying graph databases at scale.",
-  },
-  {
-    name: "Neo4j Fundamentals",
-    meta: "Neo4j, Feb 2026",
-    detail: "Foundations of Neo4j and the Cypher query language, covering graph databases and modeling connected data.",
-  },
-  {
-    name: "Equity Incubator Fellow",
-    meta: "The Lab for Entrepreneurship and Transformative Leadership",
-    detail: "Feb 2023 to Apr 2023. Startup fundraising and investor pitching.",
-  },
-  {
-    name: "Do Good Accelerator Fellow",
-    meta: "Do Good Institute, University of Maryland",
-    detail: "Two cohorts, 2022 and 2023. Social impact venture acceleration.",
-  },
-  {
-    name: "Startup School Student",
-    meta: "Y Combinator",
-    detail: "2022. Early stage startup curriculum.",
-  },
-  {
-    name: "Freshman Leadership Summit",
-    meta: "PwC",
-    detail: "2020. Leadership case competition and professional pitching.",
   },
 ];
 
@@ -358,7 +178,7 @@ export const credentials = [
 export const interests = [
   {
     name: "Watching Sports",
-    blurb: "Devoted Manchester United fan, die hard Lakers fan, and a massive Maryland Lacrosse fan. I travel for matches when I can.",
+    blurb: "Devoted Manchester United fan, die hard Lakers fan, and a massive Maryland Lacrosse fan. I travel for matches whenever I can.",
   },
   {
     name: "Mens League Sports",
@@ -383,22 +203,64 @@ export const interests = [
 ];
 
 /**
- * Available About-page photography. Additional user-supplied photographs can
- * be added here without rendering empty image placeholders in the meantime.
+ * About-page photography and the alt text source for the photo chapters. width and height are the files' pixel
+ * sizes, which set each photo's share of its justified row.
  */
 export const aboutGallery = [
-  { src: "/images/about/about-01.jpg", alt: "Techstars AI Health Baltimore, before the room filled up" },
-  { src: "/images/about/about-02.jpg", alt: "With three friends at a PwC recruiting event" },
-  { src: "/images/about/about-03.jpg", alt: "Carrying the ball upfield in a lacrosse game" },
-  { src: "/images/about/about-04.jpg", alt: "With my parents on the field after a home game" },
-  { src: "/images/about/about-05.jpg", alt: "The room at a student startup showcase" },
-  { src: "/images/about/about-06.jpg", alt: "With friends outside the stadium" },
-  { src: "/images/about/about-07.jpg", alt: "Team photo on the field after a win" },
-  { src: "/images/about/about-08.jpg", alt: "With friends before a night out" },
-  { src: "/images/about/about-09.jpg", alt: "Full squad and supporters on the track" },
-  { src: "/images/about/about-10.jpg", alt: "Talking with a teammate on the sideline" },
-  { src: "/images/about/about-12.jpg", alt: "Looking out over a snowy mountain run" },
-  { src: "/images/about/about-13.jpg", alt: "With friends outside Pat's King of Steaks in Philadelphia" },
+  { src: "/images/about/about-10.jpg", width: 1024, height: 683, alt: "Talking with a teammate on the sideline" },
+  { src: "/images/about/about-12.jpg", width: 894, height: 1400, alt: "Looking out over a snowy mountain run" },
+  { src: "/images/about/about-13.jpg", width: 1170, height: 878, alt: "With friends outside Pat's King of Steaks in Philadelphia" },
+  { src: "/images/about/about-14.jpg", width: 1179, height: 1183, alt: "Old Trafford's East Stand from the street in Manchester" },
+  { src: "/images/about/about-15.jpg", width: 1050, height: 1400, alt: "Working on a laptop in a study room" },
+  { src: "/images/about/about-16.jpg", width: 980, height: 1400, alt: "Feet up on a beach lounger at night, boats lit across the water" },
+  { src: "/images/about/about-17.jpg", width: 1105, height: 1400, alt: "A campfire burning at night" },
+  { src: "/images/about/about-18.jpg", width: 1121, height: 1400, alt: "Sunset over a soccer field, a player by the goal under the floodlights" },
+  { src: "/images/about/about-19.jpg", width: 1400, height: 1067, alt: "A startup office with a screen, a whiteboard and a Nelson Mandela quote on a lime wall" },
+  { src: "/images/about/about-20.jpg", width: 1170, height: 1342, alt: "A guitarist playing live at The Dubliner" },
+  { src: "/images/about/about-21.jpg", width: 930, height: 1400, alt: "A pink-lit airplane window at night, rain on the glass" },
+  { src: "/images/about/about-01.jpg", width: 788, height: 1400, alt: "Techstars AI Health Baltimore, before the room filled up" },
+  { src: "/images/about/about-02.jpg", width: 1050, height: 1400, alt: "With three friends at a PwC recruiting event" },
+  { src: "/images/about/about-03.jpg", width: 1400, height: 900, alt: "Carrying the ball upfield in a lacrosse game" },
+  { src: "/images/about/about-04.jpg", width: 1050, height: 1400, alt: "With my parents on the field after a home game" },
+  { src: "/images/about/about-05.jpg", width: 1400, height: 538, alt: "The room at a student startup showcase" },
+  { src: "/images/about/about-06.jpg", width: 788, height: 1400, alt: "With friends outside the stadium" },
+  { src: "/images/about/about-07.jpg", width: 1400, height: 936, alt: "Team photo on the field after a win" },
+  { src: "/images/about/about-08.jpg", width: 1400, height: 1216, alt: "With friends before a night out" },
+  { src: "/images/about/about-09.jpg", width: 1400, height: 933, alt: "Full squad and supporters on the track" },
+];
+
+/**
+ * The four photo chapters (about v3, figma 255:1842 and 256:1910). each names a lead photo and rows of smaller ones by
+ * file name; every row shares one height and fills the 584px photo column. `leadWidth` narrows the lead to a share of
+ * the column (with my people, 484 of 584), and `leadCrop` crops it to a width / height box (on the road, 584 by 420).
+ */
+export const aboutChapters = [
+  {
+    title: "On the field",
+    line: "You’ll either catch me on the lax field saving shots or on the football pitch doing my best Kanté impression.",
+    lead: "about-03",
+    rows: [["about-10", "about-07", "about-09", "about-18"]],
+  },
+  {
+    title: "In the room",
+    line: "Pitch nights, recruiting events and the startup showcases that got me into venture.",
+    lead: "about-05",
+    rows: [["about-01", "about-02"], ["about-15", "about-19"]],
+  },
+  {
+    title: "With my people",
+    line: "Family on the sideline and friends on the road.",
+    lead: "about-08",
+    leadWidth: 484 / 584,
+    rows: [["about-04", "about-06", "about-13"]],
+  },
+  {
+    title: "On the road",
+    line: "Old Trafford in Manchester, live music at The Dubliner, a night on the beach, and a window seat after dark.",
+    lead: "about-14",
+    leadCrop: [584, 420],
+    rows: [["about-12", "about-17", "about-16"], ["about-20", "about-21"]],
+  },
 ];
 
 /** home v2 order (figma 131:2038): design work first, then data and research. next and previous follow it too. */

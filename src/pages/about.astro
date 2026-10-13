@@ -1,592 +1,304 @@
 ---
-// HCI-focused biography: intro, practice areas, role timeline, education,
-// credentials, interests, and the future-ready real-media photo journal.
-import AboutGallery from "@/components/AboutGallery.astro";
+// About v3 (figma 255:1842): the eyebrow over two paragraphs and the experience list, then education, interests and
+// the four photo chapters, in the home page's 924px column beside the rail.
+import AboutChapters from "@/components/AboutChapters.astro";
 import Base from "@/layouts/Base.astro";
-import {
-  aboutGallery,
-  credentials,
-  education,
-  interests,
-  practiceAreas,
-  profile,
-  roles,
-} from "@/data/portfolio.mjs";
-
-/** Cap the stagger so late items in long lists never lag the scroll. */
-const stagger = (index: number) => `--reveal-delay: ${Math.min(index * 70, 350)}ms`;
+import { aboutChapters, aboutGallery, education, experience, interests, profile } from "@/data/portfolio.mjs";
 ---
 
 <Base title="About" description={profile.aboutParagraphs[0]}>
   <article class="about-page">
     <header class="about-intro" data-reveal>
-      <p class="about-kicker">About Kenneth</p>
-      <h1>{profile.aboutHeadline}</h1>
-      <div class="about-copy">
-        {profile.aboutParagraphs.map((paragraph) => <p>{paragraph}</p>)}
-      </div>
-      <p class="about-availability">{profile.availability}</p>
-    </header>
-
-    <section class="about-section" aria-labelledby="practice-title">
-      <span class="section-rule" data-reveal aria-hidden="true"></span>
-      <div class="section-grid">
-        <header class="section-rail" data-reveal>
-          <p class="section-number">01</p>
-          <h2 id="practice-title">Practice areas</h2>
-        </header>
-        <div class="section-body">
-          <div class="practice-grid">
-            {
-              practiceAreas.map((area, index) => (
-                <article class="practice-card hover-lift" data-reveal style={stagger(index)}>
-                  <h3>{area.title}</h3>
-                  <p class="practice-blurb">{area.blurb}</p>
-                  <ul class="chip-list" role="list">
-                    {area.skills.map((skill) => (
-                      <li>{skill}</li>
-                    ))}
-                  </ul>
-                  <p class="practice-case">
-                    <a class="case-link" href={area.caseStudy.href}>
-                      {area.caseStudy.label}<span aria-hidden="true"> →</span>
-                    </a>
-                  </p>
-                </article>
-              ))
-            }
-          </div>
+      <p class="about-eyebrow">About me</p>
+      <h1 class="sr-only">About Kenneth Yeaher</h1>
+      <div class="about-columns">
+        <div class="about-copy">
+          {profile.aboutParagraphs.map((paragraph) => <p>{paragraph}</p>)}
+          <p class="about-availability">{profile.availability}</p>
         </div>
-      </div>
-    </section>
-
-    <section class="about-section" aria-labelledby="experience-title">
-      <span class="section-rule" data-reveal aria-hidden="true"></span>
-      <div class="section-grid">
-        <header class="section-rail" data-reveal>
-          <p class="section-number">02</p>
-          <h2 id="experience-title">Experience</h2>
-        </header>
-        <div class="section-body">
-          <ol class="role-list" role="list">
+        <section aria-labelledby="experience-title">
+          <h2 id="experience-title" class="about-label">Experience</h2>
+          <ol class="experience-list" role="list">
             {
-              roles.map((role, index) => (
-                <li class="role-item" data-reveal style={stagger(index)}>
-                  <h3>{role.title}</h3>
-                  <p class="item-meta">
-                    {role.organization} · {role.location} · {role.period}
-                  </p>
-                  <ul class="role-bullets">
-                    {role.bullets.map((bullet) => (
-                      <li>{bullet}</li>
-                    ))}
-                  </ul>
+              experience.map((row) => (
+                <li class="experience-row">
+                  <span class="experience-year">{row.year}</span>
+                  <span class="experience-company">{row.organization}</span>
+                  <span class="experience-role">{row.role}</span>
                 </li>
               ))
             }
           </ol>
-        </div>
+        </section>
+      </div>
+    </header>
+
+    <section class="about-section" aria-labelledby="education-title" data-reveal>
+      <h2 id="education-title" class="about-label">Education</h2>
+      <div class="about-columns">
+        {
+          education.map((entry) => (
+            <article class="degree">
+              <h3>{entry.degree}</h3>
+              <p class="degree-meta">
+                {entry.school} · {entry.period}
+              </p>
+              <ul class="course-list" role="list">
+                {entry.notableCourses.map((course) => (
+                  <li>
+                    <span class="course-code">{course.code}</span>
+                    <span class="course-title">{course.title}</span>
+                  </li>
+                ))}
+              </ul>
+            </article>
+          ))
+        }
       </div>
     </section>
 
-    <section class="about-section" aria-labelledby="education-title">
-      <span class="section-rule" data-reveal aria-hidden="true"></span>
-      <div class="section-grid">
-        <header class="section-rail" data-reveal>
-          <p class="section-number">03</p>
-          <h2 id="education-title">Education</h2>
-        </header>
-        <div class="section-body">
-          {
-            education.map((entry, index) => (
-              <article class="edu-item" data-reveal style={stagger(index)}>
-                <h3>{entry.degree}</h3>
-                <p class="item-meta">
-                  {entry.school} · {entry.location} · {entry.period}
-                </p>
-                <p class="edu-description">{entry.description}</p>
-                <ul class="chip-list" role="list">
-                  {entry.activities.map((activity) => (
-                    <li>{activity}</li>
-                  ))}
-                </ul>
-                <details class="edu-courses">
-                  <summary>Notable courses</summary>
-                  <ul class="course-list" role="list">
-                    {entry.notableCourses.map((course) => (
-                      <li>
-                        <p class="course-name">
-                          <span class="course-code">{course.code}</span>
-                          <strong>{course.title}</strong>
-                        </p>
-                        <p class="course-note">{course.note}</p>
-                      </li>
-                    ))}
-                  </ul>
-                </details>
-              </article>
-            ))
-          }
-        </div>
+    <section class="about-section is-interests" aria-labelledby="interests-title" data-reveal>
+      <h2 id="interests-title" class="about-label">Beyond the work</h2>
+      <div class="interest-grid">
+        {
+          interests.map((interest) => (
+            <article class="interest">
+              <h3>{interest.name}</h3>
+              <p>{interest.blurb}</p>
+            </article>
+          ))
+        }
       </div>
     </section>
 
-    <section class="about-section" aria-labelledby="credentials-title">
-      <span class="section-rule" data-reveal aria-hidden="true"></span>
-      <div class="section-grid">
-        <header class="section-rail" data-reveal>
-          <p class="section-number">04</p>
-          <h2 id="credentials-title">Credentials</h2>
-        </header>
-        <div class="section-body">
-          <ul class="cred-list" role="list">
-            {
-              credentials.map((credential, index) => (
-                <li class="cred-row" data-reveal style={stagger(index)}>
-                  <p class="cred-name">{credential.name}</p>
-                  <p class="cred-meta">{credential.meta}</p>
-                  <p class="cred-detail">{credential.detail}</p>
-                </li>
-              ))
-            }
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <section class="about-section" aria-labelledby="interests-title">
-      <span class="section-rule" data-reveal aria-hidden="true"></span>
-      <div class="section-grid">
-        <header class="section-rail" data-reveal>
-          <p class="section-number">05</p>
-          <h2 id="interests-title">Beyond the work</h2>
-        </header>
-        <div class="section-body">
-          <div class="interest-grid">
-            {
-              interests.map((interest, index) => (
-                <article class="interest-card hover-lift" data-reveal style={stagger(index)}>
-                  <h3>{interest.name}</h3>
-                  <p>{interest.blurb}</p>
-                </article>
-              ))
-            }
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <AboutGallery items={aboutGallery} />
+    <div class="about-rule" aria-hidden="true"></div>
+    <AboutChapters chapters={aboutChapters} gallery={aboutGallery} />
   </article>
 </Base>
 
 <style>
+  /* the home page's column (see index.astro): 924px, x=258 at 1440, clear of the rail. the footer's own margin and
+     padding put the credit 120px under the last photo row. */
   .about-page {
-    width: min(100%, var(--content-max));
-    margin: 0 auto;
-    padding-inline: var(--page-gutter);
+    width: min(924px, 100% - 48px);
+    margin-left: max(24px, (100% - 924px) / 2 - 48px);
   }
 
+  /* the eyebrow at y=200, level with the rail; the paragraphs and the Experience label 25px under it. */
   .about-intro {
-    padding-top: 72px;
+    padding-top: 136px;
   }
 
-  .about-kicker {
-    margin: 0 0 26px;
-    color: var(--accent);
-    font-family: var(--mono);
-    font-size: 11px;
+  .about-eyebrow {
+    margin: 0 0 25px;
+    color: var(--color-annotate);
+    font: 11px / 15px var(--mono);
     text-transform: uppercase;
   }
 
-  .about-intro h1 {
-    max-width: 940px;
-    margin: 0;
-    color: var(--ink-strong);
-    font-family: var(--display);
-    font-size: clamp(52px, 6.5vw, 92px);
-    font-weight: 400;
-    letter-spacing: -0.035em;
-    line-height: 0.98;
-  }
-
-  .about-copy {
-    max-width: 760px;
-    margin-top: 52px;
-  }
-
-  .about-copy p {
-    margin: 0 0 18px;
-    color: var(--secondary);
-    font-size: 18px;
-    line-height: 1.58;
-  }
-
-  .about-availability {
-    max-width: 760px;
-    margin: 28px 0 0;
-    color: var(--ink-strong);
-    font-size: 18px;
-  }
-
-  .about-section {
-    margin-top: 104px;
-  }
-
-  .about-section .section-rule {
-    margin-bottom: 44px;
-  }
-
-  .section-grid {
-    display: grid;
-    align-items: start;
-    grid-template-columns: minmax(200px, 320px) minmax(0, 1fr);
-    gap: 24px 56px;
-  }
-
-  .section-rail {
-    position: sticky;
-    top: calc(var(--header-height) + 32px);
-  }
-
-  .section-number {
-    margin: 0 0 18px;
-    color: var(--muted);
-    font-family: var(--mono);
-    font-size: 11px;
-    text-transform: uppercase;
-  }
-
-  .section-rail h2 {
-    margin: 0;
-    color: var(--ink-strong);
-    font-family: var(--display);
-    font-size: clamp(30px, 3.2vw, 46px);
-    font-weight: 400;
-    letter-spacing: -0.02em;
-    line-height: 1.02;
-  }
-
-  .practice-grid {
+  /* two 450px columns 24px apart (x=258 and 732 at 1440). */
+  .about-columns {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 24px;
   }
 
-  .practice-card {
-    padding: 26px;
-    border: 1px solid var(--rule);
-    background: var(--surface);
+  /* newsreader is self-hosted at weights 400 to 500, so the frame's semibold renders at 500 rather than a faux bold. */
+  .about-copy p {
+    max-width: 414px;
+    margin: 0;
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 28px;
   }
 
-  .practice-card h3 {
+  .about-copy p + p {
+    margin-top: 13px;
+  }
+
+  .about-copy p:nth-child(2) {
+    max-width: 394px;
+  }
+
+  /* the frame's box is 367px, but geist in the browser needs 370 to break after "HCI" as figma does. */
+  .about-copy p.about-availability {
+    max-width: 372px;
+    color: var(--muted);
+    font: 15px / 22px var(--ui-sans);
+  }
+
+  /* section labels: geist 15, muted, 20px over what they name. global, so the Photos label in AboutChapters shares it. */
+  .about-page :global(.about-label) {
+    margin: 0 0 20px;
+    color: var(--muted);
+    font: 400 15px / 20px var(--ui-sans);
+  }
+
+  .about-intro .about-label {
+    margin-bottom: 16px;
+  }
+
+  /* year, company and role on one grid, so every role starts 20px after the longest company name; rows 30px apart. */
+  .experience-list {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    grid-template-columns: 40px max-content minmax(0, 1fr);
+    row-gap: 10px;
+    list-style: none;
+  }
+
+  .experience-row {
+    display: grid;
+    align-items: baseline;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+  }
+
+  .experience-year {
+    color: var(--muted);
+    font: 11px / 15px var(--mono);
+  }
+
+  .experience-company,
+  .experience-role {
+    font-family: var(--body);
+    font-size: 14.5px;
+    line-height: 20px;
+  }
+
+  .experience-company {
+    color: var(--ink-strong);
+  }
+
+  /* the longest role runs past the 450px column, as it does in the frame, rather than wrap. */
+  .experience-role {
+    padding-left: 20px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  /* each section opens on a rule 60px under the one before, its label 31px under the rule. */
+  .about-section,
+  .about-rule {
+    margin-top: 60px;
+    padding-top: 31px;
+    border-top: 1px solid var(--rule);
+  }
+
+  .about-rule {
+    margin-top: 64px;
+  }
+
+  .degree h3 {
     margin: 0;
     color: var(--ink-strong);
     font-family: var(--display);
     font-size: 24px;
     font-weight: 400;
+    letter-spacing: -0.01em;
+    line-height: 30px;
   }
 
-  .practice-blurb {
-    margin: 10px 0 20px;
-    color: var(--secondary);
-    font-size: 15px;
-  }
-
-  .practice-case {
-    margin: 22px 0 0;
-  }
-
-  .case-link {
-    position: relative;
-    color: var(--accent);
-    font-family: var(--mono);
-    font-size: 12px;
-    text-transform: uppercase;
-    transition: color 180ms ease;
-  }
-
-  .case-link::after {
-    position: absolute;
-    right: 0;
-    bottom: -4px;
-    left: 0;
-    height: 1px;
-    content: "";
-    transform: scaleX(0);
-    transform-origin: left;
-    background: currentColor;
-    transition: transform 180ms ease;
-  }
-
-  .case-link:hover,
-  .case-link:focus-visible {
-    color: var(--accent-strong);
-  }
-
-  .case-link:hover::after,
-  .case-link:focus-visible::after {
-    transform: scaleX(1);
-  }
-
-  .chip-list {
-    display: flex;
-    margin: 0;
-    padding: 0;
-    flex-wrap: wrap;
-    gap: 8px;
-    list-style: none;
-  }
-
-  .chip-list li {
-    padding: 5px 11px;
-    border: 1px solid var(--rule);
-    color: var(--ink);
-    font-family: var(--mono);
-    font-size: 11px;
-  }
-
-  .role-list {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .role-item {
-    padding-block: 30px;
-    border-bottom: 1px solid var(--rule);
-  }
-
-  .role-item:first-child {
-    padding-top: 0;
-  }
-
-  .role-item h3,
-  .edu-item h3 {
-    margin: 0;
-    color: var(--ink-strong);
-    font-family: var(--display);
-    font-size: clamp(22px, 2.2vw, 28px);
-    font-weight: 400;
-  }
-
-  .item-meta {
-    margin: 10px 0 0;
+  .degree-meta {
+    margin: 8px 0 0;
     color: var(--muted);
-    font-family: var(--mono);
-    font-size: 11px;
-    text-transform: uppercase;
+    font: 14px / 20px var(--ui-sans);
   }
 
-  .role-bullets {
-    margin: 16px 0 0;
-    padding-left: 18px;
-    list-style: disc;
-  }
-
-  .role-bullets li {
-    max-width: 78ch;
-    margin-bottom: 8px;
-    color: var(--secondary);
-    font-size: 16px;
-    line-height: 1.55;
-  }
-
-  .edu-item {
-    padding-block: 30px;
-    border-bottom: 1px solid var(--rule);
-  }
-
-  .edu-item:first-child {
-    padding-top: 0;
-  }
-
-  .edu-item:last-child {
-    border-bottom: 0;
-  }
-
-  .edu-description {
-    max-width: 78ch;
-    margin: 16px 0 18px;
-    color: var(--secondary);
-    font-size: 16px;
-    line-height: 1.55;
-  }
-
-  .edu-courses {
-    margin-top: 22px;
-  }
-
-  .edu-courses summary {
-    display: list-item;
-    width: fit-content;
-    padding: 4px 2px;
-    color: var(--accent);
-    cursor: pointer;
-    font-family: var(--mono);
-    font-size: 12px;
-    text-transform: uppercase;
-  }
-
-  .edu-courses summary:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 4px;
-  }
-
+  /* code in a 78px column, title in newsreader 15; rows 26px apart. */
   .course-list {
+    display: grid;
     margin: 18px 0 0;
     padding: 0;
+    gap: 6px;
     list-style: none;
   }
 
   .course-list li {
-    padding-block: 12px;
-    border-top: 1px solid var(--rule);
-  }
-
-  .course-name {
-    display: flex;
-    margin: 0;
+    display: grid;
     align-items: baseline;
-    flex-wrap: wrap;
-    gap: 10px;
+    grid-template-columns: 78px minmax(0, 1fr);
   }
 
   .course-code {
-    color: var(--accent);
-    font-family: var(--mono);
-    font-size: 11px;
-    text-transform: uppercase;
-  }
-
-  .course-name strong {
-    color: var(--ink-strong);
-    font-size: 16px;
-    font-weight: 500;
-  }
-
-  .course-note {
-    max-width: 72ch;
-    margin: 6px 0 0;
-    color: var(--secondary);
-    font-size: 14px;
-    line-height: 1.5;
-  }
-
-  .cred-list {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .cred-row {
-    display: grid;
-    padding-block: 16px;
-    align-items: baseline;
-    border-bottom: 1px solid var(--rule);
-    grid-template-columns: minmax(200px, 0.9fr) minmax(170px, 0.7fr) minmax(0, 1.4fr);
-    gap: 8px 28px;
-  }
-
-  .cred-row:first-child {
-    padding-top: 0;
-  }
-
-  .cred-name {
-    margin: 0;
-    color: var(--ink-strong);
-    font-size: 16px;
-    font-weight: 500;
-  }
-
-  .cred-meta {
-    margin: 0;
     color: var(--muted);
-    font-family: var(--mono);
-    font-size: 11px;
-    text-transform: uppercase;
+    font: 11px / 15px var(--mono);
   }
 
-  .cred-detail {
-    margin: 0;
-    color: var(--secondary);
+  .course-title {
+    color: var(--ink);
+    font-family: var(--body);
     font-size: 15px;
-    line-height: 1.5;
+    line-height: 20px;
   }
 
+  /* three columns of text, no cards: 292px wide, 24px apart, rows 32px apart. */
   .interest-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 24px;
+    gap: 32px 24px;
   }
 
-  .interest-card {
-    padding: 24px;
-    border: 1px solid var(--rule);
-    background: var(--surface);
-  }
-
-  .interest-card h3 {
+  .interest h3 {
     margin: 0;
     color: var(--ink-strong);
-    font-family: var(--display);
-    font-size: 21px;
+    font-family: var(--body);
+    font-size: 17px;
     font-weight: 400;
+    line-height: 24px;
   }
 
-  .interest-card p {
-    margin: 10px 0 0;
-    color: var(--secondary);
-    font-size: 15px;
-    line-height: 1.5;
+  .interest p {
+    margin: 6px 0 0;
+    color: var(--muted);
+    font: 14px / 21px var(--ui-sans);
   }
 
-  @media (max-width: 1080px) {
+  /* phones follow the home page: one column at a 20px margin. */
+  @media (max-width: 980px) {
+    .about-page {
+      width: auto;
+      margin-left: 0;
+      padding-inline: 20px;
+    }
+
+    .about-intro {
+      padding-top: 96px;
+    }
+
+    .about-columns {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 40px;
+    }
+
     .interest-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 
-  @media (max-width: 860px) {
-    .practice-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .cred-row {
-      grid-template-columns: minmax(0, 1fr);
-      gap: 4px;
-    }
-  }
-
   @media (max-width: 760px) {
     .about-intro {
-      padding-top: 58px;
-    }
-
-    .about-copy {
-      margin-top: 38px;
-    }
-
-    .about-section {
-      margin-top: 80px;
-    }
-
-    .about-section .section-rule {
-      margin-bottom: 30px;
-    }
-
-    .section-grid {
-      grid-template-columns: 1fr;
-      gap: 26px;
-    }
-
-    .section-rail {
-      position: static;
-      top: auto;
+      padding-top: 76px;
     }
 
     .interest-grid {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 24px;
+    }
+
+    /* the role drops under its company once the row cannot hold both. */
+    .experience-list {
+      grid-template-columns: 40px minmax(0, 1fr);
+      row-gap: 12px;
+    }
+
+    .experience-role {
+      grid-column: 2;
+      padding-left: 0;
+      white-space: normal;
     }
   }
 </style>
