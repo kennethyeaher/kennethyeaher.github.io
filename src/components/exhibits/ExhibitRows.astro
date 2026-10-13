@@ -1,6 +1,7 @@
 ---
 // rows per figma 55:681: a 600 square stage beside its caption, one screen per row. the device runs off
-// the stage's right and bottom edges, as in figma, and the media tag sits in the stage's corner.
+// the stage's right and bottom edges, as in figma, and the media tag sits in the stage's corner. reversed rows
+// (frontground 222:440) put the caption first and run the full 1116, so the stage meets the right edge.
 import Caption from "@/components/exhibits/Caption.astro";
 import ExhibitStage from "@/components/exhibits/ExhibitStage.astro";
 import ExhibitVisual from "@/components/exhibits/ExhibitVisual.astro";
@@ -15,21 +16,29 @@ interface Props {
   /** a base colour per row, where figma gives each row stage its own (terpcarehub 90:1689, 90:1699, 90:1709). */
   bases?: string[];
   veil?: boolean;
+  reverse?: boolean;
 }
-const { palette, visuals, captions, fields = [], base, bases = [], veil = false } = Astro.props;
+const { palette, visuals, captions, fields = [], base, bases = [], veil = false, reverse = false } = Astro.props;
 ---
-<div class="exhibit-rows">
+<div class:list={["exhibit-rows", reverse && "is-reverse"]}>
   {visuals.map((visual, index) => (
     <div class="exhibit-row">
+      {reverse && (
+        <div class="row-caption">
+          <Caption title={captions[index].title} body={captions[index].body} />
+        </div>
+      )}
       <ExhibitStage palette={palette} size="square" field={fields[index]} base={bases[index] ?? base} veil={veil}>
         <ExhibitVisual visual={visual} stageRatio={1} stageWidth={600 / 1116} />
         {/* the media tag marks a stage that ships as a looping video (figma 50:584), so a still row shows none.
             it carries the loop's pause control in the stage's corner (132:1838), clear of the device. */}
         {captions[index].tag && visual.loop && <span class="row-tag"><MediaTag text={captions[index].tag!} loop={visual.loop.name ?? ""} /></span>}
       </ExhibitStage>
-      <div class="row-caption">
-        <Caption title={captions[index].title} body={captions[index].body} />
-      </div>
+      {!reverse && (
+        <div class="row-caption">
+          <Caption title={captions[index].title} body={captions[index].body} />
+        </div>
+      )}
     </div>
   ))}
 </div>
@@ -42,6 +51,9 @@ const { palette, visuals, captions, fields = [], base, bases = [], veil = false 
   /* below a 560 wide stage the pill reaches the phone's top edge, so the phone drops 20px and stays clear of it. */
   @container (max-width: 560px) {
     .exhibit-row :global(.exhibit-visual.is-placed:has(.frame-iphone)) { margin-top: 20px; }
+  }
+  @media (min-width: 761px) {
+    .is-reverse .exhibit-row { grid-template-columns: minmax(0, 400px) minmax(0, 600px); justify-content: space-between; }
   }
   @media (max-width: 760px) {
     .exhibit-row { grid-template-columns: minmax(0, 1fr); gap: 20px; }

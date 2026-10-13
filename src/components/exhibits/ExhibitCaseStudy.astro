@@ -128,11 +128,14 @@ function sectionFor(exhibit: any) {
                 </ExhibitStage>
                 {exhibit.notes && <Notes notes={exhibit.notes} idPrefix={exhibit.id} />}
                 {exhibit.captions && <div class="stage-caption">{exhibit.captions.map((caption: any) => <Caption title={caption.title} body={caption.body} />)}</div>}
+                {/* rows after the stage's notes or caption, one screen per row (frontground 222:284, terpcare 218:311). */}
+                {exhibit.rows && <ExhibitRows palette={palette} visuals={exhibit.rows.visuals} captions={exhibit.rows.captions} fields={exhibit.rows.fields} base={exhibit.rows.base} bases={exhibit.rows.bases} veil={exhibit.rows.veil} reverse={exhibit.rows.reverse} />}
                 {exhibit.pins && <ExhibitPins id={`${exhibit.id}-pins`} palette={palette} exhibit={exhibit.pins} />}
               </>
             )}
             {exhibit.walkthrough && <ExhibitWalkthrough id={`${exhibit.id}-walkthrough`} palette={palette} walkthrough={exhibit.walkthrough} />}
-            {exhibit.kind === "rows" && (
+            {/* a walkthrough can carry the whole exhibit, with no rows after it (terpcare book). */}
+            {exhibit.kind === "rows" && exhibit.visuals.length > 0 && (
               <ExhibitRows palette={palette} visuals={exhibit.visuals} captions={exhibit.captions} fields={exhibit.fields} base={exhibit.base} bases={exhibit.bases} veil={exhibit.veil} />
             )}
             {exhibit.kind === "heatmap" && (
