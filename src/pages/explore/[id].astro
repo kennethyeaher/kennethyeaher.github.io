@@ -1,0 +1,238 @@
+---
+// one explore item (figma 299:2331, 300:2052): back to the grid in the item's own view, a 560px square visual with
+// arrows either side and dots under it, then the code and the info line. with scripts off the visuals stack.
+import Base from "@/layouts/Base.astro";
+import { exploreItems, visualBackground } from "@/data/explore.mjs";
+
+type ExploreItem = (typeof exploreItems)[number];
+
+interface Props {
+  item: ExploreItem;
+}
+
+export function getStaticPaths() {
+  return exploreItems.map((item) => ({ params: { id: item.id }, props: { item } }));
+}
+
+const { item } = Astro.props;
+const back = item.category === "personal" ? "/explore?view=personal" : "/explore";
+const many = item.visuals.length > 1;
+---
+
+<Base title={item.code} description={`${item.code}, ${item.category} work by Kenneth Yeaher. ${item.info}`}>
+  <article class="explore-item">
+    <a class="explore-back" href={back}><span aria-hidden="true">‹</span>Explore</a>
+    <div class="explore-viewer" data-viewer role="group" aria-roledescription="carousel" aria-label={`${item.code} visuals`}>
+      {many && <button type="button" class="explore-arrow is-prev" data-step="-1" aria-label="Previous visual">‹</button>}
+      <div class="explore-stage" data-stage>
+        {
+          item.visuals.map((visual, index) =>
+            "src" in visual ? (
+              <img class:list={["explore-slide", index === 0 && "is-current"]} data-slide src={visual.src} alt={visual.alt} decoding="async" />
+            ) : (
+              <div class:list={["explore-slide", index === 0 && "is-current"]} data-slide aria-hidden="true" style={`background-image: ${visualBackground(visual)}`} />
+            ),
+          )
+        }
+      </div>
+      {many && <button type="button" class="explore-arrow is-next" data-step="1" aria-label="Next visual">›</button>}
+      {
+        many && (
+          <ol class="explore-dots" aria-hidden="true">
+            {item.visuals.map((_, index) => <li class:list={["explore-dot", index === 0 && "is-current"]} data-dot />)}
+          </ol>
+        )
+      }
+      <p class="sr-only" aria-live="polite" data-viewer-status></p>
+    </div>
+    <h1 class="explore-item-code">{item.code}</h1>
+    <p class="explore-item-info">{item.info}</p>
+  </article>
+</Base>
+
+<script>
+  import "@/scripts/explore.ts";
+</script>
+
+<style>
+  /* the home column, the back link at y=200 level with the rail and the visual 64px under its top. the bottom margin
+     collapses with the footer's 96px one, so the credit sits 36px under the info line. */
+  .explore-item {
+    display: flex;
+    width: min(924px, 100% - 48px);
+    margin-bottom: -84px;
+    margin-left: max(24px, (100% - 924px) / 2 - 48px);
+    padding-top: 136px;
+    align-items: center;
+    flex-direction: column;
+  }
+
+  .explore-back {
+    display: flex;
+    align-self: flex-start;
+    gap: 8px;
+    color: var(--muted);
+    font: 15px / 20px var(--ui-sans);
+    transition: color 180ms ease;
+  }
+
+  .explore-back:hover,
+  .explore-back:focus-visible {
+    color: var(--ink);
+  }
+
+  /* arrows 68px out from the visual's edges, centred on its height. */
+  .explore-viewer {
+    display: grid;
+    width: 100%;
+    margin-top: 44px;
+    align-items: center;
+    column-gap: 46px;
+    grid-template-columns: 44px minmax(0, 560px) 44px;
+    justify-content: center;
+  }
+
+  .explore-stage {
+    display: grid;
+    gap: 24px;
+    grid-column: 2;
+    grid-row: 1;
+    touch-action: pan-y;
+  }
+
+  .explore-slide {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+  }
+
+  :global(.nav-ready) .explore-slide:not(.is-current) {
+    display: none;
+  }
+
+  .explore-arrow,
+  .explore-dots {
+    display: none;
+  }
+
+  :global(.nav-ready) .explore-arrow {
+    display: grid;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--ink-strong);
+    cursor: pointer;
+    font: 32px / 1 var(--ui-sans);
+    grid-row: 1;
+    place-items: center;
+  }
+
+  .explore-arrow.is-prev {
+    grid-column: 1;
+  }
+
+  .explore-arrow.is-next {
+    grid-column: 3;
+  }
+
+  /* three 6px dots 8px apart, 24px under the visual; the current one in ink. */
+  :global(.nav-ready) .explore-dots {
+    display: flex;
+    margin: 24px 0 0;
+    padding: 0;
+    gap: 8px;
+    grid-column: 2;
+    justify-content: center;
+    list-style: none;
+  }
+
+  .explore-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--muted) 35%, var(--canvas));
+  }
+
+  .explore-dot.is-current {
+    background: var(--ink-strong);
+  }
+
+  .explore-item-code {
+    margin: 24px 0 0;
+    color: var(--ink-strong);
+    font: 15px / 18px var(--mono);
+  }
+
+  .explore-item-info {
+    margin: 20px 0 0;
+    color: var(--muted);
+    font: 15px / 20px var(--ui-sans);
+  }
+
+  @media (max-width: 980px) {
+    .explore-item {
+      width: auto;
+      margin-left: 0;
+      padding-inline: 20px;
+      padding-top: 40px;
+    }
+  }
+
+  /* phones (figma 300:2052): the visual takes the column and the arrows sit on it, 8px in from its edges. */
+  @media (max-width: 760px) {
+    .explore-viewer {
+      margin-top: 28px;
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .explore-stage {
+      grid-column: 1;
+    }
+
+    /* on phones the arrows sit on the visual, so each gets a round backdrop in the page colour to stay readable
+       on any gradient or photo, in both themes. */
+    :global(.nav-ready) .explore-arrow {
+      z-index: 1;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: color-mix(in srgb, var(--canvas) 88%, transparent);
+      font-size: 24px;
+    }
+
+    .explore-arrow.is-prev {
+      grid-column: 1;
+      justify-self: start;
+      margin-left: 8px;
+    }
+
+    .explore-arrow.is-next {
+      grid-column: 1;
+      justify-self: end;
+      margin-right: 8px;
+    }
+
+    :global(.nav-ready) .explore-dots {
+      margin-top: 20px;
+      grid-column: 1;
+    }
+
+    .explore-item-code {
+      margin-top: 20px;
+    }
+
+    .explore-item-info {
+      margin-top: 16px;
+    }
+  }
+
+  /* the 375 frame puts the credit 63px under the info line, with the footer's 72px phone margin. */
+  @media (max-width: 620px) {
+    .explore-item {
+      margin-bottom: -33px;
+    }
+  }
+</style>
