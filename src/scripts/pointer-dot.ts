@@ -1,7 +1,7 @@
 /**
  * the dot cursor. on fine hovering mouse pointers the native cursor hides on every page and one aria-hidden dot is the
- * pointer, centred on the tip and moved there once a frame with no easing. over anything interactive it grows into
- * a 24px ring. a target's data-cursor-label shows in a chip beside the ring (the cards' "View <name>", the cord's pull
+ * pointer, centred on the tip and moved there once a frame with no easing. at rest it is a 14px solid dot, and over
+ * anything interactive it opens into a ring of the same size. a target's data-cursor-label shows in a chip beside the ring (the cards' "View <name>", the cord's pull
  * set here from the theme), and an unlabelled About photo shows its alt text (note 267:1842). touch, pen,
  * forced colours, fields, a blurred window, a hidden tab and a pointer outside the window all get the native cursor
  * back. never keyboard focus.
@@ -28,7 +28,7 @@ export function initializePointerDot(): void {
     if (label !== chip!.textContent) chip!.textContent = label;
     dot!.classList.toggle("is-ring", !!target);
     dot!.classList.toggle("is-chip", !!label);
-    dot!.classList.toggle("is-left", !!label && x + 20 + chip!.offsetWidth + 16 > innerWidth);
+    dot!.classList.toggle("is-left", !!label && x + 15 + chip!.offsetWidth + 16 > innerWidth);
     dot!.style.translate = `${x}px ${y}px`;
   }
 

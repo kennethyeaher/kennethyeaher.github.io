@@ -149,18 +149,18 @@ test("the dot cursor is one aria-hidden dot on every page, the pointer for fine 
   assert.match(script, /dark\.addEventListener\("change", labelCord\)/);
   // the chip flips left when its real width would come within the 16px gutter of the window's right edge, not at a
   // fixed distance.
-  assert.match(script, /x \+ 20 \+ chip!\.offsetWidth \+ 16 > innerWidth/);
+  assert.match(script, /x \+ 15 \+ chip!\.offsetWidth \+ 16 > innerWidth/);
   assert.doesNotMatch(script, /< 200/);
   assert.match(globalCss, /\.pointer-dot-chip \{[^}]*display: none;/);
   assert.match(globalCss, /\.pointer-dot\.is-chip \.pointer-dot-chip \{ display: block; \}/);
-  // the chip sits 8px clear of the 24px ring's edge, on either side.
-  assert.match(globalCss, /\.pointer-dot-chip \{ position: absolute; top: 0; left: 20px;/);
-  assert.match(globalCss, /\.pointer-dot\.is-left \.pointer-dot-chip \{ right: 20px; left: auto; \}/);
-  // rest: a 6px solid --cord-ring dot centred on the tip. ring: 24px border-box with a 2px --cord-ring border on
-  // --cord-pull, grown over 150ms --ease-out, 0.85 while the button is down.
+  // the chip sits 8px clear of the 14px ring's edge, on either side.
+  assert.match(globalCss, /\.pointer-dot-chip \{ position: absolute; top: 0; left: 15px;/);
+  assert.match(globalCss, /\.pointer-dot\.is-left \.pointer-dot-chip \{ right: 15px; left: auto; \}/);
+  // rest: a 14px solid --cord-ring dot centred on the tip, the knob's size. ring: the same 14px with a 1.5px --cord-ring
+  // border on --cord-pull, opened over 150ms --ease-out, 0.85 while the button is down.
   assert.match(globalCss, /\.pointer-dot \{ position: fixed; z-index: 100; top: 0; left: 0; pointer-events: none;[^}]*\}/);
-  assert.match(globalCss, /\.pointer-dot-mark \{[^}]*box-sizing: border-box; width: 6px; height: 6px; border: 3px solid var\(--cord-ring\); border-radius: 50%; background: var\(--cord-ring\); translate: -50% -50%;[^}]*transition: width 150ms var\(--ease-out\), height 150ms var\(--ease-out\), border-width 150ms var\(--ease-out\), background-color 150ms var\(--ease-out\), scale 150ms var\(--ease-out\);/);
-  assert.match(globalCss, /\.pointer-dot\.is-ring \.pointer-dot-mark \{ width: 24px; height: 24px; border-width: 2px; background: var\(--cord-pull\); \}/);
+  assert.match(globalCss, /\.pointer-dot-mark \{[^}]*box-sizing: border-box; width: 14px; height: 14px; border: 7px solid var\(--cord-ring\); border-radius: 50%; background: var\(--cord-ring\); translate: -50% -50%;[^}]*transition: width 150ms var\(--ease-out\), height 150ms var\(--ease-out\), border-width 150ms var\(--ease-out\), background-color 150ms var\(--ease-out\), scale 150ms var\(--ease-out\);/);
+  assert.match(globalCss, /\.pointer-dot\.is-ring \.pointer-dot-mark \{ border-width: 1\.5px; background: var\(--cord-pull\); \}/);
   assert.match(globalCss, /\.pointer-dot\.is-down \.pointer-dot-mark \{ scale: 0\.85; \}/);
   assert.match(globalCss, /\.theme-cord-knob \{[^}]*box-sizing: border-box; width: 14px; height: 14px; border: 1\.5px solid var\(--cord-ring\);[^}]*background: var\(--cord-pull\);/);
   // reduced motion: the dot still follows, the size changes are instant.
