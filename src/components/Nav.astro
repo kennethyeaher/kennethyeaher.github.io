@@ -11,6 +11,7 @@ const { crumb } = Astro.props;
 
 const links = [
   { href: "/", label: "Work" },
+  { href: "/explore", label: "Explore" },
   { href: "/about", label: "About" },
   { href: profile.links.resume, label: "Resume", external: true },
 ];
@@ -20,6 +21,7 @@ const path = Astro.url.pathname.replace(/\/$/, "") || "/";
 /** Return whether one internal navigation item represents the current route. */
 function isActive(href: string): boolean {
   if (href === "/") return path === "/" || path.startsWith("/work/");
+  if (href === "/explore") return path === href || path.startsWith("/explore/");
   return path === href;
 }
 ---

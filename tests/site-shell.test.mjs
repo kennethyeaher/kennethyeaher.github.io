@@ -16,10 +16,11 @@ before(() => {
   });
 });
 
-test("the rendered shell exposes only Work, About, and Resume navigation", () => {
+test("the rendered shell exposes only Work, Explore, About, and Resume navigation", () => {
   const html = readFileSync(join(projectRoot, "dist", "index.html"), "utf8");
 
   assert.match(html, />\s*Work\s*</);
+  assert.match(html, /href="\/explore"[^>]*>\s*Explore\s*</);
   assert.match(html, /href="\/about"[^>]*>\s*About\s*</);
   assert.match(html, /href="\/resume\/kyresume\.pdf"[^>]*>\s*Resume\s*</);
   assert.doesNotMatch(html, />\s*Education\s*</);
@@ -268,7 +269,7 @@ test("the primary rail is fixed at the left edge, squares the current page and t
     const html = readFileSync(join(projectRoot, "dist", file), "utf8");
     // plain links in a list, so the rail works with scripts off; resume still opens the pdf.
     assert.match(html, /<nav class="site-nav( is-case)?" aria-label="Primary navigation">\s*<ul class="rail">/, file);
-    assert.deepEqual(labels(html), ["Work", "About", "Resume"], file);
+    assert.deepEqual(labels(html), ["Work", "Explore", "About", "Resume"], file);
     assert.deepEqual(current(html), [active], file);
     assert.match(rail(html), /<a href="\/resume\/kyresume\.pdf" class="rail-link" target="_blank" rel="noreferrer">/, file);
   }
