@@ -1,7 +1,8 @@
 ---
 // rows per figma 55:681: a 600 square stage beside its caption, one screen per row. the device runs off
 // the stage's right and bottom edges, as in figma, and the media tag sits in the stage's corner. reversed rows
-// (frontground 222:440) put the caption first and run the full 1116, so the stage meets the right edge.
+// (frontground 222:440) put the caption first and run the full 1116, so the stage meets the right edge. zigzag rows
+// (terpcare 64:795) take that reversed grid on every second row, each caption centred on its stage.
 import Caption from "@/components/exhibits/Caption.astro";
 import ExhibitStage from "@/components/exhibits/ExhibitStage.astro";
 import ExhibitVisual from "@/components/exhibits/ExhibitVisual.astro";
@@ -10,17 +11,20 @@ import MediaTag from "@/components/exhibits/MediaTag.astro";
 interface Props {
   palette: string[];
   visuals: any[];
-  captions: { tag?: string; title: string; body: string }[];
+  captions: { tag?: string; eyebrow?: string; title: string; body: string }[];
   fields?: any[];
   base?: string;
   /** a base colour per row, where figma gives each row stage its own (terpcarehub 90:1689, 90:1699, 90:1709). */
   bases?: string[];
   veil?: boolean;
   reverse?: boolean;
+  /** row 1 sets the stage first, row 2 the caption first, and so on. */
+  zigzag?: boolean;
   /** an eyebrow, title and body above the rows in place of a side caption (terpcare dark mode). */
   lead?: { eyebrow: string; title: string; body: string };
 }
-const { palette, visuals, captions, fields = [], base, bases = [], veil = false, reverse = false, lead } = Astro.props;
+const { palette, visuals, captions, fields = [], base, bases = [], veil = false, reverse = false, zigzag = false, lead } = Astro.props;
+const flipped = (index: number) => (zigzag ? index % 2 === 1 : reverse);
 ---
 {lead && (
   <div class="rows-lead">
@@ -28,11 +32,12 @@ const { palette, visuals, captions, fields = [], base, bases = [], veil = false,
     <Caption title={lead.title} body={lead.body} />
   </div>
 )}
-<div class:list={["exhibit-rows", reverse && "is-reverse", lead && "has-lead"]}>
+<div class:list={["exhibit-rows", reverse && !zigzag && "is-reverse", zigzag && "is-zigzag", lead && "has-lead"]}>
   {visuals.map((visual, index) => (
-    <div class="exhibit-row">
-      {reverse && captions[index] && (
+    <div class:list={["exhibit-row", zigzag && flipped(index) && "is-reverse"]}>
+      {flipped(index) && captions[index] && (
         <div class="row-caption">
+          {captions[index].eyebrow && <p class="row-eyebrow">{captions[index].eyebrow}</p>}
           <Caption title={captions[index].title} body={captions[index].body} />
         </div>
       )}
@@ -42,8 +47,9 @@ const { palette, visuals, captions, fields = [], base, bases = [], veil = false,
             it carries the loop's pause control in the stage's corner (132:1838), clear of the device. */}
         {captions[index]?.tag && visual.loop && <span class="row-tag"><MediaTag text={captions[index].tag!} loop={visual.loop.name ?? ""} /></span>}
       </ExhibitStage>
-      {!reverse && captions[index] && (
+      {!flipped(index) && captions[index] && (
         <div class="row-caption">
+          {captions[index].eyebrow && <p class="row-eyebrow">{captions[index].eyebrow}</p>}
           <Caption title={captions[index].title} body={captions[index].body} />
         </div>
       )}
@@ -56,19 +62,25 @@ const { palette, visuals, captions, fields = [], base, bases = [], veil = false,
   .exhibit-row { display: grid; grid-template-columns: minmax(0, 600px) minmax(0, 400px); align-items: end; gap: 56px; }
   /* a lead sits 80px under the loop card and 32px over the stage, as wide as a caption may run, flush with the stage. */
   .rows-lead { display: grid; gap: 10px; max-width: 560px; margin-top: 80px; }
-  .rows-lead-eyebrow { margin: 0; color: var(--muted); font: 11px / 14px var(--mono); letter-spacing: 0.06em; text-transform: uppercase; }
+  .rows-lead-eyebrow, .row-eyebrow { margin: 0; color: var(--muted); font: 11px / 14px var(--mono); letter-spacing: 0.06em; text-transform: uppercase; }
   .rows-lead :global(.exhibit-caption) { max-width: 560px; }
   .exhibit-rows.has-lead { margin-top: 32px; }
   .row-tag { position: absolute; z-index: 4; top: 3%; left: 3%; }
   .row-caption :global(.exhibit-caption) { max-width: 400px; }
+  /* zigzag rows sit 80px under the loop card and 80px apart, each caption centred on its 600 stage. */
+  .exhibit-rows.is-zigzag { gap: 80px; margin-top: 80px; }
+  .is-zigzag .exhibit-row { align-items: center; }
+  .is-zigzag .row-caption { display: grid; gap: 10px; }
   /* below a 560 wide stage the pill reaches the phone's top edge, so the phone drops 20px and stays clear of it. */
   @container (max-width: 560px) {
     .exhibit-row :global(.exhibit-visual.is-placed:has(.frame-iphone)) { margin-top: 20px; }
   }
   @media (min-width: 761px) {
-    .is-reverse .exhibit-row { grid-template-columns: minmax(0, 400px) minmax(0, 600px); justify-content: space-between; }
+    .is-reverse .exhibit-row, .exhibit-row.is-reverse { grid-template-columns: minmax(0, 400px) minmax(0, 600px); justify-content: space-between; }
   }
   @media (max-width: 760px) {
     .exhibit-row { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+    /* stacked, a flipped zigzag row still shows its stage first, so every caption reads under its own phone. */
+    .is-zigzag .exhibit-row.is-reverse .row-caption { order: 1; }
   }
 </style>
