@@ -171,8 +171,8 @@ test("Frontground's laptop loops follow the loop conventions and the stills they
   for (const block of [offline, triage]) assert.equal(block.fields, undefined);
   const sizes = { sync: [1280, 856], duplicate: [1280, 856], triage: [1280, 800] };
   for (const [, visual] of loops) await assertLoopFiles(visual, sizes[visual.loop.name]);
-  // triage-queue came back under its old name as the hi-fi queue (c17) for the greyscale specimen, tested below.
-  assertStillsGone("frontground", ["sync-failed", "offline-queue", "duplicate-check", "triage-handoff", "vitals-trend"]);
+  // the greyscale specimen draws its queue live (figma 365:519), so the triage-queue capture is gone too.
+  assertStillsGone("frontground", ["sync-failed", "offline-queue", "duplicate-check", "triage-handoff", "triage-queue", "vitals-trend"]);
 });
 
 /** a loop whose device and colour field are baked in: no frame or box of its own, its poster as its src at the
@@ -229,13 +229,6 @@ test("sohive's rsvp outcomes and host side each show one wide loop in place of f
     assert.equal(exhibit.notes.length, 4);
   }
   assertStillsGone("sohive", ["rsvp-confirmed", "rsvp-waitlisted", "event-changed", "waitlist-spot-opened", "host-preview", "host-door-checkin", "host-message", "host-after-event"]);
-});
-
-test("the greyscale specimen's queue is the hi-fi prototype's c17 capture, not the old triage-queue still", () => {
-  const source = join(projectRoot, ".private/fg-loops/hifi/frames/c17.png");
-  if (!existsSync(source)) return;
-  const hash = (file) => createHash("sha256").update(readFileSync(file)).digest("hex");
-  assert.equal(hash(publicFile("/images/work/frontground/frontground-triage-queue.png")), hash(source));
 });
 
 test("the offline stage still is the S2 capture with the new triage chips", () => {
