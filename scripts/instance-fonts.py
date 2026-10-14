@@ -4,8 +4,12 @@
 google fonts serves these families with their full weight axis (newsreader 200 to 800, jetbrains mono 100 to
 800, inter and figtree 100 or 300 to 900), but the site only sets a few weights. this script takes google's woff2
 files, cuts the wght axis to each family's range with the fonttools instancer, and writes them to public/fonts.
-every other axis is kept, so newsreader keeps opsz 6 to 72 and inter keeps opsz 14 to 32. inter and figtree are
-only used by the live specimens (src/components/exhibits/specimens), so they ship latin only. fraunces is left alone: narrowing its axis moved glyph widths and rewrapped a
+every other axis is kept, so newsreader keeps opsz 6 to 72, except where a family pins one: inter's opsz is pinned
+at 14, its text cut. inter and figtree are only used by the live specimens (src/components/exhibits/specimens), so
+they ship latin only. inter's specimen text is 9 to 13px on a half size stage and 11 to 17px on phones, with one
+21 to 28px title (SpecimenTerpcareMood.astro, SpecimenSohiveRsvp.astro); with optical sizing on auto, everything at
+14px or under already drew at opsz 14, so pinning it changes only the larger text slightly and takes the latin file
+from 52,352 to 35,964 bytes. fraunces is left alone: narrowing its axis moved glyph widths and rewrapped a
 heading (see the note above the @font-face rules in src/styles/global.css).
 
 this is a manual tool, not part of the build. run it when the google files change, then rerun the tests and
@@ -34,14 +38,15 @@ ROOT = Path(__file__).resolve().parent.parent
 SUBSETS = ("latin", "latin-ext")
 
 # family name in the google fonts css2 api, the axes to ask for, the folder and file prefix in public/fonts, the
-# weight range the site uses (matching font-weight in its @font-face rule) and the subsets that ship.
+# weight range the site uses (matching font-weight in its @font-face rule), the subsets that ship and any axes
+# pinned to one value (dropped from the font).
 # newsreader and jetbrains mono: font-weight 400 500 in global.css. inter and figtree: the specimen faces in
 # src/components/exhibits/specimens/SpecimenFonts.astro, which set inter 500 to 700 and figtree 400 to 700.
 FAMILIES = [
-    ("Newsreader", "opsz,wght@6..72,200..800", "newsreader", (400, 500), SUBSETS),
-    ("JetBrains Mono", "wght@100..800", "jetbrains-mono", (400, 500), SUBSETS),
-    ("Inter", "opsz,wght@14..32,100..900", "inter", (500, 700), ("latin",)),
-    ("Figtree", "wght@300..900", "figtree", (400, 700), ("latin",)),
+    ("Newsreader", "opsz,wght@6..72,200..800", "newsreader", (400, 500), SUBSETS, {}),
+    ("JetBrains Mono", "wght@100..800", "jetbrains-mono", (400, 500), SUBSETS, {}),
+    ("Inter", "opsz,wght@14..32,100..900", "inter", (500, 700), ("latin",), {"opsz": 14}),
+    ("Figtree", "wght@300..900", "figtree", (400, 700), ("latin",), {}),
 ]
 
 # google picks the font format from the user agent; a current chrome gets woff2.
@@ -90,12 +95,17 @@ def axis_ranges(font):
     return {axis.axisTag: (axis.minValue, axis.maxValue) for axis in font["fvar"].axes}
 
 
-def limit_weight(font, weight):
-    """cut the wght axis to weight in place of the full range, keeping every other axis as it is."""
-    low, high = axis_ranges(font)["wght"]
+def limit_axes(font, weight, pins):
+    """cut the wght axis to weight in place of the full range and pin each axis in pins to its one value, keeping
+    every other axis as it is."""
+    ranges = axis_ranges(font)
+    low, high = ranges["wght"]
     if low > weight[0] or high < weight[1]:
         sys.exit(f"source wght {low:g} to {high:g} does not cover {weight[0]} to {weight[1]}")
-    return instantiateVariableFont(font, {"wght": weight}, inplace=False)
+    for tag, value in pins.items():
+        if tag not in ranges or not ranges[tag][0] <= value <= ranges[tag][1]:
+            sys.exit(f"source has no {tag} axis covering {value}")
+    return instantiateVariableFont(font, {"wght": weight, **pins}, inplace=False)
 
 
 def main():
@@ -106,24 +116,26 @@ def main():
     parser.add_argument("--family", action="append", help="only rebuild this family, by folder name (repeatable)")
     args = parser.parse_args()
 
-    for family, axes, prefix, weight, subsets in FAMILIES:
+    for family, axes, prefix, weight, subsets, pins in FAMILIES:
         if args.family and prefix not in args.family:
             continue
         urls = None if args.source else google_sources(family, axes, subsets)
         for subset in subsets:
             source = load_source(prefix, subset, args.source, urls)
             before = axis_ranges(source)
-            font = limit_weight(source, weight)
+            font = limit_axes(source, weight, pins)
             after = axis_ranges(font)
-            # the instancer should only have touched wght.
+            # the instancer should only have touched wght and dropped the pinned axes.
             assert after["wght"] == weight, after
-            assert {tag: span for tag, span in after.items() if tag != "wght"} == {tag: span for tag, span in before.items() if tag != "wght"}
+            kept = {tag: span for tag, span in before.items() if tag != "wght" and tag not in pins}
+            assert {tag: span for tag, span in after.items() if tag != "wght"} == kept, after
 
             target = Path(args.out) / prefix / f"{prefix}-{subset}.woff2"
             target.parent.mkdir(parents=True, exist_ok=True)
             font.flavor = "woff2"
             font.save(target)
-            print(f"{target}: wght {before['wght'][0]:g} to {before['wght'][1]:g} -> {weight[0]} to {weight[1]}, {target.stat().st_size} bytes")
+            pinned = "".join(f", {tag} {value:g}" for tag, value in pins.items())
+            print(f"{target}: wght {before['wght'][0]:g} to {before['wght'][1]:g} -> {weight[0]} to {weight[1]}{pinned}, {target.stat().st_size} bytes")
 
 
 if __name__ == "__main__":
