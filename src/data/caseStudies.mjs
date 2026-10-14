@@ -1119,18 +1119,18 @@ export const caseStudies = [
         ],
         eyebrow: "WHERE IT LANDED",
         heading: "Insight 1: The decision moves onto the card",
-        // two wide loops from the hi-fi prototype (.private/terpcarehub-loops) in place of the annotated alert browser and
-        // the find care pins stage: each device and its stage's colour field are baked into the video.
+        // two wide loops from the hi-fi prototype (.private/terpcarehub-loops, SPEC-v2.md) in place of the annotated alert
+        // browser and the find care pins stage: each device and the alert stage's red field are baked into the video.
         loops: {
           layout: "wide",
           base: "#8a0b1e",
           visuals: [
-            { src: "/images/work/terpcarehub/terpcarehub-alert-detail-loop-poster.webp", width: 1280, height: 906, alt: "TerpCareHub recording in a browser: a high severity flu alert scrolls down to its Acknowledge this alert panel, Mark as read turns the panel to Acknowledged, and back at the top a green banner says the alert left the dashboard and stays in All alerts",
+            { src: "/images/work/terpcarehub/terpcarehub-alert-detail-loop-poster.webp", width: 1280, height: 872, alt: "TerpCareHub recording in a browser: the cursor opens a high severity flu alert from the list, the page scrolls to its Acknowledge this alert panel, Mark as read saves, the red banner turns green as the panel says Acknowledged and a Moved to Read toast offers Undo, and back in All alerts the row now shows Read",
               loop: { src: "/images/work/terpcarehub/terpcarehub-alert-detail-loop.mp4", poster: "/images/work/terpcarehub/terpcarehub-alert-detail-loop-poster.webp", name: "alert detail" } },
-            { src: "/images/work/terpcarehub/terpcarehub-findcare-loop-poster.webp", width: 1280, height: 780, base: "#f6c453", alt: "TerpCareHub recording on one phone: Open now and Takes my plan narrow find care to three clinics, the list scrolls past each card's plan and cost, Book appointment opens the University Health Center with 2:40 PM picked, Book today at 2:40 PM asks the student to sign in with UMD, and the booking is confirmed",
+            { src: "/images/work/terpcarehub/terpcarehub-findcare-loop-poster.webp", width: 1280, height: 780, alt: "TerpCareHub recording on one phone: typing sore throat suggests it, Open now and Takes my plan narrow find care to three clinics, Book appointment opens the University Health Center, 3:20 PM is picked and a reason typed, signing in with UMD rises as a sheet, the booking is confirmed and Add to calendar says Added to your calendar",
               loop: { src: "/images/work/terpcarehub/terpcarehub-findcare-loop.mp4", poster: "/images/work/terpcarehub/terpcarehub-findcare-loop-poster.webp", name: "find care" } },
           ],
-          captions: [{ tag: "LOOP · 13s" }, { tag: "LOOP · 14s" }],
+          captions: [{ tag: "LOOP · 16s" }, { tag: "LOOP · 18s" }],
         },
       },
       {

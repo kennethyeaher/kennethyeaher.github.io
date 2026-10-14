@@ -15,8 +15,9 @@ const pages = new Map();
 const loops = [
   { slug: "terpcare", id: "mood-check-in", next: "privacy", folder: "terpcare", file: "terpcare-mood-loop", name: "mood", size: [1280, 712], base: "#211f20", tag: "LOOP · 18s" },
   { slug: "terpcare", id: "privacy", next: "reflection", folder: "terpcare", file: "terpcare-privacy-loop", name: "privacy", size: [1280, 712], base: "#211f20", tag: "LOOP · 18s" },
-  { slug: "terpcarehub", id: "where-it-landed", next: "design-system", folder: "terpcarehub", file: "terpcarehub-alert-detail-loop", name: "alert detail", size: [1280, 906], base: "#8a0b1e", tag: "LOOP · 13s" },
-  { slug: "terpcarehub", id: "where-it-landed", next: "design-system", folder: "terpcarehub", file: "terpcarehub-findcare-loop", name: "find care", size: [1280, 780], base: "#f6c453", tag: "LOOP · 14s" },
+  // the v2 hub loops (.private/terpcarehub-loops/SPEC-v2.md) both sit on the alert stage's red field.
+  { slug: "terpcarehub", id: "where-it-landed", next: "design-system", folder: "terpcarehub", file: "terpcarehub-alert-detail-loop", name: "alert detail", size: [1280, 872], base: "#8a0b1e", tag: "LOOP · 16s", v2: true },
+  { slug: "terpcarehub", id: "where-it-landed", next: "design-system", folder: "terpcarehub", file: "terpcarehub-findcare-loop", name: "find care", size: [1280, 780], base: "#8a0b1e", tag: "LOOP · 18s", v2: true },
 ];
 // stills only these stages drew; the check-in sheet, the october month and the alert page are used elsewhere and stay.
 const goneStills = ["checkin-saved", "mood-patterns", "onboarding-welcome", "privacy-settings", "privacy-what-is-stored", "account-deleted"];
@@ -102,6 +103,28 @@ test("each converted stage renders one loop card, the pins stage too, with no an
   // mood check-in keeps its dark mode row and specimen after the loop.
   const mood = pages.get("terpcare").slice(pages.get("terpcare").indexOf('id="mood-check-in"'), pages.get("terpcare").indexOf('id="privacy"'));
   assert.ok(mood.indexOf('class="exhibit-loops') < mood.indexOf('class="exhibit-rows') && mood.indexOf('class="exhibit-rows') < mood.indexOf('data-specimen="terpcare-mood"'));
+});
+
+/** a clip's length in seconds, from its movie header. */
+function seconds(clip) {
+  const at = clip.indexOf("mvhd");
+  const v1 = clip[at + 4] === 1;
+  return v1 ? Number(clip.readBigUInt64BE(at + 28)) / clip.readUInt32BE(at + 24) : clip.readUInt32BE(at + 20) / clip.readUInt32BE(at + 16);
+}
+
+test("the v2 hub loops run 14 to 20 seconds at 30fps, their tags say so, and both cards take the red field's base", () => {
+  const exhibit = projects.find((project) => project.slug === "terpcarehub").exhibits.find((entry) => entry.id === "where-it-landed");
+  for (const { file, folder, name, tag, v2 } of loops) {
+    if (!v2) continue;
+    const clip = readFileSync(publicFile(`/images/work/${folder}/${file}.mp4`));
+    const length = seconds(clip);
+    assert.ok(length >= 14 && length <= 20, `${file} runs ${length}s`);
+    assert.equal(tag, `LOOP · ${Math.round(length)}s`, `${file} tag`);
+    const visual = exhibit.loops.visuals.find(({ loop }) => loop.name === name);
+    assert.equal(visual.base ?? exhibit.loops.base, "#8a0b1e", `${name} sits on the red field`);
+  }
+  // find care no longer carries the yellow pins stage's own base.
+  assert.equal(exhibit.loops.visuals.find(({ loop }) => loop.name === "find care").base, undefined);
 });
 
 test("the stills only those stages drew are gone from public, the size manifest and the sized copies", () => {
