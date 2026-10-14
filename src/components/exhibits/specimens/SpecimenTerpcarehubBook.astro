@@ -1,0 +1,114 @@
+---
+// terpcarehub, booking (figma 312:544): the provider card books from its own button. a tap turns Book appointment into
+// Booked · Today, 2:40 PM on the cord's spring, and once it lands the 40px disc's check draws in over 300ms. a second
+// tap undoes it; Replay runs it again from the top. the mock draws the two states side by side; live, one card toggles.
+import ExhibitSpecimen from "@/components/exhibits/ExhibitSpecimen.astro";
+
+interface Props {
+  specimen: { kind: string; eyebrow: string; heading: string; tag?: string; notes: { n: string; title: string; body: string }[] };
+}
+const { specimen } = Astro.props;
+const id = `specimen-${specimen.kind}`;
+// the mock's check (312:628 and 312:631), drawn as a path so it can draw itself in.
+const check = "M1.25 7.25004L6.25 12.25L15.25 1.25004";
+---
+<ExhibitSpecimen id={id} kind={specimen.kind} eyebrow={specimen.eyebrow} heading={specimen.heading} tag={specimen.tag} notes={specimen.notes} background="#f8f8f9" tone="light">
+  <button slot="controls" type="button" class="book-replay" aria-label="Replay booking" data-book-replay><span aria-hidden="true">↻</span> Replay</button>
+  <div class="provider-card" data-book-card>
+    <p class="provider-name">University Health Center</p>
+    <p class="provider-meta">Primary care · On campus · 4 min walk</p>
+    <p class="provider-next-label">NEXT AVAILABLE</p>
+    <p class="provider-next">Today, 2:40 PM</p>
+    <button type="button" class="book-button" aria-pressed="false" data-book-button>
+      <svg class="book-tick" width="14" height="11" viewBox="1.25 1.25 14 11" fill="none" aria-hidden="true"><path d={check} stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+      <span data-book-label>Book appointment</span>
+    </button>
+    <svg class="book-disc" width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+      <circle class="book-disc-fill" cx="20" cy="20" r="20" />
+      <path class="book-disc-check" d={check} transform="translate(11.75 12.75)" pathLength="1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+    </svg>
+  </div>
+</ExhibitSpecimen>
+
+<style>
+  .book-replay { display: inline-flex; gap: 6px; padding: 6px 12px; border: 1px solid #e3e3e5; border-radius: 999px; background: #ffffff; color: #273440; font: 11px / 15px var(--mono); cursor: pointer; }
+  /* 360 by 230 with a 16px radius (312:615); the text sits 24 in from the card's edge. */
+  .provider-card {
+    position: relative;
+    width: min(360px, 100%);
+    padding: 23px 23px 27px;
+    border: 1px solid #e3e3e5;
+    border-radius: 16px;
+    background: #ffffff;
+    font-family: "Figtree", var(--ui);
+  }
+  .provider-name { margin: 0; padding-right: 48px; color: #16161a; font-weight: 700; font-size: 19px; line-height: 23px; }
+  .provider-meta { margin: 7px 0 0; color: #616166; font-size: 14px; line-height: 17px; }
+  .provider-next-label { margin: 21px 0 0; color: #616166; font-weight: 700; font-size: 11px; line-height: 13px; }
+  .provider-next { margin: 5px 0 0; color: #e21833; font-weight: 700; font-size: 17px; line-height: 20px; }
+  .book-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 44px;
+    margin-top: 28px;
+    padding: 0 22px;
+    border: 0;
+    border-radius: 999px;
+    background: #e21833;
+    color: #ffffff;
+    font: 600 15px / 18px "Figtree", var(--ui);
+    cursor: pointer;
+  }
+  .book-tick { display: none; flex: none; overflow: visible; }
+  .book-button[aria-pressed="true"] { background: #e3f6ea; color: #1b6b3a; }
+  .book-button[aria-pressed="true"] .book-tick { display: block; }
+  /* the disc in the card's top right corner (312:630) shows once booked; its check draws from nothing. */
+  .book-disc { position: absolute; top: 22px; right: 24px; overflow: visible; }
+  .book-disc-fill { fill: #e3f6ea; scale: 0; transform-origin: 20px 20px; }
+  .book-disc-check { stroke: #1b6b3a; stroke-dasharray: 1; stroke-dashoffset: 1; }
+  [data-booked] .book-disc-fill { scale: 1; }
+  [data-booked] .book-disc-check { stroke-dashoffset: 0; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    /* the button lands on the cord's spring, about 400ms, each way (two names so the animation restarts). */
+    [data-touched] .book-button[aria-pressed="true"] { animation: book-land 400ms var(--cord-spring); }
+    [data-touched] .book-button[aria-pressed="false"] { animation: book-lift 400ms var(--cord-spring); }
+    .book-button { transition: background-color 200ms var(--ease-out), color 200ms var(--ease-out); }
+    @keyframes book-land { from { scale: 0.92; } }
+    @keyframes book-lift { from { scale: 0.92; } }
+    /* then the disc grows and its check draws, over 300ms from the moment the button lands. undoing clears it at once. */
+    [data-booked] .book-disc-fill { transition: scale 300ms var(--ease-out) 400ms; }
+    [data-booked] .book-disc-check { transition: stroke-dashoffset 300ms var(--ease-out) 400ms; }
+  }
+</style>
+
+<script>
+  // the button is a toggle (aria-pressed) whose label says what is booked. Replay resets the card, then books it
+  // again after a beat so the motion can be watched; under reduced motion it books at once.
+  document.querySelectorAll<HTMLElement>('figure[data-specimen="terpcarehub-book"]').forEach((figure) => {
+    const card = figure.querySelector<HTMLElement>("[data-book-card]")!;
+    const button = card.querySelector<HTMLButtonElement>("[data-book-button]")!;
+    const label = button.querySelector<HTMLElement>("[data-book-label]")!;
+    const replay = figure.querySelector<HTMLButtonElement>("[data-book-replay]")!;
+    let pending = 0;
+
+    function setBooked(booked: boolean): void {
+      card.dataset.touched = "";
+      button.setAttribute("aria-pressed", String(booked));
+      label.textContent = booked ? "Booked · Today, 2:40 PM" : "Book appointment";
+      card.toggleAttribute("data-booked", booked);
+    }
+
+    button.addEventListener("click", () => {
+      window.clearTimeout(pending);
+      setBooked(button.getAttribute("aria-pressed") !== "true");
+    });
+    replay.addEventListener("click", () => {
+      window.clearTimeout(pending);
+      setBooked(false);
+      const wait = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 600;
+      pending = window.setTimeout(() => setBooked(true), wait);
+    });
+  });
+</script>

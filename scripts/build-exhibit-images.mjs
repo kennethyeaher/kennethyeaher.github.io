@@ -19,10 +19,11 @@ function exhibitSources() {
     for (const exhibit of project.exhibits ?? []) {
       // visuals sit on the exhibit itself, on each stage of a pair, or are the tiles of a states grid.
       // the writing pass adds a scrolling laptop, walkthrough screens and a pinned phone beside an exhibit, and
-      // redesign 2 adds rows after a stage (a journey's rows are table rows, with no visuals).
+      // redesign 2 adds rows after a stage (a journey's rows are table rows, with no visuals), and a live specimen
+      // can show a capture (frontground's greyscale toggle).
       const visuals = [...(exhibit.visuals ?? []), ...(exhibit.stages ?? []).flatMap((stage) => stage.visuals ?? []), ...(exhibit.tiles ?? []), ...(exhibit.figure ? [exhibit.figure] : []),
         ...(exhibit.scroller ? [exhibit.scroller.visual] : []), ...(exhibit.walkthrough?.steps ?? []).map((step) => step.screen), ...(exhibit.pins ? [exhibit.pins.visual] : []),
-        ...(exhibit.rows?.visuals ?? [])];
+        ...(exhibit.rows?.visuals ?? []), ...(exhibit.specimens ?? []).flatMap((specimen) => specimen.visual ? [specimen.visual] : [])];
       for (const visual of visuals) sources.add(visual.src);
     }
   }

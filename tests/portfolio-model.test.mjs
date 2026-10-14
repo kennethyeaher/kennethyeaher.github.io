@@ -494,6 +494,8 @@ test("converted pages follow their prose mock word for word", { skip: !existsSyn
   }
 });
 
+const replacedRows = new Set(["frontground offline", "frontground triage"]);
+
 /** compare one converted page against its spec export: chapters, hero, and every exhibit's copy and boxes. */
 function assertMatchesSpec(slug) {
   const spec = JSON.parse(readFileSync(specPath, "utf8")).pages.find((page) => page.slug === slug);
@@ -548,7 +550,9 @@ function assertMatchesSpec(slug) {
     }
     if (source.captions && built.kind === "stage") assert.deepEqual(built.captions, source.captions);
     // a stage's rows (frontground 222:284, 222:392; terpcare 218:311): one visual and caption per row.
-    if (source.rows) {
+    // frontground's offline and triage rows gave way to recorded loops (.private/fg-loops/hifi), so the spec's rows stand replaced.
+    if (source.rows && replacedRows.has(`${slug} ${built.id}`)) assert.equal(built.rows, undefined, `${slug} ${built.id} keeps rows its loops replaced`);
+    else if (source.rows) {
       assert.deepEqual(built.rows.visuals.map(({ at }) => at), source.rows.visuals.map(({ stagePct }) => stagePct), `${slug} ${built.id} row boxes`);
       assert.deepEqual(built.rows.captions, source.rows.captions, `${slug} ${built.id} row captions`);
     } else if (built.kind === "stage") assert.equal(built.rows, undefined, `${slug} ${built.id} has rows the spec does not`);

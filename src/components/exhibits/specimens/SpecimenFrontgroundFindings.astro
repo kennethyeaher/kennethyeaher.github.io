@@ -1,0 +1,54 @@
+---
+// frontground, triage (figma 312:744): the primary assessment's ABCDE findings as toggle chips. a chip fills navy when
+// selected over 150ms with no spring, because nothing should move where a clinician is reading a value.
+import ExhibitSpecimen from "@/components/exhibits/ExhibitSpecimen.astro";
+
+interface Props {
+  specimen: { kind: string; eyebrow: string; heading: string; tag?: string; notes: { n: string; title: string; body: string }[] };
+}
+const { specimen } = Astro.props;
+const id = `specimen-${specimen.kind}`;
+// the mock's state: airway and breathing are selected.
+const findings = [
+  { label: "Airway", selected: true },
+  { label: "Breathing", selected: true },
+  { label: "Circulation", selected: false },
+  { label: "Disability", selected: false },
+  { label: "Exposure", selected: false },
+];
+---
+<ExhibitSpecimen id={id} kind={specimen.kind} eyebrow={specimen.eyebrow} heading={specimen.heading} tag={specimen.tag} notes={specimen.notes} background="#003f5d" tone="dark">
+  <div class="exam-card">
+    <p class="exam-title">New Exam · Primary assessment</p>
+    <p class="exam-hint">Tap each finding that applies</p>
+    <div class="exam-chips" role="group" aria-label="Findings">
+      {findings.map((finding) => <button type="button" class="exam-chip" aria-pressed={finding.selected ? "true" : "false"}>{finding.label}</button>)}
+    </div>
+  </div>
+</ExhibitSpecimen>
+
+<style>
+  /* 720 by 220 with a 20px radius (312:815), the text 32 in. */
+  .exam-card { --specimen-focus: #003f5d; width: min(720px, 100%); min-height: 220px; padding: 32px; border-radius: 20px; background: #ffffff; font-family: "Figtree", var(--ui); }
+  .exam-title { margin: 0; color: #003f5d; font-weight: 700; font-size: 22px; line-height: 26px; }
+  .exam-hint { margin: 8px 0 0; color: #707070; font-size: 15px; line-height: 18px; }
+  .exam-chips { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 40px; }
+  .exam-chip { padding: 8px 16px; border: 1.2px solid #003f5d; border-radius: 999px; background: #ffffff; color: #003f5d; font: 17px / 20px "Figtree", var(--ui); cursor: pointer; }
+  .exam-chip[aria-pressed="true"] { background: #003f5d; color: #ffffff; }
+  @media (prefers-reduced-motion: no-preference) {
+    .exam-chip { transition: background-color 150ms ease-out, color 150ms ease-out; }
+  }
+  @media (max-width: 760px) {
+    .exam-card { padding: 24px; }
+    .exam-chips { margin-top: 28px; }
+  }
+</style>
+
+<script>
+  // each chip is its own toggle: Tab moves between them and Space or Enter flips one.
+  document.querySelectorAll<HTMLElement>('figure[data-specimen="frontground-findings"]').forEach((figure) => {
+    figure.querySelectorAll<HTMLButtonElement>(".exam-chip").forEach((chip) => chip.addEventListener("click", () => {
+      chip.setAttribute("aria-pressed", String(chip.getAttribute("aria-pressed") !== "true"));
+    }));
+  });
+</script>

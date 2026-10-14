@@ -85,8 +85,6 @@ const renderedWidths = {
   "terpcare-checkin-choose": 252,
   "frontground-sync-offline": 720,
   "frontground-triage-assessment": 720,
-  "frontground-sync-failed": 780,
-  "frontground-triage-handoff": 780,
   "sohive-rsvp-confirmed": 246,
   "sohive-host-preview": 246,
   "mobile-programs": 252,

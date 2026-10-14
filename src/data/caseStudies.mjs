@@ -45,7 +45,10 @@
  * @typedef {{ base?: string, bases?: string[], veil?: boolean, fields: StageField[], visuals: ExhibitVisual[], captions: ExhibitCaption[], reverse?: true }} StageRows
  *   rows after a stage's captions or notes, one visual per row on a 600 square stage; reverse puts the caption
  *   first and runs the row the full 1116, so the stage meets the right edge (frontground 222:440).
- * @typedef {ExhibitBase & { kind: "stage", size: "wide" | "square" | "pair", ratio?: string, visuals: ExhibitVisual[], annotations?: ExhibitAnnotation[], notes?: ExhibitNote[], captions?: ExhibitCaption[], pins?: ExhibitPins, zoom?: true | "phone", rows?: StageRows }} StageExhibit
+ * @typedef {{ base?: string, fields: StageField[], visuals: ExhibitVisual[], captions: ExhibitCaption[] }} StageLoops
+ *   recorded loops after a stage's caption, each on its own full width 1116 by 640 stage with its caption under it
+ *   (frontground offline and triage). each visual carries a loop, and its src is the loop's poster.
+ * @typedef {ExhibitBase & { kind: "stage", size: "wide" | "square" | "pair", ratio?: string, visuals: ExhibitVisual[], annotations?: ExhibitAnnotation[], notes?: ExhibitNote[], captions?: ExhibitCaption[], pins?: ExhibitPins, zoom?: true | "phone", rows?: StageRows, loops?: StageLoops }} StageExhibit
  *   zoom marks a small pinned stage that zooms to the active annotation (figma 168:1745); "phone" limits that to phone widths.
  * @typedef {{ width: number, height: number, sigma: number, circles: { x: number, y: number, r: number, colour: string, alpha: number }[] }} StageField
  *   a stage's own colour field from figma, in that stage's pixels.
@@ -1179,6 +1182,16 @@ export const caseStudies = [
         lede: [
           "Every flow in the first redesign stopped one screen short. A student could find care, read an alert and start a submission, but never booked, acknowledged or saw a submission go through. Booking is the first path finished end to end: provider detail, a confirmation that says what was booked and when, and a cancel that says where the time goes.",
         ],
+        specimens: [
+          {
+            kind: "terpcarehub-book", figma: "312:544", eyebrow: "SPECIMEN · TERPCAREHUB", heading: "Book from the card", tag: "LIVE · TAP TO TRY",
+            notes: [
+              { n: "01", title: "Book", body: "One tap books the next open time, straight from the card." },
+              { n: "02", title: "Booked", body: "The button keeps the time, so there is nothing to reopen." },
+              { n: "03", title: "Undo", body: "Tap again to undo. The check draws in 300ms after it lands." },
+            ],
+          },
+        ],
         walkthrough: {
           figma: "221:378",
           base: "#b3122a",
@@ -1869,22 +1882,21 @@ export const caseStudies = [
         captions: [
           { title: "Nothing is lost, and the screen says so", body: "The status pill carries a count, the banner says where the records are and when they will send, and the queue is one tap away. None of it interrupts charting, because the moment the network drops is not the moment to stop a nurse." },
         ],
-        rows: {
+        // two laptop loops from the hi-fi prototype (.private/fg-loops/hifi) in a pair of cards, each with its caption
+        // under it (figma 325:506). the laptop and the colour field are baked into the video, so the visual's src is the
+        // poster at the video's own size and the site draws no frame or field around it.
+        loops: {
+          layout: "pair",
           base: "#012e42",
-          fields: [
-            { width: 600, height: 600, sigma: 45, circles: [{ x: 160, y: 140, r: 260, colour: "#145676", alpha: 0.9 }, { x: 550, y: 510, r: 190, colour: "#0C8B44", alpha: 0.9 }] },
-            { width: 600, height: 600, sigma: 45, circles: [{ x: 160, y: 140, r: 260, colour: "#145676", alpha: 0.9 }, { x: 550, y: 510, r: 190, colour: "#0C8B44", alpha: 0.9 }] },
-            { width: 600, height: 600, sigma: 45, circles: [{ x: 160, y: 140, r: 260, colour: "#145676", alpha: 0.9 }, { x: 550, y: 510, r: 190, colour: "#0C8B44", alpha: 0.9 }] },
-          ],
           visuals: [
-            { src: "/images/work/frontground/frontground-sync-failed.png", width: 1920, height: 1080, alt: "Frontground dashboard with a red status pill and a banner saying one record did not send", frame: "browser", url: "frontground", screen: { w: 780, h: 439 }, at: { x: 9.3, y: 25, w: 130 } },
-            { src: "/images/work/frontground/frontground-offline-queue.png", width: 1920, height: 1080, alt: "Frontground offline queue listing records waiting to send, oldest first, with their status", frame: "browser", url: "frontground", screen: { w: 780, h: 439 }, at: { x: 9.3, y: 25, w: 130 } },
-            { src: "/images/work/frontground/frontground-duplicate-check.png", width: 1920, height: 1080, alt: "Frontground duplicate check offering to open an existing record that matches on name and date of birth", frame: "browser", url: "frontground", screen: { w: 780, h: 439 }, at: { x: 9.3, y: 25, w: 130 } },
+            { src: "/images/work/frontground/frontground-sync-loop-poster.webp", width: 1280, height: 856, alt: "Frontground recording: the dashboard goes offline with three records waiting, starts sending when the connection returns and flags one record that did not send, then the queue sends the rest oldest first and says the server already has the third record’s ID",
+              loop: { src: "/images/work/frontground/frontground-sync-loop.mp4", poster: "/images/work/frontground/frontground-sync-loop-poster.webp", name: "sync" } },
+            { src: "/images/work/frontground/frontground-duplicate-loop-poster.webp", width: 1280, height: 856, alt: "Frontground recording: a phone number typed in a local format is shown back in one international form, and on Done a dialog offers to open the existing record that matches on name, date of birth and phone, which opens the patient’s record",
+              loop: { src: "/images/work/frontground/frontground-duplicate-loop.mp4", poster: "/images/work/frontground/frontground-duplicate-loop-poster.webp", name: "duplicate" } },
           ],
           captions: [
-            { title: "One record did not send", body: "The pill turns red and names the count. The banner says nothing is lost and offers the queue. Charting is not interrupted." },
-            { title: "Waiting to send, oldest first", body: "Each record shows what it is, when it was saved and its status. A rejected record says why and offers retry or edit, instead of failing quietly." },
-            { title: "A possible duplicate, before save", body: "A match on name and date of birth stops a second record from being created. Open existing record is the default; create a new patient is still one tap away." },
+            { num: "LOOP 01", tag: "LOOP · 16s", title: "One record, from failure to retry", body: "The pill counts what is waiting, the queue sends oldest first, and a record the server rejects says why instead of failing quietly." },
+            { num: "LOOP 02", tag: "LOOP · 12s", title: "A possible duplicate, before save", body: "Any phone format is accepted and shown back in one form. A match on name, date of birth and phone stops a second record." },
           ],
         },
       },
@@ -1910,23 +1922,38 @@ export const caseStudies = [
         captions: [
           { title: "Red is seen now, yellow soon, green can wait", body: "Each level pairs a word with a shape and a colour, so a colour blind clinician or a cheap monitor still reads it. The suggested level comes from the signs and vitals, and the nurse confirms it rather than the form deciding." },
         ],
-        rows: {
-          reverse: true,
+        specimens: [
+          {
+            kind: "frontground-findings", figma: "312:744", eyebrow: "SPECIMEN · FRONTGROUND", heading: "Select findings by tap", tag: "LIVE · CLICK TO SELECT",
+            notes: [
+              { n: "01", title: "ABCDE", body: "Airway, breathing, circulation, disability, exposure, in the order a nurse assesses." },
+              { n: "02", title: "Timing", body: "150ms, no spring. Nothing moves where a value is being read." },
+              { n: "03", title: "Keyboard", body: "Tab between findings, Space to select." },
+            ],
+          },
+          {
+            // the hi-fi prototype's queue (.private/fg-loops/hifi/frames/c17.png) in place of the mock's drawn cards.
+            kind: "frontground-greyscale", figma: "312:831", eyebrow: "TRIAGE · FRONTGROUND", heading: "Still readable without colour",
+            visual: { src: "/images/work/frontground/frontground-triage-queue.png", width: 1920, height: 1080, alt: "Frontground patient queue of five patients. Each triage level is a word, a shape and a colour: Red with a square, Yellow with a rounded square, Green with a circle" },
+            notes: [
+              { n: "01", title: "Red · square", body: "Seen immediately." },
+              { n: "02", title: "Yellow · rounded", body: "Seen soon." },
+              { n: "03", title: "Green · circle", body: "Can wait." },
+            ],
+          },
+        ],
+        // one laptop loop from the hi-fi prototype (.private/fg-loops/hifi) in a feature card, its caption and the five
+        // steps it plays beside it (figma 325:545). the laptop and the colour field are baked into the video.
+        loops: {
+          layout: "feature",
           base: "#012e42",
-          fields: [
-            { width: 600, height: 600, sigma: 45, circles: [{ x: 440, y: 140, r: 260, colour: "#145676", alpha: 0.9 }, { x: 50, y: 510, r: 190, colour: "#0C8B44", alpha: 0.9 }] },
-            { width: 600, height: 600, sigma: 45, circles: [{ x: 440, y: 140, r: 260, colour: "#145676", alpha: 0.9 }, { x: 50, y: 510, r: 190, colour: "#0C8B44", alpha: 0.9 }] },
-            { width: 600, height: 600, sigma: 45, circles: [{ x: 440, y: 140, r: 260, colour: "#145676", alpha: 0.9 }, { x: 50, y: 510, r: 190, colour: "#0C8B44", alpha: 0.9 }] },
-          ],
+          steps: ["Intake", "Assessment, level suggested", "Hand-off with a note", "Arrives in the doctor’s queue", "Back to the queue, sorted by level"],
           visuals: [
-            { src: "/images/work/frontground/frontground-triage-handoff.png", width: 1920, height: 1080, alt: "Frontground hand-off screen sending the patient summary and confirmed level to a doctor with an optional note", frame: "browser", url: "frontground", screen: { w: 780, h: 439 }, at: { x: 9.3, y: 25, w: 130 } },
-            { src: "/images/work/frontground/frontground-triage-queue.png", width: 1920, height: 1080, alt: "Frontground patient queue sorted by triage level, each level shown with a shape and a word", frame: "browser", url: "frontground", screen: { w: 780, h: 439 }, at: { x: 9.3, y: 25, w: 130 } },
-            { src: "/images/work/frontground/frontground-vitals-trend.png", width: 1920, height: 1080, alt: "Frontground twelve hour temperature chart with a tooltip showing the value, time and who recorded it", frame: "browser", url: "frontground", screen: { w: 780, h: 439 }, at: { x: 9.3, y: 25, w: 130 } },
+            { src: "/images/work/frontground/frontground-triage-loop-poster.webp", width: 1280, height: 800, alt: "Frontground recording: a nurse enters a new arrival, checks the emergency signs and vitals in Fahrenheit, confirms the suggested yellow level and sends a hand-off note, and the doctor gets the summary and a queue sorted by level",
+              loop: { src: "/images/work/frontground/frontground-triage-loop.mp4", poster: "/images/work/frontground/frontground-triage-loop-poster.webp", name: "triage" } },
           ],
           captions: [
-            { title: "The summary goes with the patient", body: "Name, age, sex, the confirmed level and a one-line summary travel to the doctor’s queue with an optional note. Nothing is retyped." },
-            { title: "A queue sorted by level", body: "The legend sits on the list, and each level pairs a shape with a word, so the queue reads in greyscale too." },
-            { title: "Twelve hours of temperature", body: "Hover or tap a point for the value, the time and who recorded it. The chart is context; the queue stays the working surface." },
+            { num: "LOOP 03", tag: "LOOP · 18s", title: "From intake to the doctor’s queue", body: "The level is suggested from the signs and vitals and the nurse confirms it. The summary travels with the patient, so the doctor reads it instead of asking again." },
           ],
         },
       },
@@ -2277,6 +2304,18 @@ export const caseStudies = [
           { n: "03", title: "Missed days stay blank", body: "The month shows what was logged and nothing else. Only the student can see it." },
           { n: "04", title: "A pattern is not a cause", body: "Low days often mention sleep is as far as the copy goes. The screen says the numbers are illustrative and never claim a cause." },
         ],
+        // live specimens after the chapter's own exhibit (figma 312:417, "Additions / Specimens (proposal)"). each is
+        // plain html, css and a small script (src/components/exhibits/specimens); notes are the mock's words.
+        specimens: [
+          {
+            kind: "terpcare-mood", figma: "312:419", eyebrow: "SPECIMEN · TERPCARE", heading: "Check in, in light or dark", tag: "LIVE · TAP TO TRY",
+            notes: [
+              { n: "01", title: "Tap a level", body: "Five levels, one tap. The selected card fills with its own colour." },
+              { n: "02", title: "Light and dark", body: "The same tokens resolve both themes. The switch flips the specimen." },
+              { n: "03", title: "Motion", body: "A gentle spring, about 400ms. Under reduced motion it changes at once." },
+            ],
+          },
+        ],
         rows: {
           bases: ["#211f20"],
           veil: true,
@@ -2620,6 +2659,16 @@ export const caseStudies = [
           { type: "focus", num: "02", on: 1, at: { x: 5.7, y: 81, w: 89.4, h: 6.7 } },
           { type: "focus", num: "03", on: 2, at: { x: 5.7, y: 81, w: 88.6, h: 13.4 } },
           { type: "focus", num: "04", on: 3, at: { x: 5.3, y: 13.2, w: 89.4, h: 13.4 } },
+        ],
+        specimens: [
+          {
+            kind: "sohive-rsvp", figma: "312:637", eyebrow: "SPECIMEN · SOHIVE", heading: "Tap to RSVP", tag: "LIVE · TAP TO TRY",
+            notes: [
+              { n: "01", title: "Going", body: "The card turns to Going in place. Nothing opens." },
+              { n: "02", title: "Undo", body: "Tap again and a toast offers Undo, in the toast's own words." },
+              { n: "03", title: "Motion", body: "A gentle spring, about 400ms. Under reduced motion it changes at once." },
+            ],
+          },
         ],
         notes: [
           { n: "01", title: "RSVP confirmed", body: "A sheet confirms it and offers the calendar, not just a toast." },

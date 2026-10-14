@@ -1,0 +1,57 @@
+---
+// frontground, triage (figma 312:831): the hi-fi prototype's patient queue with a Colour and Greyscale switch. every
+// level is a word and a shape as well as a colour, so the queue still reads with the colour taken away. the mock
+// draws two queue cards; this shows the prototype's own capture through the sized image pipeline.
+import ExhibitSpecimen from "@/components/exhibits/ExhibitSpecimen.astro";
+import { exhibitSrcset } from "@/utils/exhibitSrcset";
+
+interface Props {
+  specimen: {
+    kind: string; eyebrow: string; heading: string; tag?: string; notes: { n: string; title: string; body: string }[];
+    visual: { src: string; width: number; height: number; alt: string };
+  };
+}
+const { specimen } = Astro.props;
+const id = `specimen-${specimen.kind}`;
+const { visual } = specimen;
+const shotId = `${id}-shot`;
+---
+<ExhibitSpecimen id={id} kind={specimen.kind} eyebrow={specimen.eyebrow} heading={specimen.heading} tag={specimen.tag} notes={specimen.notes} background="#003f5d" tone="dark">
+  <div slot="controls" class="specimen-switch" role="group" aria-label="Queue colour">
+    <button type="button" aria-pressed="true" aria-controls={shotId} data-queue-colour="colour">Colour</button>
+    <button type="button" aria-pressed="false" aria-controls={shotId} data-queue-colour="grey">Greyscale</button>
+  </div>
+  <div class="greyscale-shot" id={shotId}>
+    {/* the stage is the article column at most (1116 wide, 40 of padding), the page less its gutters below 980, and on
+        phones the crop draws the image 2.157 times the stage's inner width (100vw less 2 x 20 gutter and 2 x 16 padding). */}
+    <img src={visual.src} srcset={exhibitSrcset(visual.src)} sizes="(max-width: 760px) calc((100vw - 72px) * 2.157), (max-width: 980px) calc(100vw - 80px), 1076px"
+      width={visual.width} height={visual.height} alt={visual.alt} loading="lazy" decoding="async" />
+  </div>
+</ExhibitSpecimen>
+
+<style>
+  .greyscale-shot { width: 100%; }
+  .greyscale-shot img { display: block; width: 100%; height: auto; border-radius: 8px; }
+  .greyscale-shot.is-grey img { filter: grayscale(1); }
+  /* on a phone the whole dashboard is too small to read, so the stage crops to the ID, Patient and Triage columns of
+     the queue: 890 by 550 capture pixels from 260 across and 80 down. */
+  @media (max-width: 760px) {
+    .greyscale-shot { overflow: hidden; aspect-ratio: 890 / 550; border-radius: 8px; }
+    .greyscale-shot img { width: 215.7%; max-width: none; margin: -8.99% 0 0 -29.21%; border-radius: 0; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .greyscale-shot img { transition: filter 150ms ease-out; }
+  }
+</style>
+
+<script>
+  // the switch greys the capture with filter: grayscale(1); the pressed half says which view is showing.
+  document.querySelectorAll<HTMLElement>('figure[data-specimen="frontground-greyscale"]').forEach((figure) => {
+    const shot = figure.querySelector<HTMLElement>(".greyscale-shot")!;
+    const buttons = figure.querySelectorAll<HTMLButtonElement>("[data-queue-colour]");
+    buttons.forEach((button) => button.addEventListener("click", () => {
+      shot.classList.toggle("is-grey", button.dataset.queueColour === "grey");
+      buttons.forEach((each) => each.setAttribute("aria-pressed", String(each === button)));
+    }));
+  });
+</script>

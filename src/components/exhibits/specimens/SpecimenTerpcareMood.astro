@@ -1,0 +1,142 @@
+---
+// terpcare, mood check-in (figma 312:419): three of the five mood words as a radiogroup. the chosen card fills with
+// its mood colour on the cord's spring, and the Light and Dark switch flips the specimen's tokens, which sit on the
+// figure so the stage colour flips with them. the mock draws both themes side by side; live, one sheet flips.
+import ExhibitSpecimen from "@/components/exhibits/ExhibitSpecimen.astro";
+
+interface Props {
+  specimen: { kind: string; eyebrow: string; heading: string; tag?: string; notes: { n: string; title: string; body: string }[] };
+}
+const { specimen } = Astro.props;
+const id = `specimen-${specimen.kind}`;
+// the mock's state: good is chosen. level is the number of filled bars, out of five.
+const moods = [
+  { key: "great", label: "Great", level: 5 },
+  { key: "good", label: "Good", level: 4 },
+  { key: "okay", label: "Okay", level: 3 },
+];
+const chosen = "good";
+---
+<ExhibitSpecimen id={id} kind={specimen.kind} eyebrow={specimen.eyebrow} heading={specimen.heading} tag={specimen.tag} notes={specimen.notes} background="var(--mood-surface)" tone="light">
+  <div slot="controls" class="specimen-switch" role="group" aria-label="Specimen theme">
+    <button type="button" aria-pressed="true" data-mood-theme="light">Light</button>
+    <button type="button" aria-pressed="false" data-mood-theme="dark">Dark</button>
+  </div>
+  <div class="mood-sheet">
+    <p class="mood-theme-label" aria-hidden="true" data-mood-theme-label>LIGHT</p>
+    <div class="mood-options" role="radiogroup" aria-label="Mood">
+      {moods.map((mood) => (
+        <button type="button" role="radio" class="mood-option" aria-checked={mood.key === chosen ? "true" : "false"} tabindex={mood.key === chosen ? "0" : "-1"}
+          style={`--mood: var(--mood-${mood.level}); --mood-bg: var(--mood-${mood.level}-bg)`}>
+          <span class="mood-fill" aria-hidden="true"></span>
+          <span class="mood-bars" aria-hidden="true">
+            {[1, 2, 3, 4, 5].map((bar) => <span class:list={["mood-bar", bar <= mood.level && "is-on"]} style={`height: ${3 + bar * 3}px`}></span>)}
+          </span>
+          <span class="mood-word">{mood.label}</span>
+          <span class="mood-selected" aria-hidden="true">Selected</span>
+        </button>
+      ))}
+    </div>
+  </div>
+</ExhibitSpecimen>
+
+<style>
+  /* the specimen's tokens per the brief; the figure carries them so the stage behind the sheet flips too. */
+  :global(figure[data-specimen="terpcare-mood"]) {
+    --mood-5: #0b6e4f; --mood-5-bg: #ddf3ea;
+    --mood-4: #1a64a3; --mood-4-bg: #e1eefa;
+    --mood-3: #5c5c66; --mood-3-bg: #eeeef0;
+    --mood-surface: #ffffff; --mood-border: #e3e3e6; --mood-text: #16161a;
+    /* the mock's #7b8792 label is 3.6:1 on white; this grey keeps the mono label at 5.9:1. */
+    --mood-label: #5c6670; --mood-focus: #1f4f7a;
+  }
+  :global(figure[data-specimen="terpcare-mood"][data-mood-theme="dark"]) {
+    --mood-5: #5ac896; --mood-5-bg: #123428;
+    --mood-4: #6eaaf0; --mood-4-bg: #142840;
+    --mood-3: #aaaab2; --mood-3-bg: #28282c;
+    --mood-surface: #101012; --mood-border: #38383e; --mood-text: #f2f2f5;
+    --mood-label: #8e8e96; --mood-focus: #ffffff;
+  }
+  :global(figure[data-specimen="terpcare-mood"] .specimen-stage) { --specimen-focus: var(--mood-focus); }
+  .mood-sheet { display: grid; gap: 11px; width: min(300px, 100%); }
+  .mood-theme-label { margin: 0; color: var(--mood-label); font: var(--label-micro, 10px) / 13px var(--mono); }
+  .mood-options { display: grid; gap: 12px; }
+  /* 300 by 52 with a 12px radius (312:492); the chosen card's border is 1.5px, drawn as a half pixel inset ring on top
+     of the 1px border so nothing shifts. */
+  .mood-option {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    height: 52px;
+    padding: 0 16px 0 15px;
+    overflow: clip;
+    border: 1px solid var(--mood-border);
+    border-radius: 12px;
+    background: var(--mood-surface);
+    color: var(--mood-text);
+    font: 600 17px / 21px "Inter", var(--ui);
+    text-align: left;
+    cursor: pointer;
+    isolation: isolate;
+  }
+  .mood-option[aria-checked="true"] { border-color: var(--mood); box-shadow: inset 0 0 0 0.5px var(--mood); }
+  /* the fill sweeps in from the left edge; scale keeps it on the compositor. */
+  .mood-fill { position: absolute; z-index: -1; inset: 0; background: var(--mood-bg); scale: 0 1; transform-origin: left center; }
+  .mood-option[aria-checked="true"] .mood-fill { scale: 1 1; }
+  .mood-bars { display: flex; align-items: flex-end; gap: 3px; height: 18px; }
+  .mood-bar { width: 4px; border-radius: 1px; background: var(--mood-border); }
+  .mood-bar.is-on { background: var(--mood); }
+  .mood-word { flex: 1; }
+  .mood-selected { color: var(--mood); font: 500 12px / 15px "Inter", var(--ui); opacity: 0; }
+  .mood-option[aria-checked="true"] .mood-selected { opacity: 1; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    /* the fill lands on the cord's spring in about 400ms and leaves on a plain ease out, so it never springs past empty. */
+    .mood-fill { transition: scale 200ms var(--ease-out), background-color 250ms; }
+    .mood-option[aria-checked="true"] .mood-fill { transition: scale 400ms var(--cord-spring), background-color 250ms; }
+    /* once someone has chosen, the chosen card settles with a small spring of its own. */
+    .mood-options[data-touched] .mood-option[aria-checked="true"] { animation: mood-land 400ms var(--cord-spring); }
+    .mood-option, .mood-bar, .mood-selected, .mood-theme-label { transition: background-color 250ms, border-color 250ms, box-shadow 250ms, color 250ms, opacity 200ms; }
+    :global(figure[data-specimen="terpcare-mood"] .specimen-stage) { transition: background-color 250ms; }
+    @keyframes mood-land { from { scale: 0.97; } }
+  }
+</style>
+
+<script>
+  // one tab stop for the group, arrow keys move and choose (the aria radiogroup pattern), and the switch flips the
+  // tokens on the figure. there is nothing to wait for, so reduced motion needs nothing here: the css has no motion.
+  document.querySelectorAll<HTMLElement>('figure[data-specimen="terpcare-mood"]').forEach((figure) => {
+    const group = figure.querySelector<HTMLElement>('[role="radiogroup"]')!;
+    const radios = [...group.querySelectorAll<HTMLButtonElement>('[role="radio"]')];
+    const label = figure.querySelector<HTMLElement>("[data-mood-theme-label]")!;
+
+    function choose(radio: HTMLButtonElement, focus: boolean): void {
+      group.dataset.touched = "";
+      for (const each of radios) {
+        each.setAttribute("aria-checked", String(each === radio));
+        each.tabIndex = each === radio ? 0 : -1;
+      }
+      if (focus) radio.focus();
+    }
+
+    radios.forEach((radio, index) => {
+      radio.addEventListener("click", () => choose(radio, false));
+      radio.addEventListener("keydown", (event) => {
+        const last = radios.length - 1;
+        const next = { ArrowDown: index + 1, ArrowRight: index + 1, ArrowUp: index - 1, ArrowLeft: index - 1, Home: 0, End: last }[event.key];
+        if (next === undefined) return;
+        event.preventDefault();
+        choose(radios[(next + radios.length) % radios.length], true);
+      });
+    });
+
+    const themes = figure.querySelectorAll<HTMLButtonElement>("[data-mood-theme]");
+    themes.forEach((button) => button.addEventListener("click", () => {
+      const theme = button.dataset.moodTheme!;
+      figure.dataset.moodTheme = theme;
+      label.textContent = theme.toUpperCase();
+      themes.forEach((each) => each.setAttribute("aria-pressed", String(each === button)));
+    }));
+  });
+</script>

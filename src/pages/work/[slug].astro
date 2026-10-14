@@ -2,6 +2,8 @@
 // static, evidence-led case studies generated from one verified project model; every project uses the v2 exhibit layout.
 import Base from "@/layouts/Base.astro";
 import ExhibitCaseStudy from "@/components/exhibits/ExhibitCaseStudy.astro";
+import SpecimenFonts from "@/components/exhibits/specimens/SpecimenFonts.astro";
+import { fontsForProject } from "@/components/exhibits/specimens/fonts.mjs";
 import {
   getAdjacentProject,
   getFeaturedProjects,
@@ -28,10 +30,13 @@ const next = getAdjacentProject(project.slug, "next");
 const accent = ("accent" in project.cover ? project.cover.accent : project.cover.palette[1])!;
 // the dark track is #344553 (--rule in the dark theme).
 const accentDark = liftToContrast(accent, "#344553");
+// the live specimens' fonts, declared only on the pages that show one.
+const specimenFonts = fontsForProject(project);
 
 ---
 
 <Base title={project.title} description={project.summary} image={`/images/social/${project.slug}.png`} imageAlt={`${project.title}, ${project.role}, ${project.year}`} crumb={project.title}>
+  {specimenFonts.length > 0 && <SpecimenFonts slot="head" fonts={specimenFonts} />}
   <div class="reading-progress" data-reading-progress aria-hidden="true" style={`--reading-accent: ${accent}; --reading-accent-dark: ${accentDark}`}><span></span></div>
   <ExhibitCaseStudy project={project} next={next} />
 </Base>

@@ -1,0 +1,102 @@
+---
+// sohive, rsvp outcomes (figma 312:637): the event card's own button RSVPs. Attending turns to Going in place on the
+// cord's spring; a second tap turns it back and the toast offers Undo. the mock draws the card twice; live, one toggles.
+import ExhibitSpecimen from "@/components/exhibits/ExhibitSpecimen.astro";
+
+interface Props {
+  specimen: { kind: string; eyebrow: string; heading: string; tag?: string; notes: { n: string; title: string; body: string }[] };
+}
+const { specimen } = Astro.props;
+const id = `specimen-${specimen.kind}`;
+---
+<ExhibitSpecimen id={id} kind={specimen.kind} eyebrow={specimen.eyebrow} heading={specimen.heading} tag={specimen.tag} notes={specimen.notes} background="#000000" tone="dark">
+  <div class="rsvp" data-rsvp>
+    <div class="event-card">
+      <div class="event-host">
+        <span class="event-avatar" aria-hidden="true">WW</span>
+        <span class="event-host-name">Wally West</span>
+        <span class="event-host-tag">host</span>
+      </div>
+      <div class="event-body">
+        <p class="event-title">ManU vs ManCity</p>
+        <p class="event-where"><span>College Park</span><span class="event-when">Sep 10 · 3:00 PM</span></p>
+      </div>
+      <div class="event-footer">
+        <span class="event-likes"><span aria-hidden="true">♡</span> 113<span class="rsvp-hidden"> likes</span></span>
+        <span class="event-going">241 going</span>
+        <button type="button" class="rsvp-button" aria-pressed="false" data-rsvp-button>Attending</button>
+      </div>
+    </div>
+    <div class="rsvp-toast" role="status">
+      <div class="rsvp-toast-inner" hidden data-rsvp-toast>
+        <span>You're no longer going.</span>
+        <button type="button" class="rsvp-undo" data-rsvp-undo>Undo</button>
+      </div>
+    </div>
+  </div>
+</ExhibitSpecimen>
+
+<style>
+  .rsvp { display: grid; gap: 26px; width: min(380px, 100%); font-family: "Inter", var(--ui); }
+  /* 380 by 214 with an 18px radius (312:708): a 50px host bar and a 62px footer in #004692 around the #0a66d6 body. */
+  .event-card { overflow: clip; border-radius: 18px; background: #0a66d6; color: #ffffff; }
+  .event-host { display: flex; align-items: center; gap: 10px; height: 50px; padding: 0 14px; background: #004692; }
+  /* white initials on #5399e5 are 3.0:1, as the brief sets them; they repeat the name beside them, so they are hidden. */
+  .event-avatar { display: grid; flex: none; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: #5399e5; font: 700 11px / 1 "Inter", var(--ui); }
+  .event-host-name { font: 600 16px / 19px "Inter", var(--ui); }
+  .event-host-tag { margin-left: auto; padding: 5px 13px 6px; border-radius: 12px; background: #ffffff; color: #004692; font: 600 11px / 13px "Inter", var(--ui); }
+  .event-body { padding: 14px 20px 22px 16px; }
+  .event-title { margin: 0; font: 700 28px / 34px "Inter", var(--ui); }
+  .event-where { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px; margin: 14px 0 0; font: 15px / 18px "Inter", var(--ui); }
+  .event-when { font-weight: 600; }
+  .event-footer { display: flex; align-items: center; gap: 24px; height: 62px; padding: 0 14px 0 16px; background: #004692; font: 500 15px / 18px "Inter", var(--ui); }
+  .event-going { font-size: 13px; line-height: 16px; }
+  .rsvp-button { flex: none; width: 122px; height: 38px; margin-left: auto; border: 0; border-radius: 19px; background: #000000; color: #ffffff; font: 600 15px / 18px "Inter", var(--ui); cursor: pointer; }
+  .rsvp-button[aria-pressed="true"] { background: #ffffff; color: #111417; }
+  /* the toast's row is held open, so showing it never moves the stage. */
+  .rsvp-toast { --specimen-focus: #111417; min-height: 44px; }
+  .rsvp-toast-inner { display: inline-flex; align-items: center; gap: 24px; padding: 13px 18px; border-radius: 14px; background: #ffffff; color: #111417; font: 500 15px / 18px "Inter", var(--ui); }
+  .rsvp-toast-inner[hidden] { display: none; }
+  .rsvp-undo { padding: 0; border: 0; background: none; color: #dc3545; font: 600 15px / 18px "Inter", var(--ui); cursor: pointer; }
+  .rsvp-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    /* the button lands on the cord's spring, about 400ms, each way (two names so the animation restarts). */
+    [data-touched] .rsvp-button[aria-pressed="true"] { animation: rsvp-land 400ms var(--cord-spring); }
+    [data-touched] .rsvp-button[aria-pressed="false"] { animation: rsvp-lift 400ms var(--cord-spring); }
+    .rsvp-button { transition: background-color 200ms var(--ease-out), color 200ms var(--ease-out); }
+    @keyframes rsvp-land { from { scale: 0.92; } }
+    @keyframes rsvp-lift { from { scale: 0.92; } }
+    /* the toast rises in on the same spring; its fade is a plain ease, so it never overshoots. */
+    .rsvp-toast-inner { transition: translate 400ms var(--cord-spring), opacity 200ms var(--ease-out); }
+    @starting-style { .rsvp-toast-inner { opacity: 0; translate: 0 8px; } }
+  }
+</style>
+
+<script>
+  // Attending and Going are one toggle (aria-pressed). leaving Going shows the toast, a status message, whose Undo
+  // puts Going back and hands focus to the button, since the toast and its Undo go away.
+  document.querySelectorAll<HTMLElement>('figure[data-specimen="sohive-rsvp"]').forEach((figure) => {
+    const rsvp = figure.querySelector<HTMLElement>("[data-rsvp]")!;
+    const button = rsvp.querySelector<HTMLButtonElement>("[data-rsvp-button]")!;
+    const toast = rsvp.querySelector<HTMLElement>("[data-rsvp-toast]")!;
+    const undo = rsvp.querySelector<HTMLButtonElement>("[data-rsvp-undo]")!;
+
+    function setGoing(going: boolean): void {
+      rsvp.dataset.touched = "";
+      button.setAttribute("aria-pressed", String(going));
+      button.textContent = going ? "Going" : "Attending";
+    }
+
+    button.addEventListener("click", () => {
+      const going = button.getAttribute("aria-pressed") !== "true";
+      setGoing(going);
+      toast.hidden = going;
+    });
+    undo.addEventListener("click", () => {
+      setGoing(true);
+      toast.hidden = true;
+      button.focus();
+    });
+  });
+</script>

@@ -7,6 +7,7 @@ import ExhibitVisual from "@/components/exhibits/ExhibitVisual.astro";
 import ExhibitJourney from "@/components/exhibits/ExhibitJourney.astro";
 import ChapterLede from "@/components/exhibits/ChapterLede.astro";
 import ExhibitRows from "@/components/exhibits/ExhibitRows.astro";
+import ExhibitLoops from "@/components/exhibits/ExhibitLoops.astro";
 import ExhibitScroller from "@/components/exhibits/ExhibitScroller.astro";
 import ExhibitWalkthrough from "@/components/exhibits/ExhibitWalkthrough.astro";
 import ExhibitPins from "@/components/exhibits/ExhibitPins.astro";
@@ -24,6 +25,11 @@ import ExhibitMetrics from "@/components/exhibits/ExhibitMetrics.astro";
 import NextProject from "@/components/exhibits/NextProject.astro";
 import Notes from "@/components/exhibits/Notes.astro";
 import SectionHead from "@/components/exhibits/SectionHead.astro";
+import SpecimenTerpcareMood from "@/components/exhibits/specimens/SpecimenTerpcareMood.astro";
+import SpecimenTerpcarehubBook from "@/components/exhibits/specimens/SpecimenTerpcarehubBook.astro";
+import SpecimenSohiveRsvp from "@/components/exhibits/specimens/SpecimenSohiveRsvp.astro";
+import SpecimenFrontgroundFindings from "@/components/exhibits/specimens/SpecimenFrontgroundFindings.astro";
+import SpecimenFrontgroundGreyscale from "@/components/exhibits/specimens/SpecimenFrontgroundGreyscale.astro";
 
 interface Props {
   project: any;
@@ -42,6 +48,15 @@ function stageRatio(exhibit: any): number {
   const [width, height] = ratio.split("/").map(Number);
   return width / height;
 }
+
+// each live specimen (figma 312:417) by its kind; each wraps itself in ExhibitSpecimen with its own stage and controls.
+const specimenComponents: Record<string, any> = {
+  "terpcare-mood": SpecimenTerpcareMood,
+  "terpcarehub-book": SpecimenTerpcarehubBook,
+  "sohive-rsvp": SpecimenSohiveRsvp,
+  "frontground-findings": SpecimenFrontgroundFindings,
+  "frontground-greyscale": SpecimenFrontgroundGreyscale,
+};
 
 /** the narrative section an exhibit chapter points at, rendered with its text unchanged. */
 function sectionFor(exhibit: any) {
@@ -130,6 +145,8 @@ function sectionFor(exhibit: any) {
                 {exhibit.captions && <div class="stage-caption">{exhibit.captions.map((caption: any) => <Caption title={caption.title} body={caption.body} />)}</div>}
                 {/* rows after the stage's notes or caption, one screen per row (frontground 222:284, terpcare 218:311). */}
                 {exhibit.rows && <ExhibitRows palette={palette} visuals={exhibit.rows.visuals} captions={exhibit.rows.captions} fields={exhibit.rows.fields} base={exhibit.rows.base} bases={exhibit.rows.bases} veil={exhibit.rows.veil} reverse={exhibit.rows.reverse} />}
+                {/* laptop loops after the caption, in a pair or a feature card (frontground offline and triage). */}
+                {exhibit.loops && <ExhibitLoops layout={exhibit.loops.layout} visuals={exhibit.loops.visuals} captions={exhibit.loops.captions} base={exhibit.loops.base} steps={exhibit.loops.steps} />}
                 {exhibit.pins && <ExhibitPins id={`${exhibit.id}-pins`} palette={palette} exhibit={exhibit.pins} />}
               </>
             )}
@@ -175,6 +192,11 @@ function sectionFor(exhibit: any) {
             {exhibit.kind === "journey" && (
               <ExhibitJourney id={exhibit.id} stages={exhibit.stages} accentStage={exhibit.accentStage} rows={exhibit.rows} strip={exhibit.strip} caption={exhibit.heading} tones={exhibit.tones} figure={exhibit.figure} />
             )}
+            {/* live specimens close the chapter, after everything the chapter shows of the real screens. */}
+            {(exhibit.specimens ?? []).map((specimen: any) => {
+              const Specimen = specimenComponents[specimen.kind];
+              return <Specimen specimen={specimen} />;
+            })}
           </div>
         </section>
       );

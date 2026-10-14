@@ -1,0 +1,78 @@
+---
+// a live specimen per figma 312:417 ("Additions / Specimens (proposal)"): a section head one level under the chapter's,
+// a 1116 by 520 stage that holds the specimen with its controls in the top right corner and the LIVE tag in the bottom
+// left, and the notes row under it. the specimen itself goes in the default slot (src/components/exhibits/specimens).
+import Notes from "@/components/exhibits/Notes.astro";
+import SectionHead from "@/components/exhibits/SectionHead.astro";
+
+interface Props {
+  id: string;
+  kind: string;
+  eyebrow: string;
+  heading: string;
+  /** "LIVE · TAP TO TRY" and the like; the greyscale toggle has none in the mock. */
+  tag?: string;
+  notes: { n: string; title: string; body: string }[];
+  /** the stage colour from the mock. */
+  background: string;
+  /** a dark stage takes a white focus ring, a light one the accent. a specimen can override --specimen-focus inside. */
+  tone: "light" | "dark";
+}
+const { id, kind, eyebrow, heading, tag, notes, background, tone } = Astro.props;
+---
+<figure class="specimen" id={id} data-specimen={kind} aria-labelledby={`${id}-heading`}>
+  <SectionHead id={`${id}-heading`} eyebrow={eyebrow} heading={heading} level={3} />
+  <div class:list={["specimen-stage", `is-${tone}`]} style={`--specimen-stage: ${background}`}>
+    {Astro.slots.has("controls") && <div class="specimen-controls"><slot name="controls" /></div>}
+    <div class="specimen-body"><slot /></div>
+    {tag && <p class="specimen-tag">{tag}</p>}
+  </div>
+  <Notes notes={notes} idPrefix={id} />
+</figure>
+<style>
+  .specimen { margin: 72px 0 0; }
+  /* the mock's stage is 1116 by 520; the ratio is a floor, so a narrow stage grows to fit its specimen. the padding
+     keeps the specimen clear of the controls above it and the tag below it. */
+  .specimen-stage {
+    --specimen-focus: #1f4f7a;
+    position: relative;
+    display: grid;
+    place-items: center;
+    aspect-ratio: 1116 / 520;
+    margin-top: 32px;
+    padding: 72px 20px;
+    border-radius: 6px;
+    background: var(--specimen-stage);
+    container-type: inline-size;
+  }
+  .specimen-stage.is-dark { --specimen-focus: #ffffff; }
+  .specimen-body { display: grid; place-items: center; width: 100%; min-width: 0; }
+  .specimen-controls { position: absolute; z-index: 2; top: 20px; right: 20px; }
+  .specimen-tag {
+    position: absolute;
+    bottom: 19px;
+    left: 20px;
+    margin: 0;
+    padding: 5px 10px;
+    border: 1px solid #dee5e8;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #273440;
+    /* the micro label size: 10px, and 11px on phones (global.css). */
+    font: var(--label-micro, 10px) / 13px var(--mono);
+    white-space: nowrap;
+  }
+  /* the mock's Light and Dark, Colour and Greyscale pill (312:537, 312:942): the pressed half is filled. */
+  /* the hairline is the tag's, so the pill keeps an edge on a white stage. */
+  .specimen :global(.specimen-switch) { --specimen-focus: #273440; display: flex; gap: 2px; padding: 4px; border-radius: 999px; background: rgb(255 255 255 / 94%); box-shadow: inset 0 0 0 1px #dee5e8; }
+  .specimen :global(.specimen-switch button) { padding: 6px 12px; border: 0; border-radius: 999px; background: transparent; color: #5c6670; font: 11px / 15px var(--mono); cursor: pointer; }
+  .specimen :global(.specimen-switch [aria-pressed="true"]) { background: #273440; color: #ffffff; }
+  /* one ring for every control, in the colour the surface under it sets. */
+  .specimen :global(button:focus-visible) { outline: 2px solid var(--specimen-focus); outline-offset: 2px; }
+  @media (max-width: 760px) {
+    .specimen { margin-top: 56px; }
+    .specimen-stage { margin-top: 24px; padding: 76px 16px; }
+    .specimen-controls { top: 16px; right: 16px; }
+    .specimen-tag { bottom: 16px; left: 16px; }
+  }
+</style>

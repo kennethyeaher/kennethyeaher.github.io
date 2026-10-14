@@ -140,13 +140,78 @@ function exhibitVisuals() {
     for (const exhibit of project.exhibits ?? []) {
       for (const visual of [...(exhibit.visuals ?? []), ...(exhibit.stages ?? []).flatMap((stage) => stage.visuals ?? []), ...(exhibit.tiles ?? []), ...(exhibit.figure ? [exhibit.figure] : []),
         ...(exhibit.scroller ? [exhibit.scroller.visual] : []), ...(exhibit.walkthrough?.steps ?? []).map((step) => step.screen), ...(exhibit.pins ? [exhibit.pins.visual] : []),
-        ...(exhibit.rows?.visuals ?? [])]) {
+        ...(exhibit.rows?.visuals ?? []), ...(exhibit.specimens ?? []).flatMap((specimen) => specimen.visual ? [specimen.visual] : [])]) {
         visuals.set(visual.src, visual);
       }
     }
   }
   return [...visuals.values()];
 }
+
+/** the width and height of an mp4's first track, from its tkhd box (two 16.16 fixed point numbers at the end). */
+function mp4Size(buffer) {
+  const at = buffer.indexOf("tkhd");
+  assert.ok(at > 0, "the clip has a track header");
+  const end = at - 4 + buffer.readUInt32BE(at - 4);
+  return [buffer.readUInt32BE(end - 8) / 65536, buffer.readUInt32BE(end - 4) / 65536];
+}
+
+test("Frontground's laptop loops follow the loop conventions and the stills they replaced are gone", async () => {
+  const { default: sharp } = await import("sharp");
+  const frontground = projects.find((project) => project.slug === "frontground");
+  const loops = frontground.exhibits.flatMap((exhibit) => (exhibit.loops?.visuals ?? []).map((visual) => [exhibit.id, visual]));
+  assert.deepEqual(loops.map(([id, visual]) => [id, visual.loop.name]), [["offline", "sync"], ["offline", "duplicate"], ["triage", "triage"]]);
+  // figma 325:506 sets the offline loops as a pair and 325:545 triage as a feature card with its five steps.
+  const offline = frontground.exhibits.find((exhibit) => exhibit.id === "offline").loops;
+  const triage = frontground.exhibits.find((exhibit) => exhibit.id === "triage").loops;
+  assert.equal(offline.layout, "pair");
+  assert.equal(triage.layout, "feature");
+  assert.deepEqual(triage.steps, ["Intake", "Assessment, level suggested", "Hand-off with a note", "Arrives in the doctor’s queue", "Back to the queue, sorted by level"]);
+  assert.deepEqual([...offline.captions, ...triage.captions].map(({ num, tag }) => [num, tag]), [["LOOP 01", "LOOP · 16s"], ["LOOP 02", "LOOP · 12s"], ["LOOP 03", "LOOP · 18s"]]);
+  // the laptop and the colour field are baked into each video, so the site draws neither.
+  for (const block of [offline, triage]) assert.equal(block.fields, undefined);
+  const sizes = { sync: [1280, 856], duplicate: [1280, 856], triage: [1280, 800] };
+  for (const [, visual] of loops) {
+    for (const key of ["frame", "url", "screen", "at"]) assert.equal(visual[key], undefined, `${visual.loop.name} has no ${key}`);
+    assert.ok(visual.alt.length > 20, `${visual.loop.name} has alt text`);
+    assert.equal(visual.src, visual.loop.poster);
+    assert.equal(visual.loop.poster, visual.loop.src.replace(/\.mp4$/, "-poster.webp"));
+    // h264 with the index up front, no sound track and no metadata left by the render or by any tool.
+    const clip = readFileSync(publicFile(visual.loop.src));
+    assert.ok(clip.indexOf("moov") > 0 && clip.indexOf("moov") < clip.indexOf("mdat"), `${visual.loop.src} is faststart`);
+    assert.ok(clip.includes("avc1"), `${visual.loop.src} is h264`);
+    assert.ok(!clip.includes("soun"), `${visual.loop.src} has no audio`);
+    const expected = sizes[visual.loop.name];
+    assert.deepEqual(mp4Size(clip), expected, `${visual.loop.src} size`);
+    const poster = await sharp(publicFile(visual.loop.poster)).metadata();
+    assert.deepEqual([poster.format, poster.width, poster.height], ["webp", ...expected], visual.loop.poster);
+    assert.deepEqual([visual.width, visual.height], expected);
+    for (const file of [visual.loop.src, visual.loop.poster]) assert.doesNotMatch(readFileSync(publicFile(file)).toString("latin1"), /c2pa|anthropic|claude/i, file);
+  }
+  const sized = readdirSync(publicFile("/images/exhibits/sized"));
+  const manifest = JSON.parse(readFileSync(join(projectRoot, "src/data/exhibit-sizes.json"), "utf8"));
+  // triage-queue came back under its old name as the hi-fi queue (c17) for the greyscale specimen, tested below.
+  for (const old of ["sync-failed", "offline-queue", "duplicate-check", "triage-handoff", "vitals-trend"]) {
+    const name = `frontground-${old}`;
+    assert.ok(!existsSync(publicFile(`/images/work/frontground/${name}.png`)), `${name}.png still ships`);
+    assert.equal(manifest[name], undefined, `${name} is still in the manifest`);
+    assert.ok(!sized.some((file) => file.startsWith(`${name}-`)), `${name} still has sized copies`);
+  }
+});
+
+test("the greyscale specimen's queue is the hi-fi prototype's c17 capture, not the old triage-queue still", () => {
+  const source = join(projectRoot, ".private/fg-loops/hifi/frames/c17.png");
+  if (!existsSync(source)) return;
+  const hash = (file) => createHash("sha256").update(readFileSync(file)).digest("hex");
+  assert.equal(hash(publicFile("/images/work/frontground/frontground-triage-queue.png")), hash(source));
+});
+
+test("the offline stage still is the S2 capture with the new triage chips", () => {
+  const source = join(projectRoot, ".private/fg-loops/frames/S2.png");
+  if (!existsSync(source)) return;
+  const hash = (file) => createHash("sha256").update(readFileSync(file)).digest("hex");
+  assert.equal(hash(publicFile("/images/work/frontground/frontground-sync-offline.png")), hash(source));
+});
 
 test("every exhibit image and loop file is a real file in public", () => {
   for (const visual of exhibitVisuals()) {

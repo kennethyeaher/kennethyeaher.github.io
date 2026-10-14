@@ -55,8 +55,9 @@ function placement(): string | undefined {
 }
 const style = placement();
 
-// webp copies from scripts/build-exhibit-images.mjs; the png stays the fallback.
-const srcset = exhibitSrcset(visual.src);
+// webp copies from scripts/build-exhibit-images.mjs; the png stays the fallback. a browser playing a loop shows its
+// poster still, not the sized copies, so a loop with no png of its own (frontground's full width loops) needs none.
+const srcset = visual.loop && frame !== "image" ? undefined : exhibitSrcset(visual.src);
 const share = visual.at ? (Number(style?.match(/width: ([\d.]+)%/)?.[1]) || visual.at.w) : 100;
 // a crop shows a fraction of the image, so the full image has to be that much wider to stay sharp.
 const zoom = visual.crop ? 1 / visual.crop.w : 1;

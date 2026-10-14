@@ -165,7 +165,7 @@ test("every loop control joins its media tag as one pill and never sits on the d
     for (const device of html.matchAll(/<div class="device-frame[^"]*"(?:(?!<\/video>).)*<\/video>/gs)) assert.doesNotMatch(device[0], /data-loop-toggle/, slug);
     assert.doesNotMatch(html, /<div class="exhibit-loop"(?:(?!<\/div>).)*data-loop-toggle/s, slug);
   }
-  assert.equal(loops, 9);
+  assert.equal(loops, 12);
 });
 
 test("reading progress matches figma 26:105, filled in the case study accent, with its empty track hidden (v3)", () => {
@@ -575,15 +575,63 @@ test("Frontground renders the v2 exhibit layout from its prose mock", () => {
   assert.equal([...page.matchAll(/class="annotation annotation-leader is-left/g)].length, 6);
   assert.equal([...page.matchAll(/class="annotation annotation-leader is-vertical/g)].length, 2);
   assert.match(page, /What the interviews put on the first screen/);
-  // each proposed stage carries three rows after its caption; triage's rows put the caption first (222:440).
-  for (const [id, next, reverse] of [["offline", "triage", false], ["triage", "where-it-stands", true]]) {
+  // the proposed stages close on full width recorded loops after their caption instead of rows; only core flows has rows.
+  for (const [id, next] of [["offline", "triage"], ["triage", "where-it-stands"]]) {
     const chapter = page.slice(page.indexOf(`id="${id}"`), page.indexOf(`id="${next}"`));
-    assert.ok(chapter.indexOf('class="stage-caption"') < chapter.indexOf('class="exhibit-rows'), `${id} rows follow the caption`);
-    assert.equal([...chapter.matchAll(/class="exhibit-row"/g)].length, 3, `${id} rows`);
-    assert.equal(/class="exhibit-rows is-reverse"/.test(chapter), reverse, `${id} reverse`);
+    assert.ok(chapter.indexOf('class="stage-caption"') < chapter.indexOf('class="exhibit-loops'), `${id} loops follow the caption`);
+    assert.doesNotMatch(chapter, /class="exhibit-rows/, `${id} has no rows`);
   }
-  assert.equal([...page.matchAll(/class="exhibit-row"/g)].length, 9);
+  assert.equal([...page.matchAll(/class="exhibit-row"/g)].length, 3);
   assert.match(page, /href="\/work\/sohive"/);
+});
+
+test("Frontground's offline chapter pairs two laptop loops and triage features one with its steps (figma 325:506, 325:545)", () => {
+  const page = pages.get("frontground");
+  const chapters = {
+    offline: page.slice(page.indexOf('id="offline"'), page.indexOf('id="triage"')),
+    triage: page.slice(page.indexOf('id="triage"'), page.indexOf('id="where-it-stands"')),
+  };
+  const expected = {
+    offline: [
+      ["sync", 856, "LOOP 01", "LOOP · 16s", "One record, from failure to retry", "The pill counts what is waiting, the queue sends oldest first, and a record the server rejects says why instead of failing quietly."],
+      ["duplicate", 856, "LOOP 02", "LOOP · 12s", "A possible duplicate, before save", "Any phone format is accepted and shown back in one form. A match on name, date of birth and phone stops a second record."],
+    ],
+    triage: [
+      ["triage", 800, "LOOP 03", "LOOP · 18s", "From intake to the doctor’s queue", "The level is suggested from the signs and vitals and the nurse confirms it. The summary travels with the patient, so the doctor reads it instead of asking again."],
+    ],
+  };
+  assert.match(chapters.offline, /<div class="exhibit-loops is-pair"/);
+  assert.match(chapters.triage, /<div class="exhibit-loops is-feature"/);
+  for (const [id, loops] of Object.entries(expected)) {
+    const chapter = chapters[id];
+    const items = [...chapter.matchAll(/<figure class="loop-exhibit"[^>]*>[\s\S]*?<\/figure>/g)].map((match) => match[0]);
+    assert.equal(items.length, loops.length, `${id} loop exhibits`);
+    for (const [index, [name, height, num, tag, title, body]] of loops.entries()) {
+      const item = items[index];
+      // a rounded card the clip fills: the laptop and the field are in the video, so no frame and no stage field.
+      assert.match(item, /<div class="loop-card"/);
+      assert.doesNotMatch(item, /data-device-frame|class="exhibit-stage|stage-field/);
+      assert.match(item, new RegExp(`<img class="loop-still"[^>]*src="/images/work/frontground/frontground-${name}-loop-poster\\.webp" alt="" width="1280" height="${height}" loading="lazy" decoding="async"[^>]*>\\s*<video id="clip-${name}-loop" muted loop playsinline preload="none" width="1280" height="${height}" aria-label="([^"]{20,})"`));
+      assert.match(item, new RegExp(`data-src="/images/work/frontground/frontground-${name}-loop\\.mp4"`));
+      assert.match(item, new RegExp(`aria-controls="clip-${name}-loop"`));
+      assert.match(item, new RegExp(`<span class="media-tag has-control"[^>]*>(?:(?!</button>).)*${tag}`, "s"));
+      assert.match(item, new RegExp(`<p class="loop-num"[^>]*>${num}</p>`));
+      assert.match(item, new RegExp(`${title}[\\s\\S]*${body.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`));
+    }
+  }
+  // the duplicate body ends at the second record, as in figma.
+  assert.doesNotMatch(chapters.offline, /opening the existing one is the default/);
+  // triage's steps read as an ordered list, each a two digit number and the step.
+  const steps = chapters.triage.match(/<ol class="loop-steps"[^>]*>([\s\S]*?)<\/ol>/);
+  assert.ok(steps, "triage has an ordered list of steps");
+  assert.deepEqual([...steps[1].matchAll(/<li[^>]*>\s*<span class="step-num"[^>]*>(\d\d)<\/span>\s*<span class="step-text"[^>]*>([^<]+)<\/span>\s*<\/li>/g)].map(([, n, text]) => [n, text]),
+    [["01", "Intake"], ["02", "Assessment, level suggested"], ["03", "Hand-off with a note"], ["04", "Arrives in the doctor’s queue"], ["05", "Back to the queue, sorted by level"]]);
+  // triage-queue is back, but only as the greyscale specimen's capture (tests/specimens.test.mjs).
+  const specimen = page.indexOf('data-specimen="frontground-greyscale"');
+  const withoutSpecimen = page.slice(0, specimen) + page.slice(page.indexOf("</figure>", specimen));
+  for (const old of ["sync-failed", "offline-queue", "duplicate-check", "triage-handoff", "triage-queue", "vitals-trend"]) {
+    assert.doesNotMatch(withoutSpecimen, new RegExp(`frontground-${old}`), `${old} is still referenced`);
+  }
 });
 
 test("TerpCare renders the v2 exhibit layout from its prose mock", () => {
