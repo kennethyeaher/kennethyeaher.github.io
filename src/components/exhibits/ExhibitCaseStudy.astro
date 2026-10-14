@@ -150,7 +150,7 @@ function sectionFor(exhibit: any) {
                 {exhibit.notes && <Notes notes={exhibit.notes} idPrefix={exhibit.id} />}
                 {exhibit.captions && <div class="stage-caption">{exhibit.captions.map((caption: any) => <Caption title={caption.title} body={caption.body} />)}</div>}
                 {/* rows after the stage's notes or caption, one screen per row (frontground 222:284, terpcare 218:311). */}
-                {exhibit.rows && <ExhibitRows palette={palette} visuals={exhibit.rows.visuals} captions={exhibit.rows.captions} fields={exhibit.rows.fields} base={exhibit.rows.base} bases={exhibit.rows.bases} veil={exhibit.rows.veil} reverse={exhibit.rows.reverse} />}
+                {exhibit.rows && <ExhibitRows palette={palette} visuals={exhibit.rows.visuals} captions={exhibit.rows.captions} fields={exhibit.rows.fields} base={exhibit.rows.base} bases={exhibit.rows.bases} veil={exhibit.rows.veil} reverse={exhibit.rows.reverse} lead={exhibit.rows.lead} />}
                 {/* laptop loops after the caption, in a pair or a feature card (frontground offline and triage). */}
                 {exhibit.loops && exhibit.loops.layout !== "wide" && <ExhibitLoops layout={exhibit.loops.layout} visuals={exhibit.loops.visuals} captions={exhibit.loops.captions} base={exhibit.loops.base} steps={exhibit.loops.steps} />}
                 {exhibit.pins && <ExhibitPins id={`${exhibit.id}-pins`} palette={palette} exhibit={exhibit.pins} />}

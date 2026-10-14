@@ -17,13 +17,21 @@ interface Props {
   bases?: string[];
   veil?: boolean;
   reverse?: boolean;
+  /** an eyebrow, title and body above the rows in place of a side caption (terpcare dark mode). */
+  lead?: { eyebrow: string; title: string; body: string };
 }
-const { palette, visuals, captions, fields = [], base, bases = [], veil = false, reverse = false } = Astro.props;
+const { palette, visuals, captions, fields = [], base, bases = [], veil = false, reverse = false, lead } = Astro.props;
 ---
-<div class:list={["exhibit-rows", reverse && "is-reverse"]}>
+{lead && (
+  <div class="rows-lead">
+    <p class="rows-lead-eyebrow">{lead.eyebrow}</p>
+    <Caption title={lead.title} body={lead.body} />
+  </div>
+)}
+<div class:list={["exhibit-rows", reverse && "is-reverse", lead && "has-lead"]}>
   {visuals.map((visual, index) => (
     <div class="exhibit-row">
-      {reverse && (
+      {reverse && captions[index] && (
         <div class="row-caption">
           <Caption title={captions[index].title} body={captions[index].body} />
         </div>
@@ -32,9 +40,9 @@ const { palette, visuals, captions, fields = [], base, bases = [], veil = false,
         <ExhibitVisual visual={visual} stageRatio={1} stageWidth={600 / 1116} />
         {/* the media tag marks a stage that ships as a looping video (figma 50:584), so a still row shows none.
             it carries the loop's pause control in the stage's corner (132:1838), clear of the device. */}
-        {captions[index].tag && visual.loop && <span class="row-tag"><MediaTag text={captions[index].tag!} loop={visual.loop.name ?? ""} /></span>}
+        {captions[index]?.tag && visual.loop && <span class="row-tag"><MediaTag text={captions[index].tag!} loop={visual.loop.name ?? ""} /></span>}
       </ExhibitStage>
-      {!reverse && (
+      {!reverse && captions[index] && (
         <div class="row-caption">
           <Caption title={captions[index].title} body={captions[index].body} />
         </div>
@@ -46,6 +54,11 @@ const { palette, visuals, captions, fields = [], base, bases = [], veil = false,
   /* figma puts the first row 56px under the head; the exhibit body already adds 32. */
   .exhibit-rows { display: grid; gap: 56px; margin-top: 24px; }
   .exhibit-row { display: grid; grid-template-columns: minmax(0, 600px) minmax(0, 400px); align-items: end; gap: 56px; }
+  /* a lead sits 80px under the loop card and 32px over the stage, as wide as a caption may run, flush with the stage. */
+  .rows-lead { display: grid; gap: 10px; max-width: 560px; margin-top: 80px; }
+  .rows-lead-eyebrow { margin: 0; color: var(--muted); font: 11px / 14px var(--mono); letter-spacing: 0.06em; text-transform: uppercase; }
+  .rows-lead :global(.exhibit-caption) { max-width: 560px; }
+  .exhibit-rows.has-lead { margin-top: 32px; }
   .row-tag { position: absolute; z-index: 4; top: 3%; left: 3%; }
   .row-caption :global(.exhibit-caption) { max-width: 400px; }
   /* below a 560 wide stage the pill reaches the phone's top edge, so the phone drops 20px and stays clear of it. */
