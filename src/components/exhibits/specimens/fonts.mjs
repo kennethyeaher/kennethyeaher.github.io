@@ -2,17 +2,17 @@
 // a case study page declares only the faces its own specimens need, in its head (SpecimenFonts.astro), so no other
 // page fetches or even names them.
 export const specimenFaces = {
-  inter: { family: "Inter", weight: "500 700", src: "/fonts/inter/inter-latin.woff2" },
+  inter: { family: "Inter", weight: "400 700", src: "/fonts/inter/inter-latin.woff2" },
   figtree: { family: "Figtree", weight: "400 700", src: "/fonts/figtree/figtree-latin.woff2" },
 };
 
-/** which faces each specimen kind sets; the greyscale toggle is an image and sets none. */
+/** which faces each specimen kind sets. */
 const specimenFonts = {
   "terpcare-mood": ["inter"],
   "terpcarehub-book": ["figtree"],
   "sohive-rsvp": ["inter"],
   "frontground-findings": ["figtree"],
-  "frontground-greyscale": [],
+  "frontground-greyscale": ["figtree"],
 };
 
 /** the faces a project's specimens need, once each. */

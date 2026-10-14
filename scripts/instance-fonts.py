@@ -6,10 +6,10 @@ google fonts serves these families with their full weight axis (newsreader 200 t
 files, cuts the wght axis to each family's range with the fonttools instancer, and writes them to public/fonts.
 every other axis is kept, so newsreader keeps opsz 6 to 72, except where a family pins one: inter's opsz is pinned
 at 14, its text cut. inter and figtree are only used by the live specimens (src/components/exhibits/specimens), so
-they ship latin only. inter's specimen text is 9 to 13px on a half size stage and 11 to 17px on phones, with one
-21 to 28px title (SpecimenTerpcareMood.astro, SpecimenSohiveRsvp.astro); with optical sizing on auto, everything at
+they ship latin only. inter's specimen text is 10 to 15px with a 20 to 26px title on the full width stages
+(SpecimenTerpcareMood.astro, SpecimenSohiveRsvp.astro), set from 400 to 700; with optical sizing on auto, text at
 14px or under already drew at opsz 14, so pinning it changes only the larger text slightly and takes the latin file
-from 52,352 to 35,964 bytes. fraunces is left alone: narrowing its axis moved glyph widths and rewrapped a
+from 52,352 to 36,136 bytes. fraunces is left alone: narrowing its axis moved glyph widths and rewrapped a
 heading (see the note above the @font-face rules in src/styles/global.css).
 
 this is a manual tool, not part of the build. run it when the google files change, then rerun the tests and
@@ -41,11 +41,11 @@ SUBSETS = ("latin", "latin-ext")
 # weight range the site uses (matching font-weight in its @font-face rule), the subsets that ship and any axes
 # pinned to one value (dropped from the font).
 # newsreader and jetbrains mono: font-weight 400 500 in global.css. inter and figtree: the specimen faces in
-# src/components/exhibits/specimens/SpecimenFonts.astro, which set inter 500 to 700 and figtree 400 to 700.
+# src/components/exhibits/specimens/SpecimenFonts.astro, which set inter and figtree 400 to 700.
 FAMILIES = [
     ("Newsreader", "opsz,wght@6..72,200..800", "newsreader", (400, 500), SUBSETS, {}),
     ("JetBrains Mono", "wght@100..800", "jetbrains-mono", (400, 500), SUBSETS, {}),
-    ("Inter", "opsz,wght@14..32,100..900", "inter", (500, 700), ("latin",), {"opsz": 14}),
+    ("Inter", "opsz,wght@14..32,100..900", "inter", (400, 700), ("latin",), {"opsz": 14}),
     ("Figtree", "wght@300..900", "figtree", (400, 700), ("latin",), {}),
 ]
 

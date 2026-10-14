@@ -1,144 +1,240 @@
 ---
-// terpcare, mood check-in (figma 312:419): three of the five mood words as a radiogroup. the chosen card fills with
-// its mood colour on the cord's spring, and the Light and Dark switch flips the specimen's tokens, which sit on the
-// figure so the stage colour flips with them. the mock draws both themes side by side; live, one sheet flips.
+// terpcare, five levels (figma 367:521): the mood check in drawn twice, light and dark, from one set of tokens. all
+// five levels are a word, a bar count and their own colour; the tags say what is affecting it; the week strip below
+// fills in as levels are saved and leaves a missed day blank. one half is live at a time and the other mirrors it,
+// hidden from screen readers and out of the tab order; the Light and Dark switch says which. on a phone only the
+// live half shows. the state is terpcare-mood.mjs.
 import ExhibitSpecimen from "@/components/exhibits/ExhibitSpecimen.astro";
+import { createMood, dateLabel, dayInitial, dayLabel, levelOf, levels, tags } from "./terpcare-mood.mjs";
 
 interface Props {
-  specimen: { kind: string; eyebrow: string; heading: string; tag?: string; notes: { n: string; title: string; body: string }[] };
+  specimen: { kind: string; eyebrow: string; heading: string; tag: string; notes: { n: string; title: string; body: string }[] };
 }
 const { specimen } = Astro.props;
 const id = `specimen-${specimen.kind}`;
-// the mock's state: good is chosen. level is the number of filled bars, out of five.
-const moods = [
-  { key: "great", label: "Great", level: 5 },
-  { key: "good", label: "Good", level: 4 },
-  { key: "okay", label: "Okay", level: 3 },
-];
-const chosen = "good";
+const state = createMood();
+const halves = [{ theme: "light", label: "LIGHT", live: true }, { theme: "dark", label: "DARK", live: false }];
+const barHeights = [7, 10, 13, 16, 19];
+const tileHeights = [4, 6, 8, 10, 12];
 ---
-<ExhibitSpecimen id={id} kind={specimen.kind} eyebrow={specimen.eyebrow} heading={specimen.heading} tag={specimen.tag} notes={specimen.notes} background="var(--mood-surface)" tone="light">
+<ExhibitSpecimen id={id} kind={specimen.kind} eyebrow={specimen.eyebrow} heading={specimen.heading} tag={specimen.tag} notes={specimen.notes} background="#f4f4f6" tone="light" ratio="1116 / 680">
   <div slot="controls" class="specimen-switch" role="group" aria-label="Specimen theme">
-    <button type="button" aria-pressed="true" data-mood-theme="light">Light</button>
-    <button type="button" aria-pressed="false" data-mood-theme="dark">Dark</button>
+    <button type="button" aria-pressed="true" data-mood-switch="light">Light</button>
+    <button type="button" aria-pressed="false" data-mood-switch="dark">Dark</button>
   </div>
-  <div class="mood-sheet">
-    <p class="mood-theme-label" aria-hidden="true" data-mood-theme-label>LIGHT</p>
-    <div class="mood-options" role="radiogroup" aria-label="Mood">
-      {moods.map((mood) => (
-        <button type="button" role="radio" class="mood-option" aria-checked={mood.key === chosen ? "true" : "false"} tabindex={mood.key === chosen ? "0" : "-1"}
-          style={`--mood: var(--mood-${mood.level}); --mood-bg: var(--mood-${mood.level}-bg)`}>
-          <span class="mood-fill" aria-hidden="true"></span>
-          <span class="mood-bars" aria-hidden="true">
-            {[1, 2, 3, 4, 5].map((bar) => <span class:list={["mood-bar", bar <= mood.level && "is-on"]} style={`height: calc(${3 + bar * 3} * var(--u))`}></span>)}
-          </span>
-          <span class="mood-word">{mood.label}</span>
-          <span class="mood-selected" aria-hidden="true">Selected</span>
-        </button>
-      ))}
-    </div>
+  <div class="mood" data-mood data-live="light">
+    {halves.map((half) => {
+      const tab = (on: boolean) => (half.live ? (on ? "0" : "-1") : "-1");
+      return (
+        <div class="mood-half" data-mood-half={half.theme} aria-hidden={half.live ? undefined : "true"} data-mood-theme={half.theme}>
+          <p class="mood-half-label">{half.label}</p>
+          <div class="mood-sheet">
+            <p class="mood-ask">How are you today?</p>
+            <p class="mood-date" data-mood-date>{dateLabel(state.day)}</p>
+            <div class="mood-levels" role="radiogroup" aria-label="Mood">
+              {levels.map((level) => {
+                const on = state.week[state.day] === level.key;
+                return (
+                  <button type="button" role="radio" class="mood-level" aria-checked={on ? "true" : "false"} tabindex={tab(on)} data-level={level.key} style={`--tone: var(--mood-${level.bars}); --tone-bg: var(--mood-${level.bars}-bg)`}>
+                    <span class="mood-bars" aria-hidden="true">
+                      {barHeights.map((height, bar) => <span class:list={["mood-bar", bar < level.bars && "is-on"]} style={`height: calc(${height} * var(--u))`}></span>)}
+                    </span>
+                    <span class="mood-word">{level.label}</span>
+                    <span class="mood-selected" aria-hidden="true">Selected</span>
+                  </button>
+                );
+              })}
+            </div>
+            <p class="mood-affecting" aria-hidden="true">What is affecting it?</p>
+            <div class="mood-tags" role="group" aria-label="What is affecting it">
+              {tags.map((tag) => <button type="button" class="mood-tag" aria-pressed={state.tags[state.day].includes(tag) ? "true" : "false"} tabindex={half.live ? undefined : "-1"} data-tag={tag}>{tag}</button>)}
+            </div>
+          </div>
+          <div class="mood-week">
+            <p class="mood-week-label" aria-hidden="true">THIS WEEK · NO STREAKS</p>
+            <div class="mood-days" role="radiogroup" aria-label="This week">
+              {state.week.map((key, index) => {
+                const level = levelOf(key);
+                const on = index === state.day;
+                return (
+                  <button type="button" role="radio" class="mood-day" aria-checked={on ? "true" : "false"} tabindex={tab(on)} aria-label={dayLabel(state, index)} data-day={index}
+                    style={level ? `--tone: var(--mood-${level.bars}); --tone-bg: var(--mood-${level.bars}-bg)` : undefined}>
+                    <span class="mood-day-initial" aria-hidden="true">{dayInitial(index)}</span>
+                    <span class="mood-bars is-small" aria-hidden="true">
+                      {tileHeights.map((height, bar) => <span class:list={["mood-bar", level && bar < level.bars && "is-on"]} style={`height: calc(${height} * var(--u))`}></span>)}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      );
+    })}
   </div>
 </ExhibitSpecimen>
 
 <style>
-  /* the specimen's tokens per the brief; the figure carries them so the stage behind the sheet flips too. */
-  :global(figure[data-specimen="terpcare-mood"]) {
+  /* the tokens: the five mood pairs and the surfaces, light first, then dark on the same names. the light pairs
+     and dark bars are the brief's; the dark fills are the TerpCare foundations variables (d0f9C7rHMVCYMWwsPBlgUn,
+     color/mood/1-bg to 5-bg). the surfaces are the mock's. */
+  .mood-half {
     --mood-5: #0b6e4f; --mood-5-bg: #ddf3ea;
     --mood-4: #1a64a3; --mood-4-bg: #e1eefa;
     --mood-3: #5c5c66; --mood-3-bg: #eeeef0;
-    --mood-surface: #ffffff; --mood-border: #e3e3e6; --mood-text: #16161a;
-    /* the mock's #7b8792 label is 3.6:1 on white; this grey keeps the mono label at 5.9:1. */
-    --mood-label: #5c6670; --mood-focus: #1f4f7a;
+    --mood-2: #8a5a00; --mood-2-bg: #fff0d6;
+    --mood-1: #6b3fb8; --mood-1-bg: #efe7fb;
+    --half: #f4f4f6; --surface: #ffffff; --border: #e3e3e6; --text: #16161a; --secondary: #5c5c66;
+    --chosen: #16161a; --on-chosen: #ffffff; --specimen-focus: #1f4f7a;
   }
-  :global(figure[data-specimen="terpcare-mood"][data-mood-theme="dark"]) {
+  .mood-half[data-mood-theme="dark"] {
     --mood-5: #5ac896; --mood-5-bg: #123428;
     --mood-4: #6eaaf0; --mood-4-bg: #142840;
     --mood-3: #aaaab2; --mood-3-bg: #28282c;
-    --mood-surface: #101012; --mood-border: #38383e; --mood-text: #f2f2f5;
-    --mood-label: #8e8e96; --mood-focus: #ffffff;
+    --mood-2: #e6aa46; --mood-2-bg: #3c2c0e;
+    --mood-1: #b496f0; --mood-1-bg: #2c2042;
+    --half: #0b0b0d; --surface: #16161a; --border: #2c2c31; --text: #f4f4f6; --secondary: #aaaab2;
+    --chosen: #f4f4f6; --on-chosen: #16161a; --specimen-focus: #ffffff;
   }
-  :global(figure[data-specimen="terpcare-mood"] .specimen-stage) { --specimen-focus: var(--mood-focus); }
-  /* sized in specimen pixels (--u, ExhibitSpecimen.astro), so the sheet shrinks with a half size stage; each option
-     stays at least 32px tall. */
-  .mood-sheet { display: grid; gap: calc(11 * var(--u)); width: min(calc(300 * var(--u)), 100%); }
-  .mood-theme-label { margin: 0; color: var(--mood-label); font: var(--label-micro, 10px) / 13px var(--mono); }
-  .mood-options { display: grid; gap: calc(12 * var(--u)); }
-  /* 300 by 52 with a 12px radius (312:492); the chosen card's border is 1.5px, drawn as a half pixel inset ring on top
-     of the 1px border so nothing shifts. */
-  .mood-option {
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: calc(14 * var(--u));
-    height: max(32px, calc(52 * var(--u)));
-    padding: 0 calc(16 * var(--u)) 0 calc(15 * var(--u));
-    overflow: clip;
-    border: 1px solid var(--mood-border);
-    border-radius: calc(12 * var(--u));
-    background: var(--mood-surface);
-    color: var(--mood-text);
-    font: 600 max(13px, calc(17 * var(--u))) / 1.2 "Inter", var(--ui);
-    text-align: left;
-    cursor: pointer;
-    isolation: isolate;
-  }
-  .mood-option[aria-checked="true"] { border-color: var(--mood); box-shadow: inset 0 0 0 0.5px var(--mood); }
-  /* the fill sweeps in from the left edge; scale keeps it on the compositor. */
-  .mood-fill { position: absolute; z-index: -1; inset: 0; background: var(--mood-bg); scale: 0 1; transform-origin: left center; }
-  .mood-option[aria-checked="true"] .mood-fill { scale: 1 1; }
-  .mood-bars { display: flex; align-items: flex-end; gap: calc(3 * var(--u)); height: calc(18 * var(--u)); }
-  .mood-bar { width: calc(4 * var(--u)); border-radius: 1px; background: var(--mood-border); }
-  .mood-bar.is-on { background: var(--mood); }
+
+  /* the mock's switch is white at 14% over the dark half; solid here, so it still shows over the light half on a
+     phone, and the white ring around a focused half falls on its own dark pill. */
+  :global(figure[data-specimen="terpcare-mood"]) .specimen-switch { background: #2a2a2d; }
+
+  /* two 558 wide halves of the 1116 by 680 stage: the label 36 down, the 478 wide sheet 64 down, the week under it.
+     sized in specimen pixels (--u, ExhibitSpecimen.astro). */
+  .mood { display: grid; grid-template-columns: 1fr 1fr; font-family: "Inter", var(--ui); }
+  .mood-half { display: grid; align-content: start; gap: calc(20 * var(--u)); padding: calc(36 * var(--u)) calc(40 * var(--u)) calc(76 * var(--u)); background: var(--half); color: var(--text); }
+  .mood-half-label { margin-bottom: calc(-5 * var(--u)); color: var(--secondary); font: var(--label-micro, 10px) / 13px var(--mono); letter-spacing: 0.04em; }
+  .mood-sheet { display: grid; align-content: start; min-height: calc(440 * var(--u)); padding: calc(22 * var(--u)) calc(24 * var(--u)) calc(28 * var(--u)); border: 1px solid var(--border); border-radius: calc(22 * var(--u)); background: var(--surface); }
+  .mood-ask { font-weight: 700; font-size: max(18px, calc(20 * var(--u))); line-height: 1.2; }
+  .mood-date { margin-top: 4px; color: var(--secondary); font-weight: 400; font-size: 13px; line-height: 16px; }
+  .mood-levels { display: grid; gap: calc(8 * var(--u)); margin-top: calc(14 * var(--u)); }
+  .mood-level { display: flex; align-items: center; gap: calc(14 * var(--u)); min-height: max(40px, calc(42 * var(--u))); padding: 0 calc(14 * var(--u)) 0 calc(15 * var(--u)); border: 1px solid var(--border); border-radius: calc(12 * var(--u)); background: var(--surface); color: var(--text); font: 500 15px / 18px "Inter", var(--ui); text-align: left; cursor: pointer; }
+  /* the chosen level fills with its own pair and takes a 2px edge in its colour, drawn inside so nothing shifts. */
+  .mood-level[aria-checked="true"] { border-color: var(--tone); background: var(--tone-bg); box-shadow: inset 0 0 0 1px var(--tone); font-weight: 600; }
+  .mood-bars { display: flex; flex: none; align-items: flex-end; gap: calc(2 * var(--u)); height: calc(19 * var(--u)); }
+  .mood-bar { width: calc(4 * var(--u)); border-radius: 1px; background: var(--border); }
+  .mood-bar.is-on { background: var(--tone); }
   .mood-word { flex: 1; }
-  .mood-selected { color: var(--mood); font: 500 max(10px, calc(12 * var(--u))) / 1.2 "Inter", var(--ui); opacity: 0; }
-  .mood-option[aria-checked="true"] .mood-selected { opacity: 1; }
+  .mood-selected { color: var(--secondary); font-weight: 400; font-size: 12px; visibility: hidden; }
+  .mood-level[aria-checked="true"] .mood-selected { visibility: visible; }
+  .mood-affecting { margin-top: calc(16 * var(--u)); color: var(--secondary); font-size: 12px; line-height: 15px; }
+  .mood-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+  .mood-tag { min-height: 32px; padding: 0 14px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text); font: 500 13px / 16px "Inter", var(--ui); cursor: pointer; }
+  .mood-tag[aria-pressed="true"] { border-color: var(--chosen); background: var(--chosen); color: var(--on-chosen); }
+
+  .mood-week { padding: calc(14 * var(--u)) calc(20 * var(--u)) calc(12 * var(--u)); border: 1px solid var(--border); border-radius: calc(18 * var(--u)); background: var(--surface); }
+  .mood-week-label { color: var(--secondary); font: var(--label-micro, 10px) / 13px var(--mono); letter-spacing: 0.04em; white-space: pre; }
+  .mood-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: calc(10 * var(--u)); margin-top: calc(7 * var(--u)); }
+  .mood-day { display: flex; align-items: center; justify-content: space-between; min-height: max(34px, calc(34 * var(--u))); padding: 0 calc(8 * var(--u)); border: 1px solid var(--border); border-radius: calc(10 * var(--u)); background: var(--tone-bg, transparent); cursor: pointer; }
+  .mood-day[aria-checked="true"] { border-color: var(--tone, var(--secondary)); box-shadow: inset 0 0 0 1px var(--tone, var(--secondary)); }
+  .mood-day-initial { color: var(--secondary); font: 500 11px / 13px "Inter", var(--ui); }
+  .mood-bars.is-small { gap: calc(1 * var(--u)); height: calc(12 * var(--u)); }
+  .mood-bars.is-small .mood-bar { width: calc(3 * var(--u)); }
 
   @media (prefers-reduced-motion: no-preference) {
-    /* the fill lands on the cord's spring in about 400ms and leaves on a plain ease out, so it never springs past empty. */
-    .mood-fill { transition: scale 200ms var(--ease-out), background-color 250ms; }
-    .mood-option[aria-checked="true"] .mood-fill { transition: scale 400ms var(--cord-spring), background-color 250ms; }
-    /* once someone has chosen, the chosen card settles with a small spring of its own. */
-    .mood-options[data-touched] .mood-option[aria-checked="true"] { animation: mood-land 400ms var(--cord-spring); }
-    .mood-option, .mood-bar, .mood-selected, .mood-theme-label { transition: background-color 250ms, border-color 250ms, box-shadow 250ms, color 250ms, opacity 200ms; }
-    :global(figure[data-specimen="terpcare-mood"] .specimen-stage) { transition: background-color 250ms; }
+    /* a choice lands on the cord's spring, about 400ms; colours ease in 200ms. */
+    .mood-level, .mood-day, .mood-tag, .mood-bar { transition: background-color 200ms var(--ease-out), border-color 200ms var(--ease-out), box-shadow 200ms var(--ease-out), color 200ms var(--ease-out); }
+    .mood[data-touched] [aria-checked="true"]:is(.mood-level, .mood-day) { animation: mood-land 400ms var(--cord-spring); }
     @keyframes mood-land { from { scale: 0.97; } }
+  }
+
+  /* on a phone the live half fills the stage alone. */
+  @container specimen (max-width: 759px) {
+    .mood { --u: 1px; grid-template-columns: minmax(0, 1fr); }
+    .mood-half { padding: 64px 16px 64px; }
+    .mood-sheet { min-height: 0; padding: 20px 16px 20px; }
+    .mood-week { padding: 12px 12px 10px; }
+    .mood-days { gap: 4px; }
+    .mood-day { justify-content: center; flex-direction: column; gap: 3px; min-height: 48px; padding: 4px 0; }
+    .mood[data-live="light"] [data-mood-half="dark"], .mood[data-live="dark"] [data-mood-half="light"] { display: none; }
   }
 </style>
 
 <script>
-  // one tab stop for the group, arrow keys move and choose (the aria radiogroup pattern), and the switch flips the
-  // tokens on the figure. there is nothing to wait for, so reduced motion needs nothing here: the css has no motion.
-  document.querySelectorAll<HTMLElement>('figure[data-specimen="terpcare-mood"]').forEach((figure) => {
-    const group = figure.querySelector<HTMLElement>('[role="radiogroup"]')!;
-    const radios = [...group.querySelectorAll<HTMLButtonElement>('[role="radio"]')];
-    const label = figure.querySelector<HTMLElement>("[data-mood-theme-label]")!;
+  import * as mood from "./terpcare-mood.mjs";
 
-    function choose(radio: HTMLButtonElement, focus: boolean): void {
-      group.dataset.touched = "";
-      for (const each of radios) {
-        each.setAttribute("aria-checked", String(each === radio));
-        each.tabIndex = each === radio ? 0 : -1;
+  // both halves draw the same state; only the live one is in the tab order and the accessibility tree. the mood
+  // and the week are radiogroups (one tab stop, arrows move and choose); the tags are toggles.
+  document.querySelectorAll<HTMLElement>('figure[data-specimen="terpcare-mood"]').forEach((figure) => {
+    const root = figure.querySelector<HTMLElement>("[data-mood]")!;
+    const halves = [...root.querySelectorAll<HTMLElement>("[data-mood-half]")];
+    const switches = [...figure.querySelectorAll<HTMLButtonElement>("[data-mood-switch]")];
+    let state = mood.createMood();
+    let live = "light";
+
+    const tone = (key: string | null) => {
+      const level = mood.levelOf(key);
+      return level ? `--tone: var(--mood-${level.bars}); --tone-bg: var(--mood-${level.bars}-bg)` : "";
+    };
+
+    function draw(): void {
+      for (const half of halves) {
+        const isLive = half.dataset.moodHalf === live;
+        if (isLive) half.removeAttribute("aria-hidden");
+        else half.setAttribute("aria-hidden", "true");
+        half.querySelector<HTMLElement>("[data-mood-date]")!.textContent = mood.dateLabel(state.day);
+        half.querySelectorAll<HTMLButtonElement>("[data-level]").forEach((radio) => {
+          const on = state.week[state.day] === radio.dataset.level;
+          radio.setAttribute("aria-checked", String(on));
+          radio.tabIndex = isLive && on ? 0 : -1;
+        });
+        // with no level saved for the day, the group's first radio holds the tab stop.
+        if (isLive && !state.week[state.day]) half.querySelector<HTMLButtonElement>("[data-level]")!.tabIndex = 0;
+        half.querySelectorAll<HTMLButtonElement>("[data-tag]").forEach((tag) => {
+          tag.setAttribute("aria-pressed", String(state.tags[state.day].includes(tag.dataset.tag!)));
+          if (isLive) tag.removeAttribute("tabindex");
+          else tag.tabIndex = -1;
+        });
+        half.querySelectorAll<HTMLButtonElement>("[data-day]").forEach((day) => {
+          const index = Number(day.dataset.day);
+          const on = index === state.day;
+          const level = mood.levelOf(state.week[index]);
+          day.setAttribute("aria-checked", String(on));
+          day.setAttribute("aria-label", mood.dayLabel(state, index));
+          day.tabIndex = isLive && on ? 0 : -1;
+          day.setAttribute("style", tone(state.week[index]));
+          day.querySelectorAll(".mood-bar").forEach((bar, at) => bar.classList.toggle("is-on", !!level && at < level.bars));
+        });
       }
-      if (focus) radio.focus();
     }
 
-    radios.forEach((radio, index) => {
-      radio.addEventListener("click", () => choose(radio, false));
-      radio.addEventListener("keydown", (event) => {
-        const last = radios.length - 1;
-        const next = { ArrowDown: index + 1, ArrowRight: index + 1, ArrowUp: index - 1, ArrowLeft: index - 1, Home: 0, End: last }[event.key];
-        if (next === undefined) return;
+    function roving(selector: string, pick: (index: number) => void): void {
+      root.addEventListener("keydown", (event) => {
+        const radio = (event.target as HTMLElement).closest<HTMLButtonElement>(selector);
+        if (!radio) return;
+        const group = [...radio.parentElement!.querySelectorAll<HTMLButtonElement>(selector)];
+        const index = group.indexOf(radio);
+        const to = { ArrowRight: index + 1, ArrowDown: index + 1, ArrowLeft: index - 1, ArrowUp: index - 1, Home: 0, End: group.length - 1 }[event.key];
+        if (to === undefined) return;
         event.preventDefault();
-        choose(radios[(next + radios.length) % radios.length], true);
+        const next = (to + group.length) % group.length;
+        pick(next);
+        group[next].focus();
       });
-    });
+    }
 
-    const themes = figure.querySelectorAll<HTMLButtonElement>("[data-mood-theme]");
-    themes.forEach((button) => button.addEventListener("click", () => {
-      const theme = button.dataset.moodTheme!;
-      figure.dataset.moodTheme = theme;
-      label.textContent = theme.toUpperCase();
-      themes.forEach((each) => each.setAttribute("aria-pressed", String(each === button)));
+    root.addEventListener("click", (event) => {
+      const target = event.target as HTMLElement;
+      const level = target.closest<HTMLButtonElement>("[data-level]");
+      const tag = target.closest<HTMLButtonElement>("[data-tag]");
+      const day = target.closest<HTMLButtonElement>("[data-day]");
+      root.dataset.touched = "";
+      if (level) state = mood.chooseLevel(state, level.dataset.level!);
+      else if (tag) state = mood.toggleTag(state, tag.dataset.tag!);
+      else if (day) state = mood.chooseDay(state, Number(day.dataset.day));
+      else return;
+      draw();
+    });
+    roving("[data-level]", (index) => { root.dataset.touched = ""; state = mood.chooseLevel(state, mood.levels[index].key); draw(); });
+    roving("[data-day]", (index) => { root.dataset.touched = ""; state = mood.chooseDay(state, index); draw(); });
+
+    switches.forEach((button) => button.addEventListener("click", () => {
+      live = button.dataset.moodSwitch!;
+      root.dataset.live = live;
+      switches.forEach((each) => each.setAttribute("aria-pressed", String(each === button)));
+      draw();
     }));
   });
 </script>
