@@ -4,7 +4,8 @@
 // clip fills, with the media tag and its pause control in the bottom left corner (132:1838). a pair sets two cards
 // side by side with their captions under them (figma 325:506); a feature sets one card beside its caption and the
 // steps it plays (325:545); both layouts are global.css's .exhibit-layout, which the live specimens share. a wide card
-// stands in for a whole stage at the stage's width, with no caption (sohive's four phone loops). on phones the tag
+// stands in for a whole stage at the stage's width, with no caption (sohive's four phone loops); two stack where a stage
+// and the stage under it stood (terpcarehub's alert and find care), each on its own base. on phones the tag
 // drops under the card, so it never covers the device.
 import Caption from "@/components/exhibits/Caption.astro";
 import ExhibitLoop from "@/components/exhibits/ExhibitLoop.astro";
@@ -12,7 +13,7 @@ import MediaTag from "@/components/exhibits/MediaTag.astro";
 
 interface Props {
   layout: "pair" | "feature" | "wide";
-  visuals: { src: string; alt: string; width: number; height: number; loop: { src: string; poster: string; name?: string } }[];
+  visuals: { src: string; alt: string; width: number; height: number; base?: string; loop: { src: string; poster: string; name?: string } }[];
   /** a wide card's caption carries only its tag. */
   captions: { num?: string; tag?: string; title?: string; body?: string }[];
   base: string;
@@ -25,7 +26,7 @@ const { layout, visuals, captions, base, steps = [] } = Astro.props;
   {visuals.map((visual, index) => (
     <figure class="loop-exhibit">
       <div class="loop-media">
-        <div class="loop-card" style={`--loop-base: ${base}; aspect-ratio: ${visual.width} / ${visual.height}`}>
+        <div class="loop-card" style={`--loop-base: ${visual.base ?? base}; aspect-ratio: ${visual.width} / ${visual.height}`}>
           <ExhibitLoop src={visual.loop.src} poster={visual.loop.poster} width={visual.width} height={visual.height} label={visual.alt} name={visual.loop.name} />
         </div>
         {captions[index].tag && <span class="loop-tag"><MediaTag text={captions[index].tag!} loop={visual.loop.name ?? ""} /></span>}
@@ -49,7 +50,7 @@ const { layout, visuals, captions, base, steps = [] } = Astro.props;
      figma 325:545: the 720 card and the 348 column of caption and steps, 48 apart, centred on each other. */
   .exhibit-loops { --feature-columns: 720fr 348fr; margin-top: 56px; }
   /* a wide card takes the stage's place, straight under the lede. */
-  .exhibit-loops.is-wide { margin-top: 0; }
+  .exhibit-loops.is-wide { display: grid; gap: 32px; margin-top: 0; }
   /* row-gap only, so a feature keeps the shared layout's 48 between its columns. */
   .loop-exhibit { display: grid; align-content: start; row-gap: 20px; margin: 0; }
   .loop-media { position: relative; display: grid; }
