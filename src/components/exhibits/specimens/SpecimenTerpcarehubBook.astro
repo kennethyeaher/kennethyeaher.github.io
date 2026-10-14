@@ -31,40 +31,42 @@ const check = "M1.25 7.25004L6.25 12.25L15.25 1.25004";
 </ExhibitSpecimen>
 
 <style>
-  .book-replay { display: inline-flex; gap: 6px; padding: 6px 12px; border: 1px solid #e3e3e5; border-radius: 999px; background: #ffffff; color: #273440; font: 11px / 15px var(--mono); cursor: pointer; }
-  /* 360 by 230 with a 16px radius (312:615); the text sits 24 in from the card's edge. */
+  .book-replay { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 6px 12px; border: 1px solid #e3e3e5; border-radius: 999px; background: #ffffff; color: #273440; font: 11px / 15px var(--mono); cursor: pointer; }
+  /* 360 by 230 with a 16px radius (312:615); the text sits 24 in from the card's edge. sized in specimen pixels (--u,
+     ExhibitSpecimen.astro), so the card shrinks with a half size stage; small text holds at a readable floor and the
+     button at 32px tall. */
   .provider-card {
     position: relative;
-    width: min(360px, 100%);
-    padding: 23px 23px 27px;
+    width: min(calc(360 * var(--u)), 100%);
+    padding: calc(23 * var(--u)) calc(23 * var(--u)) calc(27 * var(--u));
     border: 1px solid #e3e3e5;
-    border-radius: 16px;
+    border-radius: calc(16 * var(--u));
     background: #ffffff;
     font-family: "Figtree", var(--ui);
   }
-  .provider-name { margin: 0; padding-right: 48px; color: #16161a; font-weight: 700; font-size: 19px; line-height: 23px; }
-  .provider-meta { margin: 7px 0 0; color: #616166; font-size: 14px; line-height: 17px; }
-  .provider-next-label { margin: 21px 0 0; color: #616166; font-weight: 700; font-size: 11px; line-height: 13px; }
-  .provider-next { margin: 5px 0 0; color: #e21833; font-weight: 700; font-size: 17px; line-height: 20px; }
+  .provider-name { margin: 0; padding-right: calc(48 * var(--u)); color: #16161a; font-weight: 700; font-size: calc(19 * var(--u)); line-height: 1.2; }
+  .provider-meta { margin: calc(7 * var(--u)) 0 0; color: #616166; font-size: max(12px, calc(14 * var(--u))); line-height: 1.2; }
+  .provider-next-label { margin: calc(21 * var(--u)) 0 0; color: #616166; font-weight: 700; font-size: max(10px, calc(11 * var(--u))); line-height: 1.2; }
+  .provider-next { margin: calc(5 * var(--u)) 0 0; color: #e21833; font-weight: 700; font-size: calc(17 * var(--u)); line-height: 1.2; }
   .book-button {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    height: 44px;
-    margin-top: 28px;
-    padding: 0 22px;
+    gap: calc(8 * var(--u));
+    height: max(32px, calc(44 * var(--u)));
+    margin-top: calc(28 * var(--u));
+    padding: 0 calc(22 * var(--u));
     border: 0;
     border-radius: 999px;
     background: #e21833;
     color: #ffffff;
-    font: 600 15px / 18px "Figtree", var(--ui);
+    font: 600 max(12px, calc(15 * var(--u))) / 1.2 "Figtree", var(--ui);
     cursor: pointer;
   }
   .book-tick { display: none; flex: none; overflow: visible; }
   .book-button[aria-pressed="true"] { background: #e3f6ea; color: #1b6b3a; }
   .book-button[aria-pressed="true"] .book-tick { display: block; }
   /* the disc in the card's top right corner (312:630) shows once booked; its check draws from nothing. */
-  .book-disc { position: absolute; top: 22px; right: 24px; overflow: visible; }
+  .book-disc { position: absolute; top: calc(22 * var(--u)); right: calc(24 * var(--u)); width: calc(40 * var(--u)); height: calc(40 * var(--u)); overflow: visible; }
   .book-disc-fill { fill: #e3f6ea; scale: 0; transform-origin: 20px 20px; }
   .book-disc-check { stroke: #1b6b3a; stroke-dasharray: 1; stroke-dashoffset: 1; }
   [data-booked] .book-disc-fill { scale: 1; }

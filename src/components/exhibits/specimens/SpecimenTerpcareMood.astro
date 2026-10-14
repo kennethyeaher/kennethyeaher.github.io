@@ -30,7 +30,7 @@ const chosen = "good";
           style={`--mood: var(--mood-${mood.level}); --mood-bg: var(--mood-${mood.level}-bg)`}>
           <span class="mood-fill" aria-hidden="true"></span>
           <span class="mood-bars" aria-hidden="true">
-            {[1, 2, 3, 4, 5].map((bar) => <span class:list={["mood-bar", bar <= mood.level && "is-on"]} style={`height: ${3 + bar * 3}px`}></span>)}
+            {[1, 2, 3, 4, 5].map((bar) => <span class:list={["mood-bar", bar <= mood.level && "is-on"]} style={`height: calc(${3 + bar * 3} * var(--u))`}></span>)}
           </span>
           <span class="mood-word">{mood.label}</span>
           <span class="mood-selected" aria-hidden="true">Selected</span>
@@ -58,24 +58,26 @@ const chosen = "good";
     --mood-label: #8e8e96; --mood-focus: #ffffff;
   }
   :global(figure[data-specimen="terpcare-mood"] .specimen-stage) { --specimen-focus: var(--mood-focus); }
-  .mood-sheet { display: grid; gap: 11px; width: min(300px, 100%); }
+  /* sized in specimen pixels (--u, ExhibitSpecimen.astro), so the sheet shrinks with a half size stage; each option
+     stays at least 32px tall. */
+  .mood-sheet { display: grid; gap: calc(11 * var(--u)); width: min(calc(300 * var(--u)), 100%); }
   .mood-theme-label { margin: 0; color: var(--mood-label); font: var(--label-micro, 10px) / 13px var(--mono); }
-  .mood-options { display: grid; gap: 12px; }
+  .mood-options { display: grid; gap: calc(12 * var(--u)); }
   /* 300 by 52 with a 12px radius (312:492); the chosen card's border is 1.5px, drawn as a half pixel inset ring on top
      of the 1px border so nothing shifts. */
   .mood-option {
     position: relative;
     display: flex;
     align-items: center;
-    gap: 14px;
-    height: 52px;
-    padding: 0 16px 0 15px;
+    gap: calc(14 * var(--u));
+    height: max(32px, calc(52 * var(--u)));
+    padding: 0 calc(16 * var(--u)) 0 calc(15 * var(--u));
     overflow: clip;
     border: 1px solid var(--mood-border);
-    border-radius: 12px;
+    border-radius: calc(12 * var(--u));
     background: var(--mood-surface);
     color: var(--mood-text);
-    font: 600 17px / 21px "Inter", var(--ui);
+    font: 600 max(13px, calc(17 * var(--u))) / 1.2 "Inter", var(--ui);
     text-align: left;
     cursor: pointer;
     isolation: isolate;
@@ -84,11 +86,11 @@ const chosen = "good";
   /* the fill sweeps in from the left edge; scale keeps it on the compositor. */
   .mood-fill { position: absolute; z-index: -1; inset: 0; background: var(--mood-bg); scale: 0 1; transform-origin: left center; }
   .mood-option[aria-checked="true"] .mood-fill { scale: 1 1; }
-  .mood-bars { display: flex; align-items: flex-end; gap: 3px; height: 18px; }
-  .mood-bar { width: 4px; border-radius: 1px; background: var(--mood-border); }
+  .mood-bars { display: flex; align-items: flex-end; gap: calc(3 * var(--u)); height: calc(18 * var(--u)); }
+  .mood-bar { width: calc(4 * var(--u)); border-radius: 1px; background: var(--mood-border); }
   .mood-bar.is-on { background: var(--mood); }
   .mood-word { flex: 1; }
-  .mood-selected { color: var(--mood); font: 500 12px / 15px "Inter", var(--ui); opacity: 0; }
+  .mood-selected { color: var(--mood); font: 500 max(10px, calc(12 * var(--u))) / 1.2 "Inter", var(--ui); opacity: 0; }
   .mood-option[aria-checked="true"] .mood-selected { opacity: 1; }
 
   @media (prefers-reduced-motion: no-preference) {

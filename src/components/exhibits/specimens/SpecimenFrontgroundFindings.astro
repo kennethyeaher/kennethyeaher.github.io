@@ -28,12 +28,13 @@ const findings = [
 </ExhibitSpecimen>
 
 <style>
-  /* 720 by 220 with a 20px radius (312:815), the text 32 in. */
-  .exam-card { --specimen-focus: #003f5d; width: min(720px, 100%); min-height: 220px; padding: 32px; border-radius: 20px; background: #ffffff; font-family: "Figtree", var(--ui); }
-  .exam-title { margin: 0; color: #003f5d; font-weight: 700; font-size: 22px; line-height: 26px; }
-  .exam-hint { margin: 8px 0 0; color: #707070; font-size: 15px; line-height: 18px; }
-  .exam-chips { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 40px; }
-  .exam-chip { padding: 8px 16px; border: 1.2px solid #003f5d; border-radius: 999px; background: #ffffff; color: #003f5d; font: 17px / 20px "Figtree", var(--ui); cursor: pointer; }
+  /* 720 by 220 with a 20px radius (312:815), the text 32 in, in specimen pixels (--u, ExhibitSpecimen.astro) so the card
+     shrinks with a half size stage; the chips may wrap to a second row there, and each stays at least 32px tall. */
+  .exam-card { --specimen-focus: #003f5d; width: min(calc(720 * var(--u)), 100%); min-height: calc(220 * var(--u)); padding: calc(32 * var(--u)); border-radius: calc(20 * var(--u)); background: #ffffff; font-family: "Figtree", var(--ui); }
+  .exam-title { margin: 0; color: #003f5d; font-weight: 700; font-size: calc(22 * var(--u)); line-height: calc(26 * var(--u)); }
+  .exam-hint { margin: calc(8 * var(--u)) 0 0; color: #707070; font-size: max(13px, calc(15 * var(--u))); line-height: 1.2; }
+  .exam-chips { display: flex; flex-wrap: wrap; gap: calc(12 * var(--u)); margin-top: calc(40 * var(--u)); }
+  .exam-chip { min-height: 32px; padding: calc(8 * var(--u)) calc(16 * var(--u)); border: 1.2px solid #003f5d; border-radius: 999px; background: #ffffff; color: #003f5d; font: max(13px, calc(17 * var(--u))) / 1.2 "Figtree", var(--ui); cursor: pointer; }
   .exam-chip[aria-pressed="true"] { background: #003f5d; color: #ffffff; }
   @media (prefers-reduced-motion: no-preference) {
     .exam-chip { transition: background-color 150ms ease-out, color 150ms ease-out; }

@@ -297,3 +297,77 @@ test("the greyscale exhibit shows the queue capture through the sized image pipe
   const imageId = html.match(/<div class="greyscale-shot"[^>]*id="([^"]+)"/)[1];
   for (const button of buttons(html)) assert.match(button.attrs, new RegExp(`aria-controls="${imageId}"`));
 });
+
+/** the css inside every block opened by one at-rule, such as "@media (max-width: 760px)", joined. */
+function blocksOf(css, at) {
+  const found = [];
+  for (let start = css.indexOf(at); start >= 0; start = css.indexOf(at, start + 1)) {
+    let depth = 0;
+    let end = css.indexOf("{", start);
+    const open = end;
+    for (; end < css.length; end += 1) {
+      if (css[end] === "{") depth += 1;
+      if (css[end] === "}" && --depth === 0) break;
+    }
+    found.push(css.slice(open + 1, end));
+  }
+  return found.join("\n");
+}
+
+test("specimens sit at half size: frontground's two as a pair, every other one as a feature beside its head and notes", () => {
+  const layouts = [["frontground", "triage", "is-pair", ["frontground-findings", "frontground-greyscale"]], ["terpcare", "mood-check-in", "is-feature", ["terpcare-mood"]],
+    ["terpcarehub", "booking", "is-feature", ["terpcarehub-book"]], ["sohive", "rsvp-outcomes", "is-feature", ["sohive-rsvp"]]];
+  for (const [slug, chapter, layout, kinds] of layouts) {
+    const html = chapterHtml(slug, chapter);
+    // one wrapper per chapter in the layout the laptop loops use, holding the chapter's specimens in order.
+    const wrappers = [...html.matchAll(/<div class="exhibit-specimens exhibit-layout (is-pair|is-feature)"/g)];
+    assert.deepEqual(wrappers.map((match) => match[1]), [layout], `${slug} ${chapter}`);
+    const inside = html.slice(wrappers[0].index);
+    assert.deepEqual([...inside.matchAll(/<figure[^>]*\bdata-specimen="([^"]+)"/g)].map((match) => match[1]), kinds);
+  }
+
+  // the shared layouts: a pair is two equal columns 40 apart, a feature its media beside a column 48 apart, centred.
+  const globalCss = readFileSync(join(projectRoot, "src", "styles", "global.css"), "utf8");
+  assert.match(globalCss, /\.exhibit-layout \{[^}]*display: grid;[^}]*gap: 40px;/);
+  assert.match(globalCss, /\.exhibit-layout\.is-pair \{ grid-template-columns: repeat\(2, minmax\(0, 1fr\)\); \}/);
+  assert.match(globalCss, /\.exhibit-layout\.is-feature > :not\(script\) \{[^}]*grid-template-columns: var\(--feature-columns\);[^}]*gap: 48px;[^}]*align-items: center;/);
+  assert.match(blocksOf(globalCss, "@media (max-width: 760px)"), /\.exhibit-layout\.is-pair, \.exhibit-layout\.is-feature > :not\(script\) \{ grid-template-columns: minmax\(0, 1fr\); \}/);
+  const loops = styleOf(readFileSync(join(projectRoot, "src", "components", "exhibits", "ExhibitLoops.astro"), "utf8"));
+  assert.match(loops, /--feature-columns: 720fr 348fr/);
+
+  const shell = styleOf(readFileSync(join(projectRoot, "src", "components", "exhibits", "ExhibitSpecimen.astro"), "utf8"));
+  // a pair's stages share one 538 by 360 ratio, like the laptop loop pair: a floor from 761, and fixed once the pair is
+  // 880 wide, where min-height 0 stops content stretching either one, the body fills the stage, the findings card
+  // centres in it and the queue fits inside it.
+  assert.match(shell, /:global\(\.exhibit-specimens\.is-pair\) \{ container: specimen-pair \/ inline-size; \}/);
+  assert.match(blocksOf(shell, "@media (min-width: 761px)"), /:global\(\.exhibit-layout\.is-pair\) > \.specimen > \.specimen-stage \{ aspect-ratio: 538 \/ 360; \}/);
+  const pairStage = blocksOf(shell, "@container specimen-pair (min-width: 880px)");
+  assert.match(pairStage, /:global\(\.exhibit-layout\.is-pair\) > \.specimen > \.specimen-stage \{ grid-template-rows: minmax\(0, 1fr\); aspect-ratio: 538 \/ 360; min-height: 0; \}/);
+  assert.match(pairStage, /:global\(\.exhibit-layout\.is-pair\) > \.specimen \.specimen-body \{ height: 100%; grid-template-rows: minmax\(0, 1fr\); \}/);
+  const pair = chapterHtml("frontground", "triage");
+  const pairStages = [...pair.slice(pair.indexOf('class="exhibit-specimens exhibit-layout is-pair"')).matchAll(/<div class="specimen-stage[^"]*"/g)];
+  assert.equal(pairStages.length, 2, "both frontground stages sit in the pair, so both take the ratio");
+  const grey = styleOf(readFileSync(join(specimenDir, "SpecimenFrontgroundGreyscale.astro"), "utf8"));
+  assert.match(blocksOf(grey, "@container specimen-pair (min-width: 880px)"), /\.greyscale-shot img \{[^}]*height: 100%;[^}]*object-fit: contain;[^}]*object-position: center;/);
+  // the stage takes about 538 of the 1116 column; the head and notes stack beside it, the notes in one column.
+  assert.match(shell, /--feature-columns: 538fr 530fr/);
+  assert.match(shell, /grid-template-areas: "stage \." "stage head" "stage notes" "stage \."/);
+  assert.match(shell, /\.specimen :global\(\.exhibit-notes\) \{[^}]*grid-template-columns: minmax\(0, 1fr\);/);
+  // the controls and the tag sit 16px in.
+  assert.match(shell, /\.specimen-controls \{[^}]*top: 16px; right: 16px;/);
+  assert.match(shell, /\.specimen-tag \{[^}]*bottom: 16px;[^}]*left: 16px;/);
+  // a specimen pixel that shrinks with the stage (container units), and holds at 1px on phones, where stages stack.
+  assert.match(shell, /--u: clamp\([\d.]+px, [\d.]+cqw, 1px\)/);
+  assert.match(blocksOf(shell, "@media (max-width: 760px)"), /--u: 1px/);
+
+  // every card sizes from the specimen pixel, and every control stays at least 32px tall.
+  for (const spec of specimens.filter((entry) => entry.kind !== "frontground-greyscale")) {
+    assert.match(styleOf(readFileSync(join(specimenDir, `${spec.component}.astro`), "utf8")), /var\(--u\)/, spec.kind);
+  }
+  const css = (component) => styleOf(readFileSync(join(specimenDir, `${component}.astro`), "utf8"));
+  assert.match(shell, /\.specimen :global\(\.specimen-switch button\) \{[^}]*min-height: 32px;/);
+  for (const [component, selector] of [["SpecimenTerpcarehubBook", "book-replay"], ["SpecimenTerpcarehubBook", "book-button"], ["SpecimenSohiveRsvp", "rsvp-button"],
+    ["SpecimenSohiveRsvp", "rsvp-undo"], ["SpecimenFrontgroundFindings", "exam-chip"], ["SpecimenTerpcareMood", "mood-option"]]) {
+    assert.match(css(component), new RegExp(`\\.${selector} \\{[^}]*(min-)?height: max\\(32px, [^;]+\\);|\\.${selector} \\{[^}]*min-height: 32px;`), `${component} .${selector}`);
+  }
+});

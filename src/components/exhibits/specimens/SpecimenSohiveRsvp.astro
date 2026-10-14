@@ -37,27 +37,30 @@ const id = `specimen-${specimen.kind}`;
 </ExhibitSpecimen>
 
 <style>
-  .rsvp { display: grid; gap: 26px; width: min(380px, 100%); font-family: "Inter", var(--ui); }
+  /* sized in specimen pixels (--u, ExhibitSpecimen.astro), so the card shrinks with a half size stage; small text holds
+     at a readable floor and the button at 32px tall. */
+  .rsvp { display: grid; gap: calc(26 * var(--u)); width: min(calc(380 * var(--u)), 100%); font-family: "Inter", var(--ui); }
   /* 380 by 214 with an 18px radius (312:708): a 50px host bar and a 62px footer in #004692 around the #0a66d6 body. */
-  .event-card { overflow: clip; border-radius: 18px; background: #0a66d6; color: #ffffff; }
-  .event-host { display: flex; align-items: center; gap: 10px; height: 50px; padding: 0 14px; background: #004692; }
+  .event-card { overflow: clip; border-radius: calc(18 * var(--u)); background: #0a66d6; color: #ffffff; }
+  .event-host { display: flex; align-items: center; gap: calc(10 * var(--u)); height: calc(50 * var(--u)); padding: 0 calc(14 * var(--u)); background: #004692; }
   /* white initials on #5399e5 are 3.0:1, as the brief sets them; they repeat the name beside them, so they are hidden. */
-  .event-avatar { display: grid; flex: none; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: #5399e5; font: 700 11px / 1 "Inter", var(--ui); }
-  .event-host-name { font: 600 16px / 19px "Inter", var(--ui); }
-  .event-host-tag { margin-left: auto; padding: 5px 13px 6px; border-radius: 12px; background: #ffffff; color: #004692; font: 600 11px / 13px "Inter", var(--ui); }
-  .event-body { padding: 14px 20px 22px 16px; }
-  .event-title { margin: 0; font: 700 28px / 34px "Inter", var(--ui); }
-  .event-where { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px; margin: 14px 0 0; font: 15px / 18px "Inter", var(--ui); }
+  .event-avatar { display: grid; flex: none; place-items: center; width: calc(30 * var(--u)); height: calc(30 * var(--u)); border-radius: 50%; background: #5399e5; font: 700 max(9px, calc(11 * var(--u))) / 1 "Inter", var(--ui); }
+  .event-host-name { font: 600 calc(16 * var(--u)) / 1.2 "Inter", var(--ui); }
+  .event-host-tag { margin-left: auto; padding: calc(5 * var(--u)) calc(13 * var(--u)) calc(6 * var(--u)); border-radius: calc(12 * var(--u)); background: #ffffff; color: #004692; font: 600 max(10px, calc(11 * var(--u))) / 1.2 "Inter", var(--ui); }
+  .event-body { padding: calc(14 * var(--u)) calc(20 * var(--u)) calc(22 * var(--u)) calc(16 * var(--u)); }
+  .event-title { margin: 0; font: 700 calc(28 * var(--u)) / 1.2 "Inter", var(--ui); }
+  .event-where { display: flex; flex-wrap: wrap; justify-content: space-between; gap: calc(4 * var(--u)) calc(16 * var(--u)); margin: calc(14 * var(--u)) 0 0; font: max(12px, calc(15 * var(--u))) / 1.2 "Inter", var(--ui); }
   .event-when { font-weight: 600; }
-  .event-footer { display: flex; align-items: center; gap: 24px; height: 62px; padding: 0 14px 0 16px; background: #004692; font: 500 15px / 18px "Inter", var(--ui); }
-  .event-going { font-size: 13px; line-height: 16px; }
-  .rsvp-button { flex: none; width: 122px; height: 38px; margin-left: auto; border: 0; border-radius: 19px; background: #000000; color: #ffffff; font: 600 15px / 18px "Inter", var(--ui); cursor: pointer; }
+  .event-footer { display: flex; align-items: center; gap: calc(24 * var(--u)); height: calc(62 * var(--u)); padding: 0 calc(14 * var(--u)) 0 calc(16 * var(--u)); background: #004692; font: 500 max(12px, calc(15 * var(--u))) / 1.2 "Inter", var(--ui); }
+  .event-going { font-size: max(11px, calc(13 * var(--u))); line-height: 1.2; }
+  .rsvp-button { flex: none; width: calc(122 * var(--u)); height: max(32px, calc(38 * var(--u))); margin-left: auto; border: 0; border-radius: 999px; background: #000000; color: #ffffff; font: 600 max(12px, calc(15 * var(--u))) / 1.2 "Inter", var(--ui); cursor: pointer; }
   .rsvp-button[aria-pressed="true"] { background: #ffffff; color: #111417; }
   /* the toast's row is held open, so showing it never moves the stage. */
   .rsvp-toast { --specimen-focus: #111417; min-height: 44px; }
-  .rsvp-toast-inner { display: inline-flex; align-items: center; gap: 24px; padding: 13px 18px; border-radius: 14px; background: #ffffff; color: #111417; font: 500 15px / 18px "Inter", var(--ui); }
+  /* the undo is 32px tall, so the toast keeps its 44 with 6 above and below it. */
+  .rsvp-toast-inner { display: inline-flex; align-items: center; gap: calc(24 * var(--u)); padding: 6px calc(18 * var(--u)); border-radius: calc(14 * var(--u)); background: #ffffff; color: #111417; font: 500 max(12px, calc(15 * var(--u))) / 1.2 "Inter", var(--ui); }
   .rsvp-toast-inner[hidden] { display: none; }
-  .rsvp-undo { padding: 0; border: 0; background: none; color: #dc3545; font: 600 15px / 18px "Inter", var(--ui); cursor: pointer; }
+  .rsvp-undo { min-height: 32px; padding: 0; border: 0; background: none; color: #dc3545; font: 600 max(12px, calc(15 * var(--u))) / 1.2 "Inter", var(--ui); cursor: pointer; }
   .rsvp-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
   @media (prefers-reduced-motion: no-preference) {

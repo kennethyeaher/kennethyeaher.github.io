@@ -22,9 +22,10 @@ const shotId = `${id}-shot`;
     <button type="button" aria-pressed="false" aria-controls={shotId} data-queue-colour="grey">Greyscale</button>
   </div>
   <div class="greyscale-shot" id={shotId}>
-    {/* the stage is the article column at most (1116 wide, 40 of padding), the page less its gutters below 980, and on
-        phones the crop draws the image 2.157 times the stage's inner width (100vw less 2 x 20 gutter and 2 x 16 padding). */}
-    <img src={visual.src} srcset={exhibitSrcset(visual.src)} sizes="(max-width: 760px) calc((100vw - 72px) * 2.157), (max-width: 980px) calc(100vw - 80px), 1076px"
+    {/* the stage is half the article column at most (538 wide, 32 of padding), half the page less its gutters and the
+        pair's gap below 980, and on phones the crop draws the image 2.157 times the stage's inner width (100vw less
+        2 x 20 gutter and 2 x 16 padding). */}
+    <img src={visual.src} srcset={exhibitSrcset(visual.src)} sizes="(max-width: 760px) calc((100vw - 72px) * 2.157), (max-width: 980px) calc(50vw - 72px), 506px"
       width={visual.width} height={visual.height} alt={visual.alt} loading="lazy" decoding="async" />
   </div>
 </ExhibitSpecimen>
@@ -33,6 +34,12 @@ const shotId = `${id}-shot`;
   .greyscale-shot { width: 100%; }
   .greyscale-shot img { display: block; width: 100%; height: auto; border-radius: 8px; }
   .greyscale-shot.is-grey img { filter: grayscale(1); }
+  /* where the pair holds its stages to a fixed ratio (ExhibitSpecimen.astro), the queue fits inside its stage whole,
+     centred on the stage colour. */
+  @container specimen-pair (min-width: 880px) {
+    .greyscale-shot { height: 100%; }
+    .greyscale-shot img { height: 100%; object-fit: contain; object-position: center; }
+  }
   /* on a phone the whole dashboard is too small to read, so the stage crops to the ID, Patient and Triage columns of
      the queue: 890 by 550 capture pixels from 260 across and 80 down. */
   @media (max-width: 760px) {
