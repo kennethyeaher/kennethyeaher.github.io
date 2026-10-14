@@ -2285,19 +2285,24 @@ export const caseStudies = [
             ],
           },
         ],
+        // dark mode as two zigzag rows (figma 64:795): the check-in with its stage first, then the October month
+        // with its caption first, on the same field mirrored across the stage.
         rows: {
-          bases: ["#211f20"],
+          zigzag: true,
+          bases: ["#211f20", "#211f20"],
           veil: true,
           fields: [
             { width: 600, height: 600, sigma: 45, circles: [{ x: 160, y: 560, r: 280, colour: "#E93C43", alpha: 0.9 }, { x: 550, y: 50, r: 190, colour: "#FFCC1E", alpha: 0.9 }, { x: 470, y: 590, r: 210, colour: "#A93C52", alpha: 0.9 }] },
+            { width: 600, height: 600, sigma: 45, circles: [{ x: 440, y: 560, r: 280, colour: "#E93C43", alpha: 0.9 }, { x: 50, y: 50, r: 190, colour: "#FFCC1E", alpha: 0.9 }, { x: 130, y: 590, r: 210, colour: "#A93C52", alpha: 0.9 }] },
           ],
           visuals: [
             { src: "/images/work/terpcare/terpcare-checkin-dark.png", width: 860, height: 1864, alt: "TerpCare check-in sheet in dark mode, built from the same colour variables", frame: "iphone", fit: "contain", bg: "#101012", at: { x: 29, y: 7.6, w: 42 } },
+            { src: "/images/work/terpcare/terpcare-mood-october-dark.png", width: 860, height: 1864, alt: "TerpCare October mood month in dark mode, each logged day keeping its level colour and bar count, missed days left blank", frame: "iphone", fit: "contain", bg: "#101012", at: { x: 29, y: 7.6, w: 42 } },
           ],
-          // the caption reads as a lead above the stage rather than beside it, so the dark phone does not sit 32px
-          // under the loop card with no text between the two.
-          lead: { eyebrow: "DARK MODE", title: "Dark mode from the same tokens", body: "Dark mode is a second mode on the colour variables, not a second file. The check-in is the same frame in both, which is how the 200% text version was built too." },
-          captions: [],
+          captions: [
+            { eyebrow: "DARK MODE", title: "Dark mode from the same tokens", body: "Dark mode is a second mode on the colour variables, not a second file. The check-in is the same frame in both, which is how the 200% text version was built too." },
+            { eyebrow: "DARK MODE · MONTH", title: "The month keeps its meaning", body: "The October month is the same frame with the Dark mode switched on. Each level keeps its colour and its bar count, and missed days stay blank in both." },
+          ],
         },
       },
       {
