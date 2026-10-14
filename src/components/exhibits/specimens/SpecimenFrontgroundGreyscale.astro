@@ -1,64 +1,221 @@
 ---
-// frontground, triage (figma 312:831): the hi-fi prototype's patient queue with a Colour and Greyscale switch. every
-// level is a word and a shape as well as a colour, so the queue still reads with the colour taken away. the mock
-// draws two queue cards; this shows the prototype's own capture through the sized image pipeline.
+// frontground, seen by every eye (figma 365:519): the prototype's patient queue drawn live and seen five ways. the
+// queue card goes through an svg filter that applies the chosen Machado 2009 matrix in linear sRGB, then lifts its
+// black level by the washout; the panel beside it says what still separates the three levels, with the chip's
+// contrast measured from the same numbers (colour-vision.mjs). the mock's state: deutan, 40% washout.
 import ExhibitSpecimen from "@/components/exhibits/ExhibitSpecimen.astro";
-import { exhibitSrcset } from "@/utils/exhibitSrcset";
+import { describe, filterValues, modes, verdict, washoutTransfer } from "./colour-vision.mjs";
+import { triageLevels } from "./frontground-exam.mjs";
 
 interface Props {
-  specimen: {
-    kind: string; eyebrow: string; heading: string; tag?: string; notes: { n: string; title: string; body: string }[];
-    visual: { src: string; width: number; height: number; alt: string };
-  };
+  specimen: { kind: string; eyebrow: string; heading: string; tag: string; notes: { n: string; title: string; body: string }[] };
 }
 const { specimen } = Astro.props;
 const id = `specimen-${specimen.kind}`;
-const { visual } = specimen;
-const shotId = `${id}-shot`;
+const mode = "deutan";
+const washout = 40;
+const transfer = washoutTransfer(washout / 100);
+const shapes = Object.fromEntries(triageLevels.map((level) => [level.key, level]));
+// the queue from the mock, in the prototype's arrival order.
+const queue = [
+  { id: "01202", name: "Oliver Queen", arrived: "09:33 AM", level: "red" },
+  { id: "01345", name: "John Stewart", arrived: "09:50 AM", level: "yellow" },
+  { id: "01254", name: "Selina Kyle", arrived: "10:30 AM", level: "green" },
+  { id: "01260", name: "Hal Jordan", arrived: "10:11 AM", level: "green" },
+  { id: "01258", name: "Dinah Lance", arrived: "10:10 AM", level: "red" },
+];
 ---
-<ExhibitSpecimen id={id} kind={specimen.kind} eyebrow={specimen.eyebrow} heading={specimen.heading} tag={specimen.tag} notes={specimen.notes} background="#003f5d" tone="dark">
-  <div slot="controls" class="specimen-switch" role="group" aria-label="Queue colour">
-    <button type="button" aria-pressed="true" aria-controls={shotId} data-queue-colour="colour">Colour</button>
-    <button type="button" aria-pressed="false" aria-controls={shotId} data-queue-colour="grey">Greyscale</button>
-  </div>
-  <div class="greyscale-shot" id={shotId}>
-    {/* the stage is half the article column at most (538 wide, 32 of padding), half the page less its gutters and the
-        pair's gap below 980, and on phones the crop draws the image 2.157 times the stage's inner width (100vw less
-        2 x 20 gutter and 2 x 16 padding). */}
-    <img src={visual.src} srcset={exhibitSrcset(visual.src)} sizes="(max-width: 760px) calc((100vw - 72px) * 2.157), (max-width: 980px) calc(50vw - 72px), 506px"
-      width={visual.width} height={visual.height} alt={visual.alt} loading="lazy" decoding="async" />
+<ExhibitSpecimen id={id} kind={specimen.kind} eyebrow={specimen.eyebrow} heading={specimen.heading} tag={specimen.tag} notes={specimen.notes}
+  background="linear-gradient(118deg, #002637 0%, #003f5d 60%, #145676 100%)" tone="dark">
+  <div class="vision" data-vision>
+    <svg class="vision-defs" width="0" height="0" aria-hidden="true" focusable="false">
+      <filter id={`${id}-filter`} color-interpolation-filters="linearRGB" x="0" y="0" width="100%" height="100%">
+        <feColorMatrix type="matrix" values={filterValues(mode)} data-vision-matrix />
+        <feComponentTransfer color-interpolation-filters="sRGB" data-vision-washout>
+          <feFuncR type="linear" slope={transfer.slope} intercept={transfer.intercept} />
+          <feFuncG type="linear" slope={transfer.slope} intercept={transfer.intercept} />
+          <feFuncB type="linear" slope={transfer.slope} intercept={transfer.intercept} />
+        </feComponentTransfer>
+      </filter>
+    </svg>
+
+    <div class="vision-modes" role="radiogroup" aria-label="Way of seeing">
+      {modes.map((entry) => {
+        const on = entry.key === mode;
+        return <button type="button" role="radio" class="vision-mode" aria-checked={on ? "true" : "false"} tabindex={on ? "0" : "-1"} data-vision-mode={entry.key}>{entry.label}</button>;
+      })}
+    </div>
+    <p class="vision-caption" aria-live="polite" data-vision-caption>{describe(mode)}</p>
+
+    <div class="vision-row">
+      <div class="vision-queue" style={`filter: url(#${id}-filter)`}>
+        <div class="queue-head">
+          <p class="queue-title">Patient queue</p>
+          <p class="queue-tag" data-vision-tag>AS SEEN · {modes.find((entry) => entry.key === mode)!.tag}</p>
+        </div>
+        <table class="queue-table">
+          <thead>
+            <tr><th scope="col">Patient ID</th><th scope="col">Name</th><th scope="col" class="queue-arrived">Arrived</th><th scope="col">Triage</th></tr>
+          </thead>
+          <tbody>
+            {queue.map((row) => (
+              <tr>
+                <td class="queue-id">{row.id}</td>
+                <td class="queue-name">{row.name}</td>
+                <td class="queue-arrived">{row.arrived}</td>
+                <td><span class="queue-chip"><span class:list={["triage-shape", `is-${shapes[row.level].shape}`]} aria-hidden="true"></span>{shapes[row.level].label}</span></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="vision-panel">
+        <p class="vision-label" aria-hidden="true">WHAT STILL SEPARATES THEM</p>
+        <ul class="vision-verdicts" aria-label="What still separates them">
+          {verdict(mode, washout / 100).map((row) => (
+            <li data-verdict={row.key} data-pass={String(row.pass)}>
+              <span class="verdict-icon" role="img" aria-label={row.pass ? "Holds" : "Fails"} data-verdict-icon>{row.pass ? "✓" : "✕"}</span>
+              <span class="verdict-title">{row.title}{row.value && <span class="verdict-value" data-verdict-value>{row.value}</span>}</span>
+              <span class="verdict-body" data-verdict-body>{row.body}</span>
+            </li>
+          ))}
+        </ul>
+        <div class="washout">
+          <label class="vision-label" for={`${id}-washout`}>CHEAP MONITOR WASHOUT</label>
+          <output class="washout-value" for={`${id}-washout`} aria-hidden="true" data-washout-value>{washout}%</output>
+          <input type="range" id={`${id}-washout`} min="0" max="80" step="10" value={washout} aria-valuetext={`${washout}%`} style={`--fill: ${washout / 80 * 100}%`} data-washout />
+        </div>
+      </div>
+    </div>
   </div>
 </ExhibitSpecimen>
 
 <style>
-  .greyscale-shot { width: 100%; }
-  .greyscale-shot img { display: block; width: 100%; height: auto; border-radius: 8px; }
-  .greyscale-shot.is-grey img { filter: grayscale(1); }
-  /* where the pair holds its stages to a fixed ratio (ExhibitSpecimen.astro), the queue fits inside its stage whole,
-     centred on the stage colour. */
-  @container specimen-pair (min-width: 880px) {
-    .greyscale-shot { height: 100%; }
-    .greyscale-shot img { height: 100%; object-fit: contain; object-position: center; }
-  }
-  /* on a phone the whole dashboard is too small to read, so the stage crops to the ID, Patient and Triage columns of
-     the queue: 890 by 550 capture pixels from 260 across and 80 down. */
-  @media (max-width: 760px) {
-    .greyscale-shot { overflow: hidden; aspect-ratio: 890 / 550; border-radius: 8px; }
-    .greyscale-shot img { width: 215.7%; max-width: none; margin: -8.99% 0 0 -29.21%; border-radius: 0; }
-  }
+  /* the mock's 1116 by 640 stage: the five way switch 40 from the top, its caption under it, then the 560 wide
+     queue and the 332 wide panel, 32 apart and centred, 136 from the top. sized in specimen pixels (--u). */
+  .vision { display: grid; justify-items: center; align-content: start; padding: calc(40 * var(--u)) calc(48 * var(--u)) calc(96 * var(--u)); color: #ffffff; font-family: "Figtree", var(--ui); }
+  .vision-defs { position: absolute; }
+  .vision-modes { display: flex; gap: 2px; padding: 3px; border: 1px solid rgb(255 255 255 / 18%); border-radius: 999px; background: rgb(255 255 255 / 10%); }
+  .vision-mode { min-height: 32px; padding: 0 16px; border: 0; border-radius: 999px; background: transparent; color: rgb(255 255 255 / 85%); font: 400 14px / 17px "Figtree", var(--ui); cursor: pointer; }
+  .vision-mode[aria-checked="true"] { background: #ffffff; color: #003f5d; font-weight: 600; }
+  .vision-caption { margin-top: calc(12 * var(--u)); color: rgb(255 255 255 / 70%); font-size: 13px; line-height: 16px; white-space: pre-wrap; }
+  .vision-row { display: grid; grid-template-columns: calc(560 * var(--u)) calc(332 * var(--u)); gap: calc(32 * var(--u)); margin-top: calc(28 * var(--u)); }
+
+  .vision-queue { min-height: calc(404 * var(--u)); padding-bottom: 12px; border-radius: calc(18 * var(--u)); background: #ffffff; box-shadow: 0 calc(24 * var(--u)) calc(50 * var(--u)) rgb(0 26 38 / 40%); color: #0f2a38; }
+  .queue-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: calc(64 * var(--u)); padding: 0 calc(24 * var(--u)) 0 calc(28 * var(--u)); border-bottom: 1px solid #e5ebee; }
+  .queue-title { color: #003f5d; font-weight: 700; font-size: max(16px, calc(18 * var(--u))); line-height: 22px; }
+  .queue-tag { padding: 5px 14px 6px; border-radius: 999px; background: #f1f4f6; color: #5b6b74; font: var(--label-micro, 10px) / 13px var(--mono); letter-spacing: 0.04em; white-space: pre; }
+  .queue-table { width: calc(100% - 56 * var(--u)); margin: calc(12 * var(--u)) calc(28 * var(--u)) 0; border-collapse: collapse; }
+  .queue-table th { height: calc(36 * var(--u)); padding: 0; color: #5b6b74; font: 400 var(--label-micro, 10px) / 13px var(--mono); letter-spacing: 0.04em; text-align: left; text-transform: uppercase; }
+  .queue-table td { height: calc(56 * var(--u)); padding: 0; border-top: 1px solid #f1f4f6; font-size: 14px; line-height: 17px; }
+  .queue-table tbody tr:first-child td { border-top: 0; }
+  .queue-table th:nth-child(1) { width: 16.5%; }
+  .queue-table th:nth-child(2) { width: 36%; }
+  .queue-table th:nth-child(3) { width: 24%; }
+  .queue-table td.queue-id { font: 13px / 17px var(--mono); }
+  .queue-table td.queue-name { font-weight: 600; }
+  .queue-table td.queue-arrived { color: #5b6b74; font: 13px / 17px var(--mono); }
+  .queue-chip { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px 0 10px; border: 1.2px solid #003f5d; border-radius: 8px; color: #003f5d; font-weight: 600; font-size: 13px; }
+  .triage-shape { flex: none; width: 12px; height: 12px; }
+  .triage-shape.is-square { background: #de5b5b; }
+  .triage-shape.is-rounded { border: 1px solid #b8bd1d; border-radius: 3px; background: #f7fd3b; }
+  .triage-shape.is-circle { border-radius: 50%; background: #0c8b44; }
+
+  .vision-panel { display: grid; grid-template-rows: auto 1fr auto; padding: calc(24 * var(--u)); border: 1px solid rgb(255 255 255 / 16%); border-radius: calc(18 * var(--u)); background: rgb(255 255 255 / 8%); }
+  .vision-label { color: rgb(255 255 255 / 70%); font: var(--label-micro, 10px) / 13px var(--mono); letter-spacing: 0.04em; }
+  .vision-verdicts { display: grid; align-content: start; gap: calc(26 * var(--u)); margin: calc(19 * var(--u)) 0 0; padding: 0; list-style: none; }
+  .vision-verdicts li { display: grid; grid-template-columns: 22px 1fr; column-gap: 14px; row-gap: 3px; }
+  .verdict-icon { display: grid; grid-row: span 2; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: #0c8b44; color: #ffffff; font-weight: 700; font-size: 12px; line-height: 1; }
+  [data-pass="false"] > .verdict-icon { background: #de5b5b; }
+  .verdict-title { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; font-weight: 700; font-size: 16px; line-height: 19px; }
+  .verdict-value { font: 400 11px / 15px var(--mono); }
+  .verdict-body { color: rgb(255 255 255 / 75%); font-size: 13px; line-height: 16px; }
+  .washout { display: grid; grid-template-columns: 1fr auto; align-items: center; row-gap: 10px; margin-top: 24px; }
+  .washout-value { font: 11px / 15px var(--mono); }
+  .washout input { grid-column: 1 / -1; width: 100%; height: 20px; margin: 0; background: transparent; appearance: none; cursor: pointer; }
+  .washout input::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; background: linear-gradient(to right, #ffffff var(--fill), rgb(255 255 255 / 20%) var(--fill)); }
+  .washout input::-moz-range-track { height: 4px; border-radius: 2px; background: linear-gradient(to right, #ffffff var(--fill), rgb(255 255 255 / 20%) var(--fill)); }
+  .washout input::-webkit-slider-thumb { width: 20px; height: 20px; margin-top: -8px; border: 0; border-radius: 50%; background: #ffffff; appearance: none; }
+  .washout input::-moz-range-thumb { width: 20px; height: 20px; border: 0; border-radius: 50%; background: #ffffff; }
+
   @media (prefers-reduced-motion: no-preference) {
-    .greyscale-shot img { transition: filter 150ms ease-out; }
+    .vision-mode, .verdict-icon { transition: background-color 150ms ease-out, color 150ms ease-out; }
+  }
+
+  /* the stacked phone layout: the switch fills the width, the queue drops its arrival times, the panel follows it. */
+  @container specimen (max-width: 759px) {
+    .vision { --u: 1px; justify-items: stretch; padding: 24px 12px 64px; }
+    .vision-modes { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    .vision-mode { padding: 0 2px; font-size: 12px; }
+    .vision-caption { text-align: center; }
+    .vision-row { grid-template-columns: minmax(0, 1fr); gap: 16px; margin-top: 20px; }
+    .vision-queue { min-height: 0; }
+    .queue-head { padding: 0 16px; }
+    .queue-table { width: calc(100% - 32px); margin: 8px 16px 0; }
+    .queue-table .queue-arrived { display: none; }
+    .queue-table th:nth-child(1) { width: 31%; }
+    .queue-table th:nth-child(2) { width: auto; }
   }
 </style>
 
 <script>
-  // the switch greys the capture with filter: grayscale(1); the pressed half says which view is showing.
+  import { describe, filterValues, modes, verdict, washoutTransfer } from "./colour-vision.mjs";
+
+  // the five ways of seeing are a radiogroup (one tab stop, arrows move and choose); the washout is a native range.
+  // both rewrite the svg filter on the queue and the panel's verdicts from the same numbers.
   document.querySelectorAll<HTMLElement>('figure[data-specimen="frontground-greyscale"]').forEach((figure) => {
-    const shot = figure.querySelector<HTMLElement>(".greyscale-shot")!;
-    const buttons = figure.querySelectorAll<HTMLButtonElement>("[data-queue-colour]");
-    buttons.forEach((button) => button.addEventListener("click", () => {
-      shot.classList.toggle("is-grey", button.dataset.queueColour === "grey");
-      buttons.forEach((each) => each.setAttribute("aria-pressed", String(each === button)));
-    }));
+    const root = figure.querySelector<HTMLElement>("[data-vision]")!;
+    const radios = [...root.querySelectorAll<HTMLButtonElement>("[data-vision-mode]")];
+    const matrix = root.querySelector("[data-vision-matrix]")!;
+    const funcs = [...root.querySelectorAll("[data-vision-washout] > *")];
+    const caption = root.querySelector<HTMLElement>("[data-vision-caption]")!;
+    const tag = root.querySelector<HTMLElement>("[data-vision-tag]")!;
+    const range = root.querySelector<HTMLInputElement>("[data-washout]")!;
+    const value = root.querySelector<HTMLElement>("[data-washout-value]")!;
+    let mode = radios.find((radio) => radio.getAttribute("aria-checked") === "true")!.dataset.visionMode!;
+
+    function draw(): void {
+      const amount = Number(range.value) / 100;
+      matrix.setAttribute("values", filterValues(mode));
+      const { slope, intercept } = washoutTransfer(amount);
+      funcs.forEach((func) => { func.setAttribute("slope", String(slope)); func.setAttribute("intercept", String(intercept)); });
+      tag.textContent = `AS SEEN · ${modes.find((entry) => entry.key === mode)!.tag}`;
+      value.textContent = `${range.value}%`;
+      range.setAttribute("aria-valuetext", `${range.value}%`);
+      range.style.setProperty("--fill", `${(Number(range.value) / Number(range.max)) * 100}%`);
+      for (const row of verdict(mode, amount)) {
+        const item = root.querySelector<HTMLElement>(`[data-verdict="${row.key}"]`)!;
+        item.dataset.pass = String(row.pass);
+        const icon = item.querySelector<HTMLElement>("[data-verdict-icon]")!;
+        icon.textContent = row.pass ? "✓" : "✕";
+        icon.setAttribute("aria-label", row.pass ? "Holds" : "Fails");
+        item.querySelector<HTMLElement>("[data-verdict-body]")!.textContent = row.body;
+        if (row.value) item.querySelector<HTMLElement>("[data-verdict-value]")!.textContent = row.value;
+      }
+    }
+
+    function choose(radio: HTMLButtonElement, focus: boolean): void {
+      mode = radio.dataset.visionMode!;
+      for (const each of radios) {
+        each.setAttribute("aria-checked", String(each === radio));
+        each.tabIndex = each === radio ? 0 : -1;
+      }
+      caption.textContent = describe(mode);
+      draw();
+      if (focus) radio.focus();
+    }
+
+    radios.forEach((radio, index) => {
+      radio.addEventListener("click", () => choose(radio, false));
+      radio.addEventListener("keydown", (event) => {
+        const last = radios.length - 1;
+        const to = { ArrowRight: index + 1, ArrowDown: index + 1, ArrowLeft: index - 1, ArrowUp: index - 1, Home: 0, End: last }[event.key];
+        if (to === undefined) return;
+        event.preventDefault();
+        choose(radios[(to + radios.length) % radios.length], true);
+      });
+    });
+    range.addEventListener("input", draw);
   });
 </script>
