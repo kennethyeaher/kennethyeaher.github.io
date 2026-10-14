@@ -45,9 +45,9 @@ test("mood check-in, privacy and where it landed keep their ledes and drop every
     assert.deepEqual(exhibit.loops.visuals.map(({ loop }) => loop.name), expected.map(({ name }) => name));
     assert.deepEqual(exhibit.loops.captions, expected.map(({ tag }) => ({ tag })));
   }
-  // the dark mode row and the specimen after mood check-in stay.
+  // the two dark mode rows and the specimen after mood check-in stay.
   const mood = projects.find((project) => project.slug === "terpcare").exhibits.find((entry) => entry.id === "mood-check-in");
-  assert.equal(mood.rows.visuals.length, 1);
+  assert.equal(mood.rows.visuals.length, 2);
   assert.equal(mood.specimens.length, 1);
 });
 

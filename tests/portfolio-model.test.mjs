@@ -529,9 +529,14 @@ function assertMatchesSpec(slug) {
       assert.deepEqual([built.visuals, built.annotations, built.loops.layout], [undefined, undefined, "wide"], `${slug} ${built.id} keeps what its loop replaced`);
       if (notesKept.has(`${slug} ${built.id}`)) assert.deepEqual(built.notes, source.notes);
       else assert.deepEqual([built.notes, built.pins, built.captions], [undefined, undefined, undefined], `${slug} ${built.id} keeps notes, pins or captions`);
-      // a row's caption can move into a lead block above the stage (terpcare dark mode), word for word.
-      if (source.rows) assert.deepEqual(built.rows.lead ? [{ title: built.rows.lead.title, body: built.rows.lead.body }] : built.rows.captions, source.rows.captions, `${slug} ${built.id} row captions`);
+      // a row's caption can move into a lead block above the stage, word for word. zigzag rows (terpcare dark mode,
+      // figma 64:795) carry an eyebrow on each caption and add rows past the spec's, held to their approved wording.
+      const rowCaptions = built.rows?.lead ? [{ title: built.rows.lead.title, body: built.rows.lead.body }] : built.rows?.captions.map(({ title, body }) => ({ title, body }));
+      if (source.rows) assert.deepEqual(rowCaptions?.slice(0, source.rows.captions.length), source.rows.captions, `${slug} ${built.id} row captions`);
+      if (source.rows && !built.rows.zigzag) assert.equal(rowCaptions.length, source.rows.captions.length, `${slug} ${built.id} row count`);
       if (built.rows?.lead) assert.deepEqual([built.rows.lead.eyebrow, built.rows.captions], ["DARK MODE", []], `${slug} ${built.id} lead replaces the side caption`);
+      if (built.rows?.zigzag) assert.deepEqual(built.rows.captions.map(({ eyebrow }) => eyebrow), ["DARK MODE", "DARK MODE · MONTH"], `${slug} ${built.id} zigzag eyebrows`);
+      if (built.rows?.zigzag) assert.deepEqual(rowCaptions.slice(source.rows.captions.length), [{ title: "The month keeps its meaning", body: "The October month is the same frame with the Dark mode switched on. Each level keeps its colour and its bar count, and missed days stay blank in both." }], `${slug} ${built.id} zigzag month row`);
       continue;
     }
     if (source.notes) assert.deepEqual(built.notes, source.notes);

@@ -733,9 +733,9 @@ test("TerpCare renders the v2 exhibit layout from its prose mock", () => {
   assert.equal([...page.matchAll(/<th scope="col"[^>]*>\s*<span class="journey-number"/g)].length, 5);
   assert.doesNotMatch(page, /<th scope="col" class="is-accent"[^>]*>\s*<span class="journey-number"/);
   assert.match(page, /FIVE TABS  ·  HOME, BOOK, BOARD, MOOD, PROFILE/);
-  // phones: three in the hero, four on the original's stage, two support rows, the dark row, and the book
+  // phones: three in the hero, four on the original's stage, two support rows, the two dark rows, and the book
   // walkthrough's four stacked steps plus its pinned phone; mood check-in and privacy play wide loops.
-  assert.equal([...page.matchAll(/data-device-frame="iphone"/g)].length, 3 + 4 + 2 + 1 + 5);
+  assert.equal([...page.matchAll(/data-device-frame="iphone"/g)].length, 3 + 4 + 2 + 2 + 5);
   // the original boxes four regions, every badge resolving to its note.
   assertBadgesResolve(page, 4);
   const book = page.slice(page.indexOf('id="book"'), page.indexOf('id="mood-check-in"'));
@@ -745,15 +745,29 @@ test("TerpCare renders the v2 exhibit layout from its prose mock", () => {
   assert.ok(mood.indexOf('class="exhibit-loops') < mood.indexOf('class="exhibit-rows'), "the dark mode row follows the loop");
   assert.doesNotMatch(mood.slice(0, mood.indexOf('class="exhibit-rows')), /class="exhibit-notes"/);
   assert.match(mood, /Dark mode from the same tokens/);
-  // the dark mode row opens with a lead block between the loop card and its stage, and no side caption repeats it.
-  const lead = mood.slice(mood.indexOf('class="exhibit-loops'), mood.indexOf('class="exhibit-rows'));
-  assert.match(lead, /<div class="rows-lead"[^>]*>\s*<p class="rows-lead-eyebrow"[^>]*>DARK MODE<\/p>/);
-  assert.match(lead, /<p class="caption-title"[^>]*>Dark mode from the same tokens<\/p>\s*<p class="caption-body"[^>]*>Dark mode is a second mode on the colour variables, not a second file\. The check-in is the same frame in both, which is how the 200% text version was built too\.<\/p>/);
+  // dark mode runs as two zigzag rows under the loop (figma 64:795): row 1 sets its stage then its caption, row 2
+  // flips to caption then stage, and the specimen follows. no lead block sits above them.
   const rows = mood.slice(mood.indexOf('class="exhibit-rows'), mood.indexOf('data-specimen="terpcare-mood"'));
-  assert.doesNotMatch(rows, /class="row-caption"|Dark mode from the same tokens/);
+  assert.ok(mood.indexOf('data-specimen="terpcare-mood"') > mood.indexOf('class="exhibit-rows'), "the specimen follows the rows");
+  assert.match(rows, /^class="exhibit-rows[^"]*\bis-zigzag\b/);
+  assert.doesNotMatch(mood, /class="rows-lead"/);
+  const darkRows = rows.split(/<div class="exhibit-row\b/).slice(1);
+  assert.equal(darkRows.length, 2);
+  const order = (row) => [row.indexOf('class="exhibit-stage'), row.indexOf('class="row-caption')];
+  const [stage1, caption1] = order(darkRows[0]);
+  assert.ok(stage1 >= 0 && caption1 > stage1, "row 1 sets its stage before its caption");
+  assert.doesNotMatch(darkRows[0].slice(0, darkRows[0].indexOf('"')), /is-reverse/);
+  const [stage2, caption2] = order(darkRows[1]);
+  assert.ok(caption2 >= 0 && stage2 > caption2, "row 2 sets its caption before its stage");
+  assert.match(darkRows[1], /^[^>]*\bis-reverse\b/);
+  assert.match(darkRows[0], /terpcare-checkin-dark/);
+  assert.match(darkRows[1], /terpcare-mood-october-dark/);
+  const caption = (eyebrow, title, body) => new RegExp(`<p class="row-eyebrow"[^>]*>${eyebrow}</p>\\s*<div class="exhibit-caption"[^>]*>\\s*<p class="caption-title"[^>]*>${title}</p>\\s*<p class="caption-body"[^>]*>${body}</p>`);
+  assert.match(darkRows[0], caption("DARK MODE", "Dark mode from the same tokens", "Dark mode is a second mode on the colour variables, not a second file\\. The check-in is the same frame in both, which is how the 200% text version was built too\\."));
+  assert.match(darkRows[1], caption("DARK MODE · MONTH", "The month keeps its meaning", "The October month is the same frame with the Dark mode switched on\\. Each level keeps its colour and its bar count, and missed days stay blank in both\\."));
   assert.equal([...mood.matchAll(/Dark mode from the same tokens/g)].length, 1);
-  // no other rows carry a lead (frontground, terpcarehub).
-  for (const [slug, other] of pages) if (slug !== "terpcare") assert.doesNotMatch(other, /class="rows-lead"/, `${slug} has no rows lead`);
+  // no other rows carry a lead or zigzag (frontground, terpcarehub).
+  for (const [slug, other] of pages) if (slug !== "terpcare") assert.doesNotMatch(other, /class="rows-lead"|is-zigzag/, `${slug} has no rows lead or zigzag`);
   assert.match(page, /href="\/work\/ovara"/);
 });
 
