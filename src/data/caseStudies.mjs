@@ -1844,10 +1844,10 @@ export const caseStudies = [
           { type: "leader", num: "01", label: "Chart is context", direction: "left", at: { x: 2.2, y: 31.8, w: 29.8, h: 5.2 }, zoomAt: { x: 27.78, y: 23.91, w: 20.88, h: 17.5 } },
           { type: "leader", num: "02", label: "Queue is the working surface", direction: "left", at: { x: 2.2, y: 43.2, w: 26.5, h: 5.2 }, zoomAt: { x: 27.78, y: 42.97, w: 40.95, h: 34.38 } },
           { type: "leader", num: "03", label: "Requests keep a status", at: { x: 83.4, y: 27.1, w: 14.8, h: 5.2 }, zoomAt: { x: 69.89, y: 23.91, w: 14.96, h: 53.44 } },
-          { type: "leader-vertical", num: "04", label: "Triage carries a letter, not only a colour", at: { x: 46.2, y: 74.7, w: 21.1, h: 15.8 }, zoomAt: { x: 54.84, y: 48.75, w: 3.94, h: 29.06 } },
+          { type: "leader-vertical", num: "04", label: "Triage carries a shape and a word, not only a colour", at: { x: 46.2, y: 74.7, w: 21.1, h: 15.8 }, zoomAt: { x: 54.84, y: 48.75, w: 5.45, h: 29.06 } },
         ],
         captions: [
-          { title: "What the interviews put on the first screen", body: "Nobody described their day in terms of analytics, and everybody described it in terms of the queue. Triage carries a letter as well as a colour, because colour alone fails for colour blind clinicians and on the low cost monitors these facilities run." },
+          { title: "What the interviews put on the first screen", body: "Nobody described their day in terms of analytics, and everybody described it in terms of the queue. Triage carries a shape and a word as well as a colour, because colour alone fails for colour blind clinicians and on the low cost monitors these facilities run." },
         ],
       },
       {
@@ -2040,7 +2040,7 @@ export const caseStudies = [
         heading: "Build for the queue, not for the chart",
         body: [
           "The first screen a clinician sees answers who is in front of me right now. Arrivals, acuity, and open requests get the space. The trend chart is context and it sits to the side. That ordering came straight out of the interviews, where nobody described their day in terms of analytics and everybody described it in terms of the waiting room.",
-          "Triage carries a letter as well as a colour. The original design encoded acuity in colour alone, which fails for colour blind clinicians and on the low cost monitors these facilities actually run. E, U, D and M survive both.",
+          "Triage carries a shape and a word as well as a colour. The original design encoded acuity in colour alone, which fails for colour blind clinicians and on the low cost monitors these facilities actually run. Red, Yellow and Green survive both.",
         ],
         media: [
           {

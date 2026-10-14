@@ -867,7 +867,7 @@ test("exactly the thirteen small pinned stages zoom to the active annotation (fi
     ["01", "Chart is context", box(27.78, 23.91, 20.88, 17.5)],
     ["02", "Queue is the working surface", box(27.78, 42.97, 40.95, 34.38)],
     ["03", "Requests keep a status", box(69.89, 23.91, 14.96, 53.44)],
-    ["04", "Triage carries a letter, not only a colour", box(54.84, 48.75, 3.94, 29.06)],
+    ["04", "Triage carries a shape and a word, not only a colour", box(54.84, 48.75, 5.45, 29.06)],
   ]);
   // offline and triage (222:289, 222:397) zoom to the pill and banner, the queue, and the triage form's three parts.
   assert.deepEqual(targets(pages.get("frontground"), "offline"), [
