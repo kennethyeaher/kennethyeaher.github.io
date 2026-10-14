@@ -529,7 +529,9 @@ function assertMatchesSpec(slug) {
       assert.deepEqual([built.visuals, built.annotations, built.loops.layout], [undefined, undefined, "wide"], `${slug} ${built.id} keeps what its loop replaced`);
       if (notesKept.has(`${slug} ${built.id}`)) assert.deepEqual(built.notes, source.notes);
       else assert.deepEqual([built.notes, built.pins, built.captions], [undefined, undefined, undefined], `${slug} ${built.id} keeps notes, pins or captions`);
-      if (source.rows) assert.deepEqual(built.rows.captions, source.rows.captions, `${slug} ${built.id} row captions`);
+      // a row's caption can move into a lead block above the stage (terpcare dark mode), word for word.
+      if (source.rows) assert.deepEqual(built.rows.lead ? [{ title: built.rows.lead.title, body: built.rows.lead.body }] : built.rows.captions, source.rows.captions, `${slug} ${built.id} row captions`);
+      if (built.rows?.lead) assert.deepEqual([built.rows.lead.eyebrow, built.rows.captions], ["DARK MODE", []], `${slug} ${built.id} lead replaces the side caption`);
       continue;
     }
     if (source.notes) assert.deepEqual(built.notes, source.notes);

@@ -745,6 +745,15 @@ test("TerpCare renders the v2 exhibit layout from its prose mock", () => {
   assert.ok(mood.indexOf('class="exhibit-loops') < mood.indexOf('class="exhibit-rows'), "the dark mode row follows the loop");
   assert.doesNotMatch(mood.slice(0, mood.indexOf('class="exhibit-rows')), /class="exhibit-notes"/);
   assert.match(mood, /Dark mode from the same tokens/);
+  // the dark mode row opens with a lead block between the loop card and its stage, and no side caption repeats it.
+  const lead = mood.slice(mood.indexOf('class="exhibit-loops'), mood.indexOf('class="exhibit-rows'));
+  assert.match(lead, /<div class="rows-lead"[^>]*>\s*<p class="rows-lead-eyebrow"[^>]*>DARK MODE<\/p>/);
+  assert.match(lead, /<p class="caption-title"[^>]*>Dark mode from the same tokens<\/p>\s*<p class="caption-body"[^>]*>Dark mode is a second mode on the colour variables, not a second file\. The check-in is the same frame in both, which is how the 200% text version was built too\.<\/p>/);
+  const rows = mood.slice(mood.indexOf('class="exhibit-rows'), mood.indexOf('data-specimen="terpcare-mood"'));
+  assert.doesNotMatch(rows, /class="row-caption"|Dark mode from the same tokens/);
+  assert.equal([...mood.matchAll(/Dark mode from the same tokens/g)].length, 1);
+  // no other rows carry a lead (frontground, terpcarehub).
+  for (const [slug, other] of pages) if (slug !== "terpcare") assert.doesNotMatch(other, /class="rows-lead"/, `${slug} has no rows lead`);
   assert.match(page, /href="\/work\/ovara"/);
 });
 
