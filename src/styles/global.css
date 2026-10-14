@@ -187,6 +187,9 @@
   --content-max: 1800px;
   --header-height: 64px;
   --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+  /* the pull cord's spring, stiffness 300, damping 18, mass 1: one 14.8% overshoot, then a 2% swing too small to see,
+     settled in 614ms. the live specimens play the same curve over about 400ms. */
+  --cord-spring: linear(0, 0.083, 0.278, 0.512, 0.736, 0.918, 1.045, 1.119, 1.147, 1.142, 1.116, 1.083, 1.048, 1.019, 0.998, 0.985, 0.979, 0.978, 0.981, 0.986, 0.991, 0.996, 0.999, 1.002, 1);
 }
 
 * {
@@ -609,8 +612,8 @@ html:not(.nav-ready) .theme-cord { display: none; }
 .theme-cord-visual { --pull: 0; display: flex; align-self: flex-start; flex-direction: column; align-items: center; transform-origin: top center; }
 .theme-cord-line { flex: none; width: 1.5px; height: 44px; background: var(--cord); transform-origin: top; scale: 1 calc(1 + var(--pull) / 44); }
 .theme-cord-knob { flex: none; box-sizing: border-box; width: 14px; height: 14px; border: 1.5px solid var(--cord-ring); border-radius: 50%; background: var(--cord-pull); translate: 0 calc(var(--pull) * 1px); }
-/* stiffness 300, damping 18, mass 1: one 14.8% overshoot, then a 2% swing too small to see, settled in 614ms. */
-.theme-cord-line, .theme-cord-knob { --cord-spring: linear(0, 0.083, 0.278, 0.512, 0.736, 0.918, 1.045, 1.119, 1.147, 1.142, 1.116, 1.083, 1.048, 1.019, 0.998, 0.985, 0.979, 0.978, 0.981, 0.986, 0.991, 0.996, 0.999, 1.002, 1); transition: scale 614ms var(--cord-spring), translate 614ms var(--cord-spring), background-color 250ms, border-color 250ms; }
+/* the cord springs on --cord-spring (:root) over its full 614ms. */
+.theme-cord-line, .theme-cord-knob { transition: scale 614ms var(--cord-spring), translate 614ms var(--cord-spring), background-color 250ms, border-color 250ms; }
 .theme-cord.is-pulling :is(.theme-cord-line, .theme-cord-knob) { transition-duration: 120ms, 120ms, 250ms, 250ms; transition-timing-function: var(--ease-out); }
 .theme-cord.is-dragging :is(.theme-cord-line, .theme-cord-knob) { transition-property: background-color, border-color; }
 /* the theme cross-fades over 250ms; the cord keeps its own transitions so its spring runs through the fade. */
