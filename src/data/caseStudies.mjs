@@ -2294,9 +2294,10 @@ export const caseStudies = [
           visuals: [
             { src: "/images/work/terpcare/terpcare-checkin-dark.png", width: 860, height: 1864, alt: "TerpCare check-in sheet in dark mode, built from the same colour variables", frame: "iphone", fit: "contain", bg: "#101012", at: { x: 29, y: 7.6, w: 42 } },
           ],
-          captions: [
-            { title: "Dark mode from the same tokens", body: "Dark mode is a second mode on the colour variables, not a second file. The check-in is the same frame in both, which is how the 200% text version was built too." },
-          ],
+          // the caption reads as a lead above the stage rather than beside it, so the dark phone does not sit 32px
+          // under the loop card with no text between the two.
+          lead: { eyebrow: "DARK MODE", title: "Dark mode from the same tokens", body: "Dark mode is a second mode on the colour variables, not a second file. The check-in is the same frame in both, which is how the 200% text version was built too." },
+          captions: [],
         },
       },
       {
