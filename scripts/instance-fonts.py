@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""rebuild the self-hosted newsreader and jetbrains mono files, limited to wght 400 to 500.
+"""rebuild the self-hosted variable fonts, each cut to the weights the site sets.
 
-google fonts serves both families with their full weight axis (newsreader 200 to 800, jetbrains mono 100 to
-800), but the site only sets 400 and 500. this script takes google's latin and latin-ext woff2 files, cuts the
-wght axis to 400 to 500 with the fonttools instancer, and writes them to public/fonts. every other axis is kept,
-so newsreader keeps opsz 6 to 72. fraunces is left alone: narrowing its axis moved glyph widths and rewrapped a
+google fonts serves these families with their full weight axis (newsreader 200 to 800, jetbrains mono 100 to
+800, inter and figtree 100 or 300 to 900), but the site only sets a few weights. this script takes google's woff2
+files, cuts the wght axis to each family's range with the fonttools instancer, and writes them to public/fonts.
+every other axis is kept, so newsreader keeps opsz 6 to 72 and inter keeps opsz 14 to 32. inter and figtree are
+only used by the live specimens (src/components/exhibits/specimens), so they ship latin only. fraunces is left alone: narrowing its axis moved glyph widths and rewrapped a
 heading (see the note above the @font-face rules in src/styles/global.css).
 
 this is a manual tool, not part of the build. run it when the google files change, then rerun the tests and
@@ -14,6 +15,7 @@ check the fallback metrics in global.css still hold.
     python3 scripts/instance-fonts.py                  # fetch from google fonts, write to public/fonts
     python3 scripts/instance-fonts.py --source DIR     # use files already in DIR, named like the outputs
     python3 scripts/instance-fonts.py --out DIR        # write somewhere else, to compare before replacing
+    python3 scripts/instance-fonts.py --family inter   # rebuild one family, by its folder name
 """
 
 import argparse
@@ -28,17 +30,19 @@ from fontTools.varLib.instancer import instantiateVariableFont
 
 ROOT = Path(__file__).resolve().parent.parent
 
-# the weight range the site uses; font-weight: 400 500 in global.css matches it.
-WEIGHT = (400, 500)
-
-# family name in the google fonts css2 api, the axes to ask for, and the folder and file prefix in public/fonts.
-FAMILIES = [
-    ("Newsreader", "opsz,wght@6..72,200..800", "newsreader"),
-    ("JetBrains Mono", "wght@100..800", "jetbrains-mono"),
-]
-
-# the two subsets that ship; the site has no greek, cyrillic or vietnamese text.
+# the two subsets the site text ships in; it has no greek, cyrillic or vietnamese text.
 SUBSETS = ("latin", "latin-ext")
+
+# family name in the google fonts css2 api, the axes to ask for, the folder and file prefix in public/fonts, the
+# weight range the site uses (matching font-weight in its @font-face rule) and the subsets that ship.
+# newsreader and jetbrains mono: font-weight 400 500 in global.css. inter and figtree: the specimen faces in
+# src/components/exhibits/specimens/SpecimenFonts.astro, which set inter 500 to 700 and figtree 400 to 700.
+FAMILIES = [
+    ("Newsreader", "opsz,wght@6..72,200..800", "newsreader", (400, 500), SUBSETS),
+    ("JetBrains Mono", "wght@100..800", "jetbrains-mono", (400, 500), SUBSETS),
+    ("Inter", "opsz,wght@14..32,100..900", "inter", (500, 700), ("latin",)),
+    ("Figtree", "wght@300..900", "figtree", (400, 700), ("latin",)),
+]
 
 # google picks the font format from the user agent; a current chrome gets woff2.
 USER_AGENT = (
@@ -54,7 +58,7 @@ def fetch(url):
         return response.read()
 
 
-def google_sources(family, axes):
+def google_sources(family, axes, subsets):
     """map each shipped subset to its woff2 url, read from the google fonts css2 stylesheet for family."""
     query = family.replace(" ", "+")
     css = fetch(f"https://fonts.googleapis.com/css2?family={query}:{axes}&display=swap").decode("utf-8")
@@ -63,9 +67,9 @@ def google_sources(family, axes):
     urls = {}
     for subset, body in blocks:
         match = re.search(r"src:\s*url\((https://[^)]+\.woff2)\)", body)
-        if subset in SUBSETS and match:
+        if subset in subsets and match:
             urls[subset] = match.group(1)
-    missing = [subset for subset in SUBSETS if subset not in urls]
+    missing = [subset for subset in subsets if subset not in urls]
     if missing:
         sys.exit(f"google fonts returned no {', '.join(missing)} woff2 for {family}")
     return urls
@@ -86,12 +90,12 @@ def axis_ranges(font):
     return {axis.axisTag: (axis.minValue, axis.maxValue) for axis in font["fvar"].axes}
 
 
-def limit_weight(font):
-    """cut the wght axis to WEIGHT in place of the full range, keeping every other axis as it is."""
+def limit_weight(font, weight):
+    """cut the wght axis to weight in place of the full range, keeping every other axis as it is."""
     low, high = axis_ranges(font)["wght"]
-    if low > WEIGHT[0] or high < WEIGHT[1]:
-        sys.exit(f"source wght {low:g} to {high:g} does not cover {WEIGHT[0]} to {WEIGHT[1]}")
-    return instantiateVariableFont(font, {"wght": WEIGHT}, inplace=False)
+    if low > weight[0] or high < weight[1]:
+        sys.exit(f"source wght {low:g} to {high:g} does not cover {weight[0]} to {weight[1]}")
+    return instantiateVariableFont(font, {"wght": weight}, inplace=False)
 
 
 def main():
@@ -99,24 +103,27 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--source", help="folder of full range woff2 files named like the outputs, instead of google fonts")
     parser.add_argument("--out", default=str(ROOT / "public" / "fonts"), help="folder to write into (default public/fonts)")
+    parser.add_argument("--family", action="append", help="only rebuild this family, by folder name (repeatable)")
     args = parser.parse_args()
 
-    for family, axes, prefix in FAMILIES:
-        urls = None if args.source else google_sources(family, axes)
-        for subset in SUBSETS:
+    for family, axes, prefix, weight, subsets in FAMILIES:
+        if args.family and prefix not in args.family:
+            continue
+        urls = None if args.source else google_sources(family, axes, subsets)
+        for subset in subsets:
             source = load_source(prefix, subset, args.source, urls)
             before = axis_ranges(source)
-            font = limit_weight(source)
+            font = limit_weight(source, weight)
             after = axis_ranges(font)
             # the instancer should only have touched wght.
-            assert after["wght"] == WEIGHT, after
+            assert after["wght"] == weight, after
             assert {tag: span for tag, span in after.items() if tag != "wght"} == {tag: span for tag, span in before.items() if tag != "wght"}
 
             target = Path(args.out) / prefix / f"{prefix}-{subset}.woff2"
             target.parent.mkdir(parents=True, exist_ok=True)
             font.flavor = "woff2"
             font.save(target)
-            print(f"{target}: wght {before['wght'][0]:g} to {before['wght'][1]:g} -> {WEIGHT[0]} to {WEIGHT[1]}, {target.stat().st_size} bytes")
+            print(f"{target}: wght {before['wght'][0]:g} to {before['wght'][1]:g} -> {weight[0]} to {weight[1]}, {target.stat().st_size} bytes")
 
 
 if __name__ == "__main__":
