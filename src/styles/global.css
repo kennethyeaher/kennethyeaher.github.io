@@ -719,6 +719,18 @@ html:not(.nav-ready) .theme-cord { display: none; }
   @keyframes edge-fade { 0%, 92% { opacity: 1; } 100% { opacity: 0; } }
 }
 
+/* the pair and feature layouts the laptop loops (figma 325:506, 325:545) and the live specimens share. a pair is two
+   equal columns 40 apart; a feature sets each child's media beside its text column, 48 apart and centred on each
+   other, in the columns each user of the layout sets as --feature-columns. a specimen's inline script sits among
+   the children, so it is left out, or it would show as text. below 761 both stack to one full width column. */
+/* one column by default, so a feature's lone child never widens the track past the column. */
+.exhibit-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 40px; }
+.exhibit-layout.is-pair { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.exhibit-layout.is-feature > :not(script) { display: grid; grid-template-columns: var(--feature-columns); gap: 48px; align-items: center; }
+@media (max-width: 760px) {
+  .exhibit-layout.is-pair, .exhibit-layout.is-feature > :not(script) { grid-template-columns: minmax(0, 1fr); }
+}
+
 /* exhibit annotations, per figma note 58:1100: the dot scales in, the line draws, the label rises 6px,
    staggered by number; focus outlines fade in and never pulse. scroll driven where supported, an
    observer fallback otherwise, and nothing moves under reduced motion or without scripts. */

@@ -19,6 +19,7 @@ import ExhibitPair from "@/components/exhibits/ExhibitPair.astro";
 import ExhibitStates from "@/components/exhibits/ExhibitStates.astro";
 import ExhibitVisitMap from "@/components/exhibits/ExhibitVisitMap.astro";
 import AnnotationLeader from "@/components/exhibits/AnnotationLeader.astro";
+import LeaderLegend from "@/components/exhibits/LeaderLegend.astro";
 import Caption from "@/components/exhibits/Caption.astro";
 import ExhibitTimeline from "@/components/exhibits/ExhibitTimeline.astro";
 import ExhibitMetrics from "@/components/exhibits/ExhibitMetrics.astro";
@@ -129,9 +130,13 @@ function sectionFor(exhibit: any) {
           <SectionHead id={`${exhibit.id}-heading`} eyebrow={exhibit.eyebrow} heading={exhibit.heading} />
           {exhibit.lede && <ChapterLede paragraphs={exhibit.lede} />}
           <div class="exhibit-body">
+            {/* a wide loop stands in for the whole stage, its device and colour field baked into the clip (sohive). */}
+            {exhibit.kind === "stage" && exhibit.loops?.layout === "wide" && (
+              <ExhibitLoops layout="wide" visuals={exhibit.loops.visuals} captions={exhibit.loops.captions} base={exhibit.loops.base} />
+            )}
             {exhibit.kind === "stage" && (
               <>
-                <ExhibitStage palette={palette} size={exhibit.size} ratio={exhibit.ratio} field={exhibit.field} base={exhibit.base} zoom={exhibit.zoom ? exhibit.id : undefined} zoomPhone={exhibit.zoom === "phone"}>
+                {exhibit.visuals && <ExhibitStage palette={palette} size={exhibit.size} ratio={exhibit.ratio} field={exhibit.field} base={exhibit.base} zoom={exhibit.zoom ? exhibit.id : undefined} zoomPhone={exhibit.zoom === "phone"}>
                   {exhibit.visuals.map((visual: any) => <ExhibitVisual visual={visual} stageRatio={stageRatio(exhibit)} />)}
                   {[...(exhibit.annotations ?? [])].sort((a: any, b: any) => Number(a.num) - Number(b.num)).map((annotation: any) => (
                     annotation.on === undefined
@@ -140,13 +145,14 @@ function sectionFor(exhibit: any) {
                       // with captions rather than notes (terpcarehub 90:1769), focus badges are markers with nothing to link to.
                       : <ExhibitVisual visual={exhibit.visuals[annotation.on]} stageRatio={stageRatio(exhibit)} idPrefix={exhibit.id} annotations={[{ ...annotation, title: exhibit.notes?.find((note: any) => note.n === annotation.num)?.title ?? annotation.title }]} overlay linkNotes={Boolean(exhibit.notes)} />
                   ))}
-                </ExhibitStage>
+                </ExhibitStage>}
+                <LeaderLegend annotations={exhibit.annotations ?? []} />
                 {exhibit.notes && <Notes notes={exhibit.notes} idPrefix={exhibit.id} />}
                 {exhibit.captions && <div class="stage-caption">{exhibit.captions.map((caption: any) => <Caption title={caption.title} body={caption.body} />)}</div>}
                 {/* rows after the stage's notes or caption, one screen per row (frontground 222:284, terpcare 218:311). */}
                 {exhibit.rows && <ExhibitRows palette={palette} visuals={exhibit.rows.visuals} captions={exhibit.rows.captions} fields={exhibit.rows.fields} base={exhibit.rows.base} bases={exhibit.rows.bases} veil={exhibit.rows.veil} reverse={exhibit.rows.reverse} />}
                 {/* laptop loops after the caption, in a pair or a feature card (frontground offline and triage). */}
-                {exhibit.loops && <ExhibitLoops layout={exhibit.loops.layout} visuals={exhibit.loops.visuals} captions={exhibit.loops.captions} base={exhibit.loops.base} steps={exhibit.loops.steps} />}
+                {exhibit.loops && exhibit.loops.layout !== "wide" && <ExhibitLoops layout={exhibit.loops.layout} visuals={exhibit.loops.visuals} captions={exhibit.loops.captions} base={exhibit.loops.base} steps={exhibit.loops.steps} />}
                 {exhibit.pins && <ExhibitPins id={`${exhibit.id}-pins`} palette={palette} exhibit={exhibit.pins} />}
               </>
             )}
@@ -192,11 +198,16 @@ function sectionFor(exhibit: any) {
             {exhibit.kind === "journey" && (
               <ExhibitJourney id={exhibit.id} stages={exhibit.stages} accentStage={exhibit.accentStage} rows={exhibit.rows} strip={exhibit.strip} caption={exhibit.heading} tones={exhibit.tones} figure={exhibit.figure} />
             )}
-            {/* live specimens close the chapter, after everything the chapter shows of the real screens. */}
-            {(exhibit.specimens ?? []).map((specimen: any) => {
-              const Specimen = specimenComponents[specimen.kind];
-              return <Specimen specimen={specimen} />;
-            })}
+            {/* live specimens close the chapter, after everything the chapter shows of the real screens: two as a pair,
+                one as a feature beside its head and notes, in the layouts the laptop loops use. */}
+            {exhibit.specimens && (
+              <div class:list={["exhibit-specimens", "exhibit-layout", exhibit.specimens.length > 1 ? "is-pair" : "is-feature"]}>
+                {exhibit.specimens.map((specimen: any) => {
+                  const Specimen = specimenComponents[specimen.kind];
+                  return <Specimen specimen={specimen} />;
+                })}
+              </div>
+            )}
           </div>
         </section>
       );
@@ -249,6 +260,7 @@ function sectionFor(exhibit: any) {
   .exhibit-links a { padding: 10px 12px; border: 1px solid var(--rule); color: var(--accent); font: var(--label-micro, 10px) / 13px var(--mono); letter-spacing: 0.02em; text-transform: uppercase; }
   .exhibit-links a:hover, .exhibit-links a:focus-visible { border-color: var(--accent); background: var(--accent); color: var(--on-accent); }
   .exhibit-body { margin-top: 32px; }
+  .exhibit-specimens { margin-top: 72px; }
 
   @media (max-width: 980px) {
     .exhibit-shell { display: block; padding: 34px var(--page-gutter) 0; }
@@ -257,5 +269,6 @@ function sectionFor(exhibit: any) {
     .hero-kpi { position: static; margin-top: 12px; box-shadow: 0 1px 3px rgb(3 13 26 / 12%); border: 1px solid var(--rule); }
     .case-meta { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 18px; }
     .exhibit-chapter + .exhibit-chapter, .overview-chapter { margin-top: 72px; }
+    .exhibit-specimens { margin-top: 56px; gap: 56px; }
   }
 </style>

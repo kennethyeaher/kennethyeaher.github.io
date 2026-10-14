@@ -3,31 +3,36 @@
 // blurred colour field are baked into each video, so a card is only a rounded box in the loops' base colour that the
 // clip fills, with the media tag and its pause control in the bottom left corner (132:1838). a pair sets two cards
 // side by side with their captions under them (figma 325:506); a feature sets one card beside its caption and the
-// steps it plays (325:545).
+// steps it plays (325:545); both layouts are global.css's .exhibit-layout, which the live specimens share. a wide card
+// stands in for a whole stage at the stage's width, with no caption (sohive's four phone loops). on phones the tag
+// drops under the card, so it never covers the device.
 import Caption from "@/components/exhibits/Caption.astro";
 import ExhibitLoop from "@/components/exhibits/ExhibitLoop.astro";
 import MediaTag from "@/components/exhibits/MediaTag.astro";
 
 interface Props {
-  layout: "pair" | "feature";
+  layout: "pair" | "feature" | "wide";
   visuals: { src: string; alt: string; width: number; height: number; loop: { src: string; poster: string; name?: string } }[];
-  captions: { num?: string; tag?: string; title: string; body: string }[];
+  /** a wide card's caption carries only its tag. */
+  captions: { num?: string; tag?: string; title?: string; body?: string }[];
   base: string;
   /** a feature's steps, in the order the loop plays them. */
   steps?: string[];
 }
 const { layout, visuals, captions, base, steps = [] } = Astro.props;
 ---
-<div class:list={["exhibit-loops", `is-${layout}`]}>
+<div class:list={["exhibit-loops", layout !== "wide" && "exhibit-layout", `is-${layout}`]}>
   {visuals.map((visual, index) => (
     <figure class="loop-exhibit">
-      <div class="loop-card" style={`--loop-base: ${base}; aspect-ratio: ${visual.width} / ${visual.height}`}>
-        <ExhibitLoop src={visual.loop.src} poster={visual.loop.poster} width={visual.width} height={visual.height} label={visual.alt} name={visual.loop.name} />
+      <div class="loop-media">
+        <div class="loop-card" style={`--loop-base: ${base}; aspect-ratio: ${visual.width} / ${visual.height}`}>
+          <ExhibitLoop src={visual.loop.src} poster={visual.loop.poster} width={visual.width} height={visual.height} label={visual.alt} name={visual.loop.name} />
+        </div>
         {captions[index].tag && <span class="loop-tag"><MediaTag text={captions[index].tag!} loop={visual.loop.name ?? ""} /></span>}
       </div>
-      <figcaption class="loop-caption">
+      {captions[index].title && <figcaption class="loop-caption">
         {captions[index].num && <p class="loop-num">{captions[index].num}</p>}
-        <Caption title={captions[index].title} body={captions[index].body} />
+        <Caption title={captions[index].title!} body={captions[index].body!} />
         {layout === "feature" && steps.length > 0 && (
           <ol class="loop-steps">
             {steps.map((step, stepIndex) => (
@@ -35,17 +40,19 @@ const { layout, visuals, captions, base, steps = [] } = Astro.props;
             ))}
           </ol>
         )}
-      </figcaption>
+      </figcaption>}
     </figure>
   ))}
 </div>
 <style>
-  .exhibit-loops { display: grid; gap: 40px; margin-top: 56px; }
-  /* figma 325:506: two 538 wide cards 40 apart, each with its caption 20 under it. */
-  .exhibit-loops.is-pair { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .loop-exhibit { display: grid; align-content: start; gap: 20px; margin: 0; }
-  /* figma 325:545: the 720 card and the 348 column of caption and steps, 48 apart, centred on each other. */
-  .is-feature .loop-exhibit { grid-template-columns: 720fr 348fr; gap: 48px; align-items: center; }
+  /* figma 325:506: two 538 wide cards 40 apart, each with its caption 20 under it (global.css .exhibit-layout.is-pair).
+     figma 325:545: the 720 card and the 348 column of caption and steps, 48 apart, centred on each other. */
+  .exhibit-loops { --feature-columns: 720fr 348fr; margin-top: 56px; }
+  /* a wide card takes the stage's place, straight under the lede. */
+  .exhibit-loops.is-wide { margin-top: 0; }
+  /* row-gap only, so a feature keeps the shared layout's 48 between its columns. */
+  .loop-exhibit { display: grid; align-content: start; row-gap: 20px; margin: 0; }
+  .loop-media { position: relative; display: grid; }
   /* the radius the other stages use; the clip fills the box at its own ratio. */
   .loop-card { position: relative; overflow: hidden; border-radius: 6px; background: var(--loop-base); }
   .loop-card :global(.exhibit-loop) { height: 100%; }
@@ -63,7 +70,12 @@ const { layout, visuals, captions, base, steps = [] } = Astro.props;
   @media (max-width: 760px) {
     /* one column: a feature's card comes first, then its caption and steps. */
     .exhibit-loops { margin-top: 40px; }
-    .exhibit-loops.is-pair, .is-feature .loop-exhibit { grid-template-columns: minmax(0, 1fr); }
+    .exhibit-loops.is-wide { margin-top: 0; }
     .is-feature .loop-exhibit { gap: 20px; }
+  }
+  /* on phones the card is too small for the tag to sit on it without covering the device, so it drops 10 under. */
+  @media (max-width: 640px) {
+    .loop-media { gap: 10px; }
+    .loop-tag { position: static; justify-self: start; }
   }
 </style>
