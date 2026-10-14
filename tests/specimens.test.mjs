@@ -467,6 +467,23 @@ test("specimens go full width: one stacked column per chapter, each stage the mo
   assert.match(shell, /\.specimen-stage \{[^}]*aspect-ratio: var\(--specimen-ratio, 1116 \/ 640\);/);
   assert.match(shell, /\.specimen-stage \{[^}]*margin-top: 32px;/);
   assert.match(readFileSync(join(specimenDir, "SpecimenTerpcareMood.astro"), "utf8"), /ratio="1116 \/ 680"/);
+  // the booking stage (368:523) is the shorter 1116 by 470 on the hub's red field, its card at 1.15 and the toast and
+  // Your bookings in a column beside it, the pair centred.
+  const book = readFileSync(join(specimenDir, "SpecimenTerpcarehubBook.astro"), "utf8");
+  assert.match(book, /ratio="1116 \/ 470"/);
+  assert.match(book, /background=\{field\}/);
+  for (const colour of ["#8a0b1e", "#E21833", "#FF7A45", "#4A0512"]) assert.ok(book.includes(colour), `booking field has ${colour}`);
+  assert.doesNotMatch(book, /#fff4d6|#f5d77e|#ff9a3d/);
+  const bookCss = styleOf(book);
+  // 330 wide card and column zoomed to the mock's 379.5, 28 apart once zoomed; the column centred on the card's height.
+  assert.match(bookCss, /\.book \{[^}]*grid-template-columns: calc\(330 \* var\(--u\)\) calc\(330 \* var\(--u\)\);[^}]*column-gap: calc\(28 \* var\(--u\) \/ 1\.15\);[^}]*justify-content: center;[^}]*align-items: center;[^}]*zoom: 1\.15;/);
+  assert.match(bookCss, /\.book-side \{[^}]*display: grid;[^}]*gap: calc\(16 \* var\(--u\) \/ 1\.15\);/);
+  // the column follows the card and holds the toast, then Your bookings.
+  const bookHtml = specimenHtml("terpcarehub-book");
+  const sideAt = bookHtml.indexOf("data-book-side");
+  assert.ok(bookHtml.indexOf('class="book-card"') < sideAt, "the column follows the card");
+  const side = bookHtml.slice(sideAt, bookHtml.indexOf("</section>", sideAt));
+  assert.ok(side.includes("data-book-toast") && side.includes("data-book-bookings"), "toast and Your bookings share the side column");
   assert.match(shell, /\.specimen :global\(\.exhibit-notes\) \{[^}]*grid-template-columns: repeat\(auto-fill, minmax\(240px, 1fr\)\);[^}]*margin-top: 32px;/);
   // the controls and the tag sit 20px in.
   assert.match(shell, /\.specimen-controls \{[^}]*top: 20px; right: 20px;/);

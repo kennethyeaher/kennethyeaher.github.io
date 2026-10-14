@@ -2,8 +2,8 @@
 // terpcarehub, book in two taps (figma 368:523): the provider card books in place. Book opens three times under the
 // facts, Confirm books the chosen one and the button keeps the time, its check drawing in once it lands. a toast
 // offers Undo for five seconds, held while it is pointed at or focused; after that the booking lands in Your
-// bookings. the mock draws the three states side by side; live, one card goes through them. the state is
-// terpcarehub-book.mjs.
+// bookings. the mock draws the card with the toast and Your bookings in a column beside it; live, one card goes
+// through the states and the column fills as it does. the state is terpcarehub-book.mjs.
 import ExhibitSpecimen from "@/components/exhibits/ExhibitSpecimen.astro";
 import { bookedLabel, confirmLabel, createBooking, slots } from "./terpcarehub-book.mjs";
 
@@ -15,9 +15,21 @@ const id = `specimen-${specimen.kind}`;
 const state = createBooking();
 // the mock's check (312:628), drawn as a path so it can draw itself in.
 const check = "M1.25 7.25004L6.25 12.25L15.25 1.25004";
+// the hub's red field (the where it landed alert stage) on the mock's 1116 by 470 stage: its three circles, each a
+// radial gradient with ExhibitStage.astro's sigma 45 falloff, as ellipses in shares of the stage so they keep their
+// place if the stage grows.
+const circles: [number, number, number, string][] = [[180, 420, 300, "#E21833"], [960, 40, 220, "#FF7A45"], [860, 460, 240, "#4A0512"]];
+const spread = 45 * 1.6;
+const field = [...circles.map(([x, y, r, colour]) => {
+  const out = r + spread;
+  const solid = `color-mix(in oklab, ${colour} 90%, transparent)`;
+  const half = `color-mix(in oklab, ${colour} 45%, transparent)`;
+  const pct = (value: number, of: number) => `${((value / of) * 100).toFixed(1)}%`;
+  return `radial-gradient(${pct(out, 1116)} ${pct(out, 470)} at ${pct(x, 1116)} ${pct(y, 470)} var(--in-oklab), ${solid} 0, ${solid} ${pct(r - spread, out)}, ${half} ${pct(r, out)}, transparent 100%)`;
+}), "#8a0b1e"].join(", ");
 ---
 <ExhibitSpecimen id={id} kind={specimen.kind} eyebrow={specimen.eyebrow} heading={specimen.heading} tag={specimen.tag} notes={specimen.notes}
-  background="linear-gradient(140deg, #fff4d6 0%, #f5d77e 55%, #ff9a3d 100%)" tone="light">
+  background={field} tone="dark" ratio="1116 / 470">
   <div class="book" data-book data-phase={state.phase}>
     <div class="book-card">
       <div class="book-title-row">
@@ -48,6 +60,7 @@ const check = "M1.25 7.25004L6.25 12.25L15.25 1.25004";
       </p>
     </div>
 
+    <div class="book-side" data-book-side>
     <div class="book-toast" role="status" data-book-toast>
       <div class="book-toast-body" hidden data-book-toast-body>
         <span>Booked at University Health Center</span>
@@ -61,17 +74,22 @@ const check = "M1.25 7.25004L6.25 12.25L15.25 1.25004";
       <p class="book-booking-where">University Health Center · in person</p>
       <p class="book-new">NEW</p>
     </section>
+    </div>
   </div>
 </ExhibitSpecimen>
 
 <style>
-  /* one 330 wide card on the mock's warm field, with its toast and Your bookings under it. sized in specimen
-     pixels (--u, ExhibitSpecimen.astro); text holds a floor and every control is at least 40px tall. */
-  .book { display: grid; grid-template-columns: min(calc(360 * var(--u)), 100%); justify-content: center; align-content: start; gap: 16px; padding: calc(64 * var(--u)) 24px calc(84 * var(--u)); color: #1b1b1f; font-family: "Figtree", var(--ui); }
-  .book-card { padding: 22px; border-radius: 20px; background: #ffffff; box-shadow: 0 18px 40px rgb(115 64 0 / 22%); }
-  .book-title-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  /* the mock's 330 wide card and its column on the red field, both zoomed 1.15 to 379.5 and 28 apart once zoomed,
+     the pair centred on the stage and the column centred on the card. sized in specimen pixels (--u,
+     ExhibitSpecimen.astro); text holds a floor and every control is at least 40px tall. the card is white, so its
+     focus ring is the light stage's blue. */
+  .book { display: grid; grid-template-columns: calc(330 * var(--u)) calc(330 * var(--u)); column-gap: calc(28 * var(--u) / 1.15); justify-content: center; align-items: center; align-content: center; padding: calc(24 * var(--u)) 24px; zoom: 1.15; color: #1b1b1f; font-family: "Figtree", var(--ui); }
+  .book-card { --specimen-focus: #1f4f7a; padding: 22px; border-radius: 20px; background: #ffffff; box-shadow: 0 18px 40px rgb(40 0 8 / 30%); }
+  .book-side { display: grid; gap: calc(16 * var(--u) / 1.15); align-content: center; }
+  /* 8 apart and a 9px pill, so the title and Open now share one line at the full 330, as in the mock. */
+  .book-title-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
   .book-title { font-weight: 700; font-size: 17px; line-height: 20px; }
-  .book-open { display: inline-flex; flex: none; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 999px; background: #e7f4ec; color: #0b6b3a; font-weight: 600; font-size: 11px; line-height: 14px; }
+  .book-open { display: inline-flex; flex: none; align-items: center; gap: 5px; padding: 4px 9px; border-radius: 999px; background: #e7f4ec; color: #0b6b3a; font-weight: 600; font-size: 11px; line-height: 14px; }
   .book-open-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
   .book-meta { margin-top: 6px; color: #5d5d66; font-size: 13px; line-height: 16px; word-spacing: 2px; }
   .book-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 10px; margin: 14px 0 0; }
@@ -103,7 +121,7 @@ const check = "M1.25 7.25004L6.25 12.25L15.25 1.25004";
   .book-toast-body { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; padding: 4px 6px 4px 16px; border-radius: 14px; background: #1b1b1f; color: #ffffff; font-size: 13px; line-height: 16px; }
   .book-toast-body[hidden] { display: none; }
   .book-undo { --specimen-focus: #ffb3ba; min-height: 40px; padding: 0 10px; border: 0; background: none; color: #ffb3ba; font: 700 13px / 16px "Figtree", var(--ui); cursor: pointer; }
-  .book-bookings { display: grid; grid-template-columns: 1fr auto; align-items: center; column-gap: 12px; padding: 14px 16px 16px; border: 1px solid rgb(255 255 255 / 90%); border-radius: 16px; background: rgb(255 255 255 / 70%); }
+  .book-bookings { display: grid; grid-template-columns: 1fr auto; align-items: center; column-gap: 12px; padding: 14px 16px 16px; border: 1px solid rgb(255 255 255 / 90%); border-radius: 16px; background: rgb(255 255 255 / 96%); }
   .book-bookings[hidden] { display: none; }
   .book-bookings .book-label { grid-column: 1 / -1; }
   .book-booking-time { margin-top: 9px; font-weight: 600; font-size: 14px; line-height: 17px; }
@@ -122,7 +140,7 @@ const check = "M1.25 7.25004L6.25 12.25L15.25 1.25004";
   }
 
   @container specimen (max-width: 759px) {
-    .book { --u: 1px; grid-template-columns: minmax(0, 1fr); padding: 32px 12px 72px; }
+    .book { --u: 1px; grid-template-columns: minmax(0, 1fr); gap: 16px; padding: 32px 12px 72px; zoom: 1; }
   }
 </style>
 
