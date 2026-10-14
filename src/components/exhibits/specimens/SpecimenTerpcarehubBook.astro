@@ -1,116 +1,227 @@
 ---
-// terpcarehub, booking (figma 312:544): the provider card books from its own button. a tap turns Book appointment into
-// Booked · Today, 2:40 PM on the cord's spring, and once it lands the 40px disc's check draws in over 300ms. a second
-// tap undoes it; Replay runs it again from the top. the mock draws the two states side by side; live, one card toggles.
+// terpcarehub, book in two taps (figma 368:523): the provider card books in place. Book opens three times under the
+// facts, Confirm books the chosen one and the button keeps the time, its check drawing in once it lands. a toast
+// offers Undo for five seconds, held while it is pointed at or focused; after that the booking lands in Your
+// bookings. the mock draws the three states side by side; live, one card goes through them. the state is
+// terpcarehub-book.mjs.
 import ExhibitSpecimen from "@/components/exhibits/ExhibitSpecimen.astro";
+import { bookedLabel, confirmLabel, createBooking, slots } from "./terpcarehub-book.mjs";
 
 interface Props {
-  specimen: { kind: string; eyebrow: string; heading: string; tag?: string; notes: { n: string; title: string; body: string }[] };
+  specimen: { kind: string; eyebrow: string; heading: string; tag: string; notes: { n: string; title: string; body: string }[] };
 }
 const { specimen } = Astro.props;
 const id = `specimen-${specimen.kind}`;
-// the mock's check (312:628 and 312:631), drawn as a path so it can draw itself in.
+const state = createBooking();
+// the mock's check (312:628), drawn as a path so it can draw itself in.
 const check = "M1.25 7.25004L6.25 12.25L15.25 1.25004";
 ---
-<ExhibitSpecimen id={id} kind={specimen.kind} eyebrow={specimen.eyebrow} heading={specimen.heading} tag={specimen.tag} notes={specimen.notes} background="#f8f8f9" tone="light">
-  <button slot="controls" type="button" class="book-replay" aria-label="Replay booking" data-book-replay><span aria-hidden="true">↻</span> Replay</button>
-  <div class="provider-card" data-book-card>
-    <p class="provider-name">University Health Center</p>
-    <p class="provider-meta">Primary care · On campus · 4 min walk</p>
-    <p class="provider-next-label">NEXT AVAILABLE</p>
-    <p class="provider-next">Today, 2:40 PM</p>
-    <button type="button" class="book-button" aria-pressed="false" data-book-button>
-      <svg class="book-tick" width="14" height="11" viewBox="1.25 1.25 14 11" fill="none" aria-hidden="true"><path d={check} stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
-      <span data-book-label>Book appointment</span>
-    </button>
-    <svg class="book-disc" width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden="true">
-      <circle class="book-disc-fill" cx="20" cy="20" r="20" />
-      <path class="book-disc-check" d={check} transform="translate(11.75 12.75)" pathLength="1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
-    </svg>
+<ExhibitSpecimen id={id} kind={specimen.kind} eyebrow={specimen.eyebrow} heading={specimen.heading} tag={specimen.tag} notes={specimen.notes}
+  background="linear-gradient(140deg, #fff4d6 0%, #f5d77e 55%, #ff9a3d 100%)" tone="light">
+  <div class="book" data-book data-phase={state.phase}>
+    <div class="book-card">
+      <div class="book-title-row">
+        <p class="book-title">University Health Center</p>
+        <p class="book-open"><span class="book-open-dot" aria-hidden="true"></span>Open now</p>
+      </div>
+      <p class="book-meta">Primary care · On campus · 4 min walk</p>
+      <dl class="book-facts">
+        <div class="book-fact is-wide"><dt>NEXT AVAILABLE</dt><dd class="book-next">Today, 2:40 PM</dd></div>
+        <div class="book-fact"><dt>PLAN</dt><dd>Accepted</dd></div>
+        <div class="book-fact"><dt>COST</dt><dd>$0 copay</dd></div>
+      </dl>
+      <button type="button" class="book-button" aria-expanded="false" aria-controls={`${id}-picker`} data-book-open>Book appointment</button>
+      <div class="book-picker" id={`${id}-picker`} hidden data-book-picker>
+        <p class="book-label" aria-hidden="true">PICK A TIME · TODAY</p>
+        <div class="book-slots" role="radiogroup" aria-label="Pick a time, today">
+          {slots.map((slot) => {
+            const on = slot === state.time;
+            return <button type="button" role="radio" class="book-slot" aria-checked={on ? "true" : "false"} tabindex={on ? "0" : "-1"} data-slot={slot}>{slot}</button>;
+          })}
+        </div>
+        <button type="button" class="book-confirm" data-book-confirm>{confirmLabel(state)}</button>
+        <p class="book-signin">Sign in only happens here, never to browse.</p>
+      </div>
+      <p class="book-booked" tabindex="-1" hidden data-book-booked>
+        <svg class="book-tick" width="14" height="11" viewBox="0 0 16.5 13.5" fill="none" aria-hidden="true"><path d={check} pathLength="1" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+        <span data-book-booked-label>{bookedLabel(state)}</span>
+      </p>
+    </div>
+
+    <div class="book-toast" role="status" data-book-toast>
+      <div class="book-toast-body" hidden data-book-toast-body>
+        <span>Booked at University Health Center</span>
+        <button type="button" class="book-undo" data-book-undo>Undo</button>
+      </div>
+    </div>
+
+    <section class="book-bookings" aria-label="Your bookings" hidden data-book-bookings>
+      <p class="book-label">YOUR BOOKINGS</p>
+      <p class="book-booking-time" data-book-booking-time>Today, {state.time}</p>
+      <p class="book-booking-where">University Health Center · in person</p>
+      <p class="book-new">NEW</p>
+    </section>
   </div>
 </ExhibitSpecimen>
 
 <style>
-  .book-replay { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 6px 12px; border: 1px solid #e3e3e5; border-radius: 999px; background: #ffffff; color: #273440; font: 11px / 15px var(--mono); cursor: pointer; }
-  /* 360 by 230 with a 16px radius (312:615); the text sits 24 in from the card's edge. sized in specimen pixels (--u,
-     ExhibitSpecimen.astro), so the card shrinks with a half size stage; small text holds at a readable floor and the
-     button at 32px tall. */
-  .provider-card {
-    position: relative;
-    width: min(calc(360 * var(--u)), 100%);
-    padding: calc(23 * var(--u)) calc(23 * var(--u)) calc(27 * var(--u));
-    border: 1px solid #e3e3e5;
-    border-radius: calc(16 * var(--u));
-    background: #ffffff;
-    font-family: "Figtree", var(--ui);
-  }
-  .provider-name { margin: 0; padding-right: calc(48 * var(--u)); color: #16161a; font-weight: 700; font-size: calc(19 * var(--u)); line-height: 1.2; }
-  .provider-meta { margin: calc(7 * var(--u)) 0 0; color: #616166; font-size: max(12px, calc(14 * var(--u))); line-height: 1.2; }
-  .provider-next-label { margin: calc(21 * var(--u)) 0 0; color: #616166; font-weight: 700; font-size: max(10px, calc(11 * var(--u))); line-height: 1.2; }
-  .provider-next { margin: calc(5 * var(--u)) 0 0; color: #e21833; font-weight: 700; font-size: calc(17 * var(--u)); line-height: 1.2; }
-  .book-button {
-    display: inline-flex;
-    align-items: center;
-    gap: calc(8 * var(--u));
-    height: max(32px, calc(44 * var(--u)));
-    margin-top: calc(28 * var(--u));
-    padding: 0 calc(22 * var(--u));
-    border: 0;
-    border-radius: 999px;
-    background: #e21833;
-    color: #ffffff;
-    font: 600 max(12px, calc(15 * var(--u))) / 1.2 "Figtree", var(--ui);
-    cursor: pointer;
-  }
-  .book-tick { display: none; flex: none; overflow: visible; }
-  .book-button[aria-pressed="true"] { background: #e3f6ea; color: #1b6b3a; }
-  .book-button[aria-pressed="true"] .book-tick { display: block; }
-  /* the disc in the card's top right corner (312:630) shows once booked; its check draws from nothing. */
-  .book-disc { position: absolute; top: calc(22 * var(--u)); right: calc(24 * var(--u)); width: calc(40 * var(--u)); height: calc(40 * var(--u)); overflow: visible; }
-  .book-disc-fill { fill: #e3f6ea; scale: 0; transform-origin: 20px 20px; }
-  .book-disc-check { stroke: #1b6b3a; stroke-dasharray: 1; stroke-dashoffset: 1; }
-  [data-booked] .book-disc-fill { scale: 1; }
-  [data-booked] .book-disc-check { stroke-dashoffset: 0; }
+  /* one 330 wide card on the mock's warm field, with its toast and Your bookings under it. sized in specimen
+     pixels (--u, ExhibitSpecimen.astro); text holds a floor and every control is at least 40px tall. */
+  .book { display: grid; grid-template-columns: min(calc(360 * var(--u)), 100%); justify-content: center; align-content: start; gap: 16px; padding: calc(64 * var(--u)) 24px calc(84 * var(--u)); color: #1b1b1f; font-family: "Figtree", var(--ui); }
+  .book-card { padding: 22px; border-radius: 20px; background: #ffffff; box-shadow: 0 18px 40px rgb(115 64 0 / 22%); }
+  .book-title-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .book-title { font-weight: 700; font-size: 17px; line-height: 20px; }
+  .book-open { display: inline-flex; flex: none; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 999px; background: #e7f4ec; color: #0b6b3a; font-weight: 600; font-size: 11px; line-height: 14px; }
+  .book-open-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+  .book-meta { margin-top: 6px; color: #5d5d66; font-size: 13px; line-height: 16px; word-spacing: 2px; }
+  .book-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 10px; margin: 14px 0 0; }
+  .book-fact { padding: 8px 12px 7px; border-radius: 10px; background: #f6f6f7; }
+  .book-fact.is-wide { grid-column: 1 / -1; }
+  .book-fact dt, .book-label { color: #5d5d66; font: var(--label-micro, 10px) / 13px var(--mono); letter-spacing: 0.04em; white-space: pre; }
+  .book-fact dd { margin: 3px 0 0; font-weight: 600; font-size: 14px; line-height: 17px; }
+  /* the mock's #e21833 is 4.4:1 on the fact's grey; one step darker reads at 4.5:1. */
+  .book-fact dd.book-next { color: #df1832; }
+  .book-button, .book-confirm { width: 100%; min-height: 40px; margin-top: 12px; border: 0; border-radius: 999px; color: #ffffff; font: 600 14px / 17px "Figtree", var(--ui); cursor: pointer; }
+  .book-button { background: #e21833; }
+  .book-button[hidden] { display: none; }
+  .book-picker { margin-top: 12px; }
+  .book-picker[hidden] { display: none; }
+  .book-slots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 7px; }
+  .book-slot { min-height: 40px; border: 1px solid #dedee3; border-radius: 12px; background: #ffffff; color: #1b1b1f; font: 600 14px / 17px "Figtree", var(--ui); cursor: pointer; }
+  .book-slot[aria-checked="true"] { border-color: #e21833; background: #e21833; color: #ffffff; }
+  .book-confirm { margin-top: 16px; background: #1b1b1f; }
+  .book-signin { margin-top: 8px; color: #5d5d66; font-size: 12px; line-height: 14px; }
+  .book-booked { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; margin-top: 12px; border-radius: 999px; background: #e7f4ec; color: #0b6b3a; font-weight: 600; font-size: 14px; line-height: 17px; }
+  .book-booked[hidden] { display: none; }
+  .book-tick { flex: none; overflow: visible; }
+  .book-tick path { stroke-dasharray: 1; stroke-dashoffset: 0; }
+
+  /* the toast's row is held open, so showing it never moves the card. */
+  .book-toast { min-height: 48px; }
+  /* once the booking has landed, Your bookings takes the toast's place. */
+  .book[data-phase="landed"] .book-toast { display: none; }
+  .book-toast-body { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; padding: 4px 6px 4px 16px; border-radius: 14px; background: #1b1b1f; color: #ffffff; font-size: 13px; line-height: 16px; }
+  .book-toast-body[hidden] { display: none; }
+  .book-undo { --specimen-focus: #ffb3ba; min-height: 40px; padding: 0 10px; border: 0; background: none; color: #ffb3ba; font: 700 13px / 16px "Figtree", var(--ui); cursor: pointer; }
+  .book-bookings { display: grid; grid-template-columns: 1fr auto; align-items: center; column-gap: 12px; padding: 14px 16px 16px; border: 1px solid rgb(255 255 255 / 90%); border-radius: 16px; background: rgb(255 255 255 / 70%); }
+  .book-bookings[hidden] { display: none; }
+  .book-bookings .book-label { grid-column: 1 / -1; }
+  .book-booking-time { margin-top: 9px; font-weight: 600; font-size: 14px; line-height: 17px; }
+  .book-booking-where { grid-column: 1; color: #5d5d66; font-size: 12px; line-height: 14px; margin-top: 4px; }
+  .book-new { grid-row: 2; grid-column: 2; margin-top: 9px; padding: 4px 14px; border-radius: 999px; background: #e21833; color: #ffffff; font-weight: 700; font-size: 10px; line-height: 12px; }
 
   @media (prefers-reduced-motion: no-preference) {
-    /* the button lands on the cord's spring, about 400ms, each way (two names so the animation restarts). */
-    [data-touched] .book-button[aria-pressed="true"] { animation: book-land 400ms var(--cord-spring); }
-    [data-touched] .book-button[aria-pressed="false"] { animation: book-lift 400ms var(--cord-spring); }
-    .book-button { transition: background-color 200ms var(--ease-out), color 200ms var(--ease-out); }
+    /* the picker opens in place, the booked button lands on the cord's spring, about 400ms, and once it has landed
+       its check draws in 300ms. the toast and the booking rise in on the same spring. */
+    .book-picker, .book-toast-body, .book-bookings { transition: translate 400ms var(--cord-spring), opacity 200ms var(--ease-out); }
+    @starting-style { .book-picker, .book-toast-body, .book-bookings { opacity: 0; translate: 0 8px; } }
+    .book-booked { animation: book-land 400ms var(--cord-spring); }
     @keyframes book-land { from { scale: 0.92; } }
-    @keyframes book-lift { from { scale: 0.92; } }
-    /* then the disc grows and its check draws, over 300ms from the moment the button lands. undoing clears it at once. */
-    [data-booked] .book-disc-fill { transition: scale 300ms var(--ease-out) 400ms; }
-    [data-booked] .book-disc-check { transition: stroke-dashoffset 300ms var(--ease-out) 400ms; }
+    .book-tick path { transition: stroke-dashoffset 300ms var(--ease-out) 400ms; }
+    @starting-style { .book-tick path { stroke-dashoffset: 1; } }
+  }
+
+  @container specimen (max-width: 759px) {
+    .book { --u: 1px; grid-template-columns: minmax(0, 1fr); padding: 32px 12px 72px; }
   }
 </style>
 
 <script>
-  // the button is a toggle (aria-pressed) whose label says what is booked. Replay resets the card, then books it
-  // again after a beat so the motion can be watched; under reduced motion it books at once.
-  document.querySelectorAll<HTMLElement>('figure[data-specimen="terpcarehub-book"]').forEach((figure) => {
-    const card = figure.querySelector<HTMLElement>("[data-book-card]")!;
-    const button = card.querySelector<HTMLButtonElement>("[data-book-button]")!;
-    const label = button.querySelector<HTMLElement>("[data-book-label]")!;
-    const replay = figure.querySelector<HTMLButtonElement>("[data-book-replay]")!;
-    let pending = 0;
+  import * as booking from "./terpcarehub-book.mjs";
 
-    function setBooked(booked: boolean): void {
-      card.dataset.touched = "";
-      button.setAttribute("aria-pressed", String(booked));
-      label.textContent = booked ? "Booked · Today, 2:40 PM" : "Book appointment";
-      card.toggleAttribute("data-booked", booked);
+  // the card steps through the booking states; the times are a radiogroup. the toast's five seconds pause while it
+  // is pointed at or holds focus, so Undo can always be reached. focus follows the step: the chosen time, then
+  // the booked line (Undo is the next tab stop), then back to Book if undone.
+  document.querySelectorAll<HTMLElement>('figure[data-specimen="terpcarehub-book"]').forEach((figure) => {
+    const root = figure.querySelector<HTMLElement>("[data-book]")!;
+    const open = root.querySelector<HTMLButtonElement>("[data-book-open]")!;
+    const picker = root.querySelector<HTMLElement>("[data-book-picker]")!;
+    const radios = [...root.querySelectorAll<HTMLButtonElement>("[data-slot]")];
+    const confirm = root.querySelector<HTMLButtonElement>("[data-book-confirm]")!;
+    const booked = root.querySelector<HTMLElement>("[data-book-booked]")!;
+    const bookedLabel = root.querySelector<HTMLElement>("[data-book-booked-label]")!;
+    const toast = root.querySelector<HTMLElement>("[data-book-toast-body]")!;
+    const undo = root.querySelector<HTMLButtonElement>("[data-book-undo]")!;
+    const bookings = root.querySelector<HTMLElement>("[data-book-bookings]")!;
+    const bookingTime = root.querySelector<HTMLElement>("[data-book-booking-time]")!;
+    let state = booking.createBooking();
+    let timer = 0;
+    let remaining = booking.TOAST_MS;
+    let started = 0;
+    let held = false;
+
+    function draw(): void {
+      root.dataset.phase = state.phase;
+      open.hidden = state.phase !== "idle";
+      open.setAttribute("aria-expanded", String(state.phase === "picking"));
+      picker.hidden = state.phase !== "picking";
+      radios.forEach((radio) => {
+        const on = radio.dataset.slot === state.time;
+        radio.setAttribute("aria-checked", String(on));
+        radio.tabIndex = on ? 0 : -1;
+      });
+      confirm.textContent = booking.confirmLabel(state);
+      booked.hidden = state.phase !== "booked" && state.phase !== "landed";
+      bookedLabel.textContent = booking.bookedLabel(state);
+      toast.hidden = state.phase !== "booked";
+      bookings.hidden = state.phase !== "landed";
+      bookingTime.textContent = `Today, ${state.time}`;
     }
 
-    button.addEventListener("click", () => {
-      window.clearTimeout(pending);
-      setBooked(button.getAttribute("aria-pressed") !== "true");
+    function expire(): void {
+      window.clearTimeout(timer);
+      state = booking.expire(state);
+      draw();
+    }
+    function run(): void {
+      window.clearTimeout(timer);
+      if (held || state.phase !== "booked") return;
+      started = Date.now();
+      timer = window.setTimeout(expire, remaining);
+    }
+    function hold(on: boolean): void {
+      if (on && !held && state.phase === "booked") remaining = Math.max(0, remaining - (Date.now() - started));
+      held = on;
+      if (on) window.clearTimeout(timer);
+      else run();
+    }
+
+    open.addEventListener("click", () => {
+      state = booking.open(state);
+      draw();
+      radios.find((radio) => radio.tabIndex === 0)!.focus();
     });
-    replay.addEventListener("click", () => {
-      window.clearTimeout(pending);
-      setBooked(false);
-      const wait = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 600;
-      pending = window.setTimeout(() => setBooked(true), wait);
+    radios.forEach((radio, index) => {
+      radio.addEventListener("click", () => { state = booking.pick(state, radio.dataset.slot!); draw(); });
+      radio.addEventListener("keydown", (event) => {
+        const to = { ArrowRight: index + 1, ArrowDown: index + 1, ArrowLeft: index - 1, ArrowUp: index - 1, Home: 0, End: radios.length - 1 }[event.key];
+        if (to === undefined) return;
+        event.preventDefault();
+        const next = radios[(to + radios.length) % radios.length];
+        state = booking.pick(state, next.dataset.slot!);
+        draw();
+        next.focus();
+      });
     });
+    confirm.addEventListener("click", () => {
+      state = booking.confirm(state);
+      remaining = booking.TOAST_MS;
+      held = false;
+      draw();
+      run();
+      // focus stays with the card; Undo is the next stop, and focusing it holds the toast.
+      booked.focus();
+    });
+    undo.addEventListener("click", () => {
+      window.clearTimeout(timer);
+      held = false;
+      state = booking.undo(state);
+      draw();
+      open.focus();
+    });
+    toast.addEventListener("pointerenter", () => hold(true));
+    toast.addEventListener("pointerleave", () => { if (!toast.contains(document.activeElement)) hold(false); });
+    toast.addEventListener("focusin", () => hold(true));
+    toast.addEventListener("focusout", (event) => { if (!toast.contains(event.relatedTarget as Node)) hold(false); });
   });
 </script>

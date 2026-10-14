@@ -198,10 +198,10 @@ function sectionFor(exhibit: any) {
             {exhibit.kind === "journey" && (
               <ExhibitJourney id={exhibit.id} stages={exhibit.stages} accentStage={exhibit.accentStage} rows={exhibit.rows} strip={exhibit.strip} caption={exhibit.heading} tones={exhibit.tones} figure={exhibit.figure} />
             )}
-            {/* live specimens close the chapter, after everything the chapter shows of the real screens: two as a pair,
-                one as a feature beside its head and notes, in the layouts the laptop loops use. */}
+            {/* live specimens close the chapter, after everything the chapter shows of the real screens, each full
+                width and stacked (figma 363:517). */}
             {exhibit.specimens && (
-              <div class:list={["exhibit-specimens", "exhibit-layout", exhibit.specimens.length > 1 ? "is-pair" : "is-feature"]}>
+              <div class="exhibit-specimens">
                 {exhibit.specimens.map((specimen: any) => {
                   const Specimen = specimenComponents[specimen.kind];
                   return <Specimen specimen={specimen} />;
@@ -260,7 +260,7 @@ function sectionFor(exhibit: any) {
   .exhibit-links a { padding: 10px 12px; border: 1px solid var(--rule); color: var(--accent); font: var(--label-micro, 10px) / 13px var(--mono); letter-spacing: 0.02em; text-transform: uppercase; }
   .exhibit-links a:hover, .exhibit-links a:focus-visible { border-color: var(--accent); background: var(--accent); color: var(--on-accent); }
   .exhibit-body { margin-top: 32px; }
-  .exhibit-specimens { margin-top: 72px; }
+  .exhibit-specimens { display: grid; gap: 96px; margin-top: 72px; }
 
   @media (max-width: 980px) {
     .exhibit-shell { display: block; padding: 34px var(--page-gutter) 0; }
@@ -269,6 +269,6 @@ function sectionFor(exhibit: any) {
     .hero-kpi { position: static; margin-top: 12px; box-shadow: 0 1px 3px rgb(3 13 26 / 12%); border: 1px solid var(--rule); }
     .case-meta { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 18px; }
     .exhibit-chapter + .exhibit-chapter, .overview-chapter { margin-top: 72px; }
-    .exhibit-specimens { margin-top: 56px; gap: 56px; }
+    .exhibit-specimens { margin-top: 56px; gap: 72px; }
   }
 </style>

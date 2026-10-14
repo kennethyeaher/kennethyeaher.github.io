@@ -1,105 +1,230 @@
 ---
-// sohive, rsvp outcomes (figma 312:637): the event card's own button RSVPs. Attending turns to Going in place on the
-// cord's spring; a second tap turns it back and the toast offers Undo. the mock draws the card twice; live, one toggles.
+// sohive, going with the room counting (figma 369:633): the event card's own button RSVPs. the going count rolls up
+// by one like an odometer and the capacity bar fills, a ticket with a door code flips into place, and the toast
+// offers Undo for five seconds, held while it is pointed at or focused. a second tap leaves, and that toast offers
+// Undo too. the mock draws the card before and after; live, one card goes through both. the state is sohive-rsvp.mjs.
 import ExhibitSpecimen from "@/components/exhibits/ExhibitSpecimen.astro";
+import { createRsvp, digits, fillPercent, spotsLeft } from "./sohive-rsvp.mjs";
 
 interface Props {
-  specimen: { kind: string; eyebrow: string; heading: string; tag?: string; notes: { n: string; title: string; body: string }[] };
+  specimen: { kind: string; eyebrow: string; heading: string; tag: string; notes: { n: string; title: string; body: string }[] };
 }
 const { specimen } = Astro.props;
 const id = `specimen-${specimen.kind}`;
+const state = createRsvp();
+const going = [
+  { initials: "DP", colour: "#f99953" },
+  { initials: "KD", colour: "#00a650" },
+  { initials: "HJ", colour: "#dc3545" },
+  { initials: "BW", colour: "#9b6bff" },
+];
+// the mock's door code (369:633 QR): 60 modules on an 11 by 11 grid, as column and row.
+const modules = [[0, 0], [0, 1], [0, 2], [0, 7], [0, 8], [0, 9], [0, 10], [1, 0], [1, 1], [1, 2], [1, 3], [1, 4], [1, 6], [1, 8], [1, 9], [1, 10], [2, 0], [2, 1], [2, 2], [2, 6], [2, 7],
+  [2, 8], [2, 9], [2, 10], [3, 2], [3, 3], [3, 4], [3, 5], [3, 9], [4, 2], [4, 4], [4, 6], [4, 8], [5, 0], [5, 3], [5, 6], [6, 5], [7, 3], [7, 5], [7, 6], [8, 0], [8, 1], [8, 2], [8, 3], [8, 6],
+  [8, 7], [8, 9], [9, 0], [9, 1], [9, 2], [9, 8], [9, 10], [10, 0], [10, 1], [10, 2], [10, 4], [10, 5], [10, 7], [10, 9], [10, 10]];
 ---
-<ExhibitSpecimen id={id} kind={specimen.kind} eyebrow={specimen.eyebrow} heading={specimen.heading} tag={specimen.tag} notes={specimen.notes} background="#000000" tone="dark">
+<ExhibitSpecimen id={id} kind={specimen.kind} eyebrow={specimen.eyebrow} heading={specimen.heading} tag={specimen.tag} notes={specimen.notes}
+  background="radial-gradient(circle at 8% 90%, rgb(220 53 69 / 50%), transparent 36%), radial-gradient(circle at 95% 4%, rgb(0 105 217 / 58%), transparent 34%), radial-gradient(circle at 92% 92%, rgb(0 166 80 / 42%), transparent 30%), #07090d" tone="dark">
   <div class="rsvp" data-rsvp>
+    <p class="rsvp-moment" aria-hidden="true" data-rsvp-moment>BEFORE</p>
     <div class="event-card">
       <div class="event-host">
         <span class="event-avatar" aria-hidden="true">WW</span>
         <span class="event-host-name">Wally West</span>
-        <span class="event-host-tag">host</span>
+        <span class="event-host-tag">Host</span>
       </div>
-      <div class="event-body">
-        <p class="event-title">ManU vs ManCity</p>
-        <p class="event-where"><span>College Park</span><span class="event-when">Sep 10 · 3:00 PM</span></p>
+      <p class="event-title">ManU vs ManCity</p>
+      <p class="event-where"><span>College Park</span><span class="event-when">Sep 10 · 3:00 PM</span></p>
+      <div class="event-room">
+        <span class="event-faces" aria-hidden="true">
+          {going.map((face) => <span class="event-face" style={`background: ${face.colour}`}>{face.initials}</span>)}
+        </span>
+        <p class="event-going">
+          <span class="odometer" aria-hidden="true">
+            {digits(state.count).map((digit) => (
+              <span class="odometer-digit"><span class="odometer-strip" style={`--d: ${digit}`}>{[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => <span>{n}</span>)}</span></span>
+            ))}
+          </span>
+          <span aria-hidden="true">going</span>
+          <span class="visually-hidden" data-rsvp-count>{state.count} going</span>
+          <span class="event-plus" aria-hidden="true">+1</span>
+        </p>
+        <p class="event-spots" data-rsvp-spots>{spotsLeft(state)} spots left</p>
       </div>
-      <div class="event-footer">
-        <span class="event-likes"><span aria-hidden="true">♡</span> 113<span class="rsvp-hidden"> likes</span></span>
-        <span class="event-going">241 going</span>
-        <button type="button" class="rsvp-button" aria-pressed="false" data-rsvp-button>Attending</button>
-      </div>
+      <div class="capacity" aria-hidden="true"><span class="capacity-fill" data-rsvp-fill style={`--fill: ${fillPercent(state)}%`}></span></div>
+      <button type="button" class="rsvp-button" aria-pressed="false" data-rsvp-button>
+        <span class="rsvp-tick" aria-hidden="true">✓</span><span data-rsvp-label>Going? Tap to RSVP</span>
+      </button>
     </div>
-    <div class="rsvp-toast" role="status">
-      <div class="rsvp-toast-inner" hidden data-rsvp-toast>
-        <span>You're no longer going.</span>
-        <button type="button" class="rsvp-undo" data-rsvp-undo>Undo</button>
+
+    <div class="rsvp-after">
+      <section class="ticket" aria-label="Your ticket" hidden data-rsvp-ticket>
+        <div>
+          <p class="ticket-label" aria-hidden="true">YOUR TICKET</p>
+          <p class="ticket-title">ManU vs ManCity</p>
+          <p class="ticket-note">Show this at the door.</p>
+        </div>
+        <svg class="ticket-code" viewBox="0 0 88 88" role="img" aria-label="Door code">
+          <rect x="0.5" y="0.5" width="87" height="87" rx="6" fill="#ffffff" stroke="#111111" />
+          {modules.map(([column, row]) => <rect x={4 + column * 7.3} y={4 + row * 7.3} width="7.3" height="7.3" fill="#111111" />)}
+        </svg>
+      </section>
+      <div class="rsvp-toast" role="status" data-rsvp-toast>
+        <div class="rsvp-toast-body" hidden data-rsvp-toast-body>
+          <span data-rsvp-toast-text></span>
+          <button type="button" class="rsvp-undo" data-rsvp-undo>Undo</button>
+        </div>
       </div>
     </div>
   </div>
 </ExhibitSpecimen>
 
 <style>
-  /* sized in specimen pixels (--u, ExhibitSpecimen.astro), so the card shrinks with a half size stage; small text holds
-     at a readable floor and the button at 32px tall. */
-  .rsvp { display: grid; gap: calc(26 * var(--u)); width: min(calc(380 * var(--u)), 100%); font-family: "Inter", var(--ui); }
-  /* 380 by 214 with an 18px radius (312:708): a 50px host bar and a 62px footer in #004692 around the #0a66d6 body. */
-  .event-card { overflow: clip; border-radius: calc(18 * var(--u)); background: #0a66d6; color: #ffffff; }
-  .event-host { display: flex; align-items: center; gap: calc(10 * var(--u)); height: calc(50 * var(--u)); padding: 0 calc(14 * var(--u)); background: #004692; }
-  /* white initials on #5399e5 are 3.0:1, as the brief sets them; they repeat the name beside them, so they are hidden. */
-  .event-avatar { display: grid; flex: none; place-items: center; width: calc(30 * var(--u)); height: calc(30 * var(--u)); border-radius: 50%; background: #5399e5; font: 700 max(9px, calc(11 * var(--u))) / 1 "Inter", var(--ui); }
-  .event-host-name { font: 600 calc(16 * var(--u)) / 1.2 "Inter", var(--ui); }
-  .event-host-tag { margin-left: auto; padding: calc(5 * var(--u)) calc(13 * var(--u)) calc(6 * var(--u)); border-radius: calc(12 * var(--u)); background: #ffffff; color: #004692; font: 600 max(10px, calc(11 * var(--u))) / 1.2 "Inter", var(--ui); }
-  .event-body { padding: calc(14 * var(--u)) calc(20 * var(--u)) calc(22 * var(--u)) calc(16 * var(--u)); }
-  .event-title { margin: 0; font: 700 calc(28 * var(--u)) / 1.2 "Inter", var(--ui); }
-  .event-where { display: flex; flex-wrap: wrap; justify-content: space-between; gap: calc(4 * var(--u)) calc(16 * var(--u)); margin: calc(14 * var(--u)) 0 0; font: max(12px, calc(15 * var(--u))) / 1.2 "Inter", var(--ui); }
-  .event-when { font-weight: 600; }
-  .event-footer { display: flex; align-items: center; gap: calc(24 * var(--u)); height: calc(62 * var(--u)); padding: 0 calc(14 * var(--u)) 0 calc(16 * var(--u)); background: #004692; font: 500 max(12px, calc(15 * var(--u))) / 1.2 "Inter", var(--ui); }
-  .event-going { font-size: max(11px, calc(13 * var(--u))); line-height: 1.2; }
-  .rsvp-button { flex: none; width: calc(122 * var(--u)); height: max(32px, calc(38 * var(--u))); margin-left: auto; border: 0; border-radius: 999px; background: #000000; color: #ffffff; font: 600 max(12px, calc(15 * var(--u))) / 1.2 "Inter", var(--ui); cursor: pointer; }
-  .rsvp-button[aria-pressed="true"] { background: #ffffff; color: #111417; }
-  /* the toast's row is held open, so showing it never moves the stage. */
-  .rsvp-toast { --specimen-focus: #111417; min-height: 44px; }
-  /* the undo is 32px tall, so the toast keeps its 44 with 6 above and below it. */
-  .rsvp-toast-inner { display: inline-flex; align-items: center; gap: calc(24 * var(--u)); padding: 6px calc(18 * var(--u)); border-radius: calc(14 * var(--u)); background: #ffffff; color: #111417; font: 500 max(12px, calc(15 * var(--u))) / 1.2 "Inter", var(--ui); }
-  .rsvp-toast-inner[hidden] { display: none; }
-  .rsvp-undo { min-height: 32px; padding: 0; border: 0; background: none; color: #dc3545; font: 600 max(12px, calc(15 * var(--u))) / 1.2 "Inter", var(--ui); cursor: pointer; }
-  .rsvp-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  /* one 420 wide card, centred on the mock's dark field, its ticket and toast under it. sized in specimen pixels
+     (--u, ExhibitSpecimen.astro); text holds a floor and every control is at least 36px tall. */
+  .rsvp { display: grid; grid-template-columns: min(calc(420 * var(--u)), 100%); justify-content: center; align-content: start; padding: calc(56 * var(--u)) 24px calc(84 * var(--u)); color: #ffffff; font-family: "Inter", var(--ui); }
+  .rsvp-moment { margin-bottom: 11px; color: rgb(255 255 255 / 60%); font: var(--label-micro, 10px) / 13px var(--mono); letter-spacing: 0.04em; }
+  .event-card { padding: 20px 22px 16px; border-radius: 22px; background: #0069d9; box-shadow: 0 24px 50px rgb(0 26 77 / 50%); }
+  .event-host { display: flex; align-items: center; gap: 8px; }
+  .event-avatar { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: rgb(255 255 255 / 25%); font: 700 10px / 1 "Inter", var(--ui); }
+  .event-host-name { font: 600 14px / 17px "Inter", var(--ui); }
+  .event-host-tag { margin-left: auto; padding: 4px 14px 5px; border-radius: 999px; background: #ffffff; color: #0069d9; font: 600 11px / 13px "Inter", var(--ui); }
+  .event-title { margin-top: 14px; font: 700 max(22px, calc(26 * var(--u))) / 1.2 "Inter", var(--ui); }
+  /* the mock's white at 80% is 3.9:1 on the card blue; at 90% it reads at 4.5:1. */
+  .event-where { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px; margin-top: 7px; color: rgb(255 255 255 / 90%); font: 400 13px / 16px "Inter", var(--ui); }
+  .event-when { color: #ffffff; font-weight: 600; }
+  .event-room { display: flex; align-items: center; gap: 4px; margin-top: 18px; }
+  .event-faces { display: flex; margin-right: 4px; }
+  .event-face { display: grid; place-items: center; width: 28px; height: 28px; margin-left: -8px; border: 2.5px solid #0069d9; border-radius: 50%; font: 700 9px / 1 "Inter", var(--ui); }
+  .event-face:first-child { margin-left: 0; }
+  .event-going { position: relative; display: inline-flex; align-items: center; gap: 0.28em; font: 600 14px / 17px "Inter", var(--ui); }
+  .odometer { display: inline-flex; font-variant-numeric: tabular-nums; }
+  .odometer-digit { display: inline-block; height: 17px; overflow: clip; }
+  .odometer-strip { display: grid; translate: 0 calc(var(--d) * -17px); }
+  /* the mock's mint is 4.2:1 on the card blue; this lighter mint reads at 4.5:1. */
+  .event-plus { position: absolute; top: -10px; right: -22px; color: #b2ffd2; font: 700 12px / 15px "Inter", var(--ui); opacity: 0; }
+  [data-going] .event-plus { opacity: 1; }
+  .event-spots { margin-left: auto; color: rgb(255 255 255 / 90%); font: 400 12px / 15px "Inter", var(--ui); }
+  .capacity { height: 6px; margin-top: 14px; overflow: clip; border-radius: 3px; background: rgb(255 255 255 / 22%); }
+  .capacity-fill { display: block; width: var(--fill); height: 100%; border-radius: 3px; background: #ffffff; }
+  .rsvp-button { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 36px; margin-top: 16px; border: 0; border-radius: 999px; background: #0b0b0c; color: #ffffff; font: 600 14px / 17px "Inter", var(--ui); cursor: pointer; word-spacing: 2px; }
+  .rsvp-tick { display: none; }
+  .rsvp-button[aria-pressed="true"] { background: #ffffff; color: #0069d9; }
+  .rsvp-button[aria-pressed="true"] .rsvp-tick { display: inline; }
+
+  /* the ticket and toast's room is held open, so neither moves the stage when it shows. */
+  .rsvp-after { display: grid; align-content: start; gap: 16px; min-height: 184px; margin-top: 22px; }
+  .ticket { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 120px; padding: 16px 24px 16px 20px; border-radius: 18px; background: #ffffff; color: #111111; }
+  .ticket[hidden] { display: none; }
+  .ticket-label { color: #5d5d66; font: var(--label-micro, 10px) / 13px var(--mono); letter-spacing: 0.04em; }
+  .ticket-title { margin-top: 5px; font: 700 16px / 19px "Inter", var(--ui); }
+  .ticket-note { margin-top: 5px; color: #5d5d66; font: 400 12px / 15px "Inter", var(--ui); }
+  .ticket-code { flex: none; width: 88px; height: 88px; }
+  .rsvp-toast { min-height: 48px; }
+  .rsvp-toast-body { --specimen-focus: #111111; display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; padding: 4px 6px 4px 16px; border-radius: 14px; background: #ffffff; color: #111111; font: 400 13px / 16px "Inter", var(--ui); }
+  .rsvp-toast-body[hidden] { display: none; }
+  .rsvp-undo { min-height: 40px; padding: 0 10px; border: 0; background: none; color: #dc3545; font: 700 13px / 16px "Inter", var(--ui); cursor: pointer; }
 
   @media (prefers-reduced-motion: no-preference) {
-    /* the button lands on the cord's spring, about 400ms, each way (two names so the animation restarts). */
+    /* the count rolls and the button lands on the cord's spring, about 400ms; the bar fills on a plain ease. */
+    .odometer-strip { transition: translate 400ms var(--cord-spring); }
+    .capacity-fill { transition: width 400ms var(--ease-out); }
+    .rsvp-button { transition: background-color 200ms var(--ease-out), color 200ms var(--ease-out); }
     [data-touched] .rsvp-button[aria-pressed="true"] { animation: rsvp-land 400ms var(--cord-spring); }
     [data-touched] .rsvp-button[aria-pressed="false"] { animation: rsvp-lift 400ms var(--cord-spring); }
-    .rsvp-button { transition: background-color 200ms var(--ease-out), color 200ms var(--ease-out); }
-    @keyframes rsvp-land { from { scale: 0.92; } }
-    @keyframes rsvp-lift { from { scale: 0.92; } }
-    /* the toast rises in on the same spring; its fade is a plain ease, so it never overshoots. */
-    .rsvp-toast-inner { transition: translate 400ms var(--cord-spring), opacity 200ms var(--ease-out); }
-    @starting-style { .rsvp-toast-inner { opacity: 0; translate: 0 8px; } }
+    @keyframes rsvp-land { from { scale: 0.94; } }
+    @keyframes rsvp-lift { from { scale: 0.94; } }
+    .event-plus { transition: opacity 200ms var(--ease-out), translate 400ms var(--cord-spring); }
+    [data-going] .event-plus { animation: rsvp-plus 400ms var(--cord-spring); }
+    @keyframes rsvp-plus { from { translate: 0 6px; } }
+    /* the ticket flips up into place, the toast rises in; their fades are plain eases, so neither overshoots. */
+    .ticket { transition: rotate 400ms var(--cord-spring), opacity 200ms var(--ease-out); transform-origin: 50% 0; }
+    @starting-style { .ticket { opacity: 0; rotate: x -70deg; } }
+    .rsvp-toast-body { transition: translate 400ms var(--cord-spring), opacity 200ms var(--ease-out); }
+    @starting-style { .rsvp-toast-body { opacity: 0; translate: 0 8px; } }
+  }
+
+  @container specimen (max-width: 759px) {
+    .rsvp { --u: 1px; grid-template-columns: minmax(0, 1fr); padding: 32px 12px 72px; }
+    .event-card { padding: 18px 16px 14px; }
+    .ticket { padding: 14px 16px; }
   }
 </style>
 
 <script>
-  // Attending and Going are one toggle (aria-pressed). leaving Going shows the toast, a status message, whose Undo
-  // puts Going back and hands focus to the button, since the toast and its Undo go away.
-  document.querySelectorAll<HTMLElement>('figure[data-specimen="sohive-rsvp"]').forEach((figure) => {
-    const rsvp = figure.querySelector<HTMLElement>("[data-rsvp]")!;
-    const button = rsvp.querySelector<HTMLButtonElement>("[data-rsvp-button]")!;
-    const toast = rsvp.querySelector<HTMLElement>("[data-rsvp-toast]")!;
-    const undo = rsvp.querySelector<HTMLButtonElement>("[data-rsvp-undo]")!;
+  import * as rsvp from "./sohive-rsvp.mjs";
 
-    function setGoing(going: boolean): void {
-      rsvp.dataset.touched = "";
-      button.setAttribute("aria-pressed", String(going));
-      button.textContent = going ? "Going" : "Attending";
+  // the RSVP button is a toggle (aria-pressed) that stays where it is, so focus never moves on a tap; Undo hands
+  // focus back to it, since the toast goes away. the toast's five seconds pause while it is pointed at or focused.
+  document.querySelectorAll<HTMLElement>('figure[data-specimen="sohive-rsvp"]').forEach((figure) => {
+    const root = figure.querySelector<HTMLElement>("[data-rsvp]")!;
+    const button = root.querySelector<HTMLButtonElement>("[data-rsvp-button]")!;
+    const label = root.querySelector<HTMLElement>("[data-rsvp-label]")!;
+    const moment = root.querySelector<HTMLElement>("[data-rsvp-moment]")!;
+    const strips = [...root.querySelectorAll<HTMLElement>(".odometer-strip")];
+    const count = root.querySelector<HTMLElement>("[data-rsvp-count]")!;
+    const spots = root.querySelector<HTMLElement>("[data-rsvp-spots]")!;
+    const fill = root.querySelector<HTMLElement>("[data-rsvp-fill]")!;
+    const ticket = root.querySelector<HTMLElement>("[data-rsvp-ticket]")!;
+    const toast = root.querySelector<HTMLElement>("[data-rsvp-toast-body]")!;
+    const toastText = root.querySelector<HTMLElement>("[data-rsvp-toast-text]")!;
+    const undo = root.querySelector<HTMLButtonElement>("[data-rsvp-undo]")!;
+    let state = rsvp.createRsvp();
+    let timer = 0;
+    let remaining = rsvp.TOAST_MS;
+    let started = 0;
+    let held = false;
+
+    function draw(): void {
+      root.dataset.touched = "";
+      root.toggleAttribute("data-going", state.going);
+      button.setAttribute("aria-pressed", String(state.going));
+      label.textContent = state.going ? "Going" : "Going? Tap to RSVP";
+      moment.textContent = state.going ? "AFTER ONE TAP" : "BEFORE";
+      rsvp.digits(state.count).forEach((digit, index) => strips[index].style.setProperty("--d", String(digit)));
+      count.textContent = `${state.count} going`;
+      spots.textContent = `${rsvp.spotsLeft(state)} spots left`;
+      fill.style.setProperty("--fill", `${rsvp.fillPercent(state)}%`);
+      ticket.hidden = !state.going;
+      toast.hidden = !state.toast;
+      if (state.toast) toastText.textContent = state.toast;
+    }
+
+    function expire(): void {
+      window.clearTimeout(timer);
+      state = rsvp.expire(state);
+      draw();
+    }
+    function run(): void {
+      window.clearTimeout(timer);
+      if (held || !state.toast) return;
+      started = Date.now();
+      timer = window.setTimeout(expire, remaining);
+    }
+    function hold(on: boolean): void {
+      if (on && !held && state.toast) remaining = Math.max(0, remaining - (Date.now() - started));
+      held = on;
+      if (on) window.clearTimeout(timer);
+      else run();
     }
 
     button.addEventListener("click", () => {
-      const going = button.getAttribute("aria-pressed") !== "true";
-      setGoing(going);
-      toast.hidden = going;
+      state = rsvp.tap(state);
+      remaining = rsvp.TOAST_MS;
+      held = false;
+      draw();
+      run();
     });
     undo.addEventListener("click", () => {
-      setGoing(true);
-      toast.hidden = true;
+      window.clearTimeout(timer);
+      held = false;
+      state = rsvp.undo(state);
+      draw();
       button.focus();
     });
+    toast.addEventListener("pointerenter", () => hold(true));
+    toast.addEventListener("pointerleave", () => { if (!toast.contains(document.activeElement)) hold(false); });
+    toast.addEventListener("focusin", () => hold(true));
+    toast.addEventListener("focusout", (event) => { if (!toast.contains(event.relatedTarget as Node)) hold(false); });
   });
 </script>

@@ -1,9 +1,8 @@
 ---
-// a live specimen per figma 312:417 ("Additions / Specimens (proposal)"): a section head one level under the chapter's,
-// a stage that holds the specimen with its controls in the top right corner and the LIVE tag in the bottom left, and
-// its notes. the specimen itself goes in the default slot (src/components/exhibits/specimens). specimens sit at half
-// the mock's size in the layouts the laptop loops use (global.css .exhibit-layout): two in a chapter as a pair, each
-// with its head, stage and notes stacked; one as a feature, its stage beside its head and notes.
+// a live specimen per figma 363:517 ("Additions / Specimens v2"): a section head one level under the chapter's, a
+// full width stage that holds the specimen, with its controls in the top right corner and the LIVE tag in the bottom
+// left, and its three notes in a row under it. the specimen itself goes in the default slot
+// (src/components/exhibits/specimens) and lays itself out across the whole stage.
 import Notes from "@/components/exhibits/Notes.astro";
 import SectionHead from "@/components/exhibits/SectionHead.astro";
 
@@ -12,61 +11,57 @@ interface Props {
   kind: string;
   eyebrow: string;
   heading: string;
-  /** "LIVE · TAP TO TRY" and the like; the greyscale toggle has none in the mock. */
-  tag?: string;
+  /** "LIVE · TAP TO BOOK" and the like. */
+  tag: string;
   notes: { n: string; title: string; body: string }[];
-  /** the stage colour from the mock. */
+  /** the stage's background from the mock: a colour, or gradients for its glows. */
   background: string;
   /** a dark stage takes a white focus ring, a light one the accent. a specimen can override --specimen-focus inside. */
   tone: "light" | "dark";
+  /** the stage's width to height in the mock, a floor: a stage grows to fit what it holds. */
+  ratio?: string;
 }
-const { id, kind, eyebrow, heading, tag, notes, background, tone } = Astro.props;
+const { id, kind, eyebrow, heading, tag, notes, background, tone, ratio = "1116 / 640" } = Astro.props;
 ---
 <figure class="specimen" id={id} data-specimen={kind} aria-labelledby={`${id}-heading`}>
   <SectionHead id={`${id}-heading`} eyebrow={eyebrow} heading={heading} level={3} />
-  <div class:list={["specimen-stage", `is-${tone}`]} style={`--specimen-stage: ${background}`}>
+  <div class:list={["specimen-stage", `is-${tone}`]} style={`--specimen-stage: ${background}; --specimen-ratio: ${ratio}`}>
     {Astro.slots.has("controls") && <div class="specimen-controls"><slot name="controls" /></div>}
     <div class="specimen-body"><slot /></div>
-    {tag && <p class="specimen-tag">{tag}</p>}
+    <p class="specimen-tag">{tag}</p>
   </div>
   <Notes notes={notes} idPrefix={id} />
 </figure>
 <style>
-  .specimen { --feature-columns: 538fr 530fr; margin: 0; }
-  /* a feature: the stage about 538 wide on the left, the head and notes stacked in the right column and centred on it.
-     the shared layout sets the columns and the 48 between them; the rows here carry no gap of their own. */
-  :global(.exhibit-layout.is-feature) > .specimen { grid-template-areas: "stage ." "stage head" "stage notes" "stage ."; grid-template-rows: 1fr auto auto 1fr; row-gap: 0; }
-  :global(.exhibit-layout.is-feature) > .specimen > :global(.section-head) { grid-area: head; }
-  :global(.exhibit-layout.is-feature) > .specimen > .specimen-stage { grid-area: stage; margin-top: 0; }
-  :global(.exhibit-layout.is-feature) > .specimen > :global(.exhibit-notes) { grid-area: notes; }
-  /* the notes stack in one column under the head or the stage. */
-  .specimen :global(.exhibit-notes) { grid-template-columns: minmax(0, 1fr); gap: 16px; margin-top: 24px; }
-  /* the mock's stage is 1116 by 520, here at half that; the ratio is a floor, so a stage grows to fit its specimen.
-     the padding keeps the specimen clear of the controls above it and the tag below it.
-     --u is a specimen pixel: 1px on a stage 675 wide inside and up, shrinking with the stage (container units) to
-     0.75px on the half size one (506 inside), so each card keeps its proportions without overflowing. */
+  .specimen { margin: 0; }
+  /* the mock's notes: 249 wide columns 40 apart, filling from the left, 32 under the stage. */
+  .specimen :global(.exhibit-notes) { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); margin-top: 32px; }
+  /* the mock's stage is 1116 by 640, 32 under the head. it is the specimens' container: --u is a specimen pixel, 1px
+     on the full stage and shrinking with it (container units) to 0.75px, so a desktop layout keeps its proportions
+     on a narrower column; each specimen reflows to its stacked phone layout below 760 wide
+     (@container specimen (max-width: 759px)), where it sets --u back to 1px. */
   .specimen-stage {
     --specimen-focus: #1f4f7a;
-    --u: clamp(0.75px, 0.148cqw, 1px);
+    --u: clamp(0.75px, 0.0896cqw, 1px);
     position: relative;
     display: grid;
-    place-items: center;
-    aspect-ratio: 1116 / 520;
-    margin-top: 24px;
-    padding: 64px 16px;
+    aspect-ratio: var(--specimen-ratio, 1116 / 640);
+    margin-top: 32px;
+    overflow: clip;
     border-radius: 6px;
     background: var(--specimen-stage);
-    container-type: inline-size;
+    container: specimen / inline-size;
   }
   .specimen-stage.is-dark { --specimen-focus: #ffffff; }
-  .specimen-body { display: grid; place-items: center; width: 100%; min-width: 0; }
-  .specimen-controls { position: absolute; z-index: 2; top: 16px; right: 16px; }
+  .specimen-body { display: grid; min-width: 0; }
+  .specimen-controls { position: absolute; z-index: 2; top: 20px; right: 20px; }
   .specimen-tag {
     position: absolute;
-    bottom: 16px;
-    left: 16px;
+    z-index: 2;
+    bottom: 20px;
+    left: 20px;
     margin: 0;
-    padding: 5px 10px;
+    padding: 5px 10px 6px 11px;
     border: 1px solid #dee5e8;
     border-radius: 999px;
     background: #ffffff;
@@ -75,31 +70,15 @@ const { id, kind, eyebrow, heading, tag, notes, background, tone } = Astro.props
     font: var(--label-micro, 10px) / 13px var(--mono);
     white-space: nowrap;
   }
-  /* the mock's Light and Dark, Colour and Greyscale pill (312:537, 312:942): the pressed half is filled. controls stay
-     full size and at least 32px tall at any stage size. */
-  /* the hairline is the tag's, so the pill keeps an edge on a white stage. */
-  .specimen :global(.specimen-switch) { --specimen-focus: #273440; display: flex; gap: 2px; padding: 4px; border-radius: 999px; background: rgb(255 255 255 / 94%); box-shadow: inset 0 0 0 1px #dee5e8; }
-  .specimen :global(.specimen-switch button) { min-height: 32px; padding: 6px 12px; border: 0; border-radius: 999px; background: transparent; color: #5c6670; font: 11px / 15px var(--mono); cursor: pointer; }
-  .specimen :global(.specimen-switch [aria-pressed="true"]) { background: #273440; color: #ffffff; }
+  /* the mock's Light and Dark pill (367:521): the pressed half is filled. at least 32px tall at any stage size. */
+  .specimen :global(.specimen-switch) { --specimen-focus: #ffffff; display: flex; gap: 2px; padding: 3px; border-radius: 999px; background: rgb(255 255 255 / 14%); }
+  .specimen :global(.specimen-switch button) { min-height: 32px; padding: 6px 14px; border: 0; border-radius: 999px; background: transparent; color: rgb(255 255 255 / 85%); font: 500 12px / 15px "Inter", var(--ui); cursor: pointer; }
+  .specimen :global(.specimen-switch [aria-pressed="true"]) { background: #ffffff; color: #16161a; font-weight: 600; }
   /* one ring for every control, in the colour the surface under it sets. */
-  .specimen :global(button:focus-visible) { outline: 2px solid var(--specimen-focus); outline-offset: 2px; }
-  /* a pair's two stages share one 538 by 360 ratio, like the laptop loop pair (figma 325:506), so they line up
-     whatever each holds. it is fixed once each stage is about 420 wide (the pair 880 wide): min-height 0 stops content
-     stretching a stage, and the body fills it so what it holds centres or fits inside. on a narrower pair the findings
-     card cannot fit inside the ratio with 32px chips and the 16px insets, so there the ratio is a floor and a stage
-     grows to its card. */
-  :global(.exhibit-specimens.is-pair) { container: specimen-pair / inline-size; }
-  @media (min-width: 761px) {
-    :global(.exhibit-layout.is-pair) > .specimen > .specimen-stage { aspect-ratio: 538 / 360; }
-  }
-  @container specimen-pair (min-width: 880px) {
-    :global(.exhibit-layout.is-pair) > .specimen > .specimen-stage { grid-template-rows: minmax(0, 1fr); aspect-ratio: 538 / 360; min-height: 0; }
-    :global(.exhibit-layout.is-pair) > .specimen .specimen-body { height: 100%; grid-template-rows: minmax(0, 1fr); }
-  }
+  .specimen :global(:is(button, input, textarea):focus-visible) { outline: 2px solid var(--specimen-focus); outline-offset: 2px; }
+  .specimen :global(.visually-hidden) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   @media (max-width: 760px) {
-    /* stacked at full width, as before: the card at its full size, the head, stage and notes one under another. */
-    :global(.exhibit-layout.is-feature) > .specimen { display: block; }
-    :global(.exhibit-layout.is-feature) > .specimen > .specimen-stage { margin-top: 24px; }
-    .specimen-stage { --u: 1px; padding: 76px 16px; }
+    .specimen-tag { bottom: 16px; left: 16px; }
+    .specimen-controls { top: 16px; right: 16px; }
   }
 </style>
