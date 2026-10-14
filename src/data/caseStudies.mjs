@@ -1112,47 +1112,26 @@ export const caseStudies = [
         text: "Current state · one student, one Sunday night | Overnight wait | 2:40 PM next day | Appointment taken | She misses a lecture to do it. | 11:02 PM | 01 | Symptom onset | No triage guidance exists anywhere on campus | 02 | First search | Hours and services live on separate pages | 03 | Source hopping | Four formats, no shared vocabulary, no verification | 04 | Dead end | Cost is the real blocker and the least visible fact | 05 | Gives up | Twenty-two minutes spent, no decision reached | Minute 22 · 11:24 PM | The worst moment on that map is not the overnight wait. It is minute twenty-two, when the search ends and she still does not know what to do.",
       },
       {
-        kind: "stage", id: "where-it-landed", chapter: "Where it landed", figma: "90:1755", size: "wide", ratio: "1116 / 790",
-        // figma 168:1745: the alert badges zoom on phones only; at 1440 the 1.5x instance already reads at 12px. their bar
-        // titles come from the lede (figma 197:1727).
-        zoom: "phone",
+        kind: "stage", id: "where-it-landed", chapter: "Where it landed", figma: "90:1755",
         lede: [
           "The provider card carries the decision. Availability, plan acceptance, and expected cost sit on the card itself. Cost was the blocker that ended the search in the journey map, and pushing it to a detail page would rebuild the same dead end one screen further in.",
           "Alerts carry a severity tag applied at ingest, a source badge, and a timestamp. Those three travel together, so an advisory keeps its authority after someone screenshots it and reshares it outside the product. A high-severity alert has to be acknowledged rather than swiped away, and acknowledging it says where the alert went.",
         ],
         eyebrow: "WHERE IT LANDED",
         heading: "Insight 1: The decision moves onto the card",
-        // figma 132:1846: the alert browser drawn at 1.5x (960 wide) on a 790 tall stage cropped from the top, so the
-        // pinned text reads at 12px or more at 1440. its annotations are shares of the visual, so they scale with it.
-        base: "#8a0b1e",
-        field: { width: 1116, height: 790, sigma: 45, circles: [{ x: 451, y: 520, r: 260, colour: "#E21833", alpha: 0.9 }, { x: 801, y: 30, r: 190, colour: "#FF7A45", alpha: 0.9 }, { x: 801, y: 570, r: 210, colour: "#4A0512", alpha: 0.9 }] },
-        visuals: [{ src: "/images/work/terpcarehub/alert-detail.png", width: 3024, height: 3250, alt: "Alert detail page with severity banner and source verification panel", frame: "browser", url: "terpcarehub · alert", screen: { w: 640, h: 520 }, zoom: 1.5, at: { x: 6.99, y: 6.08, w: 86.02 } }],
-        annotations: [
-          { type: "focus", num: "01", on: 0, at: { x: 4.6, y: 20.3, w: 90.8, h: 6.1 }, title: "Severity tag applied at ingest" },
-          { type: "focus", num: "02", on: 0, at: { x: 4.6, y: 37.1, w: 37.5, h: 7.1 }, title: "Source badge and timestamp" },
-          { type: "focus", num: "03", on: 0, at: { x: 64.1, y: 69, w: 32.6, h: 15.9 }, title: "Acknowledged, not swiped away" },
-        ],
-        // figma 119:71, below the alert stage: three pins on the find care screen, each linked to its note.
-        pins: {
-          figma: "119:71", ratio: "1116 / 680", base: "#f6c453", active: "2",
-          field: { width: 1116, height: 680, sigma: 45, circles: [{ x: 220, y: 180, r: 260, colour: "#FFF4D6", alpha: 0.9 }, { x: 980, y: 600, r: 220, colour: "#FF9A3D", alpha: 0.9 }, { x: 570, y: 30, r: 150, colour: "#F5D77E", alpha: 0.9 }] },
-          // the phone is drawn at 1.2x the figma size and runs off the stage's foot (phase 4 rule from 132:1838), so the
-          // pinned card text reads at 12px at 1440; the pins moved with it and sit on the same screen pixels. the capture
-          // fits whole like the other find care phones, so at 390 the home indicator clears the tab labels.
-          visual: { src: "/images/work/terpcarehub/mobile-find-care.png", width: 780, height: 1688, alt: "Mobile find care screen", fit: "contain", bg: "#ffffff", at: { x: 15.21, y: 4.4, w: 32.28 } },
-          // each pin's top left on the stage, as figma places it: the status badge, the cost field, the book button.
-          // re-measured for the fitted capture, so each pin stays on the same capture pixels it sat on under cover.
-          pins: [
-            { n: "1", at: { x: 41.9, y: 40.7 }, title: "Live status on every card", body: "Open or closed status sits on each provider card, so hours never need a second page." },
-            { n: "2", at: { x: 40.5, y: 59.1 }, title: "Cost before the click", body: "Cost was the blocker that ended the search in the journey map, so availability, plan acceptance, and expected cost sit on the card itself." },
-            { n: "3", at: { x: 41.9, y: 67.1 }, title: "Sign in only to book", body: "Browsing, filtering and deciding stay open so an urgent decision never hits a login wall." },
+        // two wide loops from the hi-fi prototype (.private/terpcarehub-loops) in place of the annotated alert browser and
+        // the find care pins stage: each device and its stage's colour field are baked into the video.
+        loops: {
+          layout: "wide",
+          base: "#8a0b1e",
+          visuals: [
+            { src: "/images/work/terpcarehub/terpcarehub-alert-detail-loop-poster.webp", width: 1280, height: 906, alt: "TerpCareHub recording in a browser: a high severity flu alert scrolls down to its Acknowledge this alert panel, Mark as read turns the panel to Acknowledged, and back at the top a green banner says the alert left the dashboard and stays in All alerts",
+              loop: { src: "/images/work/terpcarehub/terpcarehub-alert-detail-loop.mp4", poster: "/images/work/terpcarehub/terpcarehub-alert-detail-loop-poster.webp", name: "alert detail" } },
+            { src: "/images/work/terpcarehub/terpcarehub-findcare-loop-poster.webp", width: 1280, height: 780, base: "#f6c453", alt: "TerpCareHub recording on one phone: Open now and Takes my plan narrow find care to three clinics, the list scrolls past each card's plan and cost, Book appointment opens the University Health Center with 2:40 PM picked, Book today at 2:40 PM asks the student to sign in with UMD, and the booking is confirmed",
+              loop: { src: "/images/work/terpcarehub/terpcarehub-findcare-loop.mp4", poster: "/images/work/terpcarehub/terpcarehub-findcare-loop-poster.webp", name: "find care" } },
           ],
-          notes: { x: 55.6, width: 400 },
-          caption: { title: "Provider card, design decisions", body: "Hover or tab to a pin to open its note. The active pin and its note are linked by color and number, and both are announced to screen readers." },
+          captions: [{ tag: "LOOP · 13s" }, { tag: "LOOP · 14s" }],
         },
-        captions: [
-          { title: "An alert keeps its authority when it travels", body: "Severity, source and timestamp are applied at ingest and travel together, so an advisory still says where it came from after it is reshared. A high-severity alert has to be acknowledged rather than swiped away." },
-        ],
       },
       {
         kind: "custom", graphic: "states-grid", id: "design-system", chapter: "Design system", figma: "54:629",
@@ -1184,11 +1163,11 @@ export const caseStudies = [
         ],
         specimens: [
           {
-            kind: "terpcarehub-book", figma: "312:544", eyebrow: "SPECIMEN · TERPCAREHUB", heading: "Book from the card", tag: "LIVE · TAP TO TRY",
+            kind: "terpcarehub-book", figma: "368:523", eyebrow: "SPECIMEN · TERPCAREHUB", heading: "Book in two taps, undo in one", tag: "LIVE · TAP TO BOOK",
             notes: [
-              { n: "01", title: "Book", body: "One tap books the next open time, straight from the card." },
-              { n: "02", title: "Booked", body: "The button keeps the time, so there is nothing to reopen." },
-              { n: "03", title: "Undo", body: "Tap again to undo. The check draws in 300ms after it lands." },
+              { n: "01", title: "The card opens in place", body: "Book reveals the next three times under the facts. Nothing navigates away from the decision." },
+              { n: "02", title: "The button keeps the time", body: "Booked shows when, so there is nothing to reopen. The check draws in 300ms after it lands." },
+              { n: "03", title: "Undo, then it lands", body: "A toast offers Undo for five seconds. After that the booking drops into Your bookings." },
             ],
           },
         ],
@@ -1924,21 +1903,20 @@ export const caseStudies = [
         ],
         specimens: [
           {
-            kind: "frontground-findings", figma: "312:744", eyebrow: "SPECIMEN · FRONTGROUND", heading: "Select findings by tap", tag: "LIVE · CLICK TO SELECT",
+            kind: "frontground-findings", figma: "363:518", eyebrow: "SPECIMEN · FRONTGROUND", heading: "Primary assessment, letter by letter", tag: "LIVE · TAP OR USE THE KEYBOARD",
             notes: [
-              { n: "01", title: "ABCDE", body: "Airway, breathing, circulation, disability, exposure, in the order a nurse assesses." },
-              { n: "02", title: "Timing", body: "150ms, no spring. Nothing moves where a value is being read." },
-              { n: "03", title: "Keyboard", body: "Tab between findings, Space to select." },
+              { n: "01", title: "Five letters, one rail", body: "Airway to exposure in clinical order. Done steps carry a check, the current one is lifted, and each shows its count." },
+              { n: "02", title: "The note writes itself", body: "Selected findings compose the note line as they are tapped, so nothing is typed twice at the bedside." },
+              { n: "03", title: "Triage stays human", body: "The nurse sets Red, Yellow or Green by shape and word. The form never decides it. 150ms fades, no spring." },
             ],
           },
           {
-            // the hi-fi prototype's queue (.private/fg-loops/hifi/frames/c17.png) in place of the mock's drawn cards.
-            kind: "frontground-greyscale", figma: "312:831", eyebrow: "TRIAGE · FRONTGROUND", heading: "Still readable without colour",
-            visual: { src: "/images/work/frontground/frontground-triage-queue.png", width: 1920, height: 1080, alt: "Frontground patient queue of five patients. Each triage level is a word, a shape and a colour: Red with a square, Yellow with a rounded square, Green with a circle" },
+            // the prototype's queue drawn live and seen through each way of seeing (src/components/exhibits/specimens/colour-vision.mjs).
+            kind: "frontground-greyscale", figma: "365:519", eyebrow: "SPECIMEN · FRONTGROUND", heading: "Seen by every eye", tag: "LIVE · PICK A WAY OF SEEING",
             notes: [
-              { n: "01", title: "Red · square", body: "Seen immediately." },
-              { n: "02", title: "Yellow · rounded", body: "Seen soon." },
-              { n: "03", title: "Green · circle", body: "Can wait." },
+              { n: "01", title: "Five ways of seeing", body: "Typical, protan, deutan, tritan and greyscale, simulated on the real queue with published colour matrices." },
+              { n: "02", title: "Colour fails, meaning holds", body: "Under deutan, red and green fall to the same olive. Shape and word still separate every row." },
+              { n: "03", title: "Cheap screens too", body: "A washout slider flattens contrast like the low cost monitors these clinics run. The chips still read." },
             ],
           },
         ],
@@ -2277,42 +2255,33 @@ export const caseStudies = [
         captions: [],
       },
       {
-        kind: "stage", id: "mood-check-in", chapter: "Mood check-in", figma: "218:311", size: "wide", ratio: "1116 / 620",
+        kind: "stage", id: "mood-check-in", chapter: "Mood check-in", figma: "218:311",
         eyebrow: "MOOD CHECK-IN",
         heading: "Ten seconds, no streaks, no verdicts",
         lede: [
           "The 2024 mood calendar asked for a face and a note every day and showed the gaps. The redesign asks for one of five words, offers tags, and promises that nothing is shared unless the student chooses. There are no streaks to keep, missed days stay blank, and the month view only ever shows what was logged.",
           "The patterns screen is the part I rewrote most. It can say that low days often mention sleep. It cannot say that sleep causes low days, and the copy says so.",
         ],
-        base: "#211f20",
-        field: { width: 1116, height: 620, sigma: 60, circles: [{ x: 120, y: 620, r: 320, colour: "#E93C43", alpha: 0.65 }, { x: 1100, y: 0, r: 200, colour: "#FFCC1E", alpha: 0.35 }, { x: 650, y: 450, r: 250, colour: "#A93C52", alpha: 0.75 }] },
-        visuals: [
-          { src: "/images/work/terpcare/terpcare-checkin-choose.png", width: 860, height: 1864, alt: "TerpCare check-in sheet with five mood words, Okay selected, and optional tags", frame: "iphone", fit: "contain", bg: "#ffffff", at: { x: 2.7, y: 9, w: 22 } },
-          { src: "/images/work/terpcare/terpcare-checkin-saved.png", width: 860, height: 1864, alt: "TerpCare check-in saved, showing four check-ins this week and no streaks to keep", frame: "iphone", fit: "contain", bg: "#ffffff", at: { x: 26.9, y: 9, w: 22 } },
-          { src: "/images/work/terpcare/terpcare-mood-october.png", width: 860, height: 1864, alt: "TerpCare October mood month with nine check-ins and missed days left blank", frame: "iphone", fit: "contain", bg: "#ffffff", at: { x: 51.1, y: 9.7, w: 22 } },
-          { src: "/images/work/terpcare/terpcare-mood-patterns.png", width: 860, height: 1864, alt: "TerpCare patterns in October, saying low days often mention sleep and never claiming a cause", frame: "iphone", fit: "contain", bg: "#ffffff", at: { x: 75.3, y: 9.7, w: 22 } },
-        ],
-        annotations: [
-          { type: "focus", num: "01", on: 0, at: { x: 7.6, y: 45.1, w: 84.9, h: 32 } },
-          { type: "focus", num: "02", on: 1, at: { x: 7.6, y: 17.8, w: 84.9, h: 10.1 } },
-          { type: "focus", num: "03", on: 2, at: { x: 7.6, y: 17.4, w: 84.9, h: 38.8 } },
-          { type: "focus", num: "04", on: 3, at: { x: 7.6, y: 15.5, w: 84.9, h: 21.3 } },
-        ],
-        notes: [
-          { n: "01", title: "Five words, five bar heights", body: "Great to Struggling reads in colour and in shape. Tags are optional, and the footer says nothing is shared unless you choose." },
-          { n: "02", title: "No streaks to keep", body: "Four check-ins this week is a count, not a chain. Missing a day costs nothing, and the screen says so." },
-          { n: "03", title: "Missed days stay blank", body: "The month shows what was logged and nothing else. Only the student can see it." },
-          { n: "04", title: "A pattern is not a cause", body: "Low days often mention sleep is as far as the copy goes. The screen says the numbers are illustrative and never claim a cause." },
-        ],
-        // live specimens after the chapter's own exhibit (figma 312:417, "Additions / Specimens (proposal)"). each is
-        // plain html, css and a small script (src/components/exhibits/specimens); notes are the mock's words.
+        // one wide loop from the hi-fi prototype (.private/terpcare-loops) in place of four phones with focus boxes and
+        // notes: the phones and the stage's colour field are baked into the video.
+        loops: {
+          layout: "wide",
+          base: "#211f20",
+          visuals: [
+            { src: "/images/work/terpcare/terpcare-mood-loop-poster.webp", width: 1280, height: 712, alt: "TerpCare recording on four phones: Check in opens a sheet where the student picks Okay, tags Sleep and Classes and saves, a Checked in banner drops in before the Mood tab opens this week, the month view opens one day's check-in and note, and the patterns screen leads to Talk to a counselor and a choice to share a month summary",
+              loop: { src: "/images/work/terpcare/terpcare-mood-loop.mp4", poster: "/images/work/terpcare/terpcare-mood-loop-poster.webp", name: "mood" } },
+          ],
+          captions: [{ tag: "LOOP · 18s" }],
+        },
+        // live specimens after the chapter's own exhibit (figma 363:517, "Additions / Specimens v2"). each is plain
+        // html, css and a small script over a state module (src/components/exhibits/specimens); notes are the mock's words.
         specimens: [
           {
-            kind: "terpcare-mood", figma: "312:419", eyebrow: "SPECIMEN · TERPCARE", heading: "Check in, in light or dark", tag: "LIVE · TAP TO TRY",
+            kind: "terpcare-mood", figma: "367:521", eyebrow: "SPECIMEN · TERPCARE", heading: "Five levels, in light or dark", tag: "LIVE · TAP A LEVEL, TAP A DAY",
             notes: [
-              { n: "01", title: "Tap a level", body: "Five levels, one tap. The selected card fills with its own colour." },
-              { n: "02", title: "Light and dark", body: "The same tokens resolve both themes. The switch flips the specimen." },
-              { n: "03", title: "Motion", body: "A gentle spring, about 400ms. Under reduced motion it changes at once." },
+              { n: "01", title: "Five words, five bar heights", body: "Great to Struggling, each with its own colour and bar count, so meaning never rests on colour alone." },
+              { n: "02", title: "The week fills in, no streaks", body: "Saving drops today into the week strip. Missed days stay blank and nothing counts a chain." },
+              { n: "03", title: "One set of tokens", body: "Light and dark resolve from the same variables. A 400ms spring, instant under reduced motion." },
             ],
           },
         ],
@@ -2331,32 +2300,23 @@ export const caseStudies = [
         },
       },
       {
-        kind: "stage", id: "privacy", chapter: "Privacy", figma: "218:406", size: "wide", ratio: "1116 / 620",
+        kind: "stage", id: "privacy", chapter: "Privacy", figma: "218:406",
         eyebrow: "PRIVACY",
         heading: "Privacy comes before the first check-in",
         lede: [
           "For a health product the first question a reviewer asks is what happens to my data, and the 2024 concept had no screen that answered it. The redesign answers it before sign-in and again in the profile tab. Help works without an account. Posts are anonymous by default. Export and delete are one tap deep. The data screens describe a proposed policy for the design, not a live service, and they say so.",
         ],
-        base: "#211f20",
-        field: { width: 1116, height: 620, sigma: 60, circles: [{ x: 120, y: 620, r: 320, colour: "#E93C43", alpha: 0.65 }, { x: 1100, y: 0, r: 200, colour: "#FFCC1E", alpha: 0.35 }, { x: 650, y: 450, r: 250, colour: "#A93C52", alpha: 0.75 }] },
-        visuals: [
-          { src: "/images/work/terpcare/terpcare-onboarding-welcome.png", width: 860, height: 1864, alt: "TerpCare welcome screen with Need help now at the top and Continue with UMD as the second action", frame: "iphone", fit: "contain", bg: "#ffffff", at: { x: 2.7, y: 9, w: 22 } },
-          { src: "/images/work/terpcare/terpcare-privacy-settings.png", width: 860, height: 1864, alt: "TerpCare privacy and data settings with Anonymous selected by default, Export my data and Delete my account", frame: "iphone", fit: "contain", bg: "#ffffff", at: { x: 26.9, y: 9, w: 22 } },
-          { src: "/images/work/terpcare/terpcare-privacy-what-is-stored.png", width: 860, height: 1864, alt: "TerpCare screen listing what is stored and who sees it for check-ins, bookings, posts and sign-in", frame: "iphone", fit: "contain", bg: "#ffffff", at: { x: 51.1, y: 9.7, w: 22 } },
-          { src: "/images/work/terpcare/terpcare-account-deleted.png", width: 860, height: 1864, alt: "TerpCare account deleted screen that still offers Get support now", frame: "iphone", fit: "contain", bg: "#ffffff", at: { x: 75.3, y: 9.7, w: 22 } },
-        ],
-        annotations: [
-          { type: "focus", num: "01", on: 0, at: { x: 7.6, y: 8.9, w: 84.9, h: 10.5 } },
-          { type: "focus", num: "02", on: 1, at: { x: 7.6, y: 17.8, w: 84.9, h: 12 } },
-          { type: "focus", num: "03", on: 2, at: { x: 4.8, y: 22.4, w: 87.7, h: 35.6 } },
-          { type: "focus", num: "04", on: 3, at: { x: 7.6, y: 82.3, w: 84.9, h: 7.5 } },
-        ],
-        notes: [
-          { n: "01", title: "Get help before sign-in", body: "Continue with UMD is the second action on the screen, not the gate. The footer says help works without signing in." },
-          { n: "02", title: "Anonymous is the default", body: "Posting as a first name is a choice a student makes on purpose. Export and delete are one tap away, not buried." },
-          { n: "03", title: "Each data type names who sees it", body: "Check-ins, bookings, posts and sign-in each say who can see them, and the screen says this is a proposed policy, not a live service." },
-          { n: "04", title: "Leaving still leaves a door open", body: "The account is gone and Get support now still works. Nobody loses help by deleting their data." },
-        ],
+        // one wide loop from the hi-fi prototype (.private/terpcare-loops) in place of four phones with focus boxes and
+        // notes: the phones and the stage's colour field are baked into the video.
+        loops: {
+          layout: "wide",
+          base: "#211f20",
+          visuals: [
+            { src: "/images/work/terpcare/terpcare-privacy-loop-poster.webp", width: 1280, height: 712, alt: "TerpCare recording on four phones: Get help on the welcome screen opens Get support now with no account needed, the privacy settings switch to My first name and back to Anonymous before Export my data says the export is ready, the what is stored screen grows to 200% text, and typing DELETE leads to Your account is deleted with Get support now still offered",
+              loop: { src: "/images/work/terpcare/terpcare-privacy-loop.mp4", poster: "/images/work/terpcare/terpcare-privacy-loop-poster.webp", name: "privacy" } },
+          ],
+          captions: [{ tag: "LOOP · 18s" }],
+        },
       },
       {
         kind: "section", id: "reflection", chapter: "Reflection", section: "reflection",
@@ -2659,11 +2619,11 @@ export const caseStudies = [
         },
         specimens: [
           {
-            kind: "sohive-rsvp", figma: "312:637", eyebrow: "SPECIMEN · SOHIVE", heading: "Tap to RSVP", tag: "LIVE · TAP TO TRY",
+            kind: "sohive-rsvp", figma: "369:633", eyebrow: "SPECIMEN · SOHIVE", heading: "Going, with the room counting", tag: "LIVE · TAP TO RSVP",
             notes: [
-              { n: "01", title: "Going", body: "The card turns to Going in place. Nothing opens." },
-              { n: "02", title: "Undo", body: "Tap again and a toast offers Undo, in the toast's own words." },
-              { n: "03", title: "Motion", body: "A gentle spring, about 400ms. Under reduced motion it changes at once." },
+              { n: "01", title: "The room counts with you", body: "The going count rolls up by one and the capacity bar fills, so the tap has a visible effect beyond the button." },
+              { n: "02", title: "A ticket, not just a toast", body: "Going flips a ticket into place with a code for the door. Undo lives in the toast for five seconds." },
+              { n: "03", title: "Motion", body: "A gentle spring, about 400ms, and an odometer roll on the count. Under reduced motion both change at once." },
             ],
           },
         ],
