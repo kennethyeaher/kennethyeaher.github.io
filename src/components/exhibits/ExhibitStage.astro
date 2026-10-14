@@ -64,19 +64,19 @@ const field = (preset.circles as { x: number; y: number; r: number; colour: numb
   <slot name="over" />
 </div>
 <style>
+  /* the stage clips instead of hiding, so neither focus nor a script can scroll its content: a device that runs off the
+     edge (the 130% rows) or a zoomed layer (figma 168:1745) gives the box overflow, and a scrolled stage slides its
+     ::after ring across the screen as a hairline. */
   .exhibit-stage {
     position: relative;
     container-type: inline-size;
-    overflow: hidden;
+    overflow: clip;
     width: 100%;
     aspect-ratio: var(--stage-ratio);
     border-radius: 6px;
     background: var(--stage-base);
     isolation: isolate;
   }
-  /* a zoom stage clips instead of hiding, so neither focus nor a script can scroll its content (figma 168:1745); the
-     zoomed layer would otherwise give the box scrollable overflow. */
-  .exhibit-stage[data-pin-zoom] { overflow: clip; }
   .exhibit-stage::after {
     position: absolute;
     z-index: 10;
