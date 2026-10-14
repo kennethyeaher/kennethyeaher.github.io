@@ -1,0 +1,26 @@
+---
+// the leader labels as a numbered list under their stage, for phones: below 640px a leader shows only its numbered dot
+// (AnnotationLeader.astro), since a label running sideways off a 350 wide stage gets clipped. the leaders keep their
+// own text for assistive tech, so this copy is hidden from it.
+interface Props {
+  /** the stage's annotations; only the leaders (no visual to sit on) are listed, in number order. */
+  annotations: { num: string; label?: string; type?: string; on?: number }[];
+}
+const leaders = Astro.props.annotations
+  .filter((annotation) => annotation.on === undefined && annotation.type?.startsWith("leader"))
+  .sort((a, b) => Number(a.num) - Number(b.num));
+---
+{leaders.length > 0 && (
+  <ol class="leader-legend" aria-hidden="true">
+    {leaders.map((leader) => <li><span class="legend-num">{leader.num}</span><span class="legend-text">{leader.label}</span></li>)}
+  </ol>
+)}
+<style>
+  .leader-legend { display: none; }
+  @media (max-width: 640px) {
+    .leader-legend { display: grid; gap: 8px; margin: 16px 0 0; padding: 0; list-style: none; }
+    .leader-legend li { display: flex; align-items: baseline; gap: 10px; }
+    .legend-num { flex: none; color: var(--color-annotate); font: var(--label-micro, 11px) / 14px var(--mono); letter-spacing: var(--label-micro-tracking, 0.05em); }
+    .legend-text { color: var(--ink-strong); font: 500 14px / 18px var(--ui); }
+  }
+</style>

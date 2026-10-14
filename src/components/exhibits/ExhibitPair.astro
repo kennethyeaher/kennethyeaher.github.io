@@ -6,6 +6,7 @@ import Caption from "@/components/exhibits/Caption.astro";
 import ExhibitStage from "@/components/exhibits/ExhibitStage.astro";
 import ExhibitVisual from "@/components/exhibits/ExhibitVisual.astro";
 import AnnotationLeader from "@/components/exhibits/AnnotationLeader.astro";
+import LeaderLegend from "@/components/exhibits/LeaderLegend.astro";
 
 interface Props {
   id: string;
@@ -29,6 +30,7 @@ const ratio = (stage: any) => { const [w, h] = (stage.ratio ?? "534 / 560").spli
           <ExhibitVisual visual={stage.visuals[annotation.on]} stageRatio={ratio(stage)} idPrefix={`${id}-${index}`} annotations={[annotation]} overlay linkNotes={false} />
         ))}
       </ExhibitStage>
+      <LeaderLegend annotations={stage.annotations ?? []} />
       <figcaption><Caption title={captions[index].title} body={captions[index].body} /></figcaption>
     </figure>
   ))}
@@ -38,6 +40,8 @@ const ratio = (stage: any) => { const [w, h] = (stage.ratio ?? "534 / 560").spli
   /* a taller caption beside this one must not stretch this figure's rows apart (figma 90:2616 keeps both captions 24 under). */
   .exhibit-pair figure { display: grid; align-content: start; gap: 24px; margin: 0; }
   .exhibit-pair figcaption :global(.exhibit-caption) { max-width: none; }
+  /* on phones the leader legend sits 16 under its stage, not the figure's 24 plus its own margin. */
+  .exhibit-pair figure :global(.leader-legend) { margin-top: -8px; }
   @media (max-width: 760px) {
     .exhibit-pair { grid-template-columns: minmax(0, 1fr); gap: 40px; }
   }

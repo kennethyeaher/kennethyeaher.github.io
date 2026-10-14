@@ -165,7 +165,8 @@ test("every loop control joins its media tag as one pill and never sits on the d
     for (const device of html.matchAll(/<div class="device-frame[^"]*"(?:(?!<\/video>).)*<\/video>/gs)) assert.doesNotMatch(device[0], /data-loop-toggle/, slug);
     assert.doesNotMatch(html, /<div class="exhibit-loop"(?:(?!<\/div>).)*data-loop-toggle/s, slug);
   }
-  assert.equal(loops, 12);
+  // twelve, plus sohive's rsvp and host loops.
+  assert.equal(loops, 14);
 });
 
 test("reading progress matches figma 26:105, filled in the case study accent, with its empty track hidden (v3)", () => {
@@ -432,7 +433,8 @@ test("every iphone draws apple's home indicator, and a fitted screen shows the w
   const terpcare = pages.get("terpcare");
   assert.match(terpcare, /<div class="device-screen is-contain" style="background: #ffffff"[^>]*>\s*<picture[^>]*>\s*<source type="image\/webp" srcset="\/images\/exhibits\/sized\/terpcare-redesign-home-/);
   assert.match(terpcare, /<div class="walk-capture is-contain" style="background: #ffffff"[^>]*>\s*<picture[^>]*>\s*<source type="image\/webp" srcset="\/images\/exhibits\/sized\/terpcare-book-in-person-or-virtual-/);
-  assert.match(pages.get("sohive"), /<div class="device-screen is-contain" style="background: #000000"[^>]*>/);
+  // sohive's fitted phones on black were the rsvp and host stages, which now play as wide loops.
+  assert.doesNotMatch(pages.get("sohive"), /<div class="device-screen is-contain"/);
   const hub = pages.get("terpcarehub");
   assert.match(hub, /<div class="device-screen is-contain" style="background: #ffffff"[^>]*>\s*<picture[^>]*>\s*<source type="image\/webp" srcset="\/images\/exhibits\/sized\/mobile-find-care-/);
   assert.equal([...hub.matchAll(/<div class="walk-capture is-contain" style="background: #ffffff"[^>]*>\s*<picture[^>]*>\s*<source type="image\/webp" srcset="\/images\/exhibits\/sized\/mobile-find-care-/g)].length, 4, "steps 1 and 2, stacked and pinned");
@@ -600,8 +602,9 @@ test("Frontground's offline chapter pairs two laptop loops and triage features o
       ["triage", 800, "LOOP 03", "LOOP · 18s", "From intake to the doctor’s queue", "The level is suggested from the signs and vitals and the nurse confirms it. The summary travels with the patient, so the doctor reads it instead of asking again."],
     ],
   };
-  assert.match(chapters.offline, /<div class="exhibit-loops is-pair"/);
-  assert.match(chapters.triage, /<div class="exhibit-loops is-feature"/);
+  // the layouts are the shared ones the specimens use too (global.css .exhibit-layout).
+  assert.match(chapters.offline, /<div class="exhibit-loops exhibit-layout is-pair"/);
+  assert.match(chapters.triage, /<div class="exhibit-loops exhibit-layout is-feature"/);
   for (const [id, loops] of Object.entries(expected)) {
     const chapter = chapters[id];
     const items = [...chapter.matchAll(/<figure class="loop-exhibit"[^>]*>[\s\S]*?<\/figure>/g)].map((match) => match[0]);
@@ -634,6 +637,117 @@ test("Frontground's offline chapter pairs two laptop loops and triage features o
   }
 });
 
+test("sohive's rsvp outcomes and host side each play one wide loop card in place of the four phone stage", () => {
+  const page = pages.get("sohive");
+  for (const [id, next, name] of [["rsvp-outcomes", "host-side", "rsvp"], ["host-side", "reflection", "host"]]) {
+    const chapter = page.slice(page.indexOf(`id="${id}"`), page.indexOf(`id="${next}"`));
+    const specimen = chapter.indexOf("data-specimen=");
+    const exhibit = specimen < 0 ? chapter : chapter.slice(0, specimen);
+    assert.match(exhibit, /<div class="exhibit-loops is-wide"/, id);
+    // the phones and the colour field are in the clip: no stage, no device frame, no focus boxes or badges.
+    assert.doesNotMatch(exhibit, /class="exhibit-stage|data-device-frame|annotation-focus|annotation-badge|stage-field/, id);
+    const items = [...exhibit.matchAll(/<figure class="loop-exhibit"[^>]*>[\s\S]*?<\/figure>/g)].map((match) => match[0]);
+    assert.equal(items.length, 1, `${id} plays one loop`);
+    const [item] = items;
+    assert.match(item, /<div class="loop-card"[^>]*style="--loop-base: #000000; aspect-ratio: 1280 \/ 712"/);
+    assert.match(item, new RegExp(`<img class="loop-still"[^>]*src="/images/work/sohive/sohive-${name}-loop-poster\\.webp" alt="" width="1280" height="712" loading="lazy" decoding="async"[^>]*>\\s*<video id="clip-${name}-loop" muted loop playsinline preload="none" width="1280" height="712" aria-label="sohive recording on four phones: `));
+    assert.match(item, new RegExp(`data-src="/images/work/sohive/sohive-${name}-loop\\.mp4"`));
+    assert.match(item, new RegExp(`<span class="media-tag has-control"[^>]*>(?:(?!</button>).)*LOOP · 18s(?:(?!</button>).)*aria-controls="clip-${name}-loop"`, "s"));
+    // a wide card has no caption of its own: the chapter's lede and notes say what it plays.
+    assert.doesNotMatch(item, /<figcaption/);
+    // the loop stands where the stage stood: after the lede, before the notes.
+    assert.ok(chapter.indexOf('class="chapter-lede') < chapter.indexOf('class="exhibit-loops') && chapter.indexOf('class="exhibit-loops') < chapter.indexOf('class="exhibit-notes'), `${id} order`);
+  }
+  // the rsvp chapter keeps its specimen after the notes.
+  const rsvp = page.slice(page.indexOf('id="rsvp-outcomes"'), page.indexOf('id="host-side"'));
+  assert.ok(rsvp.indexOf('class="exhibit-notes') < rsvp.indexOf('data-specimen="sohive-rsvp"'));
+  for (const old of ["rsvp-confirmed", "rsvp-waitlisted", "event-changed", "waitlist-spot-opened", "host-preview", "host-door-checkin", "host-message", "host-after-event"]) {
+    assert.doesNotMatch(page, new RegExp(`sohive-${old}`), `${old} is still referenced`);
+  }
+});
+
+/** the css inside one at-rule block of some css, such as "@media (max-width: 640px)"; every match, joined. */
+function blocksOf(css, at) {
+  const found = [];
+  for (let start = css.indexOf(at); start >= 0; start = css.indexOf(at, start + 1)) {
+    let depth = 0;
+    let end = css.indexOf("{", start);
+    const open = end;
+    for (; end < css.length; end += 1) {
+      if (css[end] === "{") depth += 1;
+      if (css[end] === "}" && --depth === 0) break;
+    }
+    found.push(css.slice(open + 1, end));
+  }
+  return found.join("\n");
+}
+
+/** the css of a component's style blocks. */
+const componentCss = (name) => [...readFileSync(join(projectRoot, "src", "components", "exhibits", `${name}.astro`), "utf8").matchAll(/<style>([\s\S]*?)<\/style>/g)].map(([, css]) => css).join("\n");
+
+test("every loop card's media tag sits in its bottom left corner, 16px in, and under the card on phones", () => {
+  for (const [slug, html] of pages) {
+    for (const [item] of html.matchAll(/<figure class="loop-exhibit"[^>]*>[\s\S]*?<\/figure>/g)) {
+      // the tag follows the card rather than sitting inside it, so on phones it can drop below the device.
+      assert.match(item, /<div class="loop-card"[^>]*>\s*<div class="exhibit-loop"[\s\S]*?<\/video>\s*<\/div>\s*<\/div>\s*<span class="loop-tag"/, slug);
+    }
+  }
+  const css = componentCss("ExhibitLoops");
+  assert.match(css, /\.loop-tag \{[^}]*position: absolute;[^}]*bottom: 16px; left: 16px;/);
+  const phone = blocksOf(css, "@media (max-width: 640px)");
+  assert.match(phone, /\.loop-tag \{[^}]*position: static;/);
+  assert.match(phone, /\.loop-tag \{[^}]*justify-self: start;/);
+  // a wide card is the stage's full width, at the clip's own ratio.
+  assert.match(css, /\.exhibit-loops\.is-wide \{[^}]*margin-top: 0;/);
+});
+
+test("below 640px every leader shows only its numbered dot, and a numbered legend under its stage carries the labels", () => {
+  let stages = 0;
+  for (const project of projects.filter((entry) => slugs.includes(entry.slug))) {
+    const html = pages.get(project.slug);
+    for (const exhibit of project.exhibits) {
+      // a stage's leaders, or each stage of a pair's.
+      const groups = exhibit.stages ? exhibit.stages.map((stage) => stage.annotations ?? []) : [exhibit.annotations ?? []];
+      const start = html.indexOf(`<section id="${exhibit.id}"`);
+      const end = html.indexOf("data-case-section", html.indexOf(">", start));
+      const chapter = html.slice(start, end < 0 ? undefined : end);
+      const legends = [...chapter.matchAll(/<ol class="leader-legend"[^>]*>([\s\S]*?)<\/ol>/g)];
+      const expected = groups.map((annotations) => annotations.filter((annotation) => annotation.on === undefined && annotation.type?.startsWith("leader"))
+        .sort((a, b) => Number(a.num) - Number(b.num)).map(({ num, label }) => [num, label])).filter((leaders) => leaders.length > 0);
+      assert.equal(legends.length, expected.length, `${project.slug} ${exhibit.id} legends`);
+      for (const [index, [whole, items]] of legends.map((match) => [match[0], match[1]]).entries()) {
+        // a copy of the labels the leaders already carry, so assistive tech hears them once.
+        assert.match(whole, /<ol class="leader-legend"[^>]*aria-hidden="true"/);
+        const rows = [...items.matchAll(/<li[^>]*>\s*<span class="legend-num"[^>]*>(\d\d)<\/span>\s*<span class="legend-text"[^>]*>([^<]+)<\/span>\s*<\/li>/g)].map(([, num, text]) => [num, text.replace(/&#39;/g, "'")]);
+        assert.deepEqual(rows, expected[index], `${project.slug} ${exhibit.id} legend ${index}`);
+        stages += 1;
+      }
+      // directly under its stage: after the stage's last leader, before any notes or caption.
+      for (const match of chapter.matchAll(/<ol class="leader-legend"/g)) {
+        const before = chapter.slice(0, match.index);
+        assert.ok(before.lastIndexOf("annotation-leader") > before.lastIndexOf("exhibit-caption") , `${project.slug} ${exhibit.id} legend follows its leaders`);
+        assert.doesNotMatch(chapter.slice(match.index, chapter.indexOf("</ol>", match.index)), /exhibit-caption|note-title/);
+      }
+    }
+  }
+  // frontground's solution, offline and triage, and sohive's two feed stages.
+  assert.equal(stages, 5);
+
+  const leader = componentCss("AnnotationLeader");
+  const phone = blocksOf(leader, "@media (max-width: 640px)");
+  assert.match(phone, /\.leader-line \{[^}]*display: none;/);
+  // the label's text stays in the accessibility tree, only unseen; the number becomes the dot on the anchor.
+  assert.match(phone, /\.leader-text \{[^}]*color: transparent;/);
+  assert.match(phone, /\.leader-dot \{[^}]*position: absolute;[^}]*border-radius: 50%;/);
+  assert.match(readFileSync(join(projectRoot, "src", "components", "exhibits", "AnnotationLeader.astro"), "utf8"), /<span class="leader-dot" aria-hidden="true">\{num\}<\/span>/);
+  assert.match(phone, /\.leader-anchor \{[^}]*visibility: hidden;/);
+  assert.doesNotMatch(phone, /\.leader-text \{[^}]*(display: none|visibility: hidden)/);
+  const legend = componentCss("LeaderLegend");
+  assert.match(legend, /\.leader-legend \{[^}]*display: none;/);
+  assert.match(blocksOf(legend, "@media (max-width: 640px)"), /\.leader-legend \{[^}]*display: grid;/);
+  assert.match(legend, /\.legend-num \{[^}]*color: var\(--color-annotate\);[^}]*var\(--mono\)/);
+});
+
 test("TerpCare renders the v2 exhibit layout from its prose mock", () => {
   const page = pages.get("terpcare");
   const sectionIds = [...page.matchAll(/<section[^>]*\bid="([^"]+)"[^>]*data-case-section/g)].map((match) => match[1]);
@@ -663,9 +777,9 @@ test("sohive renders the v2 exhibit layout from its prose mock", () => {
   const page = pages.get("sohive");
   const sectionIds = [...page.matchAll(/<section[^>]*\bid="([^"]+)"[^>]*data-case-section/g)].map((match) => match[1]);
   assert.deepEqual(sectionIds, ["overview", "core-flows", "the-feed", "the-audit", "identity", "rsvp-outcomes", "host-side", "reflection"]);
-  // two four-phone stages with notes after identity (211:18, 211:50), every badge linked to its note.
+  // two chapters after identity (211:18, 211:50) keep their notes; their phones play in one wide loop each, with no badges.
   for (const id of ["rsvp-outcomes", "host-side"]) for (const n of ["01", "02", "03", "04"]) assert.match(page, new RegExp(`<li id="${id}-note-${n}"`));
-  assertBadgesResolve(page, 8);
+  assertBadgesResolve(page, 0);
   assert.match(page, /hiveSocial · Product Design \+ Design Systems · 2022/);
   // the summary is the prose mock's header (90:2555), word for word, in the header and the social meta tags.
   const summary = "A campus events and social network for the University of Maryland. I joined a file called WTM with a placeholder blue button, and left it with a name, a colour system and thirty four screens.";
@@ -849,7 +963,8 @@ test("no mono text renders under 11px at 390, badge numerals under 10px", () => 
   const mono = [...type].filter(([, entry]) => entry.mono && entry.size);
   assert.ok(mono.length > 40, `found ${mono.length} mono selectors`);
   for (const [selector, { size }] of mono) {
-    const floor = /annotation-badge|leader-number/.test(selector) ? 10 : 11;
+    // the phone leader dot is a badge numeral too.
+    const floor = /annotation-badge|leader-number|leader-dot/.test(selector) ? 10 : 11;
     assert.ok(px(size) >= floor, `${selector} is ${size} at 390, under ${floor}px`);
   }
   // the badges and leader numerals are in the set, so the 10px floor is really checked.

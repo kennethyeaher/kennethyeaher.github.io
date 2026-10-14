@@ -22,7 +22,7 @@ const box = vertical
 <span class:list={["annotation", "annotation-leader", vertical ? "is-vertical" : `is-${direction}`, theme]} style={`${box}; --order: ${order}`} data-annotation={zoomAt ? num : true} data-zoom-title={zoomAt && label}>
   <span class="leader-anchor" aria-hidden="true"></span>
   <span class="leader-line" aria-hidden="true"></span>
-  <span class="leader-label"><span class="leader-number">{num}</span><span class="leader-text">{label}</span></span>
+  <span class="leader-label"><span class="leader-number">{num}</span><span class="leader-text">{label}</span><span class="leader-dot" aria-hidden="true">{num}</span></span>
 </span>
 {zoomAt && <span class="leader-target" style={`left: ${zoomAt.x}%; top: ${zoomAt.y}%; width: ${zoomAt.w}%; height: ${zoomAt.h}%`} aria-hidden="true"></span>}
 <style>
@@ -54,4 +54,42 @@ const box = vertical
   }
   .on-light .leader-text { color: #273440; }
   .on-dark .leader-text { color: #fff; text-shadow: 0 1px 6px rgb(0 0 0 / 45%); }
+  .leader-dot { display: none; }
+  /* on phones a label running sideways off a 350 wide stage gets clipped, so a leader is only its numbered dot on the
+     anchor and LeaderLegend lists the labels under the stage. the label keeps its size and its text, unseen, so the
+     anchor stays where figma put it and the name stays in the accessibility tree. the label is the zoom's button, so
+     the dot is drawn inside it: a 22px badge like a focus box's, with a 44px hit area, on the anchor's centre. */
+  @media (max-width: 640px) {
+    .leader-line { display: none; }
+    .leader-anchor { visibility: hidden; }
+    .leader-label { position: relative; width: 0; min-width: 0; padding: 0; }
+    .is-left .leader-label, .is-vertical .leader-label { padding: 0; }
+    .leader-number, .on-dark .leader-number, .on-light .leader-number { color: transparent; }
+    .leader-text { color: transparent; text-shadow: none; pointer-events: none; }
+    .on-light .leader-text, .on-dark .leader-text { color: transparent; text-shadow: none; }
+    /* the anchor's centre, from the zero wide label beside it (4.5px is half the 9px anchor): left of a label that
+       points right, right of one that points left, above a vertical one. */
+    .leader-dot {
+      position: absolute;
+      top: 50%;
+      left: -4.5px;
+      display: grid;
+      place-items: center;
+      box-sizing: border-box;
+      width: 22px;
+      height: 22px;
+      border: 2px solid #fff;
+      border-radius: 50%;
+      background: var(--color-annotate);
+      color: var(--on-annotate);
+      font: var(--badge-numeral, 10px) / 1 var(--mono);
+      translate: -50% -50%;
+    }
+    .is-left .leader-dot { left: 4.5px; }
+    .is-vertical .leader-dot { top: -4.5px; left: 0; }
+    .on-light .leader-dot { background: var(--color-annotate-on-light-stage); color: #fff; }
+    .leader-dot::before { position: absolute; inset: -11px; content: ""; }
+    .leader-label:focus-visible { outline: none; }
+    .leader-label:focus-visible .leader-dot { outline: 2px solid #fff; outline-offset: 2px; box-shadow: 0 0 0 5px var(--color-annotate); }
+  }
 </style>
