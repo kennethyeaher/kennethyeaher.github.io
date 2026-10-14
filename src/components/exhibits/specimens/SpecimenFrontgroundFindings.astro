@@ -1,55 +1,335 @@
 ---
-// frontground, triage (figma 312:744): the primary assessment's ABCDE findings as toggle chips. a chip fills navy when
-// selected over 150ms with no spring, because nothing should move where a clinician is reading a value.
+// frontground, primary assessment (figma 363:518): the New Exam screen as a live specimen. a rail of the five ABCDE
+// letters, the findings under the current one as toggle chips, a note that writes itself from them, a summary of
+// every letter and the triage level the nurse sets by shape and word. arrows step, Space selects, 1 2 3 set triage.
+// everything fades in 150ms with no spring, because nothing should move where a clinician is reading a value. the
+// state is frontground-exam.mjs; this renders its first state and the script keeps the page in step with it.
 import ExhibitSpecimen from "@/components/exhibits/ExhibitSpecimen.astro";
+import { createExam, letters, nextLabel, noteFor, stepDetail, stepStatus, summaryFor, triageLevels } from "./frontground-exam.mjs";
 
 interface Props {
-  specimen: { kind: string; eyebrow: string; heading: string; tag?: string; notes: { n: string; title: string; body: string }[] };
+  specimen: { kind: string; eyebrow: string; heading: string; tag: string; notes: { n: string; title: string; body: string }[] };
 }
 const { specimen } = Astro.props;
 const id = `specimen-${specimen.kind}`;
-// the mock's state: airway and breathing are selected.
-const findings = [
-  { label: "Airway", selected: true },
-  { label: "Breathing", selected: true },
-  { label: "Circulation", selected: false },
-  { label: "Disability", selected: false },
-  { label: "Exposure", selected: false },
-];
+const state = createExam();
+const current = letters[state.current];
+const stepName = (index: number) => [letters[index].name, stepDetail(state, index)].filter(Boolean).join(", ");
 ---
-<ExhibitSpecimen id={id} kind={specimen.kind} eyebrow={specimen.eyebrow} heading={specimen.heading} tag={specimen.tag} notes={specimen.notes} background="#003f5d" tone="dark">
-  <div class="exam-card">
-    <p class="exam-title">New Exam · Primary assessment</p>
-    <p class="exam-hint">Tap each finding that applies</p>
-    <div class="exam-chips" role="group" aria-label="Findings">
-      {findings.map((finding) => <button type="button" class="exam-chip" aria-pressed={finding.selected ? "true" : "false"}>{finding.label}</button>)}
+<ExhibitSpecimen id={id} kind={specimen.kind} eyebrow={specimen.eyebrow} heading={specimen.heading} tag={specimen.tag} notes={specimen.notes}
+  background="radial-gradient(circle at 91% 12%, rgb(12 139 68 / 32%), transparent 34%), linear-gradient(118deg, #002637 0%, #003f5d 60%, #145676 100%)" tone="dark">
+  <div class="exam">
+    <div class="exam-app" data-exam>
+      <header class="exam-header">
+        <div>
+          <p class="exam-title">New exam · Primary assessment</p>
+          <p class="exam-patient">Selina Kyle <span aria-hidden="true">·</span> 01254 <span aria-hidden="true">·</span> arrived 10:30 AM</p>
+        </div>
+        <p class="exam-saved"><span class="exam-saved-dot" aria-hidden="true"></span>Saved on this device</p>
+      </header>
+
+      <ol class="exam-steps" aria-label="Assessment steps" style={`--progress: ${state.current}`} data-exam-steps>
+        {letters.map((letter, index) => {
+          const status = stepStatus(state, index);
+          return (
+            <li>
+              <button type="button" class:list={["exam-step", `is-${status}`]} aria-label={stepName(index)} aria-current={status === "current" ? "step" : undefined} data-exam-step={index}>
+                <span class="exam-step-dot" aria-hidden="true">{status === "done" ? "✓" : letter.key}</span>
+                <span class="exam-step-text">
+                  <span class="exam-step-name">{letter.name}</span>
+                  <span class="exam-step-detail" data-exam-detail>{stepDetail(state, index)}</span>
+                </span>
+              </button>
+            </li>
+          );
+        })}
+      </ol>
+
+      <div class="exam-findings" data-exam-panel>
+        <p class="exam-eyebrow" data-exam-eyebrow>{current.key} · {current.name.toUpperCase()}</p>
+        <p class="exam-ask">Tap each finding that applies</p>
+        <div class="exam-chips" role="group" aria-label={`${current.name} findings`} data-exam-chips>
+          {current.findings.map((finding) => {
+            const on = state.selected[state.current].includes(finding);
+            return <button type="button" class="exam-chip" aria-pressed={on ? "true" : "false"} data-finding={finding}><span class="exam-chip-tick" aria-hidden="true">✓</span>{finding}</button>;
+          })}
+        </div>
+        <label class="exam-eyebrow exam-note-label" for={`${id}-note`}>NOTE · WRITES ITSELF</label>
+        <div class="exam-note">
+          <textarea id={`${id}-note`} rows="1" spellcheck="false" aria-describedby={`${id}-note-hint`} data-exam-note>{noteFor(state, state.current)}</textarea>
+          <p class="exam-note-hint" id={`${id}-note-hint`}>Composed from the chips. Edit freely.</p>
+        </div>
+        <div class="exam-actions">
+          <button type="button" class="exam-back" data-exam-back>Back</button>
+          <button type="button" class="exam-next" data-exam-next><span data-exam-next-label>{nextLabel(state)}</span><span aria-hidden="true">→</span></button>
+        </div>
+      </div>
+
+      <div class="exam-summary">
+        <p class="exam-eyebrow" aria-hidden="true">SUMMARY</p>
+        <dl aria-label="Summary" data-exam-summary>
+          {letters.map((letter, index) => {
+            const line = summaryFor(state, index);
+            return (
+              <div class="exam-summary-row">
+                <dt>{letter.key}</dt>
+                {line ? <dd>{line}</dd> : <dd class="is-empty"><span aria-hidden="true">—</span><span class="visually-hidden">Nothing yet</span></dd>}
+              </div>
+            );
+          })}
+        </dl>
+        <p class="exam-eyebrow exam-triage-label" aria-hidden="true">TRIAGE · SET BY THE NURSE</p>
+        <div class="exam-triage" role="radiogroup" aria-label="Triage, set by the nurse" data-exam-triage>
+          {triageLevels.map((level) => {
+            const on = level.key === state.triage;
+            return (
+              <button type="button" role="radio" class="exam-triage-option" aria-checked={on ? "true" : "false"} tabindex={on ? "0" : "-1"} data-triage={level.key}>
+                <span class:list={["triage-shape", `is-${level.shape}`]} aria-hidden="true"></span>
+                <span class="exam-triage-word">{level.label}</span>
+                <span class="exam-triage-selected" aria-hidden="true">Selected</span>
+              </button>
+            );
+          })}
+        </div>
+        <p class="exam-triage-why">Shape and word, so it survives colour blindness and cheap monitors.</p>
+      </div>
+      <p class="visually-hidden" role="status" data-exam-status></p>
     </div>
+    <p class="exam-keys"><kbd>← →</kbd> step <kbd>Space</kbd> select <kbd>1 2 3</kbd> triage</p>
   </div>
 </ExhibitSpecimen>
 
 <style>
-  /* 720 by 220 with a 20px radius (312:815), the text 32 in, in specimen pixels (--u, ExhibitSpecimen.astro) so the card
-     shrinks with a half size stage; the chips may wrap to a second row there, and each stays at least 32px tall. */
-  .exam-card { --specimen-focus: #003f5d; width: min(calc(720 * var(--u)), 100%); min-height: calc(220 * var(--u)); padding: calc(32 * var(--u)); border-radius: calc(20 * var(--u)); background: #ffffff; font-family: "Figtree", var(--ui); }
-  .exam-title { margin: 0; color: #003f5d; font-weight: 700; font-size: calc(22 * var(--u)); line-height: calc(26 * var(--u)); }
-  .exam-hint { margin: calc(8 * var(--u)) 0 0; color: #707070; font-size: max(13px, calc(15 * var(--u))); line-height: 1.2; }
-  .exam-chips { display: flex; flex-wrap: wrap; gap: calc(12 * var(--u)); margin-top: calc(40 * var(--u)); }
-  .exam-chip { min-height: 32px; padding: calc(8 * var(--u)) calc(16 * var(--u)); border: 1.2px solid #003f5d; border-radius: 999px; background: #ffffff; color: #003f5d; font: max(13px, calc(17 * var(--u))) / 1.2 "Figtree", var(--ui); cursor: pointer; }
-  .exam-chip[aria-pressed="true"] { background: #003f5d; color: #ffffff; }
-  @media (prefers-reduced-motion: no-preference) {
-    .exam-chip { transition: background-color 150ms ease-out, color 150ms ease-out; }
+  /* the stage is the mock's 1116 by 640: the 940 by 500 app 56 from the top and 88 from each side, the keys 20 in
+     from the bottom right. every size is in specimen pixels (--u, ExhibitSpecimen.astro); text holds a floor. */
+  .exam { --ink: #003f5d; --ink-body: #0f2a38; --muted-ink: #5b6b74; --line: #d8dfe3; --rule: #e5ebee; --go: #0c8b44; display: grid; place-items: center; padding: calc(56 * var(--u)) calc(88 * var(--u)) calc(84 * var(--u)); font-family: "Figtree", var(--ui); }
+  .exam-app {
+    --specimen-focus: var(--go);
+    display: grid;
+    grid-template-columns: calc(236 * var(--u)) minmax(0, 1fr) calc(236 * var(--u));
+    grid-template-rows: auto 1fr;
+    width: 100%;
+    max-width: calc(940 * var(--u));
+    min-height: calc(500 * var(--u));
+    overflow: clip;
+    border-radius: calc(18 * var(--u));
+    background: #ffffff;
+    box-shadow: 0 calc(30 * var(--u)) calc(60 * var(--u)) rgb(0 26 38 / 45%);
   }
-  @media (max-width: 760px) {
-    .exam-card { padding: 24px; }
-    .exam-chips { margin-top: 28px; }
+  .exam-header { display: flex; grid-column: 1 / -1; align-items: center; justify-content: space-between; gap: 16px; min-height: calc(64 * var(--u)); padding: calc(12 * var(--u)) calc(28 * var(--u)); border-bottom: 1px solid var(--rule); }
+  .exam-title { color: var(--ink); font-weight: 700; font-size: max(15px, calc(18 * var(--u))); line-height: 1.2; }
+  .exam-patient { margin-top: 2px; color: var(--muted-ink); font-size: max(12px, calc(13 * var(--u))); line-height: 1.25; }
+  .exam-patient span { padding: 0 4px; }
+  /* the mock's #0c8b44 on the pill is 3.9:1; this green keeps the 12px word at 4.6:1. */
+  .exam-saved { display: inline-flex; flex: none; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; background: #e9f5ee; color: #0b7f3e; font-weight: 600; font-size: 12px; line-height: 16px; }
+  .exam-saved-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--go); }
+
+  /* the rail: a 2px line through the letter discs, green up to the current letter. */
+  .exam-steps { position: relative; display: grid; align-content: start; gap: calc(24 * var(--u)); margin: 0; padding: calc(24 * var(--u)) calc(16 * var(--u)); background: #f7f7f7; list-style: none; }
+  .exam-steps::before, .exam-steps::after { position: absolute; top: calc(52 * var(--u)); left: calc(43 * var(--u)); width: 2px; content: ""; }
+  .exam-steps::before { height: calc(320 * var(--u)); background: var(--line); }
+  .exam-steps::after { height: calc(var(--progress) * 80 * var(--u)); background: var(--go); }
+  .exam-step { position: relative; z-index: 1; display: flex; align-items: center; gap: calc(12 * var(--u)); width: 100%; min-height: max(44px, calc(56 * var(--u))); padding: 0 calc(12 * var(--u)); border: 1px solid transparent; border-radius: calc(12 * var(--u)); background: transparent; color: var(--muted-ink); font: inherit; text-align: left; cursor: pointer; }
+  .exam-step.is-current { border-color: var(--line); background: #ffffff; color: var(--ink); }
+  .exam-step.is-done { color: var(--ink); }
+  .exam-step-dot { display: grid; flex: none; place-items: center; width: calc(32 * var(--u)); height: calc(32 * var(--u)); min-width: 26px; min-height: 26px; border: 1.5px solid var(--line); border-radius: 50%; background: #ffffff; color: var(--muted-ink); font-weight: 700; font-size: 14px; }
+  .exam-step.is-current .exam-step-dot { border-color: var(--ink); background: var(--ink); color: #ffffff; }
+  .exam-step.is-done .exam-step-dot { border-color: var(--go); background: var(--go); color: #ffffff; }
+  .exam-step-text { display: grid; gap: 2px; }
+  .exam-step-name { font-weight: 600; font-size: max(13px, calc(15 * var(--u))); line-height: 1.2; }
+  .exam-step.is-current .exam-step-name { font-weight: 700; }
+  .exam-step-detail { color: var(--muted-ink); font-size: 12px; line-height: 1.2; }
+  .exam-step-detail:empty { display: none; }
+
+  .exam-findings { display: grid; align-content: start; padding: calc(24 * var(--u)) calc(24 * var(--u)) calc(24 * var(--u)) calc(28 * var(--u)); }
+  .exam-eyebrow { color: var(--muted-ink); font: 11px / 15px var(--mono); letter-spacing: 0.04em; white-space: pre; }
+  .exam-ask { margin-top: 3px; color: var(--ink); font-weight: 700; font-size: max(17px, calc(20 * var(--u))); line-height: 1.2; }
+  .exam-chips { display: flex; flex-wrap: wrap; gap: calc(10 * var(--u)); margin-top: calc(22 * var(--u)); }
+  .exam-chip { display: inline-flex; align-items: center; gap: 6px; min-height: max(36px, calc(38 * var(--u))); padding: 0 calc(16 * var(--u)); border: 1px solid var(--line); border-radius: 999px; background: #ffffff; color: var(--ink); font: 400 max(13px, calc(14 * var(--u))) / 1.2 "Figtree", var(--ui); cursor: pointer; }
+  .exam-chip-tick { display: none; font-weight: 700; }
+  .exam-chip[aria-pressed="true"] { border-color: var(--ink); background: var(--ink); color: #ffffff; font-weight: 600; }
+  .exam-chip[aria-pressed="true"] .exam-chip-tick { display: inline; }
+  .exam-note-label { margin-top: calc(28 * var(--u)); }
+  .exam-note { position: relative; margin-top: 5px; }
+  .exam-note textarea { display: block; box-sizing: border-box; width: 100%; height: max(62px, calc(66 * var(--u))); padding: 11px 16px 26px; border: 1px solid var(--line); border-radius: calc(12 * var(--u)); background: #f7f7f7; color: var(--ink-body); font: 400 max(14px, calc(15 * var(--u))) / 20px "Figtree", var(--ui); caret-color: var(--ink); resize: none; }
+  .exam-note-hint { position: absolute; bottom: 10px; left: 17px; color: #707070; font-size: 12px; line-height: 14px; pointer-events: none; }
+  .exam-actions { display: grid; grid-template-columns: calc(110 * var(--u)) 1fr; gap: calc(12 * var(--u)); margin-top: auto; padding-top: calc(32 * var(--u)); }
+  .exam-back, .exam-next { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; border-radius: 999px; font: 600 max(14px, calc(15 * var(--u))) / 1.2 "Figtree", var(--ui); cursor: pointer; }
+  .exam-back { border: 1.5px solid var(--ink); background: #ffffff; color: var(--ink); }
+  .exam-back:disabled { border-color: var(--line); color: var(--muted-ink); cursor: default; }
+  .exam-next { border: 0; background: var(--ink); color: #ffffff; }
+
+  .exam-summary { display: grid; align-content: start; padding: calc(24 * var(--u)) calc(20 * var(--u)) calc(24 * var(--u)) calc(24 * var(--u)); border-left: 1px solid var(--rule); background: #fbfcfd; }
+  .exam-summary dl { display: grid; gap: calc(14 * var(--u)); margin: calc(11 * var(--u)) 0 0; }
+  .exam-summary-row { display: grid; grid-template-columns: 22px 1fr; font-size: 13px; line-height: 16px; }
+  .exam-summary dt { color: var(--ink); font-weight: 700; }
+  .exam-summary dd { margin: 0; color: var(--ink-body); }
+  /* the mock's #9aa6ad dash is 2.4:1; this grey reads at 4.5:1. */
+  .exam-summary dd.is-empty { color: #6d767b; }
+  .exam-triage-label { margin-top: calc(38 * var(--u)); }
+  .exam-triage { display: grid; gap: 6px; margin-top: 7px; margin-left: -4px; }
+  .exam-triage-option { display: flex; align-items: center; gap: 10px; min-height: 32px; padding: 0 12px; border: 1px solid var(--rule); border-radius: 8px; background: transparent; color: var(--ink); font: 400 14px / 17px "Figtree", var(--ui); text-align: left; cursor: pointer; }
+  .exam-triage-option[aria-checked="true"] { border-color: var(--ink); background: #ffffff; box-shadow: inset 0 0 0 0.5px var(--ink); font-weight: 700; }
+  .exam-triage-selected { margin-left: auto; color: var(--muted-ink); font-weight: 400; font-size: 11px; visibility: hidden; }
+  .exam-triage-option[aria-checked="true"] .exam-triage-selected { visibility: visible; }
+  /* each level is a shape as well as a colour (figma 363:518): a square, a rounded square and a circle. */
+  .triage-shape { flex: none; width: 14px; height: 14px; }
+  .triage-shape.is-square { background: #de5b5b; }
+  .triage-shape.is-rounded { border: 1px solid #b8bd1d; border-radius: 4px; background: #f7fd3b; }
+  .triage-shape.is-circle { border-radius: 50%; background: var(--go); }
+  .exam-triage-why { margin-top: 14px; color: var(--muted-ink); font-size: 12px; line-height: 14px; }
+
+  .exam-keys { position: absolute; right: 20px; bottom: 18px; display: flex; align-items: center; gap: 6px; color: rgb(255 255 255 / 75%); font: 12px / 14px "Figtree", var(--ui); }
+  .exam-keys kbd { margin-left: 10px; padding: 4px 7px 3px; border-radius: 5px; background: rgb(255 255 255 / 14%); color: #ffffff; font: 11px / 15px var(--mono); }
+  .exam-keys kbd:first-child { margin-left: 0; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    /* colour fades only, 150ms with no spring; the panel fades its new letter in. */
+    .exam-chip, .exam-step, .exam-step-dot, .exam-triage-option { transition: background-color 150ms ease-out, color 150ms ease-out, border-color 150ms ease-out, box-shadow 150ms ease-out; }
+    .exam-findings[data-fresh] .exam-chips, .exam-findings[data-fresh] .exam-ask { animation: exam-fade 150ms ease-out; }
+    @keyframes exam-fade { from { opacity: 0; } }
+  }
+
+  /* the stacked phone layout: the header, the letters as a row of discs, the findings, then the summary and triage. */
+  @container specimen (max-width: 759px) {
+    .exam { --u: 1px; padding: 56px 12px 64px; }
+    .exam-app { grid-template-columns: minmax(0, 1fr); min-height: 0; }
+    .exam-header { flex-wrap: wrap; padding: 14px 16px; }
+    .exam-steps { display: flex; justify-content: space-between; gap: 4px; padding: 12px 16px; }
+    .exam-steps::before, .exam-steps::after { display: none; }
+    .exam-steps li { flex: 1; }
+    .exam-step { justify-content: center; min-height: 44px; padding: 0; }
+    .exam-step.is-current { border-color: transparent; background: transparent; }
+    .exam-step-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+    .exam-findings { padding: 20px 16px; }
+    .exam-summary { padding: 20px 16px; border-top: 1px solid var(--rule); border-left: 0; }
+    .exam-keys { display: none; }
   }
 </style>
 
 <script>
-  // each chip is its own toggle: Tab moves between them and Space or Enter flips one.
+  import * as exam from "./frontground-exam.mjs";
+
+  // the script holds the exam state and redraws the parts that change from it. the specimen's keys are read on the
+  // app, so they work from any control inside it; the triage radios keep their own arrows (the radiogroup pattern).
   document.querySelectorAll<HTMLElement>('figure[data-specimen="frontground-findings"]').forEach((figure) => {
-    figure.querySelectorAll<HTMLButtonElement>(".exam-chip").forEach((chip) => chip.addEventListener("click", () => {
-      chip.setAttribute("aria-pressed", String(chip.getAttribute("aria-pressed") !== "true"));
-    }));
+    const app = figure.querySelector<HTMLElement>("[data-exam]")!;
+    const steps = app.querySelector<HTMLElement>("[data-exam-steps]")!;
+    const stepButtons = [...steps.querySelectorAll<HTMLButtonElement>("[data-exam-step]")];
+    const panel = app.querySelector<HTMLElement>("[data-exam-panel]")!;
+    const eyebrow = app.querySelector<HTMLElement>("[data-exam-eyebrow]")!;
+    const chips = app.querySelector<HTMLElement>("[data-exam-chips]")!;
+    const note = app.querySelector<HTMLTextAreaElement>("[data-exam-note]")!;
+    const back = app.querySelector<HTMLButtonElement>("[data-exam-back]")!;
+    const next = app.querySelector<HTMLButtonElement>("[data-exam-next]")!;
+    const nextLabel = next.querySelector<HTMLElement>("[data-exam-next-label]")!;
+    const summary = app.querySelector<HTMLElement>("[data-exam-summary]")!;
+    const triage = [...app.querySelectorAll<HTMLButtonElement>("[data-triage]")];
+    const status = app.querySelector<HTMLElement>("[data-exam-status]")!;
+    let state = exam.createExam();
+
+    // new chips are copies of a rendered one, so they carry the component's scoped style attribute.
+    const template = chips.querySelector<HTMLButtonElement>(".exam-chip")!.cloneNode(true) as HTMLButtonElement;
+    function chipButton(finding: string): HTMLButtonElement {
+      const button = template.cloneNode(true) as HTMLButtonElement;
+      button.dataset.finding = finding;
+      button.setAttribute("aria-pressed", "false");
+      button.lastChild!.textContent = finding;
+      return button;
+    }
+
+    /** a new letter: its eyebrow, its chips and its note. */
+    function drawLetter(): void {
+      const letter = exam.letters[state.current];
+      eyebrow.textContent = `${letter.key} · ${letter.name.toUpperCase()}`;
+      chips.setAttribute("aria-label", `${letter.name} findings`);
+      chips.replaceChildren(...letter.findings.map(chipButton));
+      // the panel fades its new letter in, once motion is welcome (the css says when).
+      panel.removeAttribute("data-fresh");
+      void panel.offsetWidth;
+      panel.setAttribute("data-fresh", "");
+    }
+
+    function draw(): void {
+      steps.style.setProperty("--progress", String(state.complete ? exam.letters.length - 1 : state.current));
+      stepButtons.forEach((button, index) => {
+        const status = exam.stepStatus(state, index);
+        const detail = exam.stepDetail(state, index);
+        button.className = `exam-step is-${status}`;
+        button.setAttribute("aria-label", [exam.letters[index].name, detail].filter(Boolean).join(", "));
+        if (status === "current") button.setAttribute("aria-current", "step");
+        else button.removeAttribute("aria-current");
+        button.querySelector(".exam-step-dot")!.textContent = status === "done" ? "✓" : exam.letters[index].key;
+        button.querySelector("[data-exam-detail]")!.textContent = detail;
+      });
+      chips.querySelectorAll<HTMLButtonElement>(".exam-chip").forEach((chip) => {
+        chip.setAttribute("aria-pressed", String(state.selected[state.current].includes(chip.dataset.finding!)));
+      });
+      if (document.activeElement !== note) note.value = exam.noteFor(state, state.current);
+      back.disabled = state.current === 0 && !state.complete;
+      nextLabel.textContent = exam.nextLabel(state);
+      summary.querySelectorAll("dd").forEach((cell, index) => {
+        const line = exam.summaryFor(state, index);
+        cell.classList.toggle("is-empty", !line);
+        if (line) cell.textContent = line;
+        else cell.innerHTML = '<span aria-hidden="true">—</span><span class="visually-hidden">Nothing yet</span>';
+      });
+      triage.forEach((radio) => {
+        const on = radio.dataset.triage === state.triage;
+        radio.setAttribute("aria-checked", String(on));
+        radio.tabIndex = on ? 0 : -1;
+      });
+    }
+
+    /** move to another letter, keeping focus on the same kind of control it was on. */
+    function goTo(nextState: typeof state): void {
+      const was = state.current;
+      const onChip = (document.activeElement as HTMLElement | null)?.classList.contains("exam-chip");
+      const onStep = stepButtons.includes(document.activeElement as HTMLButtonElement);
+      state = nextState;
+      if (state.current !== was) drawLetter();
+      draw();
+      const letter = exam.letters[state.current];
+      status.textContent = state.complete ? "Exam complete" : [letter.name, exam.stepDetail(state, state.current)].filter(Boolean).join(", ");
+      if (onChip) chips.querySelector<HTMLButtonElement>(".exam-chip")?.focus();
+      if (onStep) stepButtons[state.current].focus();
+    }
+
+    function setTriage(level: string, focus: boolean): void {
+      state = exam.setTriage(state, level);
+      draw();
+      const radio = triage.find((each) => each.dataset.triage === level)!;
+      status.textContent = `Triage set to ${radio.textContent!.replace("Selected", "").trim()}`;
+      if (focus) radio.focus();
+    }
+
+    chips.addEventListener("click", (event) => {
+      const chip = (event.target as HTMLElement).closest<HTMLButtonElement>(".exam-chip");
+      if (!chip) return;
+      state = exam.toggleFinding(state, chip.dataset.finding!);
+      draw();
+    });
+    note.addEventListener("input", () => { state = exam.setNote(state, note.value); });
+    stepButtons.forEach((button, index) => button.addEventListener("click", () => goTo(exam.stepTo(state, index))));
+    back.addEventListener("click", () => goTo(exam.step(state, -1)));
+    next.addEventListener("click", () => goTo(exam.step(state, 1)));
+    triage.forEach((radio, index) => {
+      radio.addEventListener("click", () => setTriage(radio.dataset.triage!, false));
+      radio.addEventListener("keydown", (event) => {
+        const to = { ArrowDown: index + 1, ArrowRight: index + 1, ArrowUp: index - 1, ArrowLeft: index - 1 }[event.key];
+        if (to === undefined) return;
+        event.preventDefault();
+        event.stopPropagation();
+        setTriage(triage[(to + triage.length) % triage.length].dataset.triage!, true);
+      });
+    });
+    app.addEventListener("keydown", (event) => {
+      const target = event.target as HTMLElement;
+      const action = exam.keyAction({ key: event.key, typing: target.matches("textarea, input"), metaKey: event.metaKey, ctrlKey: event.ctrlKey, altKey: event.altKey });
+      if (!action) return;
+      event.preventDefault();
+      if (action.type === "step") goTo(exam.step(state, action.by));
+      else setTriage(action.level, triage.includes(target as HTMLButtonElement));
+    });
   });
 </script>
