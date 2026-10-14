@@ -73,7 +73,6 @@ const renderedWidths = {
   "brief-deep-dive-redacted": 419,
   "brief-portfolio-redacted": 419,
   "brief-vehicles-redacted": 419,
-  "alert-detail": 958,
   "home-full": 838,
   "provider-card": 456,
   "mobile-find-care": 340,

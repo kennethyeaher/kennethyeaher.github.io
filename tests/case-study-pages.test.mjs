@@ -165,8 +165,8 @@ test("every loop control joins its media tag as one pill and never sits on the d
     for (const device of html.matchAll(/<div class="device-frame[^"]*"(?:(?!<\/video>).)*<\/video>/gs)) assert.doesNotMatch(device[0], /data-loop-toggle/, slug);
     assert.doesNotMatch(html, /<div class="exhibit-loop"(?:(?!<\/div>).)*data-loop-toggle/s, slug);
   }
-  // twelve, plus sohive's rsvp and host loops.
-  assert.equal(loops, 14);
+  // twelve, plus sohive's rsvp and host loops, terpcare's mood and privacy loops, and terpcarehub's alert detail and find care loops.
+  assert.equal(loops, 18);
 });
 
 test("reading progress matches figma 26:105, filled in the case study accent, with its empty track hidden (v3)", () => {
@@ -223,7 +223,7 @@ test("device exhibits preserve captions and source dimensions", () => {
   for (const slug of ["frontground", "terpcarehub"]) {
     const html = pages.get(slug);
     assert.match(html, /data-device-frame="browser"/);
-    assert.match(html, /width="1919" height="1079"|width="3024" height="3250"/);
+    assert.match(html, /width="1919" height="1079"|width="3024" height="9046"/);
   }
 });
 
@@ -361,13 +361,12 @@ test("TerpCareHub renders the v2 exhibit layout from its prose mock", () => {
   assert.equal([...page.matchAll(/<li[^>]*class="is-marked"[^>]*>/g)].length, 1);
   assert.match(page, /<svg class="timeline-rail"[^>]*aria-hidden="true"/);
   assert.match(page, /Minute 22 · 11:24 PM/);
-  // the alert stage alone, full width: three focus markers and a caption instead of notes; the provider card is gone.
+  // where it landed plays the alert detail and find care loops (tests/terpcare-loops.test.mjs); the provider card is gone.
   assert.doesNotMatch(page, /annotation-leader/);
   assert.doesNotMatch(page, /class="exhibit-pair"/);
   const landed = page.slice(page.indexOf('id="where-it-landed"'), page.indexOf('id="design-system"'));
-  assert.equal([...landed.matchAll(/<span class="annotation-badge"[^>]*aria-hidden="true"/g)].length, 3);
-  assert.doesNotMatch(page, /class="annotation-badge"[^>]*href=/);
-  assert.match(page, /<span class="browser-address"[^>]*>terpcarehub · alert<\/span>/);
+  assert.equal([...landed.matchAll(/<figure class="loop-exhibit"/g)].length, 2);
+  assert.doesNotMatch(landed, /class="annotation-badge"|data-pin/);
   // four interface states, each with its name and line.
   assert.equal([...page.matchAll(/<p class="state-name"/g)].length, 4);
   assert.match(page, /interface-state-degraded\.png/);
@@ -439,8 +438,6 @@ test("every iphone draws apple's home indicator, and a fitted screen shows the w
   assert.match(hub, /<div class="device-screen is-contain" style="background: #ffffff"[^>]*>\s*<picture[^>]*>\s*<source type="image\/webp" srcset="\/images\/exhibits\/sized\/mobile-find-care-/);
   assert.equal([...hub.matchAll(/<div class="walk-capture is-contain" style="background: #ffffff"[^>]*>\s*<picture[^>]*>\s*<source type="image\/webp" srcset="\/images\/exhibits\/sized\/mobile-find-care-/g)].length, 4, "steps 1 and 2, stacked and pinned");
   assert.doesNotMatch(hub, /class="walk-capture" style="aspect-ratio/);
-  const pins = hub.slice(hub.indexOf('class="exhibit-pins"'));
-  assert.match(pins, /<div class="device-screen is-contain" style="background: #ffffff"[^>]*>\s*<picture[^>]*>\s*<source type="image\/webp" srcset="\/images\/exhibits\/sized\/mobile-find-care-/);
   // step 2's box is the same plan and cost row, as a share of the phone-height capture.
   assert.equal([...hub.matchAll(/class="annotation annotation-focus on-light"[^>]*style="left: 8\.7%; top: 48\.6%; width: 82\.6%; height: 8\.6%;/g)].length, 2);
 });
@@ -482,27 +479,6 @@ test("a tap plays the laptop scroll, since touch screens have no hover", () => {
   const tap = script.slice(script.indexOf("export function initializeScrollers"));
   assert.match(tap, /addEventListener\("click"[\s\S]*classList\.add\("is-playing"\)/);
   assert.match(tap, /animation\.currentTime = 0;/);
-});
-
-test("TerpCareHub's annotated pins are focusable buttons announced with their notes", () => {
-  const page = pages.get("terpcarehub");
-  const landed = page.slice(page.indexOf('id="where-it-landed"'), page.indexOf('id="design-system"'));
-  const pins = landed.slice(landed.indexOf('class="exhibit-pins"'));
-  assert.ok(landed.indexOf("exhibit-pins") > landed.indexOf("terpcarehub · alert"), "the pins sit below the alert stage");
-  const buttons = [...pins.matchAll(/<button type="button" class="pin" data-pin="(\d)" aria-describedby="([^"]+)"[^>]*>([\s\S]*?)<\/button>/g)];
-  assert.deepEqual(buttons.map((match) => [match[1], textOf(match[3])]), [["1", "Annotation 1"], ["2", "Annotation 2"], ["3", "Annotation 3"]]);
-  assert.doesNotMatch(pins, /<button[^>]*tabindex="-1"/);
-  // each pin is described by a note that exists, carries the same number, and holds the approved text.
-  const notes = [...pins.matchAll(/<li class="pin-note" id="([^"]+)" data-note="(\d)"[^>]*>([\s\S]*?)<\/li>/g)];
-  assert.deepEqual(buttons.map((match) => match[2]), notes.map((match) => match[1]));
-  assert.deepEqual(notes.map((match) => textOf(match[3])), [
-    "ANNOTATION 1 Live status on every card Open or closed status sits on each provider card, so hours never need a second page.",
-    "ANNOTATION 2 Cost before the click Cost was the blocker that ended the search in the journey map, so availability, plan acceptance, and expected cost sit on the card itself.",
-    "ANNOTATION 3 Sign in only to book Browsing, filtering and deciding stay open so an urgent decision never hits a login wall.",
-  ]);
-  // pin 2 is active while nothing is hovered or focused.
-  assert.match(page, /\[data-pins="where-it-landed-pins"\]:not\(:has\(\[data-pin\]:is\(:hover, :focus-visible\)\)\) :is\(\[data-pin="2"\], \[data-note="2"\]\)/);
-  assert.deepEqual([texts(pins, "caption-title")[0], texts(pins, "caption-body")[0]], ["Provider card, design decisions", "Hover or tab to a pin to open its note. The active pin and its note are linked by color and number, and both are announced to screen readers."]);
 });
 
 test("TerpCareHub's walkthrough steps, pin notes and pins never dim by opacity", () => {
@@ -629,11 +605,9 @@ test("Frontground's offline chapter pairs two laptop loops and triage features o
   assert.ok(steps, "triage has an ordered list of steps");
   assert.deepEqual([...steps[1].matchAll(/<li[^>]*>\s*<span class="step-num"[^>]*>(\d\d)<\/span>\s*<span class="step-text"[^>]*>([^<]+)<\/span>\s*<\/li>/g)].map(([, n, text]) => [n, text]),
     [["01", "Intake"], ["02", "Assessment, level suggested"], ["03", "Hand-off with a note"], ["04", "Arrives in the doctor’s queue"], ["05", "Back to the queue, sorted by level"]]);
-  // triage-queue is back, but only as the greyscale specimen's capture (tests/specimens.test.mjs).
-  const specimen = page.indexOf('data-specimen="frontground-greyscale"');
-  const withoutSpecimen = page.slice(0, specimen) + page.slice(page.indexOf("</figure>", specimen));
+  // the greyscale specimen draws its queue live, so triage-queue is gone with the rest.
   for (const old of ["sync-failed", "offline-queue", "duplicate-check", "triage-handoff", "triage-queue", "vitals-trend"]) {
-    assert.doesNotMatch(withoutSpecimen, new RegExp(`frontground-${old}`), `${old} is still referenced`);
+    assert.doesNotMatch(page, new RegExp(`frontground-${old}`), `${old} is still referenced`);
   }
 });
 
@@ -759,16 +733,17 @@ test("TerpCare renders the v2 exhibit layout from its prose mock", () => {
   assert.equal([...page.matchAll(/<th scope="col"[^>]*>\s*<span class="journey-number"/g)].length, 5);
   assert.doesNotMatch(page, /<th scope="col" class="is-accent"[^>]*>\s*<span class="journey-number"/);
   assert.match(page, /FIVE TABS  ·  HOME, BOOK, BOARD, MOOD, PROFILE/);
-  // phones: three in the hero, four on each of three stages, two support rows, the dark row, and the book
-  // walkthrough's four stacked steps plus its pinned phone.
-  assert.equal([...page.matchAll(/data-device-frame="iphone"/g)].length, 3 + 12 + 2 + 1 + 5);
-  // the original, mood check-in and privacy each box four regions, every badge resolving to its note.
-  assertBadgesResolve(page, 12);
+  // phones: three in the hero, four on the original's stage, two support rows, the dark row, and the book
+  // walkthrough's four stacked steps plus its pinned phone; mood check-in and privacy play wide loops.
+  assert.equal([...page.matchAll(/data-device-frame="iphone"/g)].length, 3 + 4 + 2 + 1 + 5);
+  // the original boxes four regions, every badge resolving to its note.
+  assertBadgesResolve(page, 4);
   const book = page.slice(page.indexOf('id="book"'), page.indexOf('id="mood-check-in"'));
   assert.deepEqual(texts(book, "walk-label"), ["STEP 1", "STEP 2", "STEP 3", "STEP 4"]);
   assert.doesNotMatch(book, /class="exhibit-row"/);
   const mood = page.slice(page.indexOf('id="mood-check-in"'), page.indexOf('id="privacy"'));
-  assert.ok(mood.indexOf('class="exhibit-notes"') < mood.indexOf('class="exhibit-rows'), "the dark mode row follows the notes");
+  assert.ok(mood.indexOf('class="exhibit-loops') < mood.indexOf('class="exhibit-rows'), "the dark mode row follows the loop");
+  assert.doesNotMatch(mood.slice(0, mood.indexOf('class="exhibit-rows')), /class="exhibit-notes"/);
   assert.match(mood, /Dark mode from the same tokens/);
   assert.match(page, /href="\/work\/ovara"/);
 });
@@ -804,20 +779,20 @@ test("sohive renders the v2 exhibit layout from its prose mock", () => {
   assert.match(page, /href="\/work\/terpcare"/);
 });
 
-test("exactly the thirteen small pinned stages zoom to the active annotation (figma 168:1745, 197:1727)", () => {
+test("exactly the twelve small pinned stages zoom to the active annotation (figma 168:1745, 197:1727)", () => {
   // every data-pin-zoom element across the eight pages, by page and stage id; the pair and the walkthrough give one
   // exhibit several stage elements (each feed stage zooms on its own; the walkthrough's pinned stage, and the one
   // static step with a focus box). frontground's solution and sohive's feed zoom from their leaders (197:1727).
   const expected = {
     ovara: ["the-finding"], "kairo-health": ["field-by-tier"], "usm-venture-benchmark": ["validation-grid"], "college-park-capstone": ["the-persona"],
     frontground: ["the-solution", "offline", "triage"], terpcare: ["the-original"], sohive: ["the-feed-0", "the-feed-1"],
-    terpcarehub: ["core-flows-walkthrough-1", "core-flows-walkthrough-pin", "where-it-landed"],
+    terpcarehub: ["core-flows-walkthrough-1", "core-flows-walkthrough-pin"],
   };
   for (const [slug, page] of pages) {
     const stages = [...page.matchAll(/<div class="exhibit-stage[^"]*"[^>]*data-pin-zoom="([^"]+)"([^>]*)>/g)];
     assert.deepEqual(stages.map((match) => match[1]), expected[slug], slug);
-    // the alert badges and frontground's offline and triage leaders zoom on phones only; every other stage everywhere.
-    for (const match of stages) assert.equal(/data-pin-zoom-phone/.test(match[2]), ["where-it-landed", "offline", "triage"].includes(match[1]), `${slug} ${match[1]} phone only`);
+    // frontground's offline and triage leaders zoom on phones only; every other stage everywhere.
+    for (const match of stages) assert.equal(/data-pin-zoom-phone/.test(match[2]), ["offline", "triage"].includes(match[1]), `${slug} ${match[1]} phone only`);
     for (const match of stages) {
       const start = match.index;
       const end = Math.min(...['<figcaption', 'class="exhibit-notes"', 'class="stage-caption"', 'class="walk-text"', 'class="exhibit-pins"', "</section>"].map((marker) => page.indexOf(marker, start)).filter((index) => index > 0));
@@ -855,11 +830,8 @@ test("exactly the thirteen small pinned stages zoom to the active annotation (fi
   assert.equal([...terpcarehub.matchAll(/data-annotation="02" data-zoom-title="Cost is visible before the click"/g)].length, 2);
   assert.equal([...terpcarehub.matchAll(/data-walk-screen="[12]" aria-hidden="true" inert/g)].length, 4);
   assert.doesNotMatch(terpcarehub, /data-walk-screen="0"[^>]*(aria-hidden|inert)/);
-  // the alert badges have no numbered caption, so their bar titles come from the lede, set in the data (197:1727).
-  const landed = terpcarehub.slice(terpcarehub.indexOf('data-pin-zoom="where-it-landed"'), terpcarehub.indexOf('class="exhibit-pins"'));
-  assert.deepEqual([...landed.matchAll(/data-annotation="(0\d)" data-zoom-title="([^"]+)"/g)].map((m) => [m[1], m[2]]), [
-    ["01", "Severity tag applied at ingest"], ["02", "Source badge and timestamp"], ["03", "Acknowledged, not swiped away"],
-  ]);
+  // the alert badges zoomed too until where it landed became the alert detail loop (.private/terpcarehub-loops).
+  assert.doesNotMatch(terpcarehub, /data-pin-zoom="where-it-landed"/);
   // each leader's target region is its zoomAt, a share of its stage; only these fourteen leaders have one.
   const targets = (page, from) => [...page.slice(page.indexOf(`data-pin-zoom="${from}"`)).split(/<div class="exhibit-stage/)[0].matchAll(/data-annotation="(\d\d)" data-zoom-title="([^"]+)"[\s\S]*?<span class="leader-target" style="([^"]+)"/g)].map((m) => [m[1], m[2], m[3]]);
   const box = (x, y, w, h) => `left: ${x}%; top: ${y}%; width: ${w}%; height: ${h}%`;

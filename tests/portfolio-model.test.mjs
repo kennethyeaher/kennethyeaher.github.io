@@ -409,10 +409,10 @@ test("phones added in redesign 2 fit their screens whole, and the older phones k
   const hub = getProjectBySlug("terpcarehub");
   const findCare = [hub.cover.exhibit, ...hub.exhibits.flatMap((exhibit) => [...phones(exhibit), ...(exhibit.pins ? [exhibit.pins.visual] : [])]), ...hub.sections.flatMap(({ media }) => media ?? [])]
     .filter(({ src }) => src.endsWith("mobile-find-care.png"));
-  assert.equal(findCare.length, 6);
+  // the pins phone gave way to the find care loop (.private/terpcarehub-loops).
+  assert.equal(findCare.length, 5);
   for (const visual of findCare) assert.deepEqual([visual.width, visual.height], [780, 1688]);
-  const { pins } = hub.exhibits.find(({ pins }) => pins);
-  assert.deepEqual([pins.visual.fit, pins.visual.bg], ["contain", "#ffffff"]);
+  assert.equal(hub.exhibits.find(({ pins }) => pins), undefined);
 });
 
 test("terpcare reads as a before and after: the 2024 header facts stay, the year, summary and metrics move", () => {
@@ -497,7 +497,10 @@ test("converted pages follow their prose mock word for word", { skip: !existsSyn
 const replacedRows = new Set(["frontground offline", "frontground triage"]);
 // sohive's four phone stages gave way to one wide recorded loop each (.private/sohive-loops), with the phones, the
 // colour field and the outcomes baked in, so the spec's visuals and focus boxes stand replaced; the notes stay.
-const replacedStages = new Set(["sohive rsvp-outcomes", "sohive host-side"]);
+// terpcare's mood check-in and privacy, and terpcarehub's where it landed with its pins stage, went the same way
+// (.private/terpcare-loops, .private/terpcarehub-loops), and those drop their notes, pins and captions too.
+const replacedStages = new Set(["sohive rsvp-outcomes", "sohive host-side", "terpcare mood-check-in", "terpcare privacy", "terpcarehub where-it-landed"]);
+const notesKept = new Set(["sohive rsvp-outcomes", "sohive host-side"]);
 
 /** compare one converted page against its spec export: chapters, hero, and every exhibit's copy and boxes. */
 function assertMatchesSpec(slug) {
@@ -522,11 +525,14 @@ function assertMatchesSpec(slug) {
     assert.equal(built.figma, source.id);
     assert.equal(built.eyebrow, source.eyebrow);
     assert.equal(built.heading, source.heading);
-    if (source.notes) assert.deepEqual(built.notes, source.notes);
     if (replacedStages.has(`${slug} ${built.id}`)) {
       assert.deepEqual([built.visuals, built.annotations, built.loops.layout], [undefined, undefined, "wide"], `${slug} ${built.id} keeps what its loop replaced`);
+      if (notesKept.has(`${slug} ${built.id}`)) assert.deepEqual(built.notes, source.notes);
+      else assert.deepEqual([built.notes, built.pins, built.captions], [undefined, undefined, undefined], `${slug} ${built.id} keeps notes, pins or captions`);
+      if (source.rows) assert.deepEqual(built.rows.captions, source.rows.captions, `${slug} ${built.id} row captions`);
       continue;
     }
+    if (source.notes) assert.deepEqual(built.notes, source.notes);
     if (source.annotations) {
       // a pair carries its annotations per stage; stage i holds the spec's visual i.
       // a native annotation names a row or column of a rendered table; the rest sit on a visual.
