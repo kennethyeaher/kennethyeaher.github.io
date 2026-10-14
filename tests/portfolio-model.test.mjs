@@ -495,6 +495,9 @@ test("converted pages follow their prose mock word for word", { skip: !existsSyn
 });
 
 const replacedRows = new Set(["frontground offline", "frontground triage"]);
+// sohive's four phone stages gave way to one wide recorded loop each (.private/sohive-loops), with the phones, the
+// colour field and the outcomes baked in, so the spec's visuals and focus boxes stand replaced; the notes stay.
+const replacedStages = new Set(["sohive rsvp-outcomes", "sohive host-side"]);
 
 /** compare one converted page against its spec export: chapters, hero, and every exhibit's copy and boxes. */
 function assertMatchesSpec(slug) {
@@ -520,6 +523,10 @@ function assertMatchesSpec(slug) {
     assert.equal(built.eyebrow, source.eyebrow);
     assert.equal(built.heading, source.heading);
     if (source.notes) assert.deepEqual(built.notes, source.notes);
+    if (replacedStages.has(`${slug} ${built.id}`)) {
+      assert.deepEqual([built.visuals, built.annotations, built.loops.layout], [undefined, undefined, "wide"], `${slug} ${built.id} keeps what its loop replaced`);
+      continue;
+    }
     if (source.annotations) {
       // a pair carries its annotations per stage; stage i holds the spec's visual i.
       // a native annotation names a row or column of a rendered table; the rest sit on a visual.

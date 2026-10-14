@@ -85,8 +85,6 @@ const renderedWidths = {
   "terpcare-checkin-choose": 252,
   "frontground-sync-offline": 720,
   "frontground-triage-assessment": 720,
-  "sohive-rsvp-confirmed": 246,
-  "sohive-host-preview": 246,
   "mobile-programs": 252,
   "figma-discussion-recents": 289,
   "figma-discussion-create": 289,

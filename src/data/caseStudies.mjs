@@ -2640,26 +2640,23 @@ export const caseStudies = [
         ],
       },
       {
-        kind: "stage", id: "rsvp-outcomes", chapter: "RSVP outcomes", figma: "211:18", size: "wide", ratio: "1116 / 620",
+        kind: "stage", id: "rsvp-outcomes", chapter: "RSVP outcomes", figma: "211:18",
         eyebrow: "FLOWS",
         heading: "An RSVP has more than one outcome",
         lede: [
           "Tapping RSVP does not always end in a yes. An event can fill up, a host can move the time, and a waitlist place can open with a deadline. Each of those outcomes has its own screen, so nobody has to guess where they stand.",
         ],
-        base: "#000000",
-        field: { width: 1116, height: 620, sigma: 60, circles: [{ x: 100, y: 560, r: 260, colour: "#DC3545", alpha: 0.85 }, { x: 1050, y: 70, r: 230, colour: "#0069D9", alpha: 0.8 }, { x: 1040, y: 540, r: 160, colour: "#00A650", alpha: 0.7 }, { x: 530, y: -70, r: 150, colour: "#F99953", alpha: 0.55 }] },
-        visuals: [
-          { src: "/images/work/sohive/sohive-rsvp-confirmed.png", width: 856, height: 1852, alt: "sohive event detail with a You're going sheet offering Add to calendar, Share with friends and Undo RSVP", frame: "iphone", fit: "contain", bg: "#000000", at: { x: 2.7, y: 9, w: 22 } },
-          { src: "/images/work/sohive/sohive-rsvp-waitlisted.png", width: 856, height: 1852, alt: "sohive event detail for a full event, showing the student is fourth on the waitlist with a Leave waitlist button", frame: "iphone", fit: "contain", bg: "#000000", at: { x: 26.9, y: 9, w: 22 } },
-          { src: "/images/work/sohive/sohive-event-changed.png", width: 856, height: 1852, alt: "sohive event detail tagged Time changed, with the host's note and Still going or Can't make it buttons", frame: "iphone", fit: "contain", bg: "#000000", at: { x: 51.1, y: 9, w: 22 } },
-          { src: "/images/work/sohive/sohive-waitlist-spot-opened.png", width: 856, height: 1852, alt: "sohive notice that a waitlist spot opened, with a deadline and Keep my spot or Give it up", frame: "iphone", fit: "contain", bg: "#000000", at: { x: 75.3, y: 9, w: 22 } },
-        ],
-        annotations: [
-          { type: "focus", num: "01", on: 0, at: { x: 5.7, y: 74.2, w: 88.6, h: 7.5 } },
-          { type: "focus", num: "02", on: 1, at: { x: 5.7, y: 81, w: 89.4, h: 6.7 } },
-          { type: "focus", num: "03", on: 2, at: { x: 5.7, y: 81, w: 88.6, h: 13.4 } },
-          { type: "focus", num: "04", on: 3, at: { x: 5.3, y: 13.2, w: 89.4, h: 13.4 } },
-        ],
+        // one wide loop from the hi-fi prototype (.private/sohive-loops) in place of four phones with focus boxes: the
+        // phones and the colour field are baked into the video, and the notes row under it names what each phone plays.
+        loops: {
+          layout: "wide",
+          base: "#000000",
+          visuals: [
+            { src: "/images/work/sohive/sohive-rsvp-loop-poster.webp", width: 1280, height: 712, alt: "sohive recording on four phones: an RSVP opens a You're going sheet and the calendar options, a full event puts the student fourth on the waitlist, a push about a new time leads to Still going, and a push about an open spot leads to Keep my spot and the ticket",
+              loop: { src: "/images/work/sohive/sohive-rsvp-loop.mp4", poster: "/images/work/sohive/sohive-rsvp-loop-poster.webp", name: "rsvp" } },
+          ],
+          captions: [{ tag: "LOOP · 18s" }],
+        },
         specimens: [
           {
             kind: "sohive-rsvp", figma: "312:637", eyebrow: "SPECIMEN · SOHIVE", heading: "Tap to RSVP", tag: "LIVE · TAP TO TRY",
@@ -2678,26 +2675,23 @@ export const caseStudies = [
         ],
       },
       {
-        kind: "stage", id: "host-side", chapter: "Host side", figma: "211:50", size: "wide", ratio: "1116 / 620",
+        kind: "stage", id: "host-side", chapter: "Host side", figma: "211:50",
         eyebrow: "FLOWS",
         heading: "The host's side of the same event",
         lede: [
           "Every event has a host on the other side of it. Before publishing, the host sees the card students will see. At the door they check people in by name, they can message everyone going and on the waitlist at once, and afterwards a recap shows who came.",
         ],
-        base: "#000000",
-        field: { width: 1116, height: 620, sigma: 60, circles: [{ x: 80, y: 80, r: 260, colour: "#0069D9", alpha: 0.85 }, { x: 580, y: 600, r: 220, colour: "#00A650", alpha: 0.75 }, { x: 1090, y: 330, r: 210, colour: "#DC3545", alpha: 0.7 }] },
-        visuals: [
-          { src: "/images/work/sohive/sohive-host-preview.png", width: 856, height: 1852, alt: "sohive event page in host preview, labelled Preview, what students see, with a Publish event button", frame: "iphone", fit: "contain", bg: "#000000", at: { x: 2.7, y: 9, w: 22 } },
-          { src: "/images/work/sohive/sohive-host-door-checkin.png", width: 856, height: 1852, alt: "sohive door check-in list showing 38 of 142 checked in, with a Check in button beside each name", frame: "iphone", fit: "contain", bg: "#000000", at: { x: 26.9, y: 9, w: 22 } },
-          { src: "/images/work/sohive/sohive-host-message.png", width: 856, height: 1852, alt: "sohive message attendees screen addressed to 142 going and 6 on the waitlist", frame: "iphone", fit: "contain", bg: "#000000", at: { x: 51.1, y: 9, w: 22 } },
-          { src: "/images/work/sohive/sohive-host-after-event.png", width: 856, height: 1852, alt: "sohive event recap with counts for checked in, share of RSVPs who came and joins from the waitlist", frame: "iphone", fit: "contain", bg: "#000000", at: { x: 75.3, y: 9, w: 22 } },
-        ],
-        annotations: [
-          { type: "focus", num: "01", on: 0, at: { x: 25.2, y: 12.6, w: 49.6, h: 5.9 } },
-          { type: "focus", num: "02", on: 1, at: { x: 4.9, y: 12.8, w: 90.2, h: 8.7 } },
-          { type: "focus", num: "03", on: 2, at: { x: 4.9, y: 16.1, w: 49.6, h: 5.9 } },
-          { type: "focus", num: "04", on: 3, at: { x: 5.3, y: 21.2, w: 89.4, h: 14.2 } },
-        ],
+        // one wide loop from the hi-fi prototype (.private/sohive-loops) in place of four phones with focus boxes: the
+        // phones and the colour field are baked into the video, and the notes row under it names what each phone plays.
+        loops: {
+          layout: "wide",
+          base: "#000000",
+          visuals: [
+            { src: "/images/work/sohive/sohive-host-loop-poster.webp", width: 1280, height: 712, alt: "sohive recording on four phones: the host publishes from the preview, checks in Diana Prince and then Kara Danvers at the door, sends a message to 142 people, and the recap counts up to 118 checked in",
+              loop: { src: "/images/work/sohive/sohive-host-loop.mp4", poster: "/images/work/sohive/sohive-host-loop-poster.webp", name: "host" } },
+          ],
+          captions: [{ tag: "LOOP · 18s" }],
+        },
         notes: [
           { n: "01", title: "Host preview", body: "The host sees what students will see before publishing." },
           { n: "02", title: "Door check-in", body: "Check in by name at the door, with progress against RSVPs." },
