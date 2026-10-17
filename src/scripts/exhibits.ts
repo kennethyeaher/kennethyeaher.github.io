@@ -105,6 +105,21 @@ export function initializeTheme(): void {
   });
 }
 
+/** Expand a macbook cover on click so it plays as the case study opens, and drop it when the page returns from the back forward cache. */
+export function initializeCoverExpand(): void {
+  const cards = document.querySelectorAll<HTMLElement>(".project-card:has(.cover-devices.is-macbook)");
+  cards.forEach((card) => {
+    card.addEventListener("click", (event) => {
+      // a modified or middle click opens a new tab and leaves this page, so the cover stays at rest.
+      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      card.classList.add("is-expanding");
+    });
+  });
+  window.addEventListener("pageshow", (event) => {
+    if (event.persisted) cards.forEach((card) => card.classList.remove("is-expanding"));
+  });
+}
+
 /** Apply restrained cover tilt for fine pointers, retaining the normal cursor. */
 export function initializeCoverDepth(): void {
   const pointer = window.matchMedia("(pointer: fine)");

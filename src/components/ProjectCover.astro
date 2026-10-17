@@ -37,7 +37,7 @@ function ellipseStyle({ x, y, r, colour, alpha }: { x: number; y: number; r: num
 ---
 <div class:list={["project-cover", `cover-${project.cover.variant}`, "is-card"]}
   data-project-cover data-cover-variant={project.cover.variant} data-figma-field={field.figma} data-motion={motion ? project.slug : undefined}
-  style={`--cover-base: ${field.base}`}>
+  data-devices={devices?.kind} style={`--cover-base: ${field.base}`}>
   <div class="cover-gradient" aria-hidden="true" data-cover-gradient style={`--field-blur: ${blur}`}>
     {field.ellipses.map((ellipse, index) => <span class="cover-field" data-node={motion?.field[index]} style={ellipseStyle(ellipse, index)}></span>)}
   </div>
@@ -55,6 +55,15 @@ function ellipseStyle({ x, y, r, colour, alpha }: { x: number; y: number; r: num
   @media (prefers-reduced-motion: no-preference) {
     .cover-field:not([data-node]) { animation: cover-field-drift var(--drift-s) ease-in-out infinite alternate; animation-play-state: paused; }
     .cover-gradient.is-live .cover-field { animation-play-state: running; }
+  }
+  /* behind an expanding macbook (CoverDevices) the field grows 1.06 times, 0.8s on the expo out curve going in and 0.7s on
+     the ease in out curve coming back, as figma's demo timelines draw it. */
+  @media (prefers-reduced-motion: no-preference) {
+    .project-cover[data-devices="macbook"] .cover-gradient { transition: scale 0.7s cubic-bezier(0.65, 0, 0.35, 1); }
+    :global(.project-card:is(:focus-visible, .is-expanding)) .project-cover[data-devices="macbook"] .cover-gradient { scale: 1.06; transition: scale 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+  }
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    :global(.project-card:hover) .project-cover[data-devices="macbook"] .cover-gradient { scale: 1.06; transition: scale 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
   }
   @keyframes cover-field-drift { to { translate: var(--drift-x) var(--drift-y); } }
 </style>

@@ -11,8 +11,10 @@ interface Props {
   devices: MacbookCover | PhonesCover;
 }
 // devices on a home cover (figma 428:2684): a macbook, or three phones with the centre one on top. every length is
-// figma's px on the 454px cover, written in cqi so the devices scale with the card. hover follows the layer names: the
-// centre device lifts 8px and the side phones fan out 6px.
+// figma's px on the 454px cover, written in cqi so the devices scale with the card. on hover the centre phone lifts 8px
+// and the side phones fan out 6px, as the layer names say. the macbook instead expands as its demo timelines play
+// (535:11620, 535:11652): it grows 1.12 times from its centre and drops 50px, so the base leaves the card and the screen
+// fills it, 0.7s on the expo out curve going in and 0.7s on the ease in out curve coming back. the cover clips it.
 const { devices } = Astro.props;
 
 /** a figma length on the 454px cover as a share of the cover's width. */
@@ -89,9 +91,16 @@ function phoneLayers(phone: DevicePhone) {
   .phone-battery { position: absolute; top: var(--battery-y); left: var(--battery-x); width: var(--battery-w); height: var(--battery-h); border-radius: 0.33cqi; background: #1a1a1f; }
   .phone-island { position: absolute; background: #0b0d10; }
   @media (prefers-reduced-motion: no-preference) {
-    :global(.project-card:is(:hover, :focus-visible)) .device-center { translate: 0 -8px; }
+    :global(.project-card:is(:hover, :focus-visible)) .device-phone.device-center { translate: 0 -8px; }
     :global(.project-card:is(:hover, :focus-visible)) .device-phone.is-left { translate: -6px 0; }
     :global(.project-card:is(:hover, :focus-visible)) .device-phone.is-right { translate: 6px 0; }
-    .device-phone, .device-macbook { transition: translate 320ms var(--ease-out); }
+    .device-phone { transition: translate 320ms var(--ease-out); }
+    /* the expanded state follows focus, a click (exhibits.ts sets is-expanding as the case study opens), and hover only
+       where a pointer hovers, so a touch's first tap expands and navigates at once and no hover sticks after it. */
+    .device-macbook { transition: translate 0.7s cubic-bezier(0.65, 0, 0.35, 1), scale 0.7s cubic-bezier(0.65, 0, 0.35, 1); }
+    :global(.project-card:is(:focus-visible, .is-expanding)) .device-macbook { translate: 0 11.013cqi; scale: 1.12; transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1); }
+  }
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    :global(.project-card:hover) .device-macbook { translate: 0 11.013cqi; scale: 1.12; transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1); }
   }
 </style>

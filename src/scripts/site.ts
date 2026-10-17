@@ -1,4 +1,4 @@
-import { initializeTheme, initializeCoverGradients, initializeExhibitLoops, initializeAnnotationFallback, initializeMetricCounters, initializeCoverDepth, initializeReadingProgress, initializeMediaControls, initializeScrollers, initializeWalkthroughs } from "./exhibits";
+import { initializeTheme, initializeCoverGradients, initializeExhibitLoops, initializeAnnotationFallback, initializeMetricCounters, initializeCoverDepth, initializeCoverExpand, initializeReadingProgress, initializeMediaControls, initializeScrollers, initializeWalkthroughs } from "./exhibits";
 import { initializePointerDot } from "./pointer-dot";
 import { initializePinZoom } from "./pin-zoom";
 import { initializeAboutChapters } from "./about-chapters";
@@ -10,6 +10,7 @@ function initializeSite(): void {
   initializeTheme();
   initializeCoverGradients();
   initializeCoverDepth();
+  initializeCoverExpand();
   initializeReadingProgress();
   initializeMediaControls();
   initializeExhibitLoops();

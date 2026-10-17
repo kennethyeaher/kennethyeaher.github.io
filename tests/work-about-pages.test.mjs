@@ -48,7 +48,8 @@ test("the Work page renders the approved thesis and the home grid project order"
   assert.ok(positions.every((position) => position >= 0));
   assert.deepEqual([...positions].sort((a, b) => a - b), positions);
   assert.equal((workHtml.match(/class="project-card"/g) ?? []).length, 8);
-  assert.equal((workHtml.match(/data-tilt-card/g) ?? []).length, 8);
+  // the two macbook cards expand instead of tilting (the next tests).
+  assert.equal((workHtml.match(/data-tilt-card/g) ?? []).length, 6);
   assert.equal((workHtml.match(/data-project-cover/g) ?? []).length, 8);
   assert.doesNotMatch(workHtml, /class="cover-exhibit|class="[^"]*has-exhibit/);
   // the only device frames on the grid are the two macbook covers (elms and frontground).
@@ -140,7 +141,7 @@ test("device covers draw figma's macbook and phones over the field and lift and 
   assert.doesNotMatch(cards.get("sohive"), /phone-status/);
   // elms leads the grid. elms and frontground are figma's Device/Laptop instances (528:12385, 528:12392): 384 by 207.36
   // at x 35 and y 28 on the 454 cover, drawn by the elms page's macbook frame (lid and camera, bezel, base and notch,
-  // floor shadow), with no browser chrome; the macbook lifts 8px on hover.
+  // floor shadow), with no browser chrome; the macbook expands on hover (the next test).
   const elms = cards.get("elms-redesign");
   assert.equal([...cards.keys()][0], "elms-redesign");
   assert.match(elms, /<h3[^>]*>ELMS Redesign<\/h3>[\s\S]*?2026/);
@@ -153,16 +154,82 @@ test("device covers draw figma's macbook and phones over the field and lift and 
   }
 
   const css = [...workHtml.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map((match) => readFileSync(join(projectRoot, "dist", match[1]), "utf8")).join("\n");
-  // the centre device lifts 8px and the side phones fan out 6px, as the layer names say; reduced motion keeps them still.
-  const hover = css.slice(css.indexOf("@media(prefers-reduced-motion:no-preference){.project-card:is(:hover,:focus-visible) .device-center"));
+  // the centre phone lifts 8px and the side phones fan out 6px, as the layer names say; reduced motion keeps them still.
+  const hover = css.slice(css.indexOf("@media(prefers-reduced-motion:no-preference){.project-card:is(:hover,:focus-visible) .device-phone"));
   assert.ok(hover.length < css.length, "hover moves sit under prefers-reduced-motion: no-preference");
-  assert.match(hover, /^@media\(prefers-reduced-motion:no-preference\)\{\.project-card:is\(:hover,:focus-visible\) \.device-center\[[^\]]+\]\{translate:0 -8px\}/);
+  assert.match(hover, /^@media\(prefers-reduced-motion:no-preference\)\{\.project-card:is\(:hover,:focus-visible\) \.device-phone\[[^\]]+\]\.device-center\{translate:0 -8px\}/);
   assert.match(hover, /\.project-card:is\(:hover,:focus-visible\) \.device-phone\[[^\]]+\]\.is-left\{translate:-6px\}/);
   assert.match(hover, /\.project-card:is\(:hover,:focus-visible\) \.device-phone\[[^\]]+\]\.is-right\{translate:6px\}/);
   assert.match(css, /\.device-phone\[[^\]]+\]\{[^}]*box-shadow:0 3\.965cqi 8\.811cqi #00000059/);
   // the macbook draws its own floor shadow (figma's 16 layer blur is css blur 8 at the component's 1000 width) and takes no box shadow.
   assert.match(css, /\.macbook-shadow\[[^\]]+\]\{[^}]*filter:blur\(\.8cqw\)/);
   assert.doesNotMatch(css, /\.device-macbook\[[^\]]+\]\{[^}]*box-shadow/);
+});
+
+test("the elms and frontground macbooks expand as figma's demo timelines draw it, and only they do", () => {
+  const cards = new Map([...workHtml.matchAll(/<a class="project-card" href="\/work\/([^"]+)"[\s\S]*?<\/a>/g)].map(([card, slug]) => [slug, card]));
+  const macbooks = Object.keys(coverDevices).filter((slug) => coverDevices[slug].kind === "macbook");
+  assert.deepEqual(macbooks, ["elms-redesign", "frontground"]);
+  for (const [slug, card] of cards) {
+    const macbook = macbooks.includes(slug);
+    assert.equal(/class="device-macbook\b/.test(card), macbook, `${slug} macbook`);
+    assert.equal(/data-devices="macbook"/.test(card), macbook, `${slug} marks its cover for the field`);
+    // the 3d tilt would blur the scaled screen, so a macbook card takes no tilt or shine; phone and motion cards keep both.
+    assert.equal(/^<a class="project-card"[^>]* data-tilt-card[\s>=]/.test(card), !macbook, `${slug} tilt`);
+  }
+
+  // every rule with its enclosing at-rule, from the minified build.
+  const css = [...workHtml.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map((match) => readFileSync(join(projectRoot, "dist", match[1]), "utf8")).join("\n");
+  const rules = [];
+  const stack = [];
+  let start = 0;
+  for (let index = 0; index < css.length; index += 1) {
+    if (css[index] === "{") {
+      const prelude = css.slice(start, index).trim();
+      const close = css.indexOf("}", index);
+      const nested = css.indexOf("{", index + 1);
+      if (prelude.startsWith("@") && !prelude.startsWith("@font-face")) stack.push(prelude);
+      else if (nested === -1 || close < nested) { rules.push({ media: stack.join(" "), selector: prelude, body: css.slice(index + 1, close) }); index = close; }
+      else stack.push(prelude);
+      start = index + 1;
+    } else if (css[index] === "}") { stack.pop(); start = index + 1; }
+  }
+  const expanded = rules.filter(({ body }) => /scale:1\.(12|06)/.test(body));
+  // in cover units: scale 1.12 and 50px down on the 454 cover (11.013cqi) for the macbook, scale 1.06 for its field, on
+  // focus, on click (is-expanding), and on hover only where a pointer hovers. all of it sits under no-preference.
+  assert.deepEqual(expanded.map(({ selector }) => selector.replace(/\[data-astro-cid-\w+\]/g, "")).sort(), [
+    ".project-card:hover .device-macbook",
+    ".project-card:hover .project-cover[data-devices=macbook] .cover-gradient",
+    ".project-card:is(:focus-visible,.is-expanding) .device-macbook",
+    ".project-card:is(:focus-visible,.is-expanding) .project-cover[data-devices=macbook] .cover-gradient",
+  ]);
+  for (const { media, selector, body } of expanded) {
+    assert.match(media, /prefers-reduced-motion:no-preference/, selector);
+    assert.equal(/:hover/.test(selector), /\(hover:hover\)/.test(media), `${selector} hover only where a pointer hovers`);
+    if (selector.includes("device-macbook")) assert.equal(body, "translate:0 11.013cqi;scale:1.12;transition-timing-function:cubic-bezier(.16,1,.3,1)");
+    else assert.equal(body, "scale:1.06;transition:scale .8s cubic-bezier(.16,1,.3,1)");
+  }
+  // the tilt transform and the shine only reach cards that still carry data-tilt-card.
+  const tilt = rules.filter(({ body }) => /--tilt-x/.test(body));
+  assert.ok(tilt.length > 0);
+  const tilted = (selector) => selector.replace(/\[data-astro-cid-\w+\]/g, "");
+  for (const { selector } of tilt) assert.equal(tilted(selector), ".project-card[data-tilt-card] .project-media");
+  const shine = rules.filter(({ selector, body }) => /project-media[^ ]*:after/.test(selector) && /opacity:1/.test(body));
+  assert.deepEqual(shine.map(({ selector }) => tilted(selector)), [".project-card[data-tilt-card]:hover .project-media:after,.project-card[data-tilt-card]:focus-visible .project-media:after"]);
+  // coming back: 0.7s on the ease in out curve for both.
+  const rest = (pattern) => rules.find(({ selector, body }) => pattern.test(selector) && body.startsWith("transition"));
+  assert.equal(rest(/^\.device-macbook\[[^\]]+\]$/)?.body, "transition:translate .7s cubic-bezier(.65,0,.35,1),scale .7s cubic-bezier(.65,0,.35,1)");
+  assert.match(rest(/^\.device-macbook\[[^\]]+\]$/).media, /prefers-reduced-motion:no-preference/);
+  assert.equal(rest(/^\.project-cover\[[^\]]+\]\[data-devices=macbook\] \.cover-gradient\[[^\]]+\]$/)?.body, "transition:scale .7s cubic-bezier(.65,0,.35,1)");
+  // the macbook no longer takes the 8px lift; the phones keep it and their fan.
+  for (const { selector, body } of rules.filter(({ body }) => /translate:0 -8px/.test(body))) assert.match(selector, /\.device-phone\[[^\]]+\]\.device-center$/, body);
+  assert.ok(!rules.some(({ selector }) => /device-macbook/.test(selector) && !/^(\.project-card:(hover|is\(:focus-visible,\.is-expanding\)) )?\.device-macbook\[[^\]]+\]$/.test(selector)), "no other rule moves the macbook");
+
+  // the click handler: the shipped script adds is-expanding to a macbook card and clears it on a back forward cache return.
+  const scripts = [...workHtml.matchAll(/<script type="module" src="([^"]+)"/g)].map((match) => readFileSync(join(projectRoot, "dist", match[1]), "utf8")).join("\n");
+  assert.match(scripts, /\.project-card:has\(\.cover-devices\.is-macbook\)/);
+  assert.match(scripts, /classList\.add\(["`]is-expanding["`]\)/);
+  assert.match(scripts, /pageshow/);
 });
 
 test("motion covers render figma's v4 layers and loop their timelines only on screen, holding a still under reduced motion", () => {

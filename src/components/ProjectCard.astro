@@ -1,6 +1,7 @@
 ---
 // project card linking the displayed work to its case study. it prefetches the case study once it scrolls into view.
 import ProjectCover from "@/components/ProjectCover.astro";
+import { coverDevices } from "@/data/coverDevices.mjs";
 
 interface Props {
   project: {
@@ -16,12 +17,15 @@ interface Props {
 }
 
 const { project } = Astro.props;
+// a macbook cover expands on hover instead (CoverDevices), and the 3d tilt would blur its scaled screen, so it takes no
+// pointer tilt or shine.
+const tilt = coverDevices[project.slug]?.kind !== "macbook";
 ---
 
 <a
   class="project-card"
   href={`/work/${project.slug}`}
-  data-tilt-card
+  data-tilt-card={tilt ? "" : undefined}
   data-cursor="card"
   data-cursor-label={`View ${project.cardTitle}`}
   data-astro-prefetch="viewport"
@@ -53,7 +57,7 @@ const { project } = Astro.props;
   }
 
   @media (pointer: fine) and (prefers-reduced-motion: no-preference) {
-    .project-media { transform: perspective(1000px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)); transition: transform 240ms var(--ease-out); }
+    .project-card[data-tilt-card] .project-media { transform: perspective(1000px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)); transition: transform 240ms var(--ease-out); }
   }
 
   .project-media::after {
@@ -87,8 +91,8 @@ const { project } = Astro.props;
     color: color-mix(in srgb, var(--muted) 50%, var(--canvas));
   }
 
-  .project-card:hover .project-media::after,
-  .project-card:focus-visible .project-media::after {
+  .project-card[data-tilt-card]:hover .project-media::after,
+  .project-card[data-tilt-card]:focus-visible .project-media::after {
     opacity: 1;
   }
 
