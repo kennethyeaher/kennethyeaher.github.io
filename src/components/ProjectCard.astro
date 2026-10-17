@@ -6,17 +6,11 @@ interface Props {
   project: {
     slug: string;
     cardTitle: string;
-    category: string;
     year: string;
     /** the card's year when it differs from the case study header's (terpcare: 2024, redesigned 2026). */
     cardYear?: string;
-    cardImage: string;
-    cardAlt: string;
     cover: {
       variant: string;
-      poster: string;
-      palette: string[];
-      titlePlacement: string;
     };
   };
 }
@@ -48,10 +42,12 @@ const { project } = Astro.props;
     min-width: 0;
   }
 
+  /* square corners (figma 428:2684); the cover fills the 16:9 media box. */
   .project-media {
     position: relative;
     overflow: hidden;
     margin: 0;
+    border-radius: 0;
     aspect-ratio: 16 / 9;
     background: var(--surface);
   }

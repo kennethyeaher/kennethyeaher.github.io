@@ -196,9 +196,10 @@ test("reveal targets stay visible until the fallback observer opts in", () => {
   assert.doesNotMatch(globalCss, /^\.section-rule\[data-reveal\] \{/m);
 });
 
-test("the home cover gradient registers its animated properties", () => {
+test("the old home cover gradient's animated properties are gone, and stages keep their oklab gradients", () => {
+  // the home cover field drifts with translate (ProjectCover.astro), so nothing needs registering.
   for (const name of ["--drift-a", "--drift-b", "--cover-energy"]) {
-    assert.match(globalCss, new RegExp(`@property ${name} \\{`));
+    assert.doesNotMatch(globalCss, new RegExp(`@property ${name} \\{`));
   }
   assert.match(globalCss, /@supports \(background: linear-gradient\(in oklab/);
 });

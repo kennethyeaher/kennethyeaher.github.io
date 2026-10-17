@@ -4,6 +4,7 @@ import { join } from "node:path";
 import test, { before } from "node:test";
 import assert from "node:assert/strict";
 import { aboutChapters, aboutGallery, experience, getFeaturedProjects } from "../src/data/portfolio.mjs";
+import { coverFields } from "../src/data/coverFields.mjs";
 
 const projectRoot = new URL("..", import.meta.url).pathname;
 let workHtml = "";
@@ -47,7 +48,7 @@ test("the Work page renders the approved thesis and the home grid project order"
   assert.equal((workHtml.match(/data-tilt-card/g) ?? []).length, 7);
   assert.equal((workHtml.match(/data-project-cover/g) ?? []).length, 7);
   assert.doesNotMatch(workHtml, /class="cover-exhibit|data-device-frame=|class="[^"]*has-exhibit/);
-  assert.equal((workHtml.match(/class="cover-scrim"/g) ?? []).length, 7);
+  assert.doesNotMatch(workHtml, /class="cover-scrim"|class="cover-label"/);
   // names go on the clicked card only, from the head script, so the static markup carries none.
   assert.doesNotMatch(workHtml.replace(/<script[\s\S]*?<\/script>/g, ""), /view-transition-name/);
   assert.match(workHtml, /addEventListener\("pageswap"/);
@@ -57,6 +58,49 @@ test("the Work page renders the approved thesis and the home grid project order"
   assert.doesNotMatch(workHtml, /\.mp4|data-cover-video/);
   assert.doesNotMatch(workHtml, /Read case study/);
   assert.doesNotMatch(workHtml, /project-media is-contained/);
+});
+
+test("home grid covers are square, untitled, and a dark base under a blurred drifting colour field (figma 428:2684)", () => {
+  const cards = [...workHtml.matchAll(/<a class="project-card"[\s\S]*?<\/a>/g)].map(([card]) => card);
+  assert.equal(cards.length, getFeaturedProjects().length);
+  for (const [index, project] of getFeaturedProjects().entries()) {
+    const card = cards[index];
+    const field = coverFields[project.slug];
+    const cover = card.match(/<div class="project-cover[^"]*"[^>]*>/)?.[0] ?? "";
+    assert.match(cover, new RegExp(`--cover-base: ${field.base}`), `${project.slug} base`);
+    // the caption carries the name and year, so the cover itself has no title or category text.
+    const coverHtml = card.slice(card.indexOf("<figure"), card.indexOf("</figure>"));
+    assert.equal(coverHtml.replace(/<[^>]+>/g, "").trim(), "", `${project.slug} cover has no text`);
+    assert.doesNotMatch(coverHtml, new RegExp(project.category.replace(/[+]/g, "\\+")));
+    const gradient = coverHtml.match(/<div class="cover-gradient"[^>]*>/)?.[0] ?? "";
+    assert.match(gradient, /aria-hidden="true"/);
+    assert.match(gradient, /data-cover-gradient/);
+    assert.match(gradient, new RegExp(`--field-blur: ${(field.blur / 2 / 454 * 100).toFixed(3)}cqi`), `${project.slug} blur`);
+    const spans = [...coverHtml.matchAll(/<span class="cover-field" style="([^"]+)"/g)].map(([, style]) => style);
+    assert.equal(spans.length, field.ellipses.length, `${project.slug} one span per ellipse`);
+    for (const [i, { x, y, r, colour, alpha }] of field.ellipses.entries()) {
+      const box = `left: ${((x - r) / 454 * 100).toFixed(3)}%; top: ${((y - r) / 256 * 100).toFixed(3)}%; width: ${(2 * r / 454 * 100).toFixed(3)}%`;
+      assert.ok(spans[i].startsWith(box), `${project.slug} ellipse ${i} box: ${spans[i]}`);
+      assert.match(spans[i], new RegExp(`background: ${colour}; opacity: ${alpha};`), `${project.slug} ellipse ${i} fill`);
+    }
+  }
+
+  const css = [...workHtml.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map((match) => readFileSync(join(projectRoot, "dist", match[1]), "utf8")).join("\n");
+  const rule = (selector, scope = css) => scope.match(new RegExp(`(?:^|[{}\\s])${selector}\\[[^\\]]+\\]\\{([^}]*)\\}`))?.[1] ?? "";
+  // square corners, the base fill, and the old radial gradient fields and poster gone.
+  assert.match(rule("\\.project-media"), /border-radius:0/);
+  assert.match(rule("\\.project-cover"), /background:var\(--cover-base\)/);
+  assert.match(rule("\\.cover-field"), /border-radius:50%/);
+  assert.match(rule("\\.cover-field"), /aspect-ratio:1/);
+  assert.match(rule("\\.cover-field"), /filter:blur\(var\(--field-blur\)\)/);
+  assert.doesNotMatch(css, /\.cover-field[^{]*\{[^}]*radial-gradient/);
+  assert.doesNotMatch(css, /--cover-poster|cover-drift-a|--cover-energy/);
+  // the drift runs only when the cover is on screen (is-live) and motion is allowed; reduced motion is a still.
+  const motion = css.slice(css.indexOf("@media(prefers-reduced-motion:no-preference){.cover-field"));
+  assert.ok(motion.length < css.length, "the drift sits under prefers-reduced-motion: no-preference");
+  assert.match(motion, /^@media\(prefers-reduced-motion:no-preference\)\{\.cover-field\[[^\]]+\]\{[^}]*animation:cover-field-drift var\(--drift-s\) ease-in-out infinite alternate;[^}]*animation-play-state:paused/);
+  assert.match(motion, /\.cover-gradient\[[^\]]+\]\.is-live \.cover-field\[[^\]]+\]\{animation-play-state:running\}/);
+  assert.match(css, /@keyframes cover-field-drift\{to\{translate:var\(--drift-x\) var\(--drift-y\)\}\}/);
 });
 
 test("home v3 follows figma 176:1721 and 177:1723: Currently and Previously under the thesis, name / year captions", () => {

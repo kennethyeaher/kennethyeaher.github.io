@@ -1,101 +1,50 @@
 ---
+import { coverFields } from "@/data/coverFields.mjs";
+
 interface Props {
   project: {
     slug: string;
-    cardTitle: string;
-    category: string;
     cover: {
       variant: string;
-      poster: string;
-      palette: string[];
     };
   };
 }
-// home cards show only the gradient and the project name; case studies use their exhibit hero instead.
+// home card cover (figma 428:2684): square, no text, the cover frame's dark base under its blurred colour field.
+// the caption under the card carries the name and year. devices and motion sit on top of this base.
 const { project } = Astro.props;
+const field = coverFields[project.slug];
+if (!field) throw new Error(`No colour field for ${project.slug}`);
 
-/** relative luminance of a #rrggbb colour, used to order the gradient fields from dark to pale. */
-function luminance(hex: string): number {
-  const [r, g, b] = [1, 3, 5].map((start) => {
-    const channel = parseInt(hex.slice(start, start + 2), 16) / 255;
-    return channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
-  });
-  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+// figma's layer blur radius is twice the gaussian deviation css blur() takes, and it scales with the 454px cover.
+const blur = `${(field.blur / 2 / 454 * 100).toFixed(3)}cqi`;
+
+// each ellipse drifts a few percent of the cover and back, on its own direction and period, so the field never repeats in step.
+const drifts = [[5, 4], [-4, 5], [-5, -3], [4, -5], [3, 4], [-3, -4]];
+
+/** the inline style of one ellipse: its box as shares of the 454 by 256 cover, its fill, and its drift. */
+function ellipseStyle({ x, y, r, colour, alpha }: { x: number; y: number; r: number; colour: string; alpha: number }, index: number): string {
+  const [dx, dy] = drifts[index % drifts.length];
+  const box = `left: ${((x - r) / 454 * 100).toFixed(3)}%; top: ${((y - r) / 256 * 100).toFixed(3)}%; width: ${(2 * r / 454 * 100).toFixed(3)}%`;
+  return `${box}; background: ${colour}; opacity: ${alpha}; --drift-x: ${dx}cqi; --drift-y: ${dy}cqi; --drift-s: ${18 + index * 4}s`;
 }
-
-/** pick up to four soft fields from the palette, dropping near whites so the white title keeps its contrast. */
-function gradientFields(palette: string[]): string[] {
-  const rest = palette.slice(1);
-  const coloured = rest.filter((hex) => luminance(hex) <= 0.85);
-  const chosen = (coloured.length >= 3 ? coloured : rest).slice(0, 4);
-  return chosen.sort((a, b) => luminance(a) - luminance(b));
-}
-
-// field slots run from the title side to the far edge, so the darkest colour sits nearest the text.
-const slots = [
-  { x: 34, y: 30, size: 70, phase: 0 },
-  { x: 56, y: 78, size: 86, phase: 90 },
-  { x: 74, y: 28, size: 92, phase: 200 },
-  { x: 90, y: 74, size: 72, phase: 300 },
-];
-const fields = gradientFields(project.cover.palette).map((colour, index) => ({ colour, ...slots[index] }));
 ---
 <div class:list={["project-cover", `cover-${project.cover.variant}`, "is-card"]}
-  data-project-cover data-cover-variant={project.cover.variant}
-  data-cover-palette={project.cover.palette.join(",")}
-  style={`--cover-poster: url("${project.cover.poster}"); --cover-base: ${project.cover.palette[0]}`}>
-  <div class="cover-gradient" aria-hidden="true" data-cover-gradient>
-    {fields.map((field) => (
-      <span class="cover-field" style={`--field: ${field.colour}; --field-x: ${field.x}%; --field-y: ${field.y}%; --field-size: ${field.size}%; --field-phase: ${field.phase}deg`}></span>
-    ))}
+  data-project-cover data-cover-variant={project.cover.variant} data-figma-field={field.figma}
+  style={`--cover-base: ${field.base}`}>
+  <div class="cover-gradient" aria-hidden="true" data-cover-gradient style={`--field-blur: ${blur}`}>
+    {field.ellipses.map((ellipse, index) => <span class="cover-field" style={ellipseStyle(ellipse, index)}></span>)}
   </div>
-  <span class="cover-scrim" aria-hidden="true"></span>
-  <div class="cover-label"><span>{project.cardTitle}</span><small>{project.category}</small></div>
+  <slot />
 </div>
 <style>
-  .project-cover { position: relative; overflow: hidden; width: 100%; height: 100%; isolation: isolate; background: #17344f var(--cover-poster) center / cover; }
-  .cover-scrim { position: absolute; z-index: 1; inset: 0; background: linear-gradient(90deg, rgb(9 24 40 / 84%), rgb(9 24 40 / 16%)); pointer-events: none; }
-  .cover-label { position: absolute; z-index: 3; top: 50%; left: 6%; width: 34%; transform: translateY(-50%); color: #fff; }
-  /* the label scales with the card (figma 176:1721): the old 684px card at 1440 had a 36px title, a 14px category and a
-     14px gap, so each is that share of the cover's width, about 24px at today's 454px card. phones keep the proportions,
-     except that the category never drops below 11px. */
-  .is-card { container-type: inline-size; }
-  .cover-label span { display: block; font-family: var(--ui); font-size: 5.263cqi; font-weight: 650; letter-spacing: -0.035em; line-height: 1.08; text-wrap: balance; }
-  .cover-label small { display: block; margin-top: 2.047cqi; font-family: var(--ui); font-size: max(11px, 2.047cqi); line-height: 1.45; opacity: .85; }
-
-  /* live gradient for home cards. the poster stays the fallback when scripts are off. */
-  .is-card { background-image: none; background-color: var(--cover-base, #17344f); }
+  .project-cover { position: relative; overflow: hidden; width: 100%; height: 100%; isolation: isolate; container-type: inline-size; background: var(--cover-base); }
   .cover-gradient { position: absolute; z-index: 0; inset: 0; overflow: hidden; }
-  .cover-field {
-    position: absolute;
-    top: var(--field-y);
-    left: var(--field-x);
-    width: var(--field-size);
-    aspect-ratio: 1;
-    margin: calc(var(--field-size) / -2) 0 0 calc(var(--field-size) / -2);
-    border-radius: 50%;
-    background: radial-gradient(closest-side var(--in-oklab), var(--field), color-mix(in oklab, var(--field) 62%, transparent) 50%, transparent);
-    opacity: calc(0.88 + var(--cover-energy, 0) * 0.12);
-    translate:
-      calc(cos(var(--drift-a, 0deg) + var(--field-phase)) * 16% + cos(var(--drift-b, 0deg) + var(--field-phase)) * 7%)
-      calc(sin(var(--drift-a, 0deg) + var(--field-phase)) * 11% + sin(var(--drift-b, 0deg) + var(--field-phase)) * 5%);
-    scale: calc(1 + var(--cover-energy, 0) * 0.06);
-  }
-  @media (scripting: none) {
-    .is-card { background-image: var(--cover-poster); }
-    .is-card .cover-gradient { display: none; }
-  }
+  /* one blurred ellipse per figma ellipse, each blurred on its own as figma draws them. */
+  .cover-field { position: absolute; aspect-ratio: 1; border-radius: 50%; filter: blur(var(--field-blur)); }
+  /* the slow drift runs only on screen (exhibits.ts sets is-live) and only when motion is welcome; otherwise the field is still. */
   @media (prefers-reduced-motion: no-preference) {
-    .cover-gradient {
-      animation: cover-drift-a 72s linear infinite, cover-drift-b 26s linear infinite;
-      animation-play-state: paused, paused;
-      transition: --cover-energy 700ms var(--ease-out);
-    }
-    .cover-gradient.is-live { animation-play-state: running, paused; }
-    .cover-gradient.is-live .cover-field { will-change: translate; }
-    :global(.project-card:is(:hover, :focus-visible)) .cover-gradient { --cover-energy: 1; }
-    :global(.project-card:is(:hover, :focus-visible)) .cover-gradient.is-live { animation-play-state: running, running; }
+    .cover-field { animation: cover-field-drift var(--drift-s) ease-in-out infinite alternate; animation-play-state: paused; }
+    .cover-gradient.is-live .cover-field { animation-play-state: running; }
   }
-  @keyframes cover-drift-a { to { --drift-a: 360deg; } }
-  @keyframes cover-drift-b { to { --drift-b: 360deg; } }
+  @keyframes cover-field-drift { to { translate: var(--drift-x) var(--drift-y); } }
 </style>

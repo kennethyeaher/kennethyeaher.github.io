@@ -193,7 +193,7 @@ export function initializeMediaControls(): void {
   });
 }
 
-/** run each home cover gradient only while it is on screen, so off screen cards stop animating. */
+/** drift each home cover colour field only while it is on screen, so off screen cards stop animating. */
 export function initializeCoverGradients(): void {
   const gradients = document.querySelectorAll<HTMLElement>("[data-cover-gradient]");
   if (!gradients.length || !("IntersectionObserver" in window)) return;

@@ -12,6 +12,7 @@ import {
   projects,
 } from "../src/data/portfolio.mjs";
 import { caseStudies } from "../src/data/caseStudies.mjs";
+import { coverFields } from "../src/data/coverFields.mjs";
 import { approvedLedes } from "../scripts/build-approved-ledes.mjs";
 
 const specPath = new URL("../.private/redesign-spec/v2-pages.json", import.meta.url);
@@ -171,6 +172,33 @@ test("the USM Venture Benchmark is gone from the data, the images and the lede f
   // the job itself stays in the history and the Previously line.
   assert.ok(experience.some(({ organization }) => organization === "USM Maryland Momentum Fund"));
   assert.match(homeNow.previously, /USM Maryland Momentum Fund/);
+});
+
+test("every home card takes its dark base and blurred colour field from its figma colour field frame (428:2684)", () => {
+  assert.deepEqual(Object.keys(coverFields).sort(), projects.map(({ slug }) => slug).sort());
+  // the cover frame's fill, the colour field frame's node, figma's blur radius and its ellipse count.
+  const expected = {
+    "college-park-capstone": ["#15110d", "I454:3047;454:451", 72, 5],
+    terpcarehub: ["#140c10", "451:8407", 72, 5],
+    frontground: ["#071311", "451:8413", 72, 5],
+    sohive: ["#0f1014", "445:7303", 70, 6],
+    terpcare: ["#150a0b", "451:8419", 72, 5],
+    ovara: ["#1a1326", "I447:11135;452:5410", 72, 5],
+    "kairo-health": ["#081127", "I447:11757;452:5434", 72, 5],
+  };
+  for (const [slug, [base, figma, blur, count]] of Object.entries(expected)) {
+    const field = coverFields[slug];
+    assert.deepEqual([field.base, field.figma, field.blur, field.ellipses.length], [base, figma, blur, count], slug);
+    for (const { x, y, r, colour, alpha } of field.ellipses) {
+      assert.ok([x, y, r].every(Number.isFinite) && r > 0, `${slug} ellipse geometry`);
+      assert.match(colour, /^#[0-9a-f]{6}$/, `${slug} ellipse colour`);
+      assert.ok(alpha > 0 && alpha <= 1, `${slug} ellipse opacity`);
+    }
+  }
+  // spot checks against the exported field: centre, radius, fill and fill opacity on the 454 by 256 cover.
+  assert.deepEqual(coverFields.terpcarehub.ellipses[0], { x: 65, y: 55, r: 135, colour: "#b3122e", alpha: 0.9 });
+  assert.deepEqual(coverFields.sohive.ellipses.at(-1), { x: 200, y: 250, r: 80, colour: "#e0b23a", alpha: 0.5 });
+  assert.deepEqual(coverFields["kairo-health"].ellipses[4], { x: 230, y: 140, r: 80, colour: "#4c8dff", alpha: 0.3 });
 });
 
 test("the civic case study uses the approved Information Science Capstone name", () => {
