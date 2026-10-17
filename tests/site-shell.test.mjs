@@ -113,7 +113,7 @@ test("the dot cursor is one aria-hidden dot on every page, the pointer for fine 
   assert.equal(cards.length, (home.match(/<a class="project-card"/g) ?? []).length, "every card carries a label");
   assert.ok(cards.length >= 7);
   for (const [, label, name] of cards) assert.equal(label, `View ${name}`);
-  assert.ok(cards.some(([, label]) => label === "View Information Science Capstone"));
+  assert.ok(cards.some(([, label]) => label === "View User Research Capstone"));
 
   assert.ok(!existsSync(join(projectRoot, "src", "scripts", "pointer-note.ts")), "the note script is renamed");
   const script = readFileSync(join(projectRoot, "src", "scripts", "pointer-dot.ts"), "utf8");

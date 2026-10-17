@@ -303,11 +303,11 @@ test("no temporary figma asset urls are left in the source or the public files",
   for (const file of files) assert.doesNotMatch(readFileSync(file, "utf8"), /figma\.com\/api\/mcp\/asset/, file.pathname);
 });
 
-test("the civic case study uses the approved Information Science Capstone name", () => {
+test("the civic case study uses the approved User Research Capstone name", () => {
   const capstone = getProjectBySlug("college-park-capstone");
 
-  assert.equal(capstone.title, "Information Science Capstone");
-  assert.equal(capstone.cardTitle, "Information Science Capstone");
+  assert.equal(capstone.title, "User Research Capstone");
+  assert.equal(capstone.cardTitle, "User Research Capstone");
 });
 
 test("the Capstone preserves the two survey cohorts and their decision evidence", () => {

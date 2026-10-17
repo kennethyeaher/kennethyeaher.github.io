@@ -1069,9 +1069,9 @@ export const caseStudies = [
   },
   {
     slug: "college-park-capstone",
-    title: "Information Science Capstone",
+    title: "User Research Capstone",
     organization: "City of College Park",
-    cardTitle: "Information Science Capstone",
+    cardTitle: "User Research Capstone",
     category: "UX Research",
     year: "2024",
     role: "Project Manager",
@@ -1081,9 +1081,9 @@ export const caseStudies = [
     summary:
       "A civic research engagement that turned two surveys and contextual interviews at three city events into five personas, three journey maps, a social media audit, and recommendations for the City of College Park.",
     cardImage: "/images/work/capstone/cover-gradient-poster.png",
-    cardAlt: "Information Science Capstone motion cover in College Park blue and gold",
+    cardAlt: "User Research Capstone motion cover on a warm amber and rose field, where scattered sticky notes sort into needs, pains and moments columns, then become a persona card and a journey map with its low point",
     heroImage: "/images/work/capstone/cover-gradient-poster.png",
-    heroAlt: "Information Science Capstone motion cover in College Park blue and gold",
+    heroAlt: "User Research Capstone motion cover on a warm amber and rose field, where scattered sticky notes sort into needs, pains and moments columns, then become a persona card and a journey map with its low point",
     cover: {
       variant: "capstone",
       poster: "/images/work/capstone/cover-gradient-poster.png",

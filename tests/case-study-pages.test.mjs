@@ -104,7 +104,7 @@ test("public case studies keep caveats and future-improvement notes out of the r
 });
 
 test("the renamed capstone and expanded product evidence render publicly, and the USM benchmark is gone", () => {
-  assert.match(pages.get("college-park-capstone"), /Information Science Capstone/);
+  assert.match(pages.get("college-park-capstone"), /User Research Capstone/);
   assert.match(pages.get("terpcare"), /What four of us built in spring 2024/);
   assert.match(pages.get("kairo-health"), /Deployment routing/);
   for (const html of pages.values()) assert.doesNotMatch(html, /usm-venture-benchmark|USM Venture Benchmark/);
