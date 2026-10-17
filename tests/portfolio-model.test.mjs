@@ -11,6 +11,7 @@ import {
   profile,
   projects,
 } from "../src/data/portfolio.mjs";
+import { caseStudies } from "../src/data/caseStudies.mjs";
 import { approvedLedes } from "../scripts/build-approved-ledes.mjs";
 
 const specPath = new URL("../.private/redesign-spec/v2-pages.json", import.meta.url);
@@ -23,10 +24,9 @@ const expectedOrder = [
   "ovara",
   "college-park-capstone",
   "kairo-health",
-  "usm-venture-benchmark",
 ];
 
-test("featured work returns the approved eight projects, design work first", () => {
+test("featured work returns the approved seven projects, design work first", () => {
   assert.deepEqual(
     getFeaturedProjects().map((project) => project.slug),
     expectedOrder,
@@ -48,7 +48,6 @@ test("categories come from one fixed set, one or two per project", () => {
     ovara: "Data Science + Data Visualization",
     "college-park-capstone": "UX Research",
     "kairo-health": "Data Science",
-    "usm-venture-benchmark": "Venture Research + Data Visualization",
   });
 });
 
@@ -64,10 +63,10 @@ test("every project has a unique slug and every navigation target resolves", () 
 test("adjacent-project navigation wraps without a dead end", () => {
   assert.equal(
     getAdjacentProject("terpcarehub", "previous").slug,
-    "usm-venture-benchmark",
+    "kairo-health",
   );
   assert.equal(
-    getAdjacentProject("usm-venture-benchmark", "next").slug,
+    getAdjacentProject("kairo-health", "next").slug,
     "terpcarehub",
   );
   assert.equal(
@@ -124,7 +123,6 @@ test("home v3 keeps Currently and Previously as short prose, and the compact his
 test("every featured project carries a project-palette motion cover and a substantial case narrative", () => {
   const minimumSections = new Map([
     ["frontground", 8],
-    ["usm-venture-benchmark", 5],
     ["sohive", 8],
     ["college-park-capstone", 8],
     ["ovara", 8],
@@ -151,44 +149,21 @@ test("every featured project carries a project-palette motion cover and a substa
   );
 });
 
-test("the USM benchmark publishes its method and aggregate QA without confidential findings", () => {
-  const usm = getProjectBySlug("usm-venture-benchmark");
-  const media = usm.sections.flatMap((section) => section.media ?? []);
-
-  assert.equal(usm.category, "Venture Research + Data Visualization");
-  assert.equal(usm.role, "Investment Associate");
-  assert.deepEqual(
-    usm.sections.map(({ id }) => id),
-    ["comparison-problem", "benchmark-system", "evidence-design", "validation", "vc-lens"],
-  );
-  assert.deepEqual(usm.metrics.map(({ value }) => value), ["29", "22", "638"]);
-  assert.equal(usm.evidence.finalizedProfiles, 29);
-  assert.equal(usm.evidence.matrixFields, 22);
-  assert.equal(usm.evidence.dataCells, 638);
-  assert.equal(usm.evidence.correctedCells, 41);
-  assert.equal(usm.evidence.changedToNotDisclosed, 9);
-  assert.equal(usm.evidence.fieldLevelMismatches, 0);
-  assert.equal(usm.evidence.unresolvedCitations, 0);
-  assert.equal(usm.evidence.publicInstitutionFindings, false);
-  assert.equal(usm.evidence.confidentialRecommendationsPublished, false);
-  assert.deepEqual(
-    media.map(({ src }) => src),
-    [
-      "/images/work/usm-venture-benchmark/research-system.png",
-      "/images/work/usm-venture-benchmark/brief-overview-redacted.png",
-      "/images/work/usm-venture-benchmark/brief-vehicles-redacted.png",
-      "/images/work/usm-venture-benchmark/brief-portfolio-redacted.png",
-      "/images/work/usm-venture-benchmark/brief-deep-dive-redacted.png",
-      "/images/work/usm-venture-benchmark/comparison-model.png",
-      "/images/work/usm-venture-benchmark/validation-grid.png",
-      "/images/work/usm-venture-benchmark/transferability-lens.png",
-    ],
-  );
-  assert.equal("links" in usm, false);
-  assert.match(
-    usm.sections.find(({ id }) => id === "benchmark-system").body.join(" "),
-    /designed the six-page brief system/,
-  );
+test("the USM Venture Benchmark is gone from the data, the images and the lede fixture, and the fund job stays", () => {
+  const root = new URL("../", import.meta.url);
+  assert.equal(caseStudies.some(({ slug }) => slug === "usm-venture-benchmark"), false);
+  assert.equal(getProjectBySlug("usm-venture-benchmark"), undefined);
+  assert.equal(existsSync(new URL("public/images/work/usm-venture-benchmark", root)), false);
+  assert.equal(existsSync(new URL("public/images/social/usm-venture-benchmark.png", root)), false);
+  assert.equal("usm-venture-benchmark" in JSON.parse(readFileSync(new URL("./fixtures/approved-ledes.json", import.meta.url), "utf8")), false);
+  // the benchmark's sized exhibit copies go with it.
+  const sizes = JSON.parse(readFileSync(new URL("src/data/exhibit-sizes.json", root), "utf8"));
+  for (const name of ["research-system", "brief-overview-redacted", "brief-vehicles-redacted", "brief-portfolio-redacted", "brief-deep-dive-redacted", "comparison-model", "validation-grid", "transferability-lens"]) {
+    assert.equal(name in sizes, false, `${name} has no sized copies`);
+  }
+  // the job itself stays in the history and the Previously line.
+  assert.ok(experience.some(({ organization }) => organization === "USM Maryland Momentum Fund"));
+  assert.match(homeNow.previously, /USM Maryland Momentum Fund/);
 });
 
 test("the civic case study uses the approved Information Science Capstone name", () => {
@@ -303,7 +278,6 @@ test("every case includes at least one source-backed visual artifact beyond scre
 });
 
 test("case-study records preserve the approved evidence boundaries", () => {
-  const usm = getProjectBySlug("usm-venture-benchmark");
   const capstone = getProjectBySlug("college-park-capstone");
   const ovara = getProjectBySlug("ovara");
   const kairo = getProjectBySlug("kairo-health");
@@ -311,8 +285,6 @@ test("case-study records preserve the approved evidence boundaries", () => {
   const terpcarehub = getProjectBySlug("terpcarehub");
 
   assert.deepEqual(capstone.metrics.map(({ value }) => value), ["17 of 24", "5", "3"]);
-  assert.equal(usm.evidence.publicInstitutionFindings, false);
-  assert.equal(usm.evidence.confidentialRecommendationsPublished, false);
   assert.equal(ovara.evidence.modelStatus, "negative result at state level, direct count at county level");
   assert.equal(ovara.evidence.crossValidationR2, 0.1244);
   assert.equal(ovara.evidence.zeroProviderCounties, 1029);
@@ -333,7 +305,7 @@ test("unknown slugs fail closed", () => {
 });
 
 // pages on the v2 exhibit layout.
-const exhibitSlugs = ["kairo-health", "usm-venture-benchmark", "ovara", "terpcarehub", "college-park-capstone", "frontground", "terpcare", "sohive"];
+const exhibitSlugs = ["kairo-health", "ovara", "terpcarehub", "college-park-capstone", "frontground", "terpcare", "sohive"];
 
 // figma rails for pages whose spec export carries no chapter list, read from the frame's chapter rail.
 // terpcarehub 90:1631 replaced the find care loop with a walkthrough and dropped the provider card stage.
@@ -375,7 +347,6 @@ test("exhibits are optional and only the converted pages opt in", () => {
     }
   }
   assert.deepEqual(getProjectBySlug("kairo-health").exhibits.map(({ kind }) => kind), ["hero", "stage", "stage", "journey", "section"]);
-  assert.deepEqual(getProjectBySlug("usm-venture-benchmark").exhibits.map(({ kind }) => kind), ["hero", "stage", "stage", "journey", "section"]);
   assert.deepEqual(getProjectBySlug("ovara").exhibits.map(({ kind }) => kind), ["hero", "rows", "stage", "custom", "section", "section"]);
   assert.deepEqual(getProjectBySlug("terpcarehub").exhibits.map(({ kind }) => kind), ["hero", "rows", "custom", "stage", "custom", "rows", "section"]);
   assert.deepEqual(getProjectBySlug("college-park-capstone").exhibits.map(({ kind }) => kind), ["hero", "heatmap", "stage", "journey", "section"]);
@@ -446,7 +417,7 @@ function approvedParagraphs() {
 }
 
 // pages built from their prose mock (figma section 07); every page joins as it is built.
-const ledeSlugs = ["kairo-health", "usm-venture-benchmark", "ovara", "terpcarehub", "college-park-capstone", "frontground", "terpcare", "sohive"];
+const ledeSlugs = ["kairo-health", "ovara", "terpcarehub", "college-park-capstone", "frontground", "terpcare", "sohive"];
 
 /** every lede sentence of a chapter; a prose chapter with no lede of its own reads its section text. */
 function ledeSentences(project, exhibit) {
@@ -473,7 +444,7 @@ test("every lede sentence on a converted page is that page's own copy", () => {
   }
 });
 
-const mockSlugs = ["kairo-health", "usm-venture-benchmark", "ovara", "terpcarehub", "college-park-capstone", "frontground", "terpcare", "sohive"];
+const mockSlugs = ["kairo-health", "ovara", "terpcarehub", "college-park-capstone", "frontground", "terpcare", "sohive"];
 
 test("the approved lede fixture matches the prose export", { skip: !existsSync(prosePath) && "prose export not present" }, () => {
   const expected = approvedLedes(JSON.parse(readFileSync(prosePath, "utf8")));

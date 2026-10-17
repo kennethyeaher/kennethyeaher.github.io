@@ -272,10 +272,9 @@ const order = [
   "ovara",
   "college-park-capstone",
   "kairo-health",
-  "usm-venture-benchmark",
 ];
 
-/** Eight publishable project records that drive the Work page and case studies, in the home order. */
+/** Seven publishable project records that drive the Work page and case studies, in the home order. */
 export const projects = order.map((slug) => {
   const project = caseStudies.find((entry) => entry.slug === slug);
   if (!project) throw new Error(`Unknown project slug in the home order: ${slug}`);

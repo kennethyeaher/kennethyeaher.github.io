@@ -9,7 +9,6 @@ import { contrast, hexToOklch } from "../src/utils/oklch.mjs";
 
 const projectRoot = new URL("..", import.meta.url).pathname;
 const slugs = [
-  "usm-venture-benchmark",
   "ovara",
   "kairo-health",
   "terpcarehub",
@@ -35,8 +34,8 @@ before(() => {
   }
 });
 
-test("all eight approved case studies render from one route system", () => {
-  assert.equal(pages.size, 8);
+test("all seven approved case studies render from one route system", () => {
+  assert.equal(pages.size, 7);
 
   for (const html of pages.values()) {
     assert.match(html, /data-case-nav/);
@@ -104,26 +103,17 @@ test("public case studies keep caveats and future-improvement notes out of the r
   }
 });
 
-test("the renamed capstone and expanded product evidence render publicly", () => {
-  const usm = pages.get("usm-venture-benchmark");
-
-  assert.match(usm, /USM Venture Benchmark/);
-  assert.match(usm, /638 cells/);
-  assert.match(usm, /zero field-level mismatches/);
-  assert.match(usm, /brief-overview-redacted\.png/);
-  assert.match(usm, /brief-vehicles-redacted\.png/);
-  assert.match(usm, /brief-portfolio-redacted\.png/);
-  assert.match(usm, /brief-deep-dive-redacted\.png/);
-  assert.doesNotMatch(usm, /figma\.com\/design\/Vi6MdEzxLKirckl6xpY2jJ/);
+test("the renamed capstone and expanded product evidence render publicly, and the USM benchmark is gone", () => {
   assert.match(pages.get("college-park-capstone"), /Information Science Capstone/);
   assert.match(pages.get("terpcare"), /What four of us built in spring 2024/);
   assert.match(pages.get("kairo-health"), /Deployment routing/);
+  for (const html of pages.values()) assert.doesNotMatch(html, /usm-venture-benchmark|USM Venture Benchmark/);
 });
 
 test("previous and next project links wrap without dead ends", () => {
   const first = pages.get("terpcarehub");
   const middle = pages.get("terpcare");
-  const last = pages.get("usm-venture-benchmark");
+  const last = pages.get("kairo-health");
 
   // the v2 exhibit shell (figma 61:1059) closes on a next project link only, in the home order.
   assert.match(first, /href="\/work\/frontground"/);
@@ -205,7 +195,7 @@ test("reading progress matches figma 26:105, filled in the case study accent, wi
   for (const [, body] of globalCss.matchAll(/\.reading-progress[^{]*\{([^}]*)\}/g)) assert.doesNotMatch(body, /transition/);
 });
 
-test("metric labels are serif sentence case on all eight pages, and tiles in a row share one height", () => {
+test("metric labels are serif sentence case on all seven pages, and tiles in a row share one height", () => {
   for (const [slug, html] of pages) {
     const labels = [...html.matchAll(/<div class="metric"[^>]*>\s*<dt[^>]*>([^<]+)<\/dt>/g)].map((match) => match[1]);
     assert.equal(labels.length, 3, slug);
@@ -241,7 +231,7 @@ test("Kairo renders the v2 exhibit layout from the approved spec", () => {
   assert.match(kairo, /data-count-to="55" data-count-rest=" of 56"/);
   assert.match(kairo, /<table class="journey/);
   assert.match(kairo, /<th scope="col" class="is-accent[^"]*"/);
-  assert.match(kairo, /href="\/work\/usm-venture-benchmark"/);
+  assert.match(kairo, /href="\/work\/terpcarehub"/);
   assert.match(kairo, /The useful finding was a workflow insight, not a winner/);
   const badges = [...kairo.matchAll(/<a class="annotation-badge[^"]*" href="#([^"]+)" aria-describedby="([^"]+)"/g)];
   assert.equal(badges.length, 6);
@@ -261,37 +251,6 @@ function assertBadgesResolve(html, count) {
     assert.match(html, new RegExp(`<li id="${describedBy}"`));
   }
 }
-
-test("USM renders the v2 exhibit layout from the approved spec", () => {
-  const usm = pages.get("usm-venture-benchmark");
-  const chapters = ["overview", "the-brief-system", "validation-grid", "the-evidence-path", "the-vc-lens"];
-  const sectionIds = [...usm.matchAll(/<section[^>]*\bid="([^"]+)"[^>]*data-case-section/g)].map((match) => match[1]);
-  assert.deepEqual(sectionIds, chapters);
-  for (const id of chapters) assert.match(usm, new RegExp(`href="#${id}"`));
-  // v3 chapter rail: sentence case, no numbers.
-  assert.match(usm, /<a class="rail-link" href="#the-vc-lens" data-section-link="the-vc-lens"[^>]*>\s*The VC lens\s*<\/a>/);
-  // 05 the vc lens has no exhibit in figma, so it is a prose chapter; the decision framework stays in 04.
-  assert.doesNotMatch(usm, /id="reflection"/);
-  const vcLens = usm.slice(usm.indexOf('id="the-vc-lens"'), usm.indexOf("data-project-pager"));
-  assert.match(vcLens, /<p class="section-eyebrow"[^>]*>THE VC LENS<\/p>/);
-  assert.match(vcLens, /The last step moved from what exists elsewhere to what might transfer\./);
-  assert.doesNotMatch(vcLens, /journey-strip/);
-  assert.doesNotMatch(usm, /transferability-lens/);
-  const evidencePath = usm.slice(usm.indexOf('id="the-evidence-path"'), usm.indexOf('id="the-vc-lens"'));
-  assert.match(evidencePath, /class="journey-strip"/);
-  assert.match(usm, /class="exhibit-stage stage-hero/);
-  assert.match(usm, /--stage-ratio: 1116 \/ 460/);
-  assert.match(usm, /left: 70\.8%; top: 71\.7%/);
-  assert.match(usm, /data-count-to="638"/);
-  assert.match(usm, /<table class="journey/);
-  assert.match(usm, /<th scope="col" class="is-accent[^"]*"[^>]*>[\s\S]*?Investment synthesis/);
-  assert.equal([...usm.matchAll(/class="is-mechanism/g)].length, 4);
-  assert.match(usm, /<span class="strip-commitment"[^>]*>HIGH CAPITAL AND GOVERNANCE<\/span>/);
-  assert.match(usm, /The mechanisms are generic\. Confidential institution findings and recommendations are omitted\./);
-  assert.match(usm, /href="\/work\/terpcarehub"/);
-  assertBadgesResolve(usm, 6);
-  assert.doesNotMatch(usm, /data-cover-video|\.mp4/);
-});
 
 test("Ovara renders the v2 exhibit layout from the approved spec", () => {
   const ovara = pages.get("ovara");
@@ -802,12 +761,12 @@ test("sohive renders the v2 exhibit layout from its prose mock", () => {
   assert.match(page, /href="\/work\/terpcare"/);
 });
 
-test("exactly the twelve small pinned stages zoom to the active annotation (figma 168:1745, 197:1727)", () => {
-  // every data-pin-zoom element across the eight pages, by page and stage id; the pair and the walkthrough give one
+test("exactly the eleven small pinned stages zoom to the active annotation (figma 168:1745, 197:1727)", () => {
+  // every data-pin-zoom element across the seven pages, by page and stage id; the pair and the walkthrough give one
   // exhibit several stage elements (each feed stage zooms on its own; the walkthrough's pinned stage, and the one
   // static step with a focus box). frontground's solution and sohive's feed zoom from their leaders (197:1727).
   const expected = {
-    ovara: ["the-finding"], "kairo-health": ["field-by-tier"], "usm-venture-benchmark": ["validation-grid"], "college-park-capstone": ["the-persona"],
+    ovara: ["the-finding"], "kairo-health": ["field-by-tier"], "college-park-capstone": ["the-persona"],
     frontground: ["the-solution", "offline", "triage"], terpcare: ["the-original"], sohive: ["the-feed-0", "the-feed-1"],
     terpcarehub: ["core-flows-walkthrough-1", "core-flows-walkthrough-pin"],
   };

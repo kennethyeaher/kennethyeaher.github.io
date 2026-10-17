@@ -9,7 +9,7 @@ import assert from "node:assert/strict";
 const projectRoot = new URL("..", import.meta.url).pathname;
 const sizedDir = join(projectRoot, "public/images/exhibits/sized");
 const manifest = JSON.parse(readFileSync(join(projectRoot, "src/data/exhibit-sizes.json"), "utf8"));
-const slugs = ["usm-venture-benchmark", "ovara", "kairo-health", "terpcarehub", "college-park-capstone", "frontground", "terpcare", "sohive"];
+const slugs = ["ovara", "kairo-health", "terpcarehub", "college-park-capstone", "frontground", "terpcare", "sohive"];
 
 /** the pixel width in a webp header: a lossy VP8 frame, a lossless VP8L bitstream or an extended VP8X canvas. */
 function webpWidth(buffer) {
@@ -65,14 +65,9 @@ const renderedWidths = {
   "journey-jessica": 560,
   "persona-maria": 639,
   "persona-maria-detail": 639,
-  "validation-grid": 1020,
   "kairo-form-clean": 789,
   "kairo-llm-heatmap": 420,
   "kairo-rules-heatmap": 420,
-  "brief-overview-redacted": 419,
-  "brief-deep-dive-redacted": 419,
-  "brief-portfolio-redacted": 419,
-  "brief-vehicles-redacted": 419,
   "home-full": 838,
   "provider-card": 456,
   "mobile-find-care": 340,
@@ -106,7 +101,7 @@ test("every exhibit's widest copy is at least twice its rendered width at 1440, 
 });
 
 // on a 390 phone (a 350px column) every placed exhibit gets a copy covering its drawn width at 2x and 3x. the drawn
-// width is the bounding box, so a turned visual (the usm briefs) needs more than its unturned width. this picks
+// width is the bounding box, so a turned visual needs more than its unturned width. this picks
 // the copy the way a browser does: the narrowest one at least as wide as the sizes claim times the dpr.
 test("every placed exhibit's phone copy covers its drawn width at 390 on 2x and 3x screens", () => {
   const column = 350;

@@ -80,7 +80,7 @@ test("the theme switch is the pull cord: a real button that hangs out of flow an
 });
 
 test("the dot cursor is one aria-hidden dot on every page, the pointer for fine hovering mice only", () => {
-  const pagesBuilt = ["index.html", "about/index.html", ...["terpcarehub", "ovara", "kairo-health", "usm-venture-benchmark", "college-park-capstone", "frontground", "terpcare", "sohive"].map((slug) => `work/${slug}/index.html`)];
+  const pagesBuilt = ["index.html", "about/index.html", ...["terpcarehub", "ovara", "kairo-health", "college-park-capstone", "frontground", "terpcare", "sohive"].map((slug) => `work/${slug}/index.html`)];
   const kinds = new Set();
   const labelled = new Set();
   for (const file of pagesBuilt) {
@@ -111,7 +111,7 @@ test("the dot cursor is one aria-hidden dot on every page, the pointer for fine 
   const home = readFileSync(join(projectRoot, "dist", "index.html"), "utf8");
   const cards = [...home.matchAll(/<a class="project-card"[^>]*\sdata-cursor-label="([^"]*)"[^>]*>[\s\S]*?<h3[^>]*>([^<]*)<\/h3>/g)];
   assert.equal(cards.length, (home.match(/<a class="project-card"/g) ?? []).length, "every card carries a label");
-  assert.ok(cards.length >= 8);
+  assert.ok(cards.length >= 7);
   for (const [, label, name] of cards) assert.equal(label, `View ${name}`);
   assert.ok(cards.some(([, label]) => label === "View Information Science Capstone"));
 
