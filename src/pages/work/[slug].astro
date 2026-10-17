@@ -10,6 +10,8 @@ import {
   projects,
 } from "@/data/portfolio.mjs";
 import { liftToContrast } from "@/utils/oklch.mjs";
+// elms's send path timeline (scripts/build-cover-motion.mjs), linked only on the page that shows the loop.
+import sendPathCss from "@/styles/cover-motion/elms-send-path.css?url";
 
 type ProjectRecord = (typeof projects)[number];
 
@@ -32,11 +34,16 @@ const accent = ("accent" in project.cover ? project.cover.accent : project.cover
 const accentDark = liftToContrast(accent, "#344553");
 // the live specimens' fonts, declared only on the pages that show one.
 const specimenFonts = fontsForProject(project);
+// the html loops' timelines, by loop key, linked only where a loop card plays one.
+const loopStyles: Record<string, string> = { "elms-send-path": sendPathCss };
+const loopKeys = (project.exhibits ?? []).flatMap((exhibit) => [...("loops" in exhibit ? exhibit.loops?.visuals ?? [] : []), ...("part" in exhibit ? exhibit.part?.loops.visuals ?? [] : [])])
+  .flatMap(({ loop }) => (loop && "motion" in loop ? [loop.motion] : []));
 
 ---
 
 <Base title={project.title} description={project.summary} image={`/images/social/${project.slug}.png`} imageAlt={`${project.title}, ${project.role}, ${project.year}`} crumb={project.title}>
   {specimenFonts.length > 0 && <SpecimenFonts slot="head" fonts={specimenFonts} />}
+  {[...new Set(loopKeys)].map((key) => <link slot="head" rel="stylesheet" href={loopStyles[key]} />)}
   <div class="reading-progress" data-reading-progress aria-hidden="true" style={`--reading-accent: ${accent}; --reading-accent-dark: ${accentDark}`}><span></span></div>
   <ExhibitCaseStudy project={project} next={next} />
 </Base>

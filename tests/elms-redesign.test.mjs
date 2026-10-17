@@ -8,7 +8,8 @@ import { getProjectBySlug, projects } from "../src/data/portfolio.mjs";
 import * as sendBar from "../src/components/exhibits/elms-send-bar.mjs";
 
 // the elms redesign case study, from figma 413:2396 ("Case study v3 / ELMS Messages"). its screens are the frame's own
-// fills with the placeholder people repainted to dc names; its three loop cards hold stills until recordings exist.
+// fills with the placeholder people repainted to dc names; the whole path card plays figma's send path loop (504:11596)
+// in html over the repainted screens, and the other loop cards hold stills until recordings exist.
 const projectRoot = new URL("..", import.meta.url).pathname;
 let page = "";
 const pages = new Map();
@@ -98,7 +99,8 @@ test("elms follows figma 413:2396: seven rail chapters, the award on the hero, F
   assert.equal([...core.matchAll(/class="annotation annotation-leader is-vertical is-above/g)].length, 1);
   assert.match(core, /<button type="button" class="send-button" disabled data-send-button[^>]*>Send message<\/button>/);
   assert.match(core, /<h3 id="core-flow-part-heading"[^>]*>Eight screens, one direction<\/h3>/);
-  assert.equal([...core.matchAll(/<li[^>]*><span class="step-num"/g)].length, 5);
+  // the send path's caption and the four steps it plays.
+  assert.deepEqual([...core.matchAll(/<span class="step-text"[^>]*>([^<]+)<\/span>/g)].map((match) => match[1]), ["Choose a course", "Choose the TA", "Send", "Sent"]);
   assert.ok(core.indexOf("exhibit-caption") < core.indexOf("data-send-bar") && core.indexOf("data-send-bar") < core.indexOf("loop-exhibit"));
 
   // what changed: four destinations, the hi-fi row tinted, closed by its label and note.
@@ -128,21 +130,59 @@ test("placeholder people are dc characters on the screens and in the copy, and t
   if (existsSync(originals)) for (const file of ["core-1.png", "core-2.png", "core-3.png", "path-loop.png", "wf-thread@2x.png"]) assert.ok(existsSync(join(originals, file)), file);
 });
 
-test("each loop card holds its real still with an empty loop slot, so a recording drops in with no layout change", () => {
+test("the stills keep an empty loop slot, and the whole path plays the send path loop with the only loop tag", () => {
   const project = getProjectBySlug("elms-redesign");
   const cards = project.exhibits.flatMap((exhibit) => [...(exhibit.loops?.visuals ?? []), ...(exhibit.part?.loops.visuals ?? [])]);
   assert.equal(cards.length, 5);
-  // each one a distinct still, and the three that are loops in figma have no loop yet.
+  // each one a distinct screen; the four stills have no loop yet, and the last is the send path.
   assert.equal(new Set(cards.map(({ src }) => src)).size, 5);
-  for (const card of cards) {
-    assert.equal(card.loop, null, card.src);
-    assert.ok(existsSync(join(projectRoot, "public", card.src)), card.src);
-  }
-  assert.doesNotMatch(page, /<video|data-loop-toggle|LOOP · \d/);
-  // until a recording lands, the cards are numbered 01 to 03 with no LOOP in front.
-  assert.doesNotMatch(textOf(page), /\bLOOP\b/);
+  for (const card of cards) assert.ok(existsSync(join(projectRoot, "public", card.src)), card.src);
+  assert.deepEqual(cards.slice(0, 4).map(({ loop }) => loop), [null, null, null, null]);
+  assert.deepEqual(cards[4].loop, { motion: "elms-send-path", name: "send path" });
+  assert.equal([...page.matchAll(/<img class="loop-still-card"/g)].length, 4);
+  assert.doesNotMatch(page, /<video/);
+  // one tag, on the send path, with its pause control; the numbers stay 01 to 03.
+  assert.deepEqual([...page.matchAll(/LOOP · \d+s/g)].map(([tag]) => tag), ["LOOP · 16s"]);
+  assert.equal([...page.matchAll(/data-loop-toggle/g)].length, 1);
+  assert.match(page, /<button class="loop-toggle"[^>]*aria-controls="clip-send-path-loop"/);
   assert.deepEqual([...page.matchAll(/<p class="loop-num"[^>]*>([^<]+)<\/p>/g)].map((match) => match[1]), ["MID-FI 01", "MID-FI 02", "01", "02", "03"]);
-  assert.equal([...page.matchAll(/<img class="loop-still-card"/g)].length, 5);
+  assert.match(page, /<p class="exhibit-caption-title"[^>]*>The send path<\/p>|>The send path</);
+});
+
+test("the send path is figma 504:11596 in html: the four repainted screens under real overlays, on the camera's timeline", () => {
+  const frame = page.match(/<div class="motion-loop" id="clip-send-path-loop"[^>]*>/)?.[0] ?? "";
+  assert.match(frame, /role="img"/);
+  assert.match(frame, /aria-label="The ELMS send path, looping: [^"]*Barry Allen, TA[^"]*"/);
+  assert.match(frame, /data-motion-loop="elms-send-path"/);
+  assert.match(frame, /data-figma="504:11596"/);
+  assert.match(frame, /aspect-ratio: 960 \/ 540/);
+  // every animated figma node is on the page, from the camera to the cursor.
+  const { nodes } = JSON.parse(readFileSync(join(projectRoot, "scripts", "cover-motion", "elms-send-path.motion.json"), "utf8"));
+  assert.equal(nodes.length, 43);
+  for (const { nodeId } of nodes) assert.match(page, new RegExp(`data-node="${nodeId}"`), nodeId);
+  // the screens are the repaints at figma's 2880 by 2152, in order, and the overlays are text, not pictures of it.
+  const screens = [...page.matchAll(/src="\/images\/work\/elms-redesign\/(elms-send-path-[^"]+\.webp)"/g)].map((match) => match[1]);
+  assert.deepEqual(screens, ["elms-send-path-1-course.webp", "elms-send-path-2-no-recipient.webp", "elms-send-path-3-ready.webp", "elms-send-path-4-sent.webp"]);
+  for (const name of screens) {
+    const webp = readFileSync(join(projectRoot, "public", "images", "work", "elms-redesign", name));
+    // vp8 or vp8x, the canvas size sits at a known offset.
+    const vp8x = webp.toString("latin1", 12, 16) === "VP8X";
+    const [width, height] = vp8x ? [1 + webp.readUIntLE(24, 3), 1 + webp.readUIntLE(27, 3)] : [webp.readUInt16LE(26) & 0x3fff, webp.readUInt16LE(28) & 0x3fff];
+    assert.deepEqual([width, height], [2880, 2152], name);
+  }
+  for (const text of ["TEACHING ASSISTANTS", "INSTRUCTORS", "CLASSMATES", "Barry Allen · TA", "Dr. Prince · Professor", "Kara Danvers · Classmate", "Bar"]) {
+    assert.match(page, new RegExp(`<span class="cm-layer"[^>]*>${text}</span>`), text);
+  }
+  // the timeline is linked on this page only, and holds 0.45s in under reduced motion and until the loop is live.
+  const href = page.match(/<link rel="stylesheet" href="(\/_astro\/elms-send-path\.[^"]+\.css)">/)?.[1];
+  assert.ok(href, "send path stylesheet linked");
+  for (const [slug, html] of pages) if (slug !== "elms-redesign") assert.doesNotMatch(html, /elms-send-path/, slug);
+  const css = readFileSync(join(projectRoot, "dist", href), "utf8");
+  assert.match(css, /\[data-motion-loop=elms-send-path\]\{--u: ?calc\(100cqi \/ 960\)\}/);
+  assert.match(css, /\[data-motion-loop=elms-send-path\]:not\(\.is-live\) \[data-node\]\{animation-play-state:paused\}/);
+  assert.match(css, /\[data-motion-loop=elms-send-path\] \[data-node\]\[data-node\]\{animation-delay:-\.45s\}/);
+  assert.match(css, /@media ?\(prefers-reduced-motion:reduce\)\{\[data-motion-loop=elms-send-path\] \[data-node\]\[data-node\]\{animation-duration:16\.4s!important;animation-iteration-count:infinite!important;animation-delay:-\.45s;animation-play-state:paused\}\}/);
+  assert.match(css, /@property --rotate-transform/);
 });
 
 test("lato loads on the elms page only, for its send bar and model window", () => {

@@ -626,12 +626,16 @@ test("every loop card's media tag sits in its bottom left corner, 16px in, and u
   for (const [slug, html] of pages) {
     for (const [item] of html.matchAll(/<figure class="loop-exhibit"[^>]*>[\s\S]*?<\/figure>/g)) {
       // a still waiting for its recording (elms) has no clip and no control; it keeps the card and tag places.
-      if (!item.includes("<video")) {
+      if (item.includes('class="loop-still-card"')) {
         assert.doesNotMatch(item, /data-loop-toggle|LOOP ·/, slug);
         continue;
       }
-      // the tag follows the card rather than sitting inside it, so on phones it can drop below the device.
-      assert.match(item, /<div class="loop-card"[^>]*>\s*<div class="exhibit-loop"[\s\S]*?<\/video>\s*<\/div>\s*<\/div>\s*<span class="loop-tag"/, slug);
+      // the tag follows the card rather than sitting inside it, so on phones it can drop below the device. an html
+      // loop (elms's send path) closes its frame and layers where a clip closes its video, and takes the same control.
+      const media = item.includes("data-motion-loop") ? /<div class="motion-loop"[\s\S]*<\/div>\s*<\/div>\s*<\/div>/.source : /[\s\S]*?<\/video>\s*<\/div>\s*<\/div>/.source;
+      assert.match(item, new RegExp(`<div class="loop-card"[^>]*>\\s*<div class="exhibit-loop"[^>]*>\\s*${media}\\s*<span class="loop-tag"`), slug);
+      const id = item.match(/<(?:video|div class="motion-loop") id="([^"]+)"/)?.[1];
+      assert.ok(id && item.includes(`aria-controls="${id}"`), `${slug} control names its loop`);
     }
   }
   const css = componentCss("ExhibitLoops");

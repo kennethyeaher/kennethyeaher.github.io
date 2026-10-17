@@ -203,46 +203,59 @@ export function initializeCoverGradients(): void {
   gradients.forEach((gradient) => observer.observe(gradient));
 }
 
-/** play each exhibit loop only while it is in view; a visitor pause sticks, and reduced motion keeps the still. */
+/** play each exhibit loop only while it is in view; a visitor pause sticks, and reduced motion keeps the still. a loop
+    is a muted clip, or an html timeline (ExhibitMotionLoop) that plays while its frame is is-live. */
 export function initializeExhibitLoops(): void {
   const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
   document.querySelectorAll<HTMLElement>("[data-exhibit-loop]").forEach((loop) => {
     const video = loop.querySelector("video");
-    // the control lives in the stage's media tag, not on the device, and names its clip by id.
-    const button = video?.id ? document.querySelector<HTMLButtonElement>(`[data-loop-toggle][aria-controls="${video.id}"]`) : null;
-    if (!video || !button) return;
+    const frame = loop.querySelector<HTMLElement>("[data-motion-loop]");
+    const media = video ?? frame;
+    // the control lives in the stage's media tag, not on the device, and names its loop by id.
+    const button = media?.id ? document.querySelector<HTMLButtonElement>(`[data-loop-toggle][aria-controls="${media.id}"]`) : null;
+    if (!media || !button) return;
+    const player = video ? {
+      paused: () => video.paused,
+      play: () => {
+        const source = video.querySelector<HTMLSourceElement>("source[data-src]");
+        if (source && !source.hasAttribute("src")) {
+          source.src = source.dataset.src ?? "";
+          video.load();
+        }
+        return video.play();
+      },
+      pause: () => video.pause(),
+    } : {
+      paused: () => !media.classList.contains("is-live"),
+      play: () => { media.classList.add("is-live"); return Promise.resolve(); },
+      pause: () => media.classList.remove("is-live"),
+    };
     let visible = false;
     let pausedByVisitor = false;
     /** keep the control label in step with playback; the label alone carries the state. */
     function updateButton(): void {
-      if (!button || !video) return;
+      if (!button) return;
       button.hidden = motion.matches;
       // only the action changes; the loop's name after it keeps each control's accessible name distinct.
       const action = button.querySelector("[data-loop-action]");
-      if (action) action.textContent = video.paused ? "Play" : "Pause";
+      if (action) action.textContent = player.paused() ? "Play" : "Pause";
     }
     /** start or stop playback from visibility, the visitor's choice, and the motion preference. */
     function synchronize(): void {
-      if (!video) return;
       if (!visible || pausedByVisitor || motion.matches || document.hidden) {
-        video.pause();
+        player.pause();
         updateButton();
         return;
       }
-      const source = video.querySelector<HTMLSourceElement>("source[data-src]");
-      if (source && !source.hasAttribute("src")) {
-        source.src = source.dataset.src ?? "";
-        video.load();
-      }
-      video.play().catch(() => undefined).finally(updateButton);
+      player.play().catch(() => undefined).finally(updateButton);
     }
     button.addEventListener("click", () => {
-      pausedByVisitor = !video.paused;
+      pausedByVisitor = !player.paused();
       if (!pausedByVisitor) visible = true;
       synchronize();
     });
-    video.addEventListener("play", updateButton);
-    video.addEventListener("pause", updateButton);
+    video?.addEventListener("play", updateButton);
+    video?.addEventListener("pause", updateButton);
     document.addEventListener("visibilitychange", synchronize);
     motion.addEventListener("change", synchronize);
     updateButton();

@@ -12,7 +12,7 @@
  *   a position as percentages of its host (stage or visual).
  * @typedef {{
  *   src: string, alt: string, width: number, height: number,
- *   frame?: "image" | "iphone" | "browser" | "macbook", rot?: number, at?: Box, loop?: { src: string, poster: string, name?: string } | null,
+ *   frame?: "image" | "iphone" | "browser" | "macbook", rot?: number, at?: Box, loop?: { src: string, poster: string, name?: string } | { motion: string, name?: string } | null,
  *   url?: string, crop?: { x: number, y: number, w: number, h: number }, priority?: boolean, zoom?: number,
  *   fit?: "contain", bg?: string
  * }} ExhibitVisual
@@ -20,7 +20,8 @@
  *   priority marks the lcp visual when it is not the hero's last one; zoom draws a resized browser instance larger,
  *   its chrome scaling with it (terpcarehub 132:1846 is the 640 instance at 1.5x). fit "contain" shows a phone's whole
  *   capture, centred on bg (default #ffffff), instead of cropping it from the top; the redesign 2 phones use it.
- *   a loop of null is a still card waiting for its recording (elms), drawn at the card's size with no loop tag.
+ *   a loop of null is a still card waiting for its recording (elms), drawn at the card's size with no loop tag. a loop
+ *   with motion is drawn in html over still screens (src/data/loopMotion.mjs, elms's send path) at the card's size.
  * @typedef {{
  *   type: "focus" | "leader" | "leader-vertical", num: string, label?: string,
  *   on?: number, at?: Box, target?: string, direction?: "left" | "right" | "above", theme?: "on-dark" | "on-light",
@@ -2816,7 +2817,8 @@ export const caseStudies = [
             { num: "02", title: "Undo keeps your words", body: "Removing the recipient turns Send off and keeps the message, so fixing a slip never restarts the form. Norman calls this forgiveness for slips." },
           ],
         },
-        // the whole path (420:886) closes the chapter under its own head: the inbox to sent card beside its steps.
+        // the whole path (420:886) closes the chapter under its own head: the send path loop (504:11596) beside its
+        // steps, the one elms card that plays, so the only one with a loop tag.
         part: {
           figma: "420:886",
           eyebrow: "THE WHOLE PATH",
@@ -2824,12 +2826,12 @@ export const caseStudies = [
           loops: {
             layout: "feature",
             base: "#2a0f0c",
-            steps: ["Sign in, then Chats", "New message, Course first", "Role group, then the TA", "Write; the send bar names Barry", "Sent, with a time and a banner"],
+            steps: ["Choose a course", "Choose the TA", "Send", "Sent"],
             visuals: [
-              { src: "/images/work/elms-redesign/elms-inbox-to-sent-card.webp", width: 1280, height: 800, alt: "ELMS thread with Barry Allen on a laptop: the question about question 3 on Assignment 2, his reply, the student's thanks marked Sent at 10:34 AM, and a Message sent banner", loop: null },
+              { src: "/images/work/elms-redesign/elms-send-path-1-course.webp", width: 960, height: 540, alt: "The ELMS send path, looping: INST711 Interaction Design Studio is chosen from the course menu, typing Bar in To narrows the role groups to Barry Allen, TA, Send is pressed, and the thread shows Message sent to Barry Allen, TA, INST711 at 10:34 AM", loop: { motion: "elms-send-path", name: "send path" } },
             ],
             captions: [
-              { num: "03", title: "From the Inbox to Sent", body: "Every step asks one question. Krug’s second law says that matters more than the number of clicks. It ends on a Sent time and a banner, not Read, because the interface cannot promise the TA saw it." },
+              { num: "03", tag: "LOOP · 16s", title: "The send path", body: "Choose a course, choose the TA, send, sent. Every step asks one question. Krug’s second law says that matters more than the number of clicks. It ends on a Sent time and a banner, not Read, because the interface cannot promise the TA saw it." },
             ],
           },
         },

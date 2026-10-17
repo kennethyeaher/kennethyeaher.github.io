@@ -8,14 +8,16 @@
 // and the stage under it stood (terpcarehub's alert and find care), each on its own base. on phones the tag
 // drops under the card, so it never covers the device. a card whose loop is null is a still waiting for its recording
 // (elms): it draws its poster in the same box, so the clip drops in later with no layout change, and its tag, if it
-// has one, is a plain tag with no control.
+// has one, is a plain tag with no control. a loop with motion is drawn in html (ExhibitMotionLoop, elms's send path)
+// and takes the same tag and control as a clip.
 import Caption from "@/components/exhibits/Caption.astro";
 import ExhibitLoop from "@/components/exhibits/ExhibitLoop.astro";
+import ExhibitMotionLoop from "@/components/exhibits/ExhibitMotionLoop.astro";
 import MediaTag from "@/components/exhibits/MediaTag.astro";
 
 interface Props {
   layout: "pair" | "feature" | "wide";
-  visuals: { src: string; alt: string; width: number; height: number; base?: string; loop: { src: string; poster: string; name?: string } | null }[];
+  visuals: { src: string; alt: string; width: number; height: number; base?: string; loop: { src: string; poster: string; name?: string } | { motion: string; name?: string } | null }[];
   /** a wide card's caption carries only its tag. */
   captions: { num?: string; tag?: string; title?: string; body?: string }[];
   base: string;
@@ -29,7 +31,9 @@ const { layout, visuals, captions, base, steps = [] } = Astro.props;
     <figure class="loop-exhibit">
       <div class="loop-media">
         <div class="loop-card" style={`--loop-base: ${visual.base ?? base}; aspect-ratio: ${visual.width} / ${visual.height}`}>
-          {visual.loop
+          {visual.loop && "motion" in visual.loop
+            ? <ExhibitMotionLoop motion={visual.loop.motion} label={visual.alt} name={visual.loop.name} />
+            : visual.loop
             ? <ExhibitLoop src={visual.loop.src} poster={visual.loop.poster} width={visual.width} height={visual.height} label={visual.alt} name={visual.loop.name} />
             : <img class="loop-still-card" src={visual.src} alt={visual.alt} width={visual.width} height={visual.height} loading="lazy" decoding="async" />}
         </div>

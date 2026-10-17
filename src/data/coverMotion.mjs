@@ -262,6 +262,15 @@ function chip(node, labelNode, box, colour, tint, label) {
   return { node, box, style: `background: ${tint}; border-radius: {7}`, children: [text(labelNode, 6, 3, label, type("mono", 400, 6, 0, colour))] };
 }
 
+/** the llm chip: the site's jetbrains mono is cut to latin, so its ✓ would fall back to another, larger font. the check
+    is jetbrains mono's own ✓ outline (uni2713) instead, at 6px in the glyph's cell after "LLM ": 0.6em wide, from the
+    1.02em ascent to the 0.3em descent, so it sits at figma's size and baseline. */
+function llmChip(node, labelNode, box, colour, tint) {
+  const label = chip(node, labelNode, box, colour, tint, "LLM");
+  const check = { box: [6 + 4 * 3.6, 3, 3.6, 7.92], svg: { w: 3.6, h: 7.92, body: `<path d="M0.222 4.152L0.6 3.756L1.464 4.608L2.97 2.388L3.384 2.676L1.518 5.43Z" fill="${colour}" />` } };
+  return { ...label, children: [...label.children, check] };
+}
+
 /** an extracted field: its label, the noisy read and its underline, the clean value, and the rx and llm chips. */
 function extracted(label, noisy, clean, underline, top, ids) {
   return [
@@ -270,7 +279,7 @@ function extracted(label, noisy, clean, underline, top, ids) {
     fill(ids[2], [14, top + 27, underline, 1.2], red),
     text(ids[3], 14, top + 10, clean, type("mono", 400, 12, 0, navy)),
     chip(ids[5], ids[4], [141, top + 9, 27, 14], red, "rgb(224 90 90 / 16%)", "RX ×"),
-    chip(ids[7], ids[6], [172, top + 9, 30, 14], teal, "rgb(34 166 153 / 16%)", "LLM ✓"),
+    llmChip(ids[7], ids[6], [172, top + 9, 30, 14], teal, "rgb(34 166 153 / 16%)"),
     fill(ids[8], [14, top + 33, 188, 1], "rgb(14 26 51 / 6%)"),
   ];
 }

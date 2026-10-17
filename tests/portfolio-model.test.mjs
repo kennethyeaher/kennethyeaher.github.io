@@ -15,7 +15,8 @@ import { caseStudies } from "../src/data/caseStudies.mjs";
 import { coverFields } from "../src/data/coverFields.mjs";
 import { coverDevices } from "../src/data/coverDevices.mjs";
 import { coverMotion, ovaraTiles } from "../src/data/coverMotion.mjs";
-import { coverMotionCss, coverMotionPath, readMotion, scalePx, splitSnippet } from "../scripts/build-cover-motion.mjs";
+import { coverMotionCss, coverMotionPath, loopMotionCss, readMotion, scalePx, splitSnippet } from "../scripts/build-cover-motion.mjs";
+import { loopMotion } from "../src/data/loopMotion.mjs";
 import { approvedLedes, readProse } from "../scripts/build-approved-ledes.mjs";
 
 const specPath = new URL("../.private/redesign-spec/v2-pages.json", import.meta.url);
@@ -304,6 +305,16 @@ test("the cover keyframes are generated from figma's snippets with every timing 
       }
     }
   }
+  // the html exhibit loops (elms's send path) come from their own export the same way.
+  for (const slug of Object.keys(loopMotion)) {
+    const css = readFileSync(coverMotionPath(slug), "utf8");
+    assert.equal(css, loopMotionCss(slug), `${slug} stylesheet is fresh (node scripts/build-cover-motion.mjs)`);
+    for (const { nodeId, codeSnippets } of readMotion(slug).nodes) {
+      const { declarations, keyframes, properties } = splitSnippet(codeSnippets.css);
+      assert.ok(css.includes(`[data-node="${nodeId}"] { ${scalePx(declarations)} }`), `${slug} ${nodeId} animation`);
+      for (const rule of [...keyframes, ...properties]) assert.ok(css.includes(scalePx(rule)), `${slug} ${nodeId} keyframes`);
+    }
+  }
   assert.equal(scalePx("translate: 138.6px -104.4px; width: 0.01px; filter: blur(0px);"), "translate: calc(138.6 * var(--u)) calc(-104.4 * var(--u)); width: calc(0.01 * var(--u)); filter: blur(0px);");
 });
 
@@ -316,6 +327,11 @@ test("motion cover copy uses real figures and DC names in place of the capstone 
   assert.deepEqual([...new Set(numbers)].sort(), ["1,029", "10.9", "100", "20.5", "30.06"]);
   const kairo = text("kairo-health");
   for (const value of ["55 of 56", "won by the zero-shot model", "Extract", "PEDIATRIC TRIAGE"]) assert.ok(kairo.includes(value), `kairo shows ${value}`);
+  // the site's jetbrains mono has no ✓, so each llm chip draws the font's own check as an svg in the glyph's cell.
+  assert.doesNotMatch(kairo.join(" "), /✓/);
+  const llmChips = motionLayers(coverMotion["kairo-health"].layers).filter(({ node }) => readMotion("kairo-health").nodes.some(({ nodeId, nodeName }) => nodeId === node && nodeName === "Chip LLM ✓"));
+  assert.equal(llmChips.length, 3);
+  for (const { children } of llmChips) assert.deepEqual(children.map(({ text: value, svg, box }) => value ?? (svg && box)), ["LLM", [20.4, 3, 3.6, 7.92]]);
   assert.ok(JSON.stringify(caseStudies.find(({ slug }) => slug === "kairo-health")).includes('"value":"55 of 56"'), "55 of 56 is the case study's figure");
   const capstone = text("college-park-capstone");
   assert.ok(capstone.includes("17") && capstone.includes("of 24 follow no city channel"), "the tally is 17 of 24");

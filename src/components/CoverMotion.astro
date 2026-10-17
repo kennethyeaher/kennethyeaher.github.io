@@ -3,7 +3,7 @@ import { layerStyle } from "@/utils/coverMotion.mjs";
 
 // a motion cover's layers over the field (figma 482:10252, 484:10700, 485:11148). each layer that moves carries its
 // figma node id as data-node, which src/styles/cover-motion/<slug>.css animates. the component renders itself for each
-// child layer, so every layer shares this style scope.
+// child layer, so every layer shares this style scope. ExhibitMotionLoop renders an exhibit loop's layers through it too.
 type Layer = { node?: string; box: number[]; style?: string; text?: string; src?: string; svg?: { w: number; h: number; body: string }; children?: Layer[] };
 
 interface Props {
@@ -12,18 +12,20 @@ interface Props {
   layers: Layer[];
   /** true for the cover's own wrapper; child layers render without it. */
   root?: boolean;
+  /** the figma frame's width in px that the layers' boxes are shares of: the 454 cover, or an exhibit loop's frame. */
+  frame?: number;
 }
-const { slug, figma, layers, root = false } = Astro.props;
+const { slug, figma, layers, root = false, frame = 454 } = Astro.props;
 ---
 {root ? (
   <div class="cover-motion" aria-hidden="true" data-cover-motion={slug} data-figma={figma}>
-    <Astro.self slug={slug} layers={layers} />
+    <Astro.self slug={slug} layers={layers} frame={frame} />
   </div>
 ) : layers.map((layer) => (
-  layer.src ? <img class="cm-layer" src={layer.src} alt="" loading="lazy" decoding="async" data-node={layer.node} style={layerStyle(layer)} />
-  : layer.svg ? <svg class="cm-layer" width={layer.svg.w} height={layer.svg.h} viewBox={`0 0 ${layer.svg.w} ${layer.svg.h}`} fill="none" style={layerStyle(layer)} set:html={layer.svg.body} />
-  : layer.text !== undefined ? <span class="cm-layer" data-node={layer.node} style={layerStyle(layer)}>{layer.text}</span>
-  : <div class="cm-layer" data-node={layer.node} style={layerStyle(layer)}>{layer.children && <Astro.self slug={slug} layers={layer.children} />}</div>
+  layer.src ? <img class="cm-layer" src={layer.src} alt="" loading="lazy" decoding="async" data-node={layer.node} style={layerStyle(layer, frame)} />
+  : layer.svg ? <svg class="cm-layer" width={layer.svg.w} height={layer.svg.h} viewBox={`0 0 ${layer.svg.w} ${layer.svg.h}`} fill="none" style={layerStyle(layer, frame)} set:html={layer.svg.body} />
+  : layer.text !== undefined ? <span class="cm-layer" data-node={layer.node} style={layerStyle(layer, frame)}>{layer.text}</span>
+  : <div class="cm-layer" data-node={layer.node} style={layerStyle(layer, frame)}>{layer.children && <Astro.self slug={slug} layers={layer.children} frame={frame} />}</div>
 ))}
 <style>
   /* figma sets some text in inter. the home page loads no specimen fonts (specimens.test.mjs), so that text falls back

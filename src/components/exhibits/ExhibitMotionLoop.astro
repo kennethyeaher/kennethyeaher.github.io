@@ -1,0 +1,31 @@
+---
+// an exhibit loop drawn as html over still screens (src/data/loopMotion.mjs), in place of a recorded clip. the frame
+// is its own container, so every layer is a share of its width; the timeline is src/styles/cover-motion/<slug>.css,
+// which the case study links only on the page that shows it. it plays only while on screen, through the same media tag
+// control as a clip (exhibits.ts sets is-live on the frame); paused, off screen, without scripts and under reduced
+// motion it holds its first full frame. the frame is one image to assistive tech, named by the card's alt.
+import CoverMotion from "@/components/CoverMotion.astro";
+import { loopMotion } from "@/data/loopMotion.mjs";
+import { loopId } from "@/utils/loop.mjs";
+
+interface Props {
+  /** the loop's key in src/data/loopMotion.mjs. */
+  motion: string;
+  label: string;
+  /** what tells this loop apart from others on the page, from its caption: "send path" gives "Pause send path loop". */
+  name?: string;
+}
+const { motion, label, name } = Astro.props;
+const loop = loopMotion[motion as keyof typeof loopMotion];
+if (!loop) throw new Error(`no html loop named ${motion}`);
+const { figma, width, height, base, layers } = loop;
+const loopName = name ? `${name} loop` : "loop";
+---
+<div class="exhibit-loop" data-exhibit-loop data-loop-name={loopName}>
+  <div class="motion-loop" id={loopId(loopName)} role="img" aria-label={label} data-motion-loop={motion} data-figma={figma} style={`aspect-ratio: ${width} / ${height}; background: ${base}`}>
+    <CoverMotion slug={motion} layers={layers} frame={width} />
+  </div>
+</div>
+<style>
+  .motion-loop { position: relative; overflow: hidden; container-type: inline-size; pointer-events: none; }
+</style>
