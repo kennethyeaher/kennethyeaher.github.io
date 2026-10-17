@@ -1,0 +1,137 @@
+---
+// the elms gap (figma 415:603): a journey strip of the task's six steps (415:610) and the reframe card under it
+// (419:613). each step is a button whose audit finding shows on hover or focus, the dot growing and its ring fading
+// in (ELMS/Journey step 415:600, 220ms ease out); on touch screens, which cannot hover, every finding simply shows.
+// the finding is the button's description, so a screen reader hears it with the step either way.
+interface Props {
+  id: string;
+  doubt: {
+    steps: { num: string; step: string; question: string; finding: string; doubt: boolean }[];
+    legend: [string, string];
+    hint: string;
+    touchHint: string;
+    reframe: { before: { label: string; text: string; note: string }; after: { label: string; text: string }; pillars: [string, string][] };
+  };
+}
+const { id, doubt } = Astro.props;
+const { steps, legend, hint, touchHint, reframe } = doubt;
+---
+<div class="doubt">
+  <div class="doubt-journey">
+    <span class="doubt-track" aria-hidden="true"></span>
+    <ol class="doubt-steps">
+      {steps.map((step) => (
+        <li>
+          <button type="button" class:list={["doubt-step", !step.doubt && "is-clear"]} aria-describedby={`${id}-finding-${step.num}`}>
+            <span class="doubt-num">{step.num}</span>
+            <span class="doubt-dot" aria-hidden="true"></span>
+            <span class="doubt-name">{step.step}</span>
+            <span class="doubt-question">{step.question}</span>
+          </button>
+          <p class="doubt-finding" id={`${id}-finding-${step.num}`}>{step.finding}</p>
+        </li>
+      ))}
+    </ol>
+    <div class="doubt-foot">
+      <p class="doubt-legend"><span class="legend-dot" aria-hidden="true"></span>{legend[0]}<span class="legend-dot is-clear" aria-hidden="true"></span>{legend[1]}</p>
+      <p class="doubt-hint"><span class="hint-pointer">{hint}</span><span class="hint-touch">{touchHint}</span></p>
+    </div>
+  </div>
+
+  <div class="reframe">
+    <div class="reframe-statements">
+      <div class="reframe-before">
+        <p class="reframe-label">{reframe.before.label}</p>
+        <p class="reframe-old"><s>{reframe.before.text}</s></p>
+        <p class="reframe-note">{reframe.before.note}</p>
+      </div>
+      <span class="reframe-arrow" aria-hidden="true">→</span>
+      <div class="reframe-after">
+        <p class="reframe-label is-accent">{reframe.after.label}</p>
+        <p class="reframe-new">{reframe.after.text}</p>
+      </div>
+    </div>
+    <dl class="reframe-pillars">
+      {reframe.pillars.map(([label, text]) => <div><dt>{label}</dt><dd>{text}</dd></div>)}
+    </dl>
+  </div>
+</div>
+<style>
+  /* the strip is a 1116 wide card: six 168 wide steps from 54 in, a 2px track through the dots from the first step's
+     centre to the last's, the legend and hint 20 from the foot. the doubt red and the kept green are figma's dots. */
+  .doubt { --doubt: #c8102e; --clear: #127a38; display: grid; gap: 32px; }
+  .doubt-journey { position: relative; padding: 27px 53px 25px; border: 1px solid var(--rule); border-radius: 12px; background: var(--surface); }
+  .doubt-track { position: absolute; top: 76px; right: calc(53px + (100% - 106px) / 12); left: calc(53px + (100% - 106px) / 12); height: 2px; background: color-mix(in oklab, var(--doubt) 50%, var(--rule)); }
+  .doubt-steps { position: relative; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); margin: 0; padding: 0; list-style: none; }
+  .doubt-steps li { position: relative; display: grid; justify-items: center; align-content: start; gap: 10px; min-height: 243px; }
+  .doubt-step { display: grid; justify-items: center; gap: 10px; width: 100%; padding: 8px 8px 0; border: 0; border-radius: 10px; background: none; color: inherit; font: inherit; text-align: center; cursor: default; }
+  .doubt-step:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .doubt-num { color: var(--muted); font: var(--label-micro, 10px) / 14px var(--mono); letter-spacing: 0.06em; }
+  /* the dot is figma's 36 box: an 8 radius core, 10 on hover with an 18% ring. */
+  .doubt-dot { width: 36px; height: 36px; border-radius: 50%; background: radial-gradient(circle, var(--doubt) 0 8px, transparent 8.5px); }
+  .is-clear .doubt-dot { --doubt: var(--clear); }
+  .doubt-name { color: var(--ink-strong); font: 500 14px / 1.35 var(--ui-sans); letter-spacing: -0.005em; }
+  .doubt-question { max-width: 152px; color: var(--muted); font: 16px / 24px var(--body); }
+  .doubt-finding { width: 128px; margin: 0; padding: 10px 12px; border: 1px solid var(--rule); border-radius: 8px; background: var(--surface); color: var(--ink); font: 12px / 1.35 var(--ui-sans); text-align: center; visibility: hidden; }
+  .doubt-steps li:is(:hover, :focus-within) .doubt-finding { visibility: visible; }
+  .doubt-steps li:is(:hover, :focus-within) .doubt-dot { background: radial-gradient(circle, var(--doubt) 0 10px, color-mix(in oklab, var(--doubt) 18%, transparent) 10.5px 18px, transparent 18.5px); }
+  .doubt-foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px 24px; margin-top: 26px; margin-inline: -14px; }
+  .doubt-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0; color: var(--muted); font: 12px / 1.35 var(--ui-sans); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--doubt); }
+  .legend-dot.is-clear { margin-left: 12px; background: var(--clear); }
+  .doubt-hint { margin: 0; color: var(--muted); font: var(--label-micro, 10px) / 14px var(--mono); letter-spacing: 0.06em; }
+  .hint-touch { display: none; }
+  @media (any-hover: none) {
+    .hint-pointer { display: none; }
+    .hint-touch { display: inline; }
+  }
+  /* the finding rises 4px as it shows, over figma's 220ms, and stays put under reduced motion. */
+  @media (prefers-reduced-motion: no-preference) {
+    .doubt-finding { translate: 0 4px; transition: visibility 0s 220ms, translate 220ms var(--ease-out); }
+    .doubt-steps li:is(:hover, :focus-within) .doubt-finding { translate: 0 0; transition: visibility 0s, translate 220ms var(--ease-out); }
+  }
+
+  /* the reframe card: the struck first statement, an arrow, the reframed one, and the four pillars under a 2px rule. */
+  .reframe { display: grid; gap: 28px; padding: 32px 36px; border: 1px solid var(--rule); border-radius: 12px; background: var(--surface); }
+  .reframe-statements { display: grid; grid-template-columns: 300px auto minmax(0, 560px); gap: 40px; align-items: start; }
+  .reframe-before, .reframe-after { display: grid; gap: 10px; }
+  .reframe-label { margin: 0; color: var(--muted); font: 12px / 1.3 var(--mono); letter-spacing: -0.02em; text-transform: uppercase; }
+  .reframe-label.is-accent { color: #8c1a11; }
+  .reframe-old { margin: 0; color: var(--muted); font: 400 24px / 30px var(--display); letter-spacing: -0.01em; }
+  .reframe-old s { text-decoration-thickness: from-font; }
+  .reframe-note { margin: 0; color: #c8102e; font: 12px / 1.35 var(--ui-sans); }
+  .reframe-arrow { color: var(--rule); font: 400 32px / 1.1 var(--display); }
+  .reframe-new { margin: 0; color: var(--ink-strong); font: 400 32px / 1.1 var(--display); letter-spacing: -0.015em; }
+  .reframe-pillars { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; margin: 0; }
+  .reframe-pillars div { display: grid; align-content: start; gap: 6px; padding-top: 12px; border-top: 2px solid var(--rule); }
+  .reframe-pillars dt { color: var(--ink); font: 500 12px / 1.3 var(--mono); letter-spacing: -0.02em; }
+  .reframe-pillars dd { margin: 0; color: var(--ink); font: 16px / 24px var(--body); }
+
+  :global(:root[data-theme="dark"]) .reframe-label.is-accent { color: #f08a7f; }
+  :global(:root[data-theme="dark"]) .reframe-note { color: #f08a7f; }
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme="light"])) .reframe-label.is-accent, :global(:root:not([data-theme="light"])) .reframe-note { color: #f08a7f; }
+  }
+
+  /* below 980 the six steps wrap to three a row with no track, and the reframe stacks. */
+  @media (max-width: 980px) {
+    .doubt-journey { padding: 20px 16px; }
+    .doubt-track { display: none; }
+    .doubt-steps { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 20px; }
+    .doubt-steps li { min-height: 0; }
+    .doubt-foot { margin-inline: 0; }
+    .reframe { padding: 24px 20px; }
+    .reframe-statements { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+    .reframe-arrow { rotate: 90deg; justify-self: start; }
+    .reframe-new { font-size: 26px; }
+    .reframe-pillars { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  /* touch screens cannot hover, so every finding shows under its step. */
+  @media (any-hover: none) {
+    .doubt-finding { visibility: visible; translate: 0 0; }
+  }
+  @media (max-width: 520px) {
+    .doubt-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .doubt-finding { width: auto; }
+  }
+</style>

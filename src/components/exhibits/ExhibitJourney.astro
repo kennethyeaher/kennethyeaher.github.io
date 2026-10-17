@@ -13,10 +13,12 @@ interface Props {
   caption: string;
   /** label tones per row; names (capstone 90:2133) all read muted. */
   tones?: string[];
+  /** a row whose cells figma tints, by index (elms's hi-fi row, 413:2512). */
+  accentRow?: number;
   /** a full width image under the map with a label above and a line under it (capstone 90:2166). */
   figure?: { src: string; alt: string; width: number; height: number; label: string; caption: string };
 }
-const { id, stages, accentStage, rows, strip, caption, tones: rowTones, figure } = Astro.props;
+const { id, stages, accentStage, accentRow, rows, strip, caption, tones: rowTones, figure } = Astro.props;
 const columns = stages.map((stage) => {
   const [number, ...name] = stage.split(" ");
   return { number, name: name.join(" "), accent: number === accentStage };
@@ -41,7 +43,7 @@ const tones = rowTones ?? ["muted", "annotate", "accent"];
     </thead>
     <tbody>
       {rows.map((row, index) => (
-        <tr>
+        <tr class:list={[index === accentRow && "is-accent-row"]}>
           <th scope="row" class={`tone-${tones[index] ?? "muted"}`}>{row.label}</th>
           {row.cells.map((cell) => <td>{cell}</td>)}
         </tr>
@@ -84,4 +86,9 @@ const tones = rowTones ?? ["muted", "annotate", "accent"];
   .tone-annotate { color: var(--color-annotate); }
   .tone-accent { color: var(--accent); }
   .journey tbody td { color: var(--ink); font: 14px / 1.45 var(--body); }
+  .journey .is-accent-row td { background: #fbefee; color: #314050; }
+  :global(:root[data-theme="dark"]) .journey .is-accent-row td { background: #3a1714; color: var(--ink); }
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme="light"])) .journey .is-accent-row td { background: #3a1714; color: var(--ink); }
+  }
 </style>

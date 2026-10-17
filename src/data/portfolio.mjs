@@ -272,9 +272,10 @@ const order = [
   "terpcare",
   "ovara",
   "kairo-health",
+  "elms-redesign",
 ];
 
-/** Seven publishable project records that drive the Work page and case studies, in the home order. */
+/** Eight publishable project records that drive the Work page and case studies, in the home order. */
 export const projects = order.map((slug) => {
   const project = caseStudies.find((entry) => entry.slug === slug);
   if (!project) throw new Error(`Unknown project slug in the home order: ${slug}`);

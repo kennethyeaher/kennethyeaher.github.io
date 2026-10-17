@@ -1,4 +1,10 @@
 {
+  "elms-new-message": [320, 480, 960, 1440, 1920],
+  "elms-paper-compose-label": [320, 480, 851],
+  "elms-paper-current-term": [320, 480, 831],
+  "elms-paper-required-fields": [320, 480, 830],
+  "elms-paper-ta-by-role": [320, 480, 815],
+  "elms-wireframe-inbox": [320, 480, 960, 1440, 1920],
   "figma-book-appointment": [320, 480, 860],
   "figma-discussion-create": [320, 480, 860],
   "figma-discussion-recents": [320, 480, 860],

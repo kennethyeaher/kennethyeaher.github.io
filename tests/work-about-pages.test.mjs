@@ -41,14 +41,15 @@ test("the Work page renders the approved thesis and the home grid project order"
     "/work/terpcare",
     "/work/ovara",
     "/work/kairo-health",
+    "/work/elms-redesign",
   ];
   const positions = routes.map((route) => workHtml.indexOf(`href="${route}"`));
 
   assert.ok(positions.every((position) => position >= 0));
   assert.deepEqual([...positions].sort((a, b) => a - b), positions);
-  assert.equal((workHtml.match(/class="project-card"/g) ?? []).length, 7);
-  assert.equal((workHtml.match(/data-tilt-card/g) ?? []).length, 7);
-  assert.equal((workHtml.match(/data-project-cover/g) ?? []).length, 7);
+  assert.equal((workHtml.match(/class="project-card"/g) ?? []).length, 8);
+  assert.equal((workHtml.match(/data-tilt-card/g) ?? []).length, 8);
+  assert.equal((workHtml.match(/data-project-cover/g) ?? []).length, 8);
   assert.doesNotMatch(workHtml, /class="cover-exhibit|data-device-frame=|class="[^"]*has-exhibit/);
   assert.doesNotMatch(workHtml, /class="cover-scrim"|class="cover-label"/);
   // names go on the clicked card only, from the head script, so the static markup carries none.
@@ -56,7 +57,7 @@ test("the Work page renders the approved thesis and the home grid project order"
   assert.match(workHtml, /addEventListener\("pageswap"/);
   assert.match(workHtml, /addEventListener\("pagereveal"/);
   assert.match(workHtml, /event\.viewTransition\.finished\.finally\(\(\) => nameCard\(card, false\)\)\.catch\(\(\) => \{\}\);/);
-  assert.equal((workHtml.match(/data-cover-gradient/g) ?? []).length, 7);
+  assert.equal((workHtml.match(/data-cover-gradient/g) ?? []).length, 8);
   assert.doesNotMatch(workHtml, /\.mp4|data-cover-video/);
   assert.doesNotMatch(workHtml, /Read case study/);
   assert.doesNotMatch(workHtml, /project-media is-contained/);

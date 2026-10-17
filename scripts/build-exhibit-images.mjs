@@ -20,10 +20,11 @@ function exhibitSources() {
       // visuals sit on the exhibit itself, on each stage of a pair, or are the tiles of a states grid.
       // the writing pass adds a scrolling laptop, walkthrough screens and a pinned phone beside an exhibit, and
       // redesign 2 adds rows after a stage (a journey's rows are table rows, with no visuals), and a live specimen
-      // can show a capture (frontground's greyscale toggle).
+      // can show a capture (frontground's greyscale toggle). elms adds its four paper prototype photos.
       const visuals = [...(exhibit.visuals ?? []), ...(exhibit.stages ?? []).flatMap((stage) => stage.visuals ?? []), ...(exhibit.tiles ?? []), ...(exhibit.figure ? [exhibit.figure] : []),
         ...(exhibit.scroller ? [exhibit.scroller.visual] : []), ...(exhibit.walkthrough?.steps ?? []).map((step) => step.screen), ...(exhibit.pins ? [exhibit.pins.visual] : []),
-        ...(exhibit.rows?.visuals ?? []), ...(exhibit.specimens ?? []).flatMap((specimen) => specimen.visual ? [specimen.visual] : [])];
+        ...(exhibit.rows?.visuals ?? []), ...(exhibit.specimens ?? []).flatMap((specimen) => specimen.visual ? [specimen.visual] : []),
+        ...(exhibit.papers?.cards ?? []).map((card) => card.photo)];
       for (const visual of visuals) sources.add(visual.src);
     }
   }

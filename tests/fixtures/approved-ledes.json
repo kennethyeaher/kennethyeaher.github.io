@@ -243,5 +243,37 @@
       "The redesign is smaller in some ways. Fewer features, more states, and a privacy screen that took longer to write than any flow. I think that trade is right for a health product, and I would not have made it in 2024.",
       "Two things stay open, and I would rather say so. The peer board and the crisis numbers need a review from the Counseling Center before they go in front of a student, and nothing here has met a user yet. The test is written: three participants, one task, set up the app and then find out who can see your entries, and a pass means they can name who sees their data and find delete in under a minute. That is the first thing I want to do with this file."
     ]
+  ],
+  "elms-redesign": [
+    [
+      "It was 11:48 PM, Assignment 2 was due at midnight, and I needed my TA. When I opened the ELMS Inbox I was not thinking about design. I was thinking about which icon starts a message, which INST711 was this term, and whether my question reached anyone.",
+      "This project takes that one task apart. A heuristic audit of the live Inbox found doubt at five of six steps. My first problem statement, “the compose button needs a label,” turned out to be a fix pretending to be a problem. The real problem was uncertainty at every step between “I need help” and “my TA got it.”",
+      "The redesign started as a better email form and became a conversation after a mid-fi critique. This page walks through the audit, round one on paper and in wireframes, the pivot, and the hi-fi flow, and closes with the test I would run first."
+    ],
+    [
+      "I turned my own questions into a Nielsen heuristic audit of the live Inbox and mapped the task one step at a time. Opening the Inbox is fine, and I kept it. Every step after that asks the student to stop and think, which is the opposite of what Krug calls a self-evident page.",
+      "Norman names the gap: the gulf of evaluation, the distance between what the system shows and what the person needs to know. The ratings are my judgment from the audit, not measured data."
+    ],
+    [
+      "My first direction went straight at Norman’s gulf of evaluation, the gap between what the system shows and what the person needs to know. I leaned on Jakob’s Law: students spend most of their time in Gmail and Outlook, so a clearly labeled Compose that behaves like theirs should feel familiar from the first click.",
+      "Following Rogers, Sharp and Preece, I designed alternatives before choosing. Ten ideas, grouped by where to start (A), choosing a course (B), and what to fill in (C). The four I built went onto paper first. Filter the board to see each group."
+    ],
+    [
+      "At the mid-fi review, my professor gave me the best advice of the project: do not stop at a better email form. Students already have UMD email for formal messages. The Inbox is where quick questions happen, and quick questions belong in a conversation, like WhatsApp, not a compose window.",
+      "That reframed the work. I went back to ideation around the conversation patterns students already know, rebuilt the mid-fi wireframes as chats, and only then moved to hi-fi. Jakob’s Law still applied. The familiar app just changed from Gmail to WhatsApp."
+    ],
+    [
+      "In hi-fi, the conversation model came down to four moves and one form. A labeled New message button in two places, which Tidwell calls Clear Entry Points. A fixed order, Course then To then Message, where each field unlocks the next. In Norman’s terms that is a constraint.",
+      "A visible audience, where one line names who gets the message before Send, which is Tidwell’s Preview pattern. And sent feedback inside the thread. Everything around those four moves stays ELMS, so the only new thing a student learns is the flow."
+    ],
+    [
+      "Each column reads top to bottom, from the ELMS Inbox today, through my paper sketches and wireframes, to the hi-fi prototype. Lean UX calls this outcomes over output: every change targets a doubt from the audit, not just a screen.",
+      "One change went backward on purpose. My wireframe used my own recipient categories. The prototype uses the real ELMS role groups, which costs one click and saves students from learning a new vocabulary."
+    ],
+    [
+      "Matching a real product closely turned out to be a design decision, not a shortcut. Every time I swapped my own idea for the ELMS pattern, like the real role groups instead of my own categories, the rest of the flow got easier to learn. Once the screens were built from components, most new screens were just a new state.",
+      "Every gain had a cost. Chat drops the subject line, so search runs on person or message text. Course before To adds a step but stops wrong-class messages. A disabled Send button can hide why, so the send bar spells out what is missing, and I still need to see whether students read it.",
+      "I have not tested this with students yet, and I would rather say that directly. The test is written: five students, one task, “Ask your TA about question 3 on Assignment 2.” I would measure time to start, picking the right course, naming the recipient before Send, and noticing Sent, then compare a prefilled course against choosing it fresh."
+    ]
   ]
 }

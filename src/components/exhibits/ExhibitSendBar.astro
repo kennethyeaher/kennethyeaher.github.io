@@ -1,0 +1,102 @@
+---
+// the elms send bar (figma 420:809, "Specimen / Send bar" 421:757): the To field and the bar under it, playable.
+// choose a person and the bar names who gets the message and Send turns on; the × undoes it; Send confirms in the bar
+// and becomes Send another. the bar is a polite live region, and focus always lands on a control that is still
+// there. drawn in ELMS's own light colours and Lato in both themes, like the screens. the state is elms-send-bar.mjs.
+import { barText, createSendBar, sendButton } from "./elms-send-bar.mjs";
+
+interface Props {
+  sendBar: { label: string; person: string; course: string; time: string };
+}
+const { sendBar } = Astro.props;
+const state = createSendBar();
+const button = sendButton(state);
+const [name] = sendBar.person.split(" · ");
+---
+<figure class="send-specimen" data-send-bar data-person={sendBar.person} data-course={sendBar.course} data-time={sendBar.time}>
+  <figcaption class="send-label">{sendBar.label}</figcaption>
+  <div class="send-card" data-state={state}>
+    <p class="send-to" id="send-bar-to">To *</p>
+    <div class="send-field" role="group" aria-labelledby="send-bar-to">
+      <button type="button" class="send-choose" data-send-choose>+ Choose a person</button>
+      <span class="send-chip" hidden data-send-chip>
+        <span>{sendBar.person}</span>
+        <button type="button" class="send-remove" aria-label={`Remove ${name}`} data-send-remove>×</button>
+      </span>
+    </div>
+    <div class="send-bar">
+      <p class="send-text" role="status" data-send-text>{barText(state, sendBar)}</p>
+      <button type="button" class="send-button" disabled={button.disabled} data-send-button>{button.label}</button>
+    </div>
+  </div>
+</figure>
+<style>
+  .send-specimen { display: grid; gap: 12px; margin: 32px 0 0; }
+  .send-label { color: var(--color-annotate); font: var(--label-micro, 10px) / 13px var(--mono); letter-spacing: 0.06em; }
+  /* figma's 860 by 148 card: To 23 in, the 44 tall field under it, then the 52 tall bar. */
+  .send-card { max-width: 860px; overflow: hidden; border: 1px solid #c7cdd1; border-radius: 12px; background: #ffffff; color: #2d3b45; font: 13px / 1.2 "Lato", var(--ui); }
+  .send-card p { margin: 0; }
+  .send-to { padding: 18px 23px 7px; font-weight: 700; }
+  .send-field { display: flex; align-items: center; min-height: 44px; margin: 0 23px 10px; padding: 7px; border: 1px solid #c7cdd1; border-radius: 6px; }
+  .send-choose { min-height: 28px; padding: 0 13px; border: 1px dashed #c7cdd1; border-radius: 999px; background: none; color: #56626c; font: inherit; cursor: pointer; }
+  .send-choose[hidden] { display: none; }
+  .send-chip { display: inline-flex; align-items: center; gap: 12px; min-height: 28px; padding: 0 6px 0 14px; border-radius: 999px; background: #eef0f3; font-weight: 700; }
+  .send-chip[hidden] { display: none; }
+  /* the visible × is figma's 15px glyph; its target is 28 square. */
+  .send-remove { display: grid; place-items: center; width: 28px; height: 28px; padding: 0; border: 0; border-radius: 50%; background: none; color: #56626c; font: 15px / 1 "Lato", var(--ui); cursor: pointer; }
+  .send-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; min-height: 52px; padding: 8px 23px 8px 24px; background: #f5f5f5; }
+  .send-text { font-size: 14px; }
+  [data-state="ready"] .send-text { font-weight: 700; }
+  [data-state="sent"] .send-bar { background: #e7f3ea; }
+  [data-state="sent"] .send-text { color: #127a38; font-weight: 700; white-space: pre; }
+  .send-button { min-width: 132px; min-height: 36px; padding: 0 16px; border: 1px solid #8c1a11; border-radius: 6px; background: #8c1a11; color: #ffffff; font: 700 13px / 1 "Lato", var(--ui); cursor: pointer; }
+  /* off until a person is named: the figma grey, with the label still at 4.5:1. */
+  .send-button:disabled { border-color: #c7cdd1; background: #c7cdd1; color: #2d3b45; cursor: not-allowed; }
+  [data-state="sent"] .send-button { border-color: #c7cdd1; background: #ffffff; color: #2d3b45; }
+  .send-card button:focus-visible { outline: 2px solid #1f4f7a; outline-offset: 2px; }
+  @media (prefers-reduced-motion: no-preference) {
+    .send-bar, .send-text, .send-button { transition: background-color 280ms ease-in-out, color 280ms ease-in-out, border-color 280ms ease-in-out; }
+  }
+  @media (max-width: 640px) {
+    .send-to { padding-inline: 16px; }
+    .send-field { margin-inline: 16px; }
+    .send-bar { padding-inline: 16px; }
+    [data-state="sent"] .send-text { white-space: normal; }
+  }
+</style>
+<script>
+  import * as bar from "./elms-send-bar.mjs";
+
+  // each control keeps focus on something still on screen: choosing moves it to Send, the × back to Choose, and Send
+  // another back to Choose; Send itself stays where it is as it becomes Send another.
+  document.querySelectorAll<HTMLElement>("[data-send-bar]").forEach((figure) => {
+    const card = figure.querySelector<HTMLElement>(".send-card")!;
+    const chooseButton = figure.querySelector<HTMLButtonElement>("[data-send-choose]")!;
+    const chip = figure.querySelector<HTMLElement>("[data-send-chip]")!;
+    const removeButton = figure.querySelector<HTMLButtonElement>("[data-send-remove]")!;
+    const text = figure.querySelector<HTMLElement>("[data-send-text]")!;
+    const sendButton = figure.querySelector<HTMLButtonElement>("[data-send-button]")!;
+    const detail = { person: figure.dataset.person!, course: figure.dataset.course!, time: figure.dataset.time! };
+    let state = bar.createSendBar();
+
+    /** draw the state: the chip or the choose button, the bar's line, and the button. */
+    function draw(): void {
+      card.dataset.state = state;
+      chooseButton.hidden = state !== "incomplete";
+      chip.hidden = state !== "ready";
+      text.textContent = bar.barText(state, detail);
+      const button = bar.sendButton(state);
+      sendButton.textContent = button.label;
+      sendButton.disabled = button.disabled;
+    }
+
+    chooseButton.addEventListener("click", () => { state = bar.choose(state); draw(); sendButton.focus(); });
+    removeButton.addEventListener("click", () => { state = bar.remove(state); draw(); chooseButton.focus(); });
+    sendButton.addEventListener("click", () => {
+      const wasSent = state === "sent";
+      state = bar.send(state);
+      draw();
+      if (wasSent) chooseButton.focus();
+    });
+  });
+</script>

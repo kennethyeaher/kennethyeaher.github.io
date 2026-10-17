@@ -1,0 +1,109 @@
+---
+// the elms model toggle (figma 420:746): a segmented control between round one's email form and round two's chat
+// thread. the copy on the left and the window on the right change together; an option is a pressed toggle, and
+// without scripts the email model shows, as figma's default variant does. the window is drawn in ELMS's Lato.
+interface Props {
+  id: string;
+  toggle: {
+    models: { id: string; option: string; title: string; body: string; foot: string }[];
+    email: Record<string, string>;
+    chat: Record<string, string>;
+  };
+}
+const { id, toggle } = Astro.props;
+const { email, chat } = toggle;
+---
+<div class="model" data-model-toggle data-model="email">
+  <div class="model-copy">
+    <div class="model-options" role="group" aria-label="Show a model">
+      {toggle.models.map((model, index) => (
+        <button type="button" class="model-option" aria-pressed={index === 0 ? "true" : "false"} aria-controls={`${id}-model`} data-option={model.id}>{model.option}</button>
+      ))}
+    </div>
+    {toggle.models.map((model, index) => (
+      <div class="model-text" data-text={model.id} hidden={index > 0}>
+        <p class="model-title">{model.title}</p>
+        <p class="model-body">{model.body}</p>
+        <p class="model-foot">{model.foot}</p>
+      </div>
+    ))}
+  </div>
+  <div class="model-stage" id={`${id}-model`}>
+    <div class="model-window is-email" data-window="email">
+      <p class="window-heading">{email.heading}</p>
+      <div class="window-fields">
+        <p class="window-field"><span>{email.to}</span><span class="window-ask">{email.toHint}</span></p>
+        <p class="window-field">{email.subject}</p>
+        <p class="window-field is-tall">{email.message}</p>
+      </div>
+      <p class="window-foot"><span>{email.after}</span><span class="window-send" aria-hidden="true">{email.send}</span></p>
+    </div>
+    <div class="model-window is-chat" data-window="chat" hidden>
+      <p class="window-person"><span class="window-avatar" aria-hidden="true"></span><span><span class="window-heading">{chat.heading}</span><span class="window-sub">{chat.sub}</span></span></p>
+      <div class="window-thread">
+        <p class="window-bubble is-in">{chat.question}</p>
+        <p class="window-bubble is-out">{chat.reply}</p>
+        <p class="window-status">{chat.status}</p>
+      </div>
+      <p class="window-foot"><span>{chat.after}</span><span class="window-send" aria-hidden="true">{chat.send}</span></p>
+    </div>
+  </div>
+</div>
+<style>
+  /* figma's 1116 by 420 card: the copy 39 in and 47 down, 380 wide; the 600 wide sunken stage on the right holding
+     the 480 by 320 window, 60 in and 50 down. */
+  .model { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 600px); min-height: 420px; overflow: hidden; border: 1px solid var(--rule); border-radius: 12px; background: var(--surface); }
+  .model p { margin: 0; }
+  .model-copy { display: grid; align-content: start; gap: 16px; padding: 46px 39px 40px; }
+  .model-options { display: flex; justify-self: start; gap: 4px; padding: 4px; border-radius: 999px; background: var(--surface-sunken); }
+  .model-option { min-height: 36px; padding: 8px 18px; border: 0; border-radius: 999px; background: none; color: var(--muted); font: 500 14px / 1.35 var(--ui-sans); letter-spacing: -0.005em; cursor: pointer; }
+  .model-option[aria-pressed="true"] { background: var(--surface); color: var(--ink-strong); box-shadow: 0 1px 3px rgb(0 0 0 / 8%); }
+  .model-option:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .model-text { display: grid; gap: 16px; max-width: 380px; }
+  .model-text[hidden] { display: none; }
+  .model-title { color: var(--ink-strong); font: 400 24px / 30px var(--display); letter-spacing: -0.01em; }
+  .model-body { color: var(--ink); font: 16px / 24px var(--body); }
+  .model-foot { color: var(--muted); font: var(--label-micro, 10px) / 14px var(--mono); letter-spacing: 0.06em; }
+  .model-stage { display: grid; place-items: center; padding: 50px 60px; background: var(--surface-sunken); }
+  /* the window keeps ELMS's own light colours in both themes, as a screenshot would. */
+  .model-window { display: flex; flex-direction: column; width: 100%; max-width: 480px; min-height: 320px; padding: 16px 20px 18px; border-radius: 10px; background: #ffffff; color: #2d3b45; font: 13px / 1.25 "Lato", var(--ui); box-shadow: 0 12px 32px rgb(0 0 0 / 12%); }
+  .model-window[hidden] { display: none; }
+  .window-heading { display: block; padding-top: 12px; font: 700 16px / 1.2 "Lato", var(--ui); }
+  .window-fields { display: grid; gap: 12px; margin-top: 24px; }
+  .window-field { display: flex; gap: 14px; min-height: 40px; padding: 10px 11px; border: 1px solid #c7cdd1; border-radius: 6px; color: #56626c; }
+  .window-field.is-tall { min-height: 72px; }
+  .window-ask { color: #c2410c; }
+  .window-foot { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: auto; padding-top: 14px; color: #56626c; font-size: 12px; }
+  .window-send { flex: none; display: grid; place-items: center; width: 80px; height: 36px; border-radius: 6px; background: #8c1a11; color: #ffffff; font: 700 13px / 1 "Lato", var(--ui); }
+  .window-person { display: flex; align-items: center; gap: 12px; min-height: 48px; }
+  .window-person .window-heading { padding-top: 0; }
+  .window-avatar { flex: none; width: 36px; height: 36px; border-radius: 50%; background: #8c1a11; }
+  .window-sub { display: block; margin-top: 4px; color: #56626c; font-size: 12px; }
+  .window-thread { display: grid; gap: 12px; margin-top: 12px; }
+  .window-bubble { justify-self: start; width: min(250px, 80%); padding: 13px 14px; border-radius: 18px; background: #f5f5f5; }
+  .window-bubble.is-out { justify-self: end; background: #8c1a11; color: #ffffff; }
+  .window-status { justify-self: end; margin-top: -6px; color: #127a38; font: 700 12px / 1.2 "Lato", var(--ui); }
+  @media (prefers-reduced-motion: no-preference) {
+    .model-window, .model-text { transition: opacity 400ms ease-in-out; }
+    @starting-style { .model-window, .model-text { opacity: 0; } }
+  }
+  @media (max-width: 860px) {
+    .model { grid-template-columns: minmax(0, 1fr); }
+    .model-copy { padding: 24px 20px; }
+    .model-stage { padding: 24px 16px; }
+    .model-window { min-height: 280px; }
+  }
+</style>
+<script>
+  // an option press shows its model's copy and window and hides the other's.
+  document.querySelectorAll<HTMLElement>("[data-model-toggle]").forEach((root) => {
+    const options = [...root.querySelectorAll<HTMLButtonElement>("[data-option]")];
+    options.forEach((option) => option.addEventListener("click", () => {
+      const model = option.dataset.option!;
+      root.dataset.model = model;
+      options.forEach((other) => other.setAttribute("aria-pressed", String(other === option)));
+      root.querySelectorAll<HTMLElement>("[data-text]").forEach((text) => { text.hidden = text.dataset.text !== model; });
+      root.querySelectorAll<HTMLElement>("[data-window]").forEach((view) => { view.hidden = view.dataset.window !== model; });
+    }));
+  });
+</script>

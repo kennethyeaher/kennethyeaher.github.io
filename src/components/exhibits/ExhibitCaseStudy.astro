@@ -26,6 +26,12 @@ import ExhibitMetrics from "@/components/exhibits/ExhibitMetrics.astro";
 import NextProject from "@/components/exhibits/NextProject.astro";
 import Notes from "@/components/exhibits/Notes.astro";
 import SectionHead from "@/components/exhibits/SectionHead.astro";
+import ExhibitDoubt from "@/components/exhibits/ExhibitDoubt.astro";
+import ExhibitIdeas from "@/components/exhibits/ExhibitIdeas.astro";
+import ExhibitPapers from "@/components/exhibits/ExhibitPapers.astro";
+import ExhibitProcess from "@/components/exhibits/ExhibitProcess.astro";
+import ExhibitModelToggle from "@/components/exhibits/ExhibitModelToggle.astro";
+import ExhibitSendBar from "@/components/exhibits/ExhibitSendBar.astro";
 import SpecimenTerpcareMood from "@/components/exhibits/specimens/SpecimenTerpcareMood.astro";
 import SpecimenTerpcarehubBook from "@/components/exhibits/specimens/SpecimenTerpcarehubBook.astro";
 import SpecimenSohiveRsvp from "@/components/exhibits/specimens/SpecimenSohiveRsvp.astro";
@@ -136,6 +142,16 @@ function sectionFor(exhibit: any) {
             )}
             {exhibit.kind === "stage" && (
               <>
+                {/* elms's parts before the stage (figma 413:2396): the idea board and paper prototypes of round one,
+                    the process timeline and model toggle of the pivot. */}
+                {(exhibit.ideas || exhibit.papers || exhibit.process || exhibit.toggle) && (
+                  <div class:list={["exhibit-leadins", exhibit.visuals && "has-stage"]}>
+                    {exhibit.ideas && <ExhibitIdeas id={exhibit.id} ideas={exhibit.ideas} />}
+                    {exhibit.papers && <ExhibitPapers papers={exhibit.papers} />}
+                    {exhibit.process && <ExhibitProcess process={exhibit.process} />}
+                    {exhibit.toggle && <ExhibitModelToggle id={exhibit.id} toggle={exhibit.toggle} />}
+                  </div>
+                )}
                 {exhibit.visuals && <ExhibitStage palette={palette} size={exhibit.size} ratio={exhibit.ratio} field={exhibit.field} base={exhibit.base} zoom={exhibit.zoom ? exhibit.id : undefined} zoomPhone={exhibit.zoom === "phone"}>
                   {exhibit.visuals.map((visual: any) => <ExhibitVisual visual={visual} stageRatio={stageRatio(exhibit)} />)}
                   {[...(exhibit.annotations ?? [])].sort((a: any, b: any) => Number(a.num) - Number(b.num)).map((annotation: any) => (
@@ -149,11 +165,20 @@ function sectionFor(exhibit: any) {
                 <LeaderLegend annotations={exhibit.annotations ?? []} />
                 {exhibit.notes && <Notes notes={exhibit.notes} idPrefix={exhibit.id} />}
                 {exhibit.captions && <div class="stage-caption">{exhibit.captions.map((caption: any) => <Caption title={caption.title} body={caption.body} />)}</div>}
+                {/* the playable send bar the caption points to (elms 421:757). */}
+                {exhibit.sendBar && <ExhibitSendBar sendBar={exhibit.sendBar} />}
                 {/* rows after the stage's notes or caption, one screen per row (frontground 222:284, terpcare 218:311). */}
                 {exhibit.rows && <ExhibitRows palette={palette} visuals={exhibit.rows.visuals} captions={exhibit.rows.captions} fields={exhibit.rows.fields} base={exhibit.rows.base} bases={exhibit.rows.bases} veil={exhibit.rows.veil} reverse={exhibit.rows.reverse} zigzag={exhibit.rows.zigzag} lead={exhibit.rows.lead} />}
                 {/* laptop loops after the caption, in a pair or a feature card (frontground offline and triage). */}
                 {exhibit.loops && exhibit.loops.layout !== "wide" && <ExhibitLoops layout={exhibit.loops.layout} visuals={exhibit.loops.visuals} captions={exhibit.loops.captions} base={exhibit.loops.base} steps={exhibit.loops.steps} />}
                 {exhibit.pins && <ExhibitPins id={`${exhibit.id}-pins`} palette={palette} exhibit={exhibit.pins} />}
+                {/* a part that closes the chapter under its own head, off the rail (elms's whole path, 420:886). */}
+                {exhibit.part && (
+                  <div class="exhibit-part">
+                    <SectionHead id={`${exhibit.id}-part-heading`} eyebrow={exhibit.part.eyebrow} heading={exhibit.part.heading} level={3} />
+                    <ExhibitLoops layout={exhibit.part.loops.layout} visuals={exhibit.part.loops.visuals} captions={exhibit.part.loops.captions} base={exhibit.part.loops.base} steps={exhibit.part.loops.steps} />
+                  </div>
+                )}
               </>
             )}
             {exhibit.walkthrough && <ExhibitWalkthrough id={`${exhibit.id}-walkthrough`} palette={palette} walkthrough={exhibit.walkthrough} />}
@@ -192,11 +217,14 @@ function sectionFor(exhibit: any) {
             {exhibit.kind === "custom" && exhibit.graphic === "audit-cards" && (
               <ExhibitAuditCards text={exhibit.text} footnote={exhibit.footnote} />
             )}
+            {exhibit.kind === "custom" && exhibit.graphic === "doubt" && (
+              <ExhibitDoubt id={exhibit.id} doubt={exhibit.doubt} />
+            )}
             {exhibit.kind === "custom" && exhibit.graphic === "artboard-count" && (
               <ExhibitArtboardCount text={exhibit.text} />
             )}
             {exhibit.kind === "journey" && (
-              <ExhibitJourney id={exhibit.id} stages={exhibit.stages} accentStage={exhibit.accentStage} rows={exhibit.rows} strip={exhibit.strip} caption={exhibit.heading} tones={exhibit.tones} figure={exhibit.figure} />
+              <ExhibitJourney id={exhibit.id} stages={exhibit.stages} accentStage={exhibit.accentStage} accentRow={exhibit.accentRow} rows={exhibit.rows} strip={exhibit.strip} caption={exhibit.heading} tones={exhibit.tones} figure={exhibit.figure} />
             )}
             {/* live specimens close the chapter, after everything the chapter shows of the real screens, each full
                 width and stacked (figma 363:517). */}
@@ -261,6 +289,12 @@ function sectionFor(exhibit: any) {
   .exhibit-links a:hover, .exhibit-links a:focus-visible { border-color: var(--accent); background: var(--accent); color: var(--on-accent); }
   .exhibit-body { margin-top: 32px; }
   .exhibit-specimens { display: grid; gap: 96px; margin-top: 72px; }
+  /* figma 413:2396: the parts before a stage stand 32 apart, and the stage block opens 24 further down. */
+  .exhibit-leadins { display: grid; gap: 32px; }
+  .exhibit-leadins.has-stage { margin-bottom: 56px; }
+  /* the whole path opens 56 under the cards before it, like a chapter head, its loop 32 under its own head. */
+  .exhibit-part { margin-top: 96px; }
+  .exhibit-part :global(.exhibit-loops) { margin-top: 32px; }
 
   @media (max-width: 980px) {
     .exhibit-shell { display: block; padding: 34px var(--page-gutter) 0; }

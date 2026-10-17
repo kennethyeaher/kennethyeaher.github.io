@@ -11,6 +11,18 @@
 
 /** @type {Record<string, CoverField>} */
 export const coverFields = {
+  "elms-redesign": {
+    figma: "451:8401",
+    base: "#120b0c",
+    blur: 72,
+    ellipses: [
+      { x: 70, y: 50, r: 140, colour: "#8c1a11", alpha: 0.95 },
+      { x: 390, y: 70, r: 130, colour: "#e21833", alpha: 0.8 },
+      { x: 410, y: 250, r: 110, colour: "#ffd200", alpha: 0.55 },
+      { x: 90, y: 250, r: 130, colour: "#5a0e14", alpha: 0.9 },
+      { x: 230, y: 150, r: 90, colour: "#c8102e", alpha: 0.5 },
+    ],
+  },
   "college-park-capstone": {
     figma: "I454:3047;454:451",
     base: "#15110d",

@@ -12,7 +12,7 @@
  *   a position as percentages of its host (stage or visual).
  * @typedef {{
  *   src: string, alt: string, width: number, height: number,
- *   frame?: "image" | "iphone" | "browser", rot?: number, at?: Box, loop?: { src: string, poster: string, name?: string },
+ *   frame?: "image" | "iphone" | "browser" | "macbook", rot?: number, at?: Box, loop?: { src: string, poster: string, name?: string } | null,
  *   url?: string, crop?: { x: number, y: number, w: number, h: number }, priority?: boolean, zoom?: number,
  *   fit?: "contain", bg?: string
  * }} ExhibitVisual
@@ -20,9 +20,10 @@
  *   priority marks the lcp visual when it is not the hero's last one; zoom draws a resized browser instance larger,
  *   its chrome scaling with it (terpcarehub 132:1846 is the 640 instance at 1.5x). fit "contain" shows a phone's whole
  *   capture, centred on bg (default #ffffff), instead of cropping it from the top; the redesign 2 phones use it.
+ *   a loop of null is a still card waiting for its recording (elms), drawn at the card's size with no loop tag.
  * @typedef {{
  *   type: "focus" | "leader" | "leader-vertical", num: string, label?: string,
- *   on?: number, at?: Box, target?: string, direction?: "left" | "right", theme?: "on-dark" | "on-light",
+ *   on?: number, at?: Box, target?: string, direction?: "left" | "right" | "above", theme?: "on-dark" | "on-light",
  *   zoomAt?: { x: number, y: number, w: number, h: number }, title?: string
  * }} ExhibitAnnotation
  *   on is the index of the visual the box sits on; native targets name a row or cell instead; with
@@ -48,8 +49,16 @@
  * @typedef {{ base?: string, fields: StageField[], visuals: ExhibitVisual[], captions: ExhibitCaption[] }} StageLoops
  *   recorded loops after a stage's caption, each on its own full width 1116 by 640 stage with its caption under it
  *   (frontground offline and triage). each visual carries a loop, and its src is the loop's poster.
- * @typedef {ExhibitBase & { kind: "stage", size: "wide" | "square" | "pair", ratio?: string, visuals: ExhibitVisual[], annotations?: ExhibitAnnotation[], notes?: ExhibitNote[], captions?: ExhibitCaption[], pins?: ExhibitPins, zoom?: true | "phone", rows?: StageRows, loops?: StageLoops }} StageExhibit
+ * @typedef {{ figma: string, filters: [string, string][], ideas: { id: string, status: string, title: string, body: string }[], footnote: string }} StageIdeas
+ * @typedef {{ figma: string, label: string, title: string, body: string, cards: { num: string, title: string, body: string, photo: { src: string, width: number, height: number, alt: string } }[] }} StagePapers
+ * @typedef {{ figma: string, steps: { num: string, title: string, body: string, critique?: true }[], rounds: [string, string] }} StageProcess
+ * @typedef {{ figma: string, models: { id: string, option: string, title: string, body: string, foot: string }[], email: Record<string, string>, chat: Record<string, string> }} StageToggle
+ * @typedef {{ figma: string, label: string, person: string, course: string, time: string }} StageSendBar
+ * @typedef {ExhibitBase & { kind: "stage", size: "wide" | "square" | "pair", ratio?: string, visuals?: ExhibitVisual[], annotations?: ExhibitAnnotation[], notes?: ExhibitNote[], captions?: ExhibitCaption[], pins?: ExhibitPins, zoom?: true | "phone", rows?: StageRows, loops?: StageLoops,
+ *   ideas?: StageIdeas, papers?: StagePapers, process?: StageProcess, toggle?: StageToggle, sendBar?: StageSendBar, part?: { figma: string, eyebrow: string, heading: string, loops: StageLoops } }} StageExhibit
  *   zoom marks a small pinned stage that zooms to the active annotation (figma 168:1745); "phone" limits that to phone widths.
+ *   elms adds parts around the stage: an idea board, paper prototypes, a process timeline and a model toggle before
+ *   it, a playable send bar after its caption, and a part closing the chapter under its own head (figma 413:2396).
  * @typedef {{ width: number, height: number, sigma: number, circles: { x: number, y: number, r: number, colour: string, alpha: number }[] }} StageField
  *   a stage's own colour field from figma, in that stage's pixels.
  * @typedef {{ label: string, title: string, body: string, screen: ExhibitVisual, focus?: { num: string, at: { x: number, y: number, w: number, h: number } } }} WalkthroughStep
@@ -61,12 +70,16 @@
  *   zoom makes each stage zoom on its own to its leaders' regions (figma 197:1727).
  * @typedef {{ label: string, highlight?: string, cards?: ([string, string, string] | [string, string, string, string])[], note?: string }} ExhibitStrip
  *   three part cards are a tier, a value and a route; four part cards add a commitment line; a strip with no cards is a label and a note.
- * @typedef {ExhibitBase & { kind: "journey", stages: string[], accentStage?: string | null, rows: { label: string, cells: string[] }[], strip?: ExhibitStrip, tones?: string[], figure?: ExhibitVisual & { label: string, caption: string } }} JourneyExhibit
+ * @typedef {ExhibitBase & { kind: "journey", stages: string[], accentStage?: string | null, accentRow?: number, rows: { label: string, cells: string[] }[], strip?: ExhibitStrip, tones?: string[], figure?: ExhibitVisual & { label: string, caption: string } }} JourneyExhibit
+ *   accentRow tints one row's cells, the way elms marks the hi-fi row (413:2512).
  * @typedef {ExhibitBase & { kind: "heatmap", base?: string, panels: { label: string, columns: string[], rows: string[][] }[], annotations?: ExhibitAnnotation[], notes?: ExhibitNote[] }} HeatmapExhibit
  *   annotations here carry the spec's target ("PANEL, Row row" or "PANEL, Column column ...") instead of a box.
  * @typedef {ExhibitBase & { kind: "matrix", label: string, columns: string[], rows: string[][], accent?: string, widths: number[], pad?: [number, number], base?: string, field?: StageField, annotations?: ExhibitAnnotation[], notes?: ExhibitNote[] }} MatrixExhibit
  *   a table on a white card on a stage; accent names the highlighted column, widths are figma's column widths.
- * @typedef {ExhibitBase & { kind: "custom", graphic: "timeline" | "visit-map" | "audit-cards" | "artboard-count" | "states-grid", text: string, footnote?: string, tiles?: ExhibitVisual[], captions?: ExhibitCaption[], legend?: [string, string], categories?: string[] }} CustomExhibit
+ * @typedef {{ steps: { num: string, step: string, question: string, finding: string, doubt: boolean }[], legend: [string, string], hint: string, touchHint: string,
+ *   reframe: { before: { label: string, text: string, note: string }, after: { label: string, text: string }, pillars: [string, string][] } }} ExhibitDoubt
+ *   the elms journey strip with its hover findings (415:610) and the reframe card under it (419:613).
+ * @typedef {ExhibitBase & { kind: "custom", graphic: "timeline" | "visit-map" | "audit-cards" | "artboard-count" | "states-grid" | "doubt", text: string, footnote?: string, tiles?: ExhibitVisual[], captions?: ExhibitCaption[], legend?: [string, string], categories?: string[], doubt?: ExhibitDoubt }} CustomExhibit
  * @typedef {ExhibitBase & { kind: "section", section: string }} SectionExhibit
  *   a rail chapter with no exhibit. its eyebrow, heading and lede come from the page's prose mock
  *   (.private/redesign-spec/prose.json); section names the narrative section that text comes from.
@@ -2565,6 +2578,391 @@ export const caseStudies = [
           "This was my first product design role, and the thing it taught me is that the interesting decisions are rarely the ones on the screen you are looking at. Counting the artboards, grouping them by job and cutting 114 down to 34 was unglamorous and it decided everything that came after.",
           "The honest position on sohive is that it never shipped, so none of these decisions have been measured against real use. What I can defend is the reasoning: why the shell is black, why the cards rotate colour, why sign up is light, and why the green card is restricted to large type. Every one of those is written down beside the work rather than left for someone to guess at.",
           "Rebuilding it in Figma years later was its own lesson. The original file drifted because it had no components to drift from, and I could see exactly where, because the same nav item is called two different things on two different artboards. That is the argument for a design system in one image, and it is why I build one first now.",
+        ],
+      },
+    ],
+  },
+  {
+    slug: "elms-redesign",
+    title: "ELMS Redesign",
+    organization: "University of Maryland",
+    cardTitle: "ELMS Redesign",
+    category: "Interaction Design",
+    year: "2026",
+    role: "Product Designer, solo",
+    timeline: "Fall 2026",
+    team: "Solo, INST711 studio",
+    skills: ["Heuristic evaluation", "Task analysis", "Wireframing", "Design systems", "Prototyping", "Figma"],
+    summary:
+      "A redesign of the ELMS Inbox around one task: a student messaging a TA for homework help. I audited the live flow, reframed the problem, and built a nine screen prototype on a design system sampled from ELMS itself. It won Best UI in the class.",
+    cardImage: "/images/work/elms-redesign/elms-cover-poster.png",
+    cardAlt: "ELMS Redesign cover: a browser on an ELMS red and gold field showing the new message screen, course first, with Barry Allen, TA, named before Send",
+    heroImage: "/images/work/elms-redesign/elms-cover-poster.png",
+    heroAlt: "ELMS Redesign cover: a laptop on an ELMS red and gold field showing the new message screen, course first, with Barry Allen, TA, named before Send",
+    cover: {
+      variant: "elms",
+      poster: "/images/work/elms-redesign/elms-cover-poster.png",
+      palette: ["#211F20", "#8C1A11", "#E21833", "#FFD200", "#2A0F0C"],
+      exhibit: /** @type {const} */ ({
+        "src": "/images/work/elms-redesign/elms-new-message.png",
+        "alt": "ELMS new message screen with the course chosen, Barry Allen, TA, in To, and the send bar naming him before Send",
+        "width": 2880,
+        "height": 2152,
+        "frame": "laptop"
+      }),
+      titlePlacement: "center",
+    },
+    // figma 413:2396 ("Case study v3 / ELMS Messages"). the screens are the frame's own fills with the placeholder people
+    // repainted to dc names (barry allen, dr. prince, kara danvers, hal jordan); the originals are in .private/elms-originals.
+    exhibits: /** @type {Exhibit[]} */ ([
+      {
+        kind: "hero", id: "overview", chapter: "Overview", figma: "413:2457",
+        eyebrow: "OVERVIEW",
+        heading: "A ten second message that made students guess",
+        lede: [
+          "It was 11:48 PM, Assignment 2 was due at midnight, and I needed my TA. When I opened the ELMS Inbox I was not thinking about design. I was thinking about which icon starts a message, which INST711 was this term, and whether my question reached anyone.",
+          "This project takes that one task apart. A heuristic audit of the live Inbox found doubt at five of six steps. My first problem statement, “the compose button needs a label,” turned out to be a fix pretending to be a problem. The real problem was uncertainty at every step between “I need help” and “my TA got it.”",
+          "The redesign started as a better email form and became a conversation after a mid-fi critique. This page walks through the audit, round one on paper and in wireframes, the pivot, and the hi-fi flow, and closes with the test I would run first.",
+        ],
+        base: "#211f20",
+        field: { width: 1116, height: 600, sigma: 55, circles: [{ x: 150, y: 110, r: 310, colour: "#8C1A11", alpha: 0.7 }, { x: 1030, y: 570, r: 210, colour: "#FFD200", alpha: 0.4 }, { x: 750, y: 150, r: 250, colour: "#E21833", alpha: 0.8 }] },
+        // the Device/Laptop instance (414:581), 900 wide at 148, 48 on the 1116 by 600 stage.
+        visuals: [
+          { src: "/images/work/elms-redesign/elms-new-message.png", width: 2880, height: 2152, alt: "ELMS new message on a laptop: the chats list on the left, then Course set to INST711 Interaction Design Studio, Fall 2026, To set to Barry Allen, TA, and a note offering the existing thread with him", frame: "macbook", at: { x: 13.26, y: 8, w: 80.65 } },
+        ],
+        kpi: { eyebrow: "INST711 CLASS AWARD", value: "Best UI", label: "for the final project", at: { x: 77.6, y: 4 } },
+        metrics: [
+          { value: "5/6", label: "steps in the live Inbox that made me stop" },
+          { value: "9", label: "screens in the clickable prototype" },
+          { value: "26", label: "components built from ELMS colors and type" },
+        ],
+      },
+      {
+        kind: "custom", graphic: "doubt", id: "the-gap", chapter: "The gap", figma: "415:603",
+        eyebrow: "THE GAP",
+        heading: "Five moments of doubt in a ten second task",
+        lede: [
+          "I turned my own questions into a Nielsen heuristic audit of the live Inbox and mapped the task one step at a time. Opening the Inbox is fine, and I kept it. Every step after that asks the student to stop and think, which is the opposite of what Krug calls a self-evident page.",
+          "Norman names the gap: the gulf of evaluation, the distance between what the system shows and what the person needs to know. The ratings are my judgment from the audit, not measured data.",
+        ],
+        text: "",
+        // the journey strip (415:610): each step's number, name, question and the audit finding its hover shows.
+        doubt: {
+          steps: [
+            { num: "01", step: "Open Inbox", question: "Where am I?", finding: "Kept: the tab already shows where you are", doubt: false },
+            { num: "02", step: "Start", question: "Which icon starts a message?", finding: "Compose is an unlabeled pencil icon", doubt: true },
+            { num: "03", step: "Course", question: "Which INST711 section is this?", finding: "The course menu mixes every term", doubt: true },
+            { num: "04", step: "Required", question: "Is Course even required?", finding: "Course has no asterisk; you learn from an error", doubt: true },
+            { num: "05", step: "Recipient", question: "Who gets this?", finding: "The audience hides inside a field", doubt: true },
+            { num: "06", step: "Sent", question: "Did it reach my TA?", finding: "The dialog closes with no confirmation", doubt: true },
+          ],
+          legend: ["Adds doubt", "Clear, kept as is"],
+          hint: "HOVER A STEP TO SEE WHAT THE AUDIT FOUND",
+          touchHint: "TAP A STEP TO SEE WHAT THE AUDIT FOUND",
+          // the reframe card (419:613): the first statement struck through, the reframed one, and the four week 3 pillars.
+          reframe: {
+            before: { label: "FIRST PROBLEM STATEMENT", text: "“The compose button needs a label.”", note: "A fix pretending to be a problem." },
+            after: { label: "REFRAMED, WITH LEAN UX AND THE WEEK 3 PILLARS", text: "Uncertainty at every step between “I need help” and “my TA got it.”" },
+            pillars: [["GAP", "An unclear start, course and audience"], ["CONTEXT", "The Inbox, right before a deadline"], ["IMPACT", "Wrong course picks, failed sends, doubt"], ["WHY IT MATTERS", "This is how students ask for help"]],
+          },
+        },
+      },
+      {
+        kind: "stage", id: "round-one", chapter: "Round one", figma: "419:973", size: "wide", ratio: "1116 / 640",
+        eyebrow: "EXPLORATION · ROUND ONE",
+        heading: "Round one: make the email easier to send",
+        lede: [
+          "My first direction went straight at Norman’s gulf of evaluation, the gap between what the system shows and what the person needs to know. I leaned on Jakob’s Law: students spend most of their time in Gmail and Outlook, so a clearly labeled Compose that behaves like theirs should feel familiar from the first click.",
+          "Following Rogers, Sharp and Preece, I designed alternatives before choosing. Ten ideas, grouped by where to start (A), choosing a course (B), and what to fill in (C). The four I built went onto paper first. Filter the board to see each group.",
+        ],
+        // the idea board (419:960): filter chips, then ten ideas, each with its group, its status and the reason.
+        ideas: {
+          figma: "419:960",
+          filters: [["all", "All"], ["built", "Built"], ["parked", "Parked"], ["set-aside", "Set aside"]],
+          ideas: [
+            { id: "A1", status: "built", title: "Label the button", body: "Jakob’s Law: students expect a labeled compose" },
+            { id: "A2", status: "set-aside", title: "Hint on hover or focus", body: "Minor polish, not built this round" },
+            { id: "A3", status: "parked", title: "“Contact a TA” on the assignment", body: "Changes more of ELMS than I could test" },
+            { id: "B1", status: "built", title: "Group courses by term", body: "Hick’s Law: fewer real choices" },
+            { id: "B2", status: "parked", title: "Search by course code", body: "A bigger change, worth testing later" },
+            { id: "B3", status: "parked", title: "Carry over the Inbox course", body: "First thing to test: prefill or choose" },
+            { id: "C1", status: "built", title: "Show requirements up front", body: "Say what is missing before the error" },
+            { id: "C2", status: "set-aside", title: "Check fields as I finish", body: "Minor polish, not built this round" },
+            { id: "C3", status: "built", title: "Ask about groups only when relevant", body: "No group checkbox for one person" },
+            { id: "C4", status: "set-aside", title: "Guided step by step version", body: "Extra screens for students who know the form" },
+          ],
+          footnote: "PLACEMENT IS MY JUDGMENT FROM THE BRAINSTORM, NOT MEASURED DATA",
+        },
+        // the paper prototypes (426:777): four photos, each answering one problem statement from the audit.
+        papers: {
+          figma: "426:777",
+          label: "PAPER PROTOTYPES · FOUR SCREENS",
+          title: "Sketched before any pixels",
+          body: "Each sketch answers one problem statement from the audit, with the heuristic behind it written next to the screen.",
+          cards: [
+            { num: "PAPER 01", title: "Compose gets a label", body: "I added “Compose” beside the icon and made it larger and red, so students recognize the action instead of guessing it. Recognition over recall, and a bigger target for Fitts’s Law.",
+              photo: { src: "/images/work/elms-redesign/elms-paper-compose-label.png", width: 851, height: 437, alt: "Paper sketch of the ELMS Inbox with a large red Compose button and its label, the hover hint Compose a new message drawn beside it" } },
+            { num: "PAPER 02", title: "Required fields, marked the same way", body: "A consistent asterisk on Course, To, Subject and Message shows what is needed before Send, and the individual message checkbox moves away from the required inputs.",
+              photo: { src: "/images/work/elms-redesign/elms-paper-required-fields.png", width: 830, height: 438, alt: "Paper sketch of the Compose Message dialog with an asterisk on Course, To, Subject and Message, and a note moving the send to each recipient checkbox aside" } },
+            { num: "PAPER 03", title: "Current term first", body: "The course menu groups Current Term, then Favorites, so a student scans meaningful categories instead of one mixed list of every term.",
+              photo: { src: "/images/work/elms-redesign/elms-paper-current-term.png", width: 831, height: 609, alt: "Paper sketch of the Compose Message course menu, grouped under Current Term and then Favorites" } },
+            { num: "PAPER 04", title: "Find the TA by role", body: "To opens on familiar roles, Teachers, Teaching Assistants and Students, so a student can find a TA without remembering a name.",
+              photo: { src: "/images/work/elms-redesign/elms-paper-ta-by-role.png", width: 815, height: 641, alt: "Paper sketch of the To field opening on All in INST711, Teachers, Teacher Assistant, Students and Course sections" } },
+          ],
+        },
+        // the mid-fi round one stage (426:808): the browser at 228, 150 on the 1116 by 640 stage, with two leaders.
+        base: "#2a0f0c",
+        field: { width: 1116, height: 640, sigma: 60, circles: [{ x: 120, y: 520, r: 320, colour: "#8C1A11", alpha: 1 }, { x: 1010, y: 570, r: 190, colour: "#FFD200", alpha: 1 }, { x: 680, y: 560, r: 260, colour: "#E21833", alpha: 1 }] },
+        visuals: [
+          { src: "/images/work/elms-redesign/elms-wireframe-inbox.png", width: 3942, height: 2180, alt: "Round one mid-fi wireframe of the ELMS Inbox: the conversation list kept in place, No Conversations Selected, and a larger labeled Compose with its hover hint", frame: "browser", url: "elms · inbox · mid-fi round one", screen: { w: 720, h: 405 }, at: { x: 20.43, y: 23.44, w: 64.52 } },
+        ],
+        annotations: [
+          { type: "leader-vertical", num: "01", label: "Labeled Compose, help on hover and focus", direction: "above", at: { x: 62.46, y: 15.16, w: 23.39, h: 15.78 } },
+          { type: "leader", num: "02", label: "The Inbox stays where it was", direction: "left", at: { x: 2.15, y: 48.88, w: 29.53, h: 5.16 } },
+        ],
+        captions: [
+          { title: "Mid-fi, round one: a clearer Compose", body: "The first wireframes kept the ELMS Inbox in place and fixed the start: a labeled, larger Compose with the same help on hover and keyboard focus. It solved finding the button. It did not change what a student sees after clicking it, which is where most of the doubt lived." },
+        ],
+      },
+      {
+        kind: "stage", id: "the-pivot", chapter: "The pivot", figma: "420:749", size: "wide",
+        eyebrow: "THE PIVOT",
+        heading: "The critique that changed the direction",
+        lede: [
+          "At the mid-fi review, my professor gave me the best advice of the project: do not stop at a better email form. Students already have UMD email for formal messages. The Inbox is where quick questions happen, and quick questions belong in a conversation, like WhatsApp, not a compose window.",
+          "That reframed the work. I went back to ideation around the conversation patterns students already know, rebuilt the mid-fi wireframes as chats, and only then moved to hi-fi. Jakob’s Law still applied. The familiar app just changed from Gmail to WhatsApp.",
+        ],
+        // the process timeline (427:782): seven steps, round one in grey, the critique marked, round two in elms red.
+        process: {
+          figma: "427:782",
+          steps: [
+            { num: "01", title: "Audit", body: "Nielsen heuristics, five of six steps flagged" },
+            { num: "02", title: "Paper", body: "Four sketches, one per problem" },
+            { num: "03", title: "Mid-fi, round one", body: "Compose, like Gmail and Outlook" },
+            { num: "04", title: "Critique", body: "Go past email to a conversation", critique: true },
+            { num: "05", title: "Brainstorm", body: "Messaging patterns, like WhatsApp" },
+            { num: "06", title: "Mid-fi, round two", body: "Chats with the audience named" },
+            { num: "07", title: "Hi-fi", body: "Nine screens on an ELMS system" },
+          ],
+          rounds: ["ROUND ONE · EMAIL MODEL", "ROUND TWO · CONVERSATION MODEL"],
+        },
+        // the model toggle (420:746): the email form and the chat thread, one shown at a time.
+        toggle: {
+          figma: "420:746",
+          models: [
+            { id: "email", option: "Round one · Email", title: "Round one: like Gmail and Outlook", body: "A labeled Compose with To, Subject and Message. Familiar, and a real improvement on finding the button, but the audience still hides in a field and nothing after Send says it arrived.", foot: "JAKOB’S LAW, APPLIED TO EMAIL" },
+            { id: "chat", option: "Round two · Chat", title: "Round two: like WhatsApp", body: "The person and their role sit at the top, the course stays visible, and every message carries its own status. Who gets this and did it arrive are answered on screen instead of in the student’s head.", foot: "JAKOB’S LAW, APPLIED TO MESSAGING · NORMAN: MENTAL MODELS" },
+          ],
+          email: { heading: "New message", to: "To", toHint: "? who reads this", subject: "Subject", message: "Message", after: "After Send: the dialog closes.", send: "Send" },
+          chat: { heading: "Barry Allen · TA", sub: "INST711 · 1 person", question: "Question 3 on Assignment 2?", reply: "Here is my attempt so far.", status: "Sent · 10:34 AM", after: "Sending to Barry Allen · TA · 1 recipient", send: "Send" },
+        },
+        // the wireframe pair (427:817): the round one form beside the round two thread, each a still on a laptop card.
+        loops: {
+          layout: "pair",
+          base: "#2a0f0c",
+          visuals: [
+            { src: "/images/work/elms-redesign/elms-wireframe-compose-card.webp", width: 1280, height: 857, alt: "Round one wireframe on a laptop: the Compose Message dialog with Course, To, Subject and Message over the dimmed Inbox, Send greyed out until the required fields are complete", loop: null },
+            { src: "/images/work/elms-redesign/elms-wireframe-thread-card.webp", width: 1280, height: 857, alt: "Round two wireframe on a laptop: chats on the left, the thread with Barry Allen, teaching assistant, and a composer that says Message to Barry Allen, TA, INST711", loop: null },
+          ],
+          captions: [
+            { num: "MID-FI 01", tag: "WIREFRAME · ROUND ONE", title: "Compose Message, a better form", body: "Course, To, Subject and Message with consistent asterisks and wider fields. Clearer, but still an email: one more form before a quick question." },
+            { num: "MID-FI 02", tag: "WIREFRAME · ROUND TWO", title: "The thread, a conversation", body: "Chats on the left and the person with their role at the top. Messages read as a back and forth, and the composer says “Message to Barry Allen · TA / INST711,” so the audience is named right where you type." },
+          ],
+        },
+      },
+      {
+        kind: "stage", id: "core-flow", chapter: "Core flow", figma: "420:814", size: "wide", ratio: "1116 / 640",
+        eyebrow: "CORE FLOW",
+        heading: "One form that asks one question at a time",
+        lede: [
+          "In hi-fi, the conversation model came down to four moves and one form. A labeled New message button in two places, which Tidwell calls Clear Entry Points. A fixed order, Course then To then Message, where each field unlocks the next. In Norman’s terms that is a constraint.",
+          "A visible audience, where one line names who gets the message before Send, which is Tidwell’s Preview pattern. And sent feedback inside the thread. Everything around those four moves stays ELMS, so the only new thing a student learns is the flow.",
+        ],
+        // the core flow stage (420:819): the browser at 228, 150 on the 1116 by 640 stage, three leaders on the left
+        // and one dropping onto the New message button.
+        base: "#2a0f0c",
+        field: { width: 1116, height: 640, sigma: 60, circles: [{ x: 120, y: 520, r: 320, colour: "#8C1A11", alpha: 1 }, { x: 1010, y: 570, r: 190, colour: "#FFD200", alpha: 1 }, { x: 680, y: 560, r: 260, colour: "#E21833", alpha: 1 }] },
+        visuals: [
+          { src: "/images/work/elms-redesign/elms-new-message.png", width: 2880, height: 2152, alt: "ELMS new message in the hi-fi prototype: Course set to INST711 Interaction Design Studio, Fall 2026, Barry Allen, TA, chosen in To, a message typed, and a note pointing to the existing thread with Barry", frame: "browser", url: "elms · new message", screen: { w: 720, h: 405 }, at: { x: 20.43, y: 23.44, w: 64.52 } },
+        ],
+        annotations: [
+          { type: "leader", num: "01", label: "Course first, current term on top", direction: "left", at: { x: 2.15, y: 44.22, w: 38.71, h: 5.16 } },
+          { type: "leader", num: "02", label: "Picking Barry only fills To", direction: "left", at: { x: 2.15, y: 62.11, w: 38.71, h: 5.16 } },
+          { type: "leader", num: "03", label: "Points to the thread you already have", direction: "left", at: { x: 2.15, y: 88.91, w: 38.71, h: 5.16 } },
+          { type: "leader-vertical", num: "04", label: "New message, labeled, in two places", direction: "above", at: { x: 67.74, y: 13.75, w: 20.07, h: 21.25 } },
+        ],
+        captions: [
+          { title: "The line that removes doubt", body: "Below the fold, the send bar reads “Sending to Barry Allen · TA · INST711 · 1 recipient” before Send turns on. It answers who gets this right before the student commits. Try it in the specimen: choose a person, undo, then send." },
+        ],
+        // the playable send bar (420:809), after the caption that points to it.
+        sendBar: {
+          figma: "420:809",
+          label: "SPECIMEN · CLICK TO PLAY",
+          person: "Barry Allen · TA",
+          course: "INST711",
+          time: "10:34 AM",
+        },
+        // the course and recovery cards (420:828). each is a still for now, numbered without figma's LOOP until a
+        // recording drops into its loop slot ({ src, poster, name }) at the card's own size, with no change to the layout.
+        loops: {
+          layout: "pair",
+          base: "#2a0f0c",
+          visuals: [
+            { src: "/images/work/elms-redesign/elms-course-first-card.webp", width: 1280, height: 857, alt: "ELMS new message on a laptop with the course menu open: Current term, Fall 2026 first with INST711 Interaction Design Studio on top, then Favorites and More courses, nothing preselected", loop: null },
+            { src: "/images/work/elms-redesign/elms-undo-card.webp", width: 1280, height: 857, alt: "ELMS new message on a laptop after the recipient is removed: To is empty, the typed message is still there, and the send bar says no recipient selected, choose a person to continue", loop: null },
+          ],
+          captions: [
+            { num: "01", title: "Course first, then the right people", body: "The current term sits on top and nothing is preselected. Then To opens on the role groups ELMS already uses, with Barry tagged as an existing conversation." },
+            { num: "02", title: "Undo keeps your words", body: "Removing the recipient turns Send off and keeps the message, so fixing a slip never restarts the form. Norman calls this forgiveness for slips." },
+          ],
+        },
+        // the whole path (420:886) closes the chapter under its own head: the inbox to sent card beside its steps.
+        part: {
+          figma: "420:886",
+          eyebrow: "THE WHOLE PATH",
+          heading: "Eight screens, one direction",
+          loops: {
+            layout: "feature",
+            base: "#2a0f0c",
+            steps: ["Sign in, then Chats", "New message, Course first", "Role group, then the TA", "Write; the send bar names Barry", "Sent, with a time and a banner"],
+            visuals: [
+              { src: "/images/work/elms-redesign/elms-inbox-to-sent-card.webp", width: 1280, height: 800, alt: "ELMS thread with Barry Allen on a laptop: the question about question 3 on Assignment 2, his reply, the student's thanks marked Sent at 10:34 AM, and a Message sent banner", loop: null },
+            ],
+            captions: [
+              { num: "03", title: "From the Inbox to Sent", body: "Every step asks one question. Krug’s second law says that matters more than the number of clicks. It ends on a Sent time and a banner, not Read, because the interface cannot promise the TA saw it." },
+            ],
+          },
+        },
+      },
+      {
+        kind: "journey", id: "what-changed", chapter: "What changed", figma: "413:2463",
+        eyebrow: "WHAT CHANGED",
+        heading: "Each round turned a pain point into a pattern",
+        lede: [
+          "Each column reads top to bottom, from the ELMS Inbox today, through my paper sketches and wireframes, to the hi-fi prototype. Lean UX calls this outcomes over output: every change targets a doubt from the audit, not just a screen.",
+          "One change went backward on purpose. My wireframe used my own recipient categories. The prototype uses the real ELMS role groups, which costs one click and saves students from learning a new vocabulary.",
+        ],
+        stages: ["01 Starting a message", "02 Required fields", "03 Recipients", "04 Feedback after Send"],
+        accentStage: null,
+        rows: [
+          { label: "ELMS TODAY", cells: ["Unlabeled pencil icon", "Course has no asterisk; To and Message do", "Individual message checkbox beside Course", "The dialog closes"] },
+          { label: "PAPER AND WIREFRAMES", cells: ["Larger red Compose with a text label", "The same asterisk on every field", "Checkbox moved into To; my own role names", "A Sent line in the thread"] },
+          { label: "HI-FI PROTOTYPE", cells: ["New message in the top bar and the empty state", "Requirements named before the first Send", "ELMS roles with counts; no checkbox for one person", "A Sent time on the bubble, plus a banner"] },
+          { label: "THE RULE BEHIND IT", cells: ["Clear entry points (Tidwell)", "Say what is missing before the error", "Ask only what this message needs", "End on certainty (Peak-End Rule)"] },
+        ],
+        // the hi-fi row is the one figma tints (413:2512).
+        accentRow: 2,
+        strip: { label: "FOUR ROUNDS  ·  AUDIT, PAPER, WIREFRAMES, HI-FI", note: "Each hi-fi change became a component in the ELMS based library, so the next screen was usually a new state rather than a new design." },
+        tones: ["muted", "muted", "muted", "muted"],
+      },
+      {
+        kind: "section", id: "reflection", chapter: "Reflection", section: "reflection",
+        eyebrow: "REFLECTION",
+        heading: "What I would test before calling it done",
+        lede: [
+          "Matching a real product closely turned out to be a design decision, not a shortcut. Every time I swapped my own idea for the ELMS pattern, like the real role groups instead of my own categories, the rest of the flow got easier to learn. Once the screens were built from components, most new screens were just a new state.",
+          "Every gain had a cost. Chat drops the subject line, so search runs on person or message text. Course before To adds a step but stops wrong-class messages. A disabled Send button can hide why, so the send bar spells out what is missing, and I still need to see whether students read it.",
+          "I have not tested this with students yet, and I would rather say that directly. The test is written: five students, one task, “Ask your TA about question 3 on Assignment 2.” I would measure time to start, picking the right course, naming the recipient before Send, and noticing Sent, then compare a prefilled course against choosing it fresh.",
+        ],
+      },
+    ]),
+    metrics: [
+      { value: "5/6", label: "steps in the live Inbox that made me stop" },
+      { value: "9", label: "screens in the clickable prototype" },
+      { value: "26", label: "components built from ELMS colors and type" },
+    ],
+    evidence: { projectType: "course redesign", directUserTesting: false, classAward: "Best UI, INST711 final project" },
+    // the narrative behind the exhibits, from the same figma copy; the exhibit layout renders the chapters above.
+    sections: [
+      {
+        id: "overview",
+        label: "Overview",
+        heading: "A ten second message that made students guess",
+        body: [
+          "It was 11:48 PM, Assignment 2 was due at midnight, and I needed my TA. When I opened the ELMS Inbox I was not thinking about design. I was thinking about which icon starts a message, which INST711 was this term, and whether my question reached anyone.",
+          "This project takes that one task apart. A heuristic audit of the live Inbox found doubt at five of six steps. My first problem statement, “the compose button needs a label,” turned out to be a fix pretending to be a problem. The real problem was uncertainty at every step between “I need help” and “my TA got it.”",
+          "The redesign started as a better email form and became a conversation after a mid-fi critique. This page walks through the audit, round one on paper and in wireframes, the pivot, and the hi-fi flow, and closes with the test I would run first.",
+        ],
+        media: [
+          { src: "/images/work/elms-redesign/elms-new-message.png", width: 2880, height: 2152, kind: "device", frame: /** @type {const} */ ("laptop"), alt: "ELMS new message screen with the course chosen, Barry Allen, TA, in To, and the send bar naming him before Send", caption: "The hi-fi new message screen: course first, the person named in To, and the send bar saying who gets it before Send." },
+        ],
+      },
+      {
+        id: "the-gap",
+        label: "The gap",
+        heading: "Five moments of doubt in a ten second task",
+        body: [
+          "I turned my own questions into a Nielsen heuristic audit of the live Inbox and mapped the task one step at a time. Opening the Inbox is fine, and I kept it. Every step after that asks the student to stop and think, which is the opposite of what Krug calls a self-evident page.",
+          "Norman names the gap: the gulf of evaluation, the distance between what the system shows and what the person needs to know. The ratings are my judgment from the audit, not measured data.",
+        ],
+        artifact: {
+          eyebrow: "Heuristic audit · six steps",
+          title: "Five of six steps in the live Inbox made me stop",
+          columns: ["Step", "The question it raised", "What the audit found"],
+          rows: [
+            ["Open Inbox", "Where am I?", "Kept: the tab already shows where you are"],
+            ["Start", "Which icon starts a message?", "Compose is an unlabeled pencil icon"],
+            ["Course", "Which INST711 section is this?", "The course menu mixes every term"],
+            ["Required", "Is Course even required?", "Course has no asterisk; you learn from an error"],
+            ["Recipient", "Who gets this?", "The audience hides inside a field"],
+            ["Sent", "Did it reach my TA?", "The dialog closes with no confirmation"],
+          ],
+          note: "The ratings are my judgment from the audit, not measured data.",
+        },
+      },
+      {
+        id: "round-one",
+        label: "Round one",
+        heading: "Round one: make the email easier to send",
+        body: [
+          "My first direction went straight at Norman’s gulf of evaluation, the gap between what the system shows and what the person needs to know. I leaned on Jakob’s Law: students spend most of their time in Gmail and Outlook, so a clearly labeled Compose that behaves like theirs should feel familiar from the first click.",
+          "Following Rogers, Sharp and Preece, I designed alternatives before choosing. Ten ideas, grouped by where to start (A), choosing a course (B), and what to fill in (C). The four I built went onto paper first. Filter the board to see each group.",
+          "The first wireframes kept the ELMS Inbox in place and fixed the start: a labeled, larger Compose with the same help on hover and keyboard focus. It solved finding the button. It did not change what a student sees after clicking it, which is where most of the doubt lived.",
+        ],
+      },
+      {
+        id: "the-pivot",
+        label: "The pivot",
+        heading: "The critique that changed the direction",
+        body: [
+          "At the mid-fi review, my professor gave me the best advice of the project: do not stop at a better email form. Students already have UMD email for formal messages. The Inbox is where quick questions happen, and quick questions belong in a conversation, like WhatsApp, not a compose window.",
+          "That reframed the work. I went back to ideation around the conversation patterns students already know, rebuilt the mid-fi wireframes as chats, and only then moved to hi-fi. Jakob’s Law still applied. The familiar app just changed from Gmail to WhatsApp.",
+        ],
+      },
+      {
+        id: "core-flow",
+        label: "Core flow",
+        heading: "One form that asks one question at a time",
+        body: [
+          "In hi-fi, the conversation model came down to four moves and one form. A labeled New message button in two places, which Tidwell calls Clear Entry Points. A fixed order, Course then To then Message, where each field unlocks the next. In Norman’s terms that is a constraint.",
+          "A visible audience, where one line names who gets the message before Send, which is Tidwell’s Preview pattern. And sent feedback inside the thread. Everything around those four moves stays ELMS, so the only new thing a student learns is the flow.",
+        ],
+      },
+      {
+        id: "the-whole-path",
+        label: "The whole path",
+        heading: "Eight screens, one direction",
+        body: [
+          "Every step asks one question. Krug’s second law says that matters more than the number of clicks. It ends on a Sent time and a banner, not Read, because the interface cannot promise the TA saw it.",
+        ],
+      },
+      {
+        id: "what-changed",
+        label: "What changed",
+        heading: "Each round turned a pain point into a pattern",
+        body: [
+          "Each column reads top to bottom, from the ELMS Inbox today, through my paper sketches and wireframes, to the hi-fi prototype. Lean UX calls this outcomes over output: every change targets a doubt from the audit, not just a screen.",
+          "One change went backward on purpose. My wireframe used my own recipient categories. The prototype uses the real ELMS role groups, which costs one click and saves students from learning a new vocabulary.",
+        ],
+      },
+      {
+        id: "reflection",
+        label: "Reflection",
+        heading: "What I would test before calling it done",
+        body: [
+          "Matching a real product closely turned out to be a design decision, not a shortcut. Every time I swapped my own idea for the ELMS pattern, like the real role groups instead of my own categories, the rest of the flow got easier to learn. Once the screens were built from components, most new screens were just a new state.",
+          "Every gain had a cost. Chat drops the subject line, so search runs on person or message text. Course before To adds a step but stops wrong-class messages. A disabled Send button can hide why, so the send bar spells out what is missing, and I still need to see whether students read it.",
+          "I have not tested this with students yet, and I would rather say that directly. The test is written: five students, one task, “Ask your TA about question 3 on Assignment 2.” I would measure time to start, picking the right course, naming the recipient before Send, and noticing Sent, then compare a prefilled course against choosing it fresh.",
         ],
       },
     ],

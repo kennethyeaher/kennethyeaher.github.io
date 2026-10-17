@@ -1,0 +1,54 @@
+---
+// the elms process timeline (figma 427:782): seven steps on one track, round one in grey up to the critique, which
+// is the larger elms red node with its 15% ring, and round two in red after it. each step has its number above and
+// its name and line below; the two rounds are labelled under the track. it scrolls sideways on small screens.
+interface Props {
+  process: { steps: { num: string; title: string; body: string; critique?: true }[]; rounds: [string, string] };
+}
+const { process } = Astro.props;
+const critique = process.steps.findIndex((step) => step.critique);
+---
+<div class="edge-fade" style="--edge-radius: 12px; --edge-inset: 1px">
+  <div class="process-scroll edge-scroll" role="region" aria-label="Process timeline, scrolls sideways on small screens" tabindex="0">
+    <div class="process" style={`--steps: ${process.steps.length}; --critique: ${critique}`}>
+      <span class="process-track" aria-hidden="true"></span>
+      <ol class="process-steps">
+        {process.steps.map((step, index) => (
+          <li class:list={[step.critique && "is-critique", index > critique && "is-after"]}>
+            <span class="process-num">{step.num}</span>
+            <span class="process-node" aria-hidden="true"></span>
+            <span class="process-title">{step.title}</span>
+            <span class="process-body">{step.body}</span>
+          </li>
+        ))}
+      </ol>
+      <p class="process-rounds"><span>{process.rounds[0]}</span><span class="is-after">{process.rounds[1]}</span></p>
+    </div>
+  </div>
+</div>
+<style>
+  .process-scroll { overflow-x: auto; border: 1px solid var(--rule); border-radius: 12px; background: var(--surface); }
+  .process-scroll:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  /* figma's 1116 by 214 card: nodes every 162 from 72, the track 2px through them, the round labels at 184. */
+  .process { --grey: #9aa3ab; --red: #8c1a11; position: relative; min-width: 860px; padding: 35px 0 15px; }
+  .process-track { position: absolute; top: 70px; right: calc(100% / var(--steps) / 2); left: calc(100% / var(--steps) / 2); height: 2px;
+    background: linear-gradient(to right, var(--grey) 0 50%, var(--red) 50% 100%); }
+  .process-steps { position: relative; display: grid; grid-template-columns: repeat(var(--steps), minmax(0, 1fr)); margin: 0; padding: 0; list-style: none; }
+  .process-steps li { display: grid; justify-items: center; align-content: start; text-align: center; }
+  .process-num { color: var(--muted); font: var(--label-micro, 10px) / 14px var(--mono); letter-spacing: 0.06em; }
+  .process-node { display: grid; place-items: center; width: 22px; height: 22px; margin-top: 15px; }
+  .process-node::before { width: 12px; height: 12px; content: ""; border-radius: 50%; background: var(--grey); }
+  .is-after .process-node::before { background: var(--red); }
+  /* the critique: a 22 node in a 40 ring of 15% red. */
+  .is-critique .process-node { border-radius: 50%; box-shadow: 0 0 0 9px color-mix(in oklab, var(--red) 15%, transparent); }
+  .is-critique .process-node::before { width: 22px; height: 22px; background: var(--red); }
+  .process-title { margin-top: 12px; color: var(--ink-strong); font: 500 14px / 1.35 var(--ui-sans); letter-spacing: -0.005em; }
+  .is-critique .process-title { color: var(--red); }
+  .process-body { max-width: 132px; margin-top: 3px; color: var(--muted); font: 12px / 1.35 var(--ui-sans); }
+  .process-rounds { display: grid; grid-template-columns: 1fr 1fr; margin: 36px 0 0; padding-inline: calc(100% / var(--steps) / 2 - 1px); color: var(--muted); font: var(--label-micro, 10px) / 14px var(--mono); letter-spacing: 0.06em; }
+  .process-rounds .is-after { padding-left: 20px; color: var(--red); }
+  :global(:root[data-theme="dark"]) .process { --red: #e0675b; }
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme="light"])) .process { --red: #e0675b; }
+  }
+</style>

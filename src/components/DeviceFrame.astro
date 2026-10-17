@@ -1,8 +1,9 @@
 ---
 // one frame system for every device: the older phone, tablet, laptop and sheet frames,
-// plus the v2 iphone (figma 50:533) and browser (figma 50:541) frames used on exhibit stages.
+// plus the v2 iphone (figma 50:533) and browser (figma 50:541) frames used on exhibit stages, and the
+// Device/Laptop macbook (figma 325:499) the elms hero draws.
 interface Props {
-  frame?: "phone" | "tablet" | "laptop" | "sheet" | "iphone" | "browser";
+  frame?: "phone" | "tablet" | "laptop" | "sheet" | "iphone" | "browser" | "macbook";
   src: string;
   alt: string;
   width?: number;
@@ -37,6 +38,11 @@ const hasScreen = Astro.slots.has("default");
       <span class="browser-address">{url}</span>
     </div>
   )}
+  {frame === "macbook" && <>
+    <span class="macbook-shadow" aria-hidden="true"></span>
+    <span class="macbook-lid" aria-hidden="true"><span class="macbook-camera"></span></span>
+    <span class="macbook-base" aria-hidden="true"><span class="macbook-notch"></span></span>
+  </>}
   {frame === "iphone" && <>
     <span class="iphone-island" aria-hidden="true"></span>
     <span class="iphone-button is-action" aria-hidden="true"></span>
@@ -116,4 +122,25 @@ const hasScreen = Astro.slots.has("default");
   .frame-browser .device-screen img, .frame-browser .device-screen :global(video), .frame-browser .device-screen :global(.loop-still) { width: 100%; height: 100%; object-fit: cover; object-position: left top; }
   .frame-browser .device-screen :global(.exhibit-loop) { height: 100%; }
   .frame-iphone .device-screen :global(.exhibit-loop) { height: 100%; }
+
+  /* macbook, figma 325:499 at its 900 by 486 size: a 774 by 450 lid 63 in, its 752.4 by 423 screen 10.8 and 14.4
+     inside it, a 16.2 tall base with its notch, and a soft shadow under the base. every length is a share of the
+     frame width (cqw), so it scales; the lid's own radius and stroke are figma's 860 wide master at 0.9. */
+  .frame-macbook {
+    position: relative;
+    container-type: inline-size;
+    aspect-ratio: 900 / 486;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+  }
+  .macbook-shadow { position: absolute; top: 50.6cqw; left: 3cqw; width: 94cqw; height: 3.4cqw; border-radius: 50%; background: rgb(0 0 0 / 45%); filter: blur(0.8cqw); }
+  .macbook-lid { position: absolute; top: 0; left: 7cqw; width: 86cqw; height: 50cqw; border: 0.2cqw solid #2c2f35; border-radius: 2.1cqw 2.1cqw 0.5cqw 0.5cqw; background: linear-gradient(#1b1d21, #0d0e10); }
+  .macbook-camera { position: absolute; top: 0.6cqw; left: 50%; width: 0.6cqw; height: 0.6cqw; translate: -50% 0; border-radius: 50%; background: #2a2d33; }
+  .frame-macbook .device-screen { position: absolute; top: 1.6cqw; left: 8.2cqw; width: 83.6cqw; height: 47cqw; border-radius: 0.4cqw; background: #fff; }
+  .frame-macbook .device-screen img, .frame-macbook .device-screen :global(video), .frame-macbook .device-screen :global(.loop-still) { width: 100%; height: 100%; object-fit: cover; object-position: left top; }
+  .macbook-base { position: absolute; top: 50cqw; left: 0; width: 100cqw; height: 1.8cqw; overflow: hidden; border-radius: 0.2cqw 0.2cqw 1.4cqw 1.4cqw; background: linear-gradient(#e4e6ea, #b9bdc4 55%, #8e939b); }
+  .macbook-notch { position: absolute; top: 0; left: 43.5cqw; width: 13cqw; height: 0.6cqw; border-radius: 0 0 0.6cqw 0.6cqw; background: #a6abb3; }
 </style>

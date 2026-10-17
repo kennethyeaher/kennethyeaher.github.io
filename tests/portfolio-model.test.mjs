@@ -15,11 +15,12 @@ import { caseStudies } from "../src/data/caseStudies.mjs";
 import { coverFields } from "../src/data/coverFields.mjs";
 import { coverDevices } from "../src/data/coverDevices.mjs";
 import { coverMotion, motionTimeline } from "../src/data/coverMotion.mjs";
-import { approvedLedes } from "../scripts/build-approved-ledes.mjs";
+import { approvedLedes, readProse } from "../scripts/build-approved-ledes.mjs";
 
 const specPath = new URL("../.private/redesign-spec/v2-pages.json", import.meta.url);
 
-// home grid redesign (figma 428:2684): the capstone leads, frontground follows terpcarehub. elms joins first in batch 2.
+// home grid redesign (figma 428:2684): the capstone leads, frontground follows terpcarehub. elms joins at the end until
+// batch 2 puts its card first.
 const expectedOrder = [
   "college-park-capstone",
   "terpcarehub",
@@ -28,9 +29,10 @@ const expectedOrder = [
   "terpcare",
   "ovara",
   "kairo-health",
+  "elms-redesign",
 ];
 
-test("featured work returns the approved seven projects in the home grid order", () => {
+test("featured work returns the approved eight projects in the home grid order", () => {
   assert.deepEqual(
     getFeaturedProjects().map((project) => project.slug),
     expectedOrder,
@@ -52,6 +54,7 @@ test("categories come from one fixed set, one or two per project", () => {
     ovara: "Data Science + Data Visualization",
     "college-park-capstone": "UX Research",
     "kairo-health": "Data Science",
+    "elms-redesign": "Interaction Design",
   });
 });
 
@@ -67,12 +70,11 @@ test("every project has a unique slug and every navigation target resolves", () 
 test("adjacent-project navigation wraps without a dead end", () => {
   assert.equal(
     getAdjacentProject("college-park-capstone", "previous").slug,
-    "kairo-health",
+    "elms-redesign",
   );
-  assert.equal(
-    getAdjacentProject("kairo-health", "next").slug,
-    "college-park-capstone",
-  );
+  // kairo hands on to elms, and elms wraps round to the capstone.
+  assert.equal(getAdjacentProject("kairo-health", "next").slug, "elms-redesign");
+  assert.equal(getAdjacentProject("elms-redesign", "next").slug, "college-park-capstone");
   assert.equal(getAdjacentProject("college-park-capstone", "next").slug, "terpcarehub");
   assert.equal(getAdjacentProject("terpcarehub", "next").slug, "frontground");
   assert.equal(getAdjacentProject("frontground", "previous").slug, "terpcarehub");
@@ -139,6 +141,7 @@ test("every featured project carries a project-palette motion cover and a substa
     ["kairo-health", 8],
     ["terpcare", 7],
     ["terpcarehub", 8],
+    ["elms-redesign", 8],
   ]);
 
   for (const project of projects) {
@@ -187,6 +190,7 @@ test("every home card takes its dark base and blurred colour field from its figm
     terpcare: ["#150a0b", "451:8419", 72, 5],
     ovara: ["#1a1326", "I447:11135;452:5410", 72, 5],
     "kairo-health": ["#081127", "I447:11757;452:5434", 72, 5],
+    "elms-redesign": ["#120b0c", "451:8401", 72, 5],
   };
   for (const [slug, [base, figma, blur, count]] of Object.entries(expected)) {
     const field = coverFields[slug];
@@ -442,7 +446,7 @@ test("unknown slugs fail closed", () => {
 });
 
 // pages on the v2 exhibit layout.
-const exhibitSlugs = ["kairo-health", "ovara", "terpcarehub", "college-park-capstone", "frontground", "terpcare", "sohive"];
+const exhibitSlugs = ["kairo-health", "ovara", "terpcarehub", "college-park-capstone", "frontground", "terpcare", "sohive", "elms-redesign"];
 
 // figma rails for pages whose spec export carries no chapter list, read from the frame's chapter rail.
 // terpcarehub 90:1631 replaced the find care loop with a walkthrough and dropped the provider card stage.
@@ -490,6 +494,7 @@ test("exhibits are optional and only the converted pages opt in", () => {
   assert.deepEqual(getProjectBySlug("frontground").exhibits.map(({ kind }) => kind), ["hero", "rows", "custom", "stage", "section", "stage", "stage", "section"]);
   assert.deepEqual(getProjectBySlug("terpcare").exhibits.map(({ kind }) => kind), ["hero", "journey", "stage", "rows", "rows", "stage", "stage", "section"]);
   assert.deepEqual(getProjectBySlug("sohive").exhibits.map(({ kind }) => kind), ["hero", "rows", "pair", "custom", "section", "stage", "stage", "section"]);
+  assert.deepEqual(getProjectBySlug("elms-redesign").exhibits.map(({ kind }) => kind), ["hero", "custom", "stage", "stage", "stage", "journey", "section"]);
 });
 
 /** every phone an exhibit draws: on the exhibit, on a pair stage, on a stage's rows and on walkthrough steps. */
@@ -552,11 +557,11 @@ const fixturePath = new URL("./fixtures/approved-ledes.json", import.meta.url);
 
 /** per slug, each chapter's approved paragraphs: from the prose export when present, else the fixture. */
 function approvedParagraphs() {
-  return existsSync(prosePath) ? approvedLedes(JSON.parse(readFileSync(prosePath, "utf8"))) : JSON.parse(readFileSync(fixturePath, "utf8"));
+  return existsSync(prosePath) ? approvedLedes(readProse()) : JSON.parse(readFileSync(fixturePath, "utf8"));
 }
 
 // pages built from their prose mock (figma section 07); every page joins as it is built.
-const ledeSlugs = ["kairo-health", "ovara", "terpcarehub", "college-park-capstone", "frontground", "terpcare", "sohive"];
+const ledeSlugs = ["kairo-health", "ovara", "terpcarehub", "college-park-capstone", "frontground", "terpcare", "sohive", "elms-redesign"];
 
 /** every lede sentence of a chapter; a prose chapter with no lede of its own reads its section text. */
 function ledeSentences(project, exhibit) {
@@ -583,15 +588,15 @@ test("every lede sentence on a converted page is that page's own copy", () => {
   }
 });
 
-const mockSlugs = ["kairo-health", "ovara", "terpcarehub", "college-park-capstone", "frontground", "terpcare", "sohive"];
+const mockSlugs = ["kairo-health", "ovara", "terpcarehub", "college-park-capstone", "frontground", "terpcare", "sohive", "elms-redesign"];
 
 test("the approved lede fixture matches the prose export", { skip: !existsSync(prosePath) && "prose export not present" }, () => {
-  const expected = approvedLedes(JSON.parse(readFileSync(prosePath, "utf8")));
+  const expected = approvedLedes(readProse());
   assert.deepEqual(JSON.parse(readFileSync(fixturePath, "utf8")), expected, "tests/fixtures/approved-ledes.json is out of date; run node scripts/build-approved-ledes.mjs");
 });
 
 test("converted pages follow their prose mock word for word", { skip: !existsSync(prosePath) && "prose export not present" }, () => {
-  const mocks = JSON.parse(readFileSync(prosePath, "utf8"));
+  const mocks = readProse();
   for (const slug of mockSlugs) {
     const project = getProjectBySlug(slug);
     const mock = mocks[slug];
@@ -698,6 +703,7 @@ function assertMatchesSpec(slug) {
   }
 }
 
-for (const slug of exhibitSlugs) {
+// elms came after the v2 spec export, so its copy is held to its own mock export (prose-elms.json) instead.
+for (const slug of exhibitSlugs.filter((entry) => entry !== "elms-redesign")) {
   test(`${slug} exhibit copy matches the approved spec word for word`, { skip: !existsSync(specPath) && "spec export not present" }, () => assertMatchesSpec(slug));
 }

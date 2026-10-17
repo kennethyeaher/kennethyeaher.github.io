@@ -6,14 +6,16 @@
 // steps it plays (325:545); both layouts are global.css's .exhibit-layout, which the live specimens share. a wide card
 // stands in for a whole stage at the stage's width, with no caption (sohive's four phone loops); two stack where a stage
 // and the stage under it stood (terpcarehub's alert and find care), each on its own base. on phones the tag
-// drops under the card, so it never covers the device.
+// drops under the card, so it never covers the device. a card whose loop is null is a still waiting for its recording
+// (elms): it draws its poster in the same box, so the clip drops in later with no layout change, and its tag, if it
+// has one, is a plain tag with no control.
 import Caption from "@/components/exhibits/Caption.astro";
 import ExhibitLoop from "@/components/exhibits/ExhibitLoop.astro";
 import MediaTag from "@/components/exhibits/MediaTag.astro";
 
 interface Props {
   layout: "pair" | "feature" | "wide";
-  visuals: { src: string; alt: string; width: number; height: number; base?: string; loop: { src: string; poster: string; name?: string } }[];
+  visuals: { src: string; alt: string; width: number; height: number; base?: string; loop: { src: string; poster: string; name?: string } | null }[];
   /** a wide card's caption carries only its tag. */
   captions: { num?: string; tag?: string; title?: string; body?: string }[];
   base: string;
@@ -27,9 +29,11 @@ const { layout, visuals, captions, base, steps = [] } = Astro.props;
     <figure class="loop-exhibit">
       <div class="loop-media">
         <div class="loop-card" style={`--loop-base: ${visual.base ?? base}; aspect-ratio: ${visual.width} / ${visual.height}`}>
-          <ExhibitLoop src={visual.loop.src} poster={visual.loop.poster} width={visual.width} height={visual.height} label={visual.alt} name={visual.loop.name} />
+          {visual.loop
+            ? <ExhibitLoop src={visual.loop.src} poster={visual.loop.poster} width={visual.width} height={visual.height} label={visual.alt} name={visual.loop.name} />
+            : <img class="loop-still-card" src={visual.src} alt={visual.alt} width={visual.width} height={visual.height} loading="lazy" decoding="async" />}
         </div>
-        {captions[index].tag && <span class="loop-tag"><MediaTag text={captions[index].tag!} loop={visual.loop.name ?? ""} /></span>}
+        {captions[index].tag && <span class="loop-tag"><MediaTag text={captions[index].tag!} loop={visual.loop ? visual.loop.name ?? "" : undefined} /></span>}
       </div>
       {captions[index].title && <figcaption class="loop-caption">
         {captions[index].num && <p class="loop-num">{captions[index].num}</p>}
@@ -58,6 +62,7 @@ const { layout, visuals, captions, base, steps = [] } = Astro.props;
   .loop-card { position: relative; overflow: hidden; border-radius: 6px; background: var(--loop-base); }
   .loop-card :global(.exhibit-loop) { height: 100%; }
   .loop-card :global(.exhibit-loop video) { height: 100%; object-fit: cover; }
+  .loop-still-card { display: block; width: 100%; height: 100%; object-fit: cover; }
   .loop-tag { position: absolute; z-index: 2; bottom: 16px; left: 16px; }
   .loop-caption { display: grid; justify-items: start; gap: 6px; }
   .loop-caption :global(.exhibit-caption) { max-width: 480px; }

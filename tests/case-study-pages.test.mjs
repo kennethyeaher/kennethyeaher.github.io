@@ -16,6 +16,7 @@ const slugs = [
   "frontground",
   "terpcare",
   "sohive",
+  "elms-redesign",
 ];
 const pages = new Map();
 
@@ -34,8 +35,8 @@ before(() => {
   }
 });
 
-test("all seven approved case studies render from one route system", () => {
-  assert.equal(pages.size, 7);
+test("all eight approved case studies render from one route system", () => {
+  assert.equal(pages.size, 8);
 
   for (const html of pages.values()) {
     assert.match(html, /data-case-nav/);
@@ -113,12 +114,14 @@ test("the renamed capstone and expanded product evidence render publicly, and th
 test("previous and next project links wrap without dead ends", () => {
   const first = pages.get("college-park-capstone");
   const middle = pages.get("terpcare");
-  const last = pages.get("kairo-health");
+  const kairo = pages.get("kairo-health");
+  const last = pages.get("elms-redesign");
 
   // the v2 exhibit shell (figma 61:1059) closes on a next project link only, in the home order.
   assert.match(first, /href="\/work\/terpcarehub"/);
   assert.match(middle, /href="\/work\/ovara"/);
-  assert.match(last, /href="\/work\/college-park-capstone"/);
+  assert.match(kairo, /class="next-link" href="\/work\/elms-redesign"/);
+  assert.match(last, /class="next-link" href="\/work\/college-park-capstone"/);
 });
 
 
@@ -195,7 +198,7 @@ test("reading progress matches figma 26:105, filled in the case study accent, wi
   for (const [, body] of globalCss.matchAll(/\.reading-progress[^{]*\{([^}]*)\}/g)) assert.doesNotMatch(body, /transition/);
 });
 
-test("metric labels are serif sentence case on all seven pages, and tiles in a row share one height", () => {
+test("metric labels are serif sentence case on every page, and tiles in a row share one height", () => {
   for (const [slug, html] of pages) {
     const labels = [...html.matchAll(/<div class="metric"[^>]*>\s*<dt[^>]*>([^<]+)<\/dt>/g)].map((match) => match[1]);
     assert.equal(labels.length, 3, slug);
@@ -231,7 +234,8 @@ test("Kairo renders the v2 exhibit layout from the approved spec", () => {
   assert.match(kairo, /data-count-to="55" data-count-rest=" of 56"/);
   assert.match(kairo, /<table class="journey/);
   assert.match(kairo, /<th scope="col" class="is-accent[^"]*"/);
-  assert.match(kairo, /href="\/work\/college-park-capstone"/);
+  // kairo hands on to elms, the last card in the home order.
+  assert.match(kairo, /href="\/work\/elms-redesign"/);
   assert.match(kairo, /The useful finding was a workflow insight, not a winner/);
   const badges = [...kairo.matchAll(/<a class="annotation-badge[^"]*" href="#([^"]+)" aria-describedby="([^"]+)"/g)];
   assert.equal(badges.length, 6);
@@ -621,6 +625,11 @@ const componentCss = (name) => [...readFileSync(join(projectRoot, "src", "compon
 test("every loop card's media tag sits in its bottom left corner, 16px in, and under the card on phones", () => {
   for (const [slug, html] of pages) {
     for (const [item] of html.matchAll(/<figure class="loop-exhibit"[^>]*>[\s\S]*?<\/figure>/g)) {
+      // a still waiting for its recording (elms) has no clip and no control; it keeps the card and tag places.
+      if (!item.includes("<video")) {
+        assert.doesNotMatch(item, /data-loop-toggle|LOOP ·/, slug);
+        continue;
+      }
       // the tag follows the card rather than sitting inside it, so on phones it can drop below the device.
       assert.match(item, /<div class="loop-card"[^>]*>\s*<div class="exhibit-loop"[\s\S]*?<\/video>\s*<\/div>\s*<\/div>\s*<span class="loop-tag"/, slug);
     }
@@ -663,8 +672,8 @@ test("below 640px every leader shows only its numbered dot, and a numbered legen
       }
     }
   }
-  // frontground's solution, offline and triage, and sohive's two feed stages.
-  assert.equal(stages, 5);
+  // frontground's solution, offline and triage, sohive's two feed stages, and elms's round one and core flow.
+  assert.equal(stages, 7);
 
   const leader = componentCss("AnnotationLeader");
   const phone = blocksOf(leader, "@media (max-width: 640px)");
@@ -768,7 +777,7 @@ test("exactly the eleven small pinned stages zoom to the active annotation (figm
   const expected = {
     ovara: ["the-finding"], "kairo-health": ["field-by-tier"], "college-park-capstone": ["the-persona"],
     frontground: ["the-solution", "offline", "triage"], terpcare: ["the-original"], sohive: ["the-feed-0", "the-feed-1"],
-    terpcarehub: ["core-flows-walkthrough-1", "core-flows-walkthrough-pin"],
+    terpcarehub: ["core-flows-walkthrough-1", "core-flows-walkthrough-pin"], "elms-redesign": [],
   };
   for (const [slug, page] of pages) {
     const stages = [...page.matchAll(/<div class="exhibit-stage[^"]*"[^>]*data-pin-zoom="([^"]+)"([^>]*)>/g)];

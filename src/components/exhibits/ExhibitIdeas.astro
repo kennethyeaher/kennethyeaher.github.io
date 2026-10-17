@@ -1,0 +1,83 @@
+---
+// the elms idea board (figma 419:960): ten brainstorm ideas under four filter chips. a chip is a pressed toggle;
+// choosing one keeps its ideas as they are and dims the rest by colour, never by opacity, so the dimmed text keeps
+// its contrast. built ideas carry the elms red border, the way figma marks the four that went onto paper.
+interface Props {
+  id: string;
+  ideas: { filters: [string, string][]; ideas: { id: string; status: string; title: string; body: string }[]; footnote: string };
+}
+const { id, ideas } = Astro.props;
+const count = (filter: string) => (filter === "all" ? ideas.ideas.length : ideas.ideas.filter((idea) => idea.status === filter).length);
+const statusLabel = (status: string) => ideas.filters.find(([key]) => key === status)?.[1] ?? status;
+---
+<div class="ideas" data-ideas>
+  <div class="ideas-board">
+    <div class="ideas-chips" role="group" aria-label="Filter the ideas">
+      {ideas.filters.map(([key, label], index) => (
+        <button type="button" class="ideas-chip" aria-pressed={index === 0 ? "true" : "false"} aria-controls={`${id}-ideas`} data-filter={key}>
+          {label}<span class="chip-count">{count(key)}</span>
+        </button>
+      ))}
+    </div>
+    <ul class="ideas-grid" id={`${id}-ideas`}>
+      {ideas.ideas.map((idea) => (
+        <li class:list={["idea", `is-${idea.status}`]} data-status={idea.status}>
+          <p class="idea-head"><span class="idea-id">{idea.id}</span><span class="idea-status">{statusLabel(idea.status)}</span></p>
+          <p class="idea-title">{idea.title}</p>
+          <p class="idea-body">{idea.body}</p>
+        </li>
+      ))}
+    </ul>
+  </div>
+  <p class="ideas-footnote">{ideas.footnote}</p>
+</div>
+<style>
+  .ideas { display: grid; gap: 32px; }
+  .ideas-board { display: grid; gap: 20px; padding: 24px; border: 1px solid var(--rule); border-radius: 12px; background: var(--surface); }
+  .ideas-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .ideas-chip { display: inline-flex; gap: 0.5em; min-height: 36px; padding: 8px 14px; border: 1px solid var(--rule); border-radius: 999px; background: var(--surface); color: var(--ink); font: 500 14px / 1.35 var(--ui-sans); letter-spacing: -0.005em; cursor: pointer; }
+  .ideas-chip[aria-pressed="true"] { border-color: #8c1a11; background: #8c1a11; color: #ffffff; }
+  .ideas-chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .ideas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; margin: 0; padding: 0; list-style: none; }
+  .idea { display: grid; align-content: start; gap: 8px; min-height: 158px; padding: 16px; border: 1px solid var(--rule); border-radius: 10px; background: var(--canvas); }
+  .idea.is-built { border-color: #8c1a11; background: var(--surface); }
+  .idea p { margin: 0; }
+  .idea-head { display: flex; align-items: center; gap: 8px; }
+  .idea-id { color: var(--muted); font: 12px / 1.3 var(--mono); letter-spacing: -0.02em; }
+  .idea-status { padding: 2px 8px; border-radius: 999px; background: var(--surface-sunken); color: var(--muted); font: var(--label-micro, 10px) / 14px var(--mono); letter-spacing: 0.06em; text-transform: uppercase; }
+  .is-parked .idea-status { color: var(--ink); }
+  .is-built .idea-status { background: #fbefee; color: #8c1a11; }
+  .idea-title { color: var(--ink-strong); font: 600 14px / 1.3 var(--ui-sans); letter-spacing: -0.005em; }
+  .idea-body { color: var(--muted); font: 12px / 1.35 var(--ui-sans); }
+  /* an idea outside the chosen filter: a quieter fill and border and muted text, all by colour. */
+  .idea.is-dim { border-color: var(--rule); background: var(--surface-sunken); }
+  .idea.is-dim :is(.idea-title, .idea-body, .idea-id, .idea-status) { color: var(--muted); }
+  .idea.is-dim .idea-status { background: var(--surface); }
+  .ideas-footnote { margin: 0; color: var(--muted); font: var(--label-micro, 10px) / 14px var(--mono); letter-spacing: 0.06em; }
+  @media (prefers-reduced-motion: no-preference) {
+    .idea { transition: background-color 260ms var(--ease-out), border-color 260ms var(--ease-out); }
+    .idea :is(.idea-title, .idea-body, .idea-id, .idea-status) { transition: color 260ms var(--ease-out); }
+  }
+  @media (max-width: 760px) {
+    .ideas-board { padding: 16px; }
+    .ideas-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+  }
+  :global(:root[data-theme="dark"]) .is-built .idea-status { background: #3a1714; color: #f4b2aa; }
+  :global(:root[data-theme="dark"]) .idea.is-built { border-color: #c2483d; }
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme="light"])) .is-built .idea-status { background: #3a1714; color: #f4b2aa; }
+    :global(:root:not([data-theme="light"])) .idea.is-built { border-color: #c2483d; }
+  }
+</style>
+<script>
+  // a chip press keeps one filter pressed and dims every idea outside it; All dims none.
+  document.querySelectorAll<HTMLElement>("[data-ideas]").forEach((board) => {
+    const chips = [...board.querySelectorAll<HTMLButtonElement>("[data-filter]")];
+    const ideas = [...board.querySelectorAll<HTMLElement>("[data-status]")];
+    chips.forEach((chip) => chip.addEventListener("click", () => {
+      const filter = chip.dataset.filter;
+      chips.forEach((other) => other.setAttribute("aria-pressed", String(other === chip)));
+      ideas.forEach((idea) => idea.classList.toggle("is-dim", filter !== "all" && idea.dataset.status !== filter));
+    }));
+  });
+</script>
