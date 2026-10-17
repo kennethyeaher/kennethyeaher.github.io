@@ -1,0 +1,43 @@
+---
+import { layerStyle } from "@/utils/coverMotion.mjs";
+
+// a motion cover's layers over the field (figma 454:2562, 446:9788, 447:11130), drawn in step 1. the keyframes come
+// from ProjectCover.astro. the component renders itself for each child layer, so every layer shares this style scope.
+type Layer = { id: string; box: number[]; style?: string; text?: string; src?: string; steps?: object[]; children?: Layer[] };
+
+interface Props {
+  slug: string;
+  figma?: string;
+  layers: Layer[];
+  /** the class each moving layer animates under, from coverMotionCss. */
+  classes: Map<Layer, string>;
+  /** true for the cover's own wrapper; child layers render without it. */
+  root?: boolean;
+}
+const { slug, figma, layers, classes, root = false } = Astro.props;
+
+/** the class list of one layer: moving layers take their animation class, still ones the plain layer class. */
+function layerClass(layer: Layer): string {
+  const name = classes.get(layer);
+  return name ? `cm-anim ${name}` : "cm-layer";
+}
+---
+{root ? (
+  <div class="cover-motion" aria-hidden="true" data-cover-motion={slug} data-figma={figma}>
+    <Astro.self slug={slug} layers={layers} classes={classes} />
+  </div>
+) : layers.map((layer) => (
+  layer.src ? <img class={layerClass(layer)} src={layer.src} alt="" loading="lazy" decoding="async" style={layerStyle(layer)} />
+  : layer.text !== undefined ? <span class={layerClass(layer)} style={layerStyle(layer)}>{layer.text}</span>
+  : <div class={layerClass(layer)} style={layerStyle(layer)}>{layer.children && <Astro.self slug={slug} layers={layer.children} classes={classes} />}</div>
+))}
+<style>
+  /* figma sets some ovara and kairo text in inter. the home page loads no specimen fonts (specimens.test.mjs), so that
+     text falls back to the system face. */
+  .cover-motion { position: absolute; z-index: 1; inset: 0; overflow: hidden; pointer-events: none; }
+  /* figma places a layer by its top left corner and turns it about that corner. */
+  .cm-layer { position: absolute; max-width: none; transform-origin: 0 0; line-height: normal; white-space: pre; }
+  /* moving layers hold step 1 until the cover is on screen (exhibits.ts sets is-live); the keyframes name and loop length are per cover. */
+  .cm-anim { position: absolute; max-width: none; transform-origin: 0 0; line-height: normal; white-space: pre; animation-timing-function: ease-in-out; animation-iteration-count: infinite; animation-play-state: paused; }
+  .cover-motion.is-live .cm-anim { animation-play-state: running; }
+</style>

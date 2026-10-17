@@ -1,5 +1,10 @@
 ---
+import CoverDevices from "@/components/CoverDevices.astro";
+import CoverMotion from "@/components/CoverMotion.astro";
+import { coverDevices } from "@/data/coverDevices.mjs";
 import { coverFields } from "@/data/coverFields.mjs";
+import { coverMotion } from "@/data/coverMotion.mjs";
+import { coverMotionCss } from "@/utils/coverMotion.mjs";
 
 interface Props {
   project: {
@@ -13,6 +18,10 @@ interface Props {
 // the caption under the card carries the name and year. devices and motion sit on top of this base.
 const { project } = Astro.props;
 const field = coverFields[project.slug];
+const devices = coverDevices[project.slug];
+// a motion cover's steps, and the keyframes that loop them (inline, since every cover has its own).
+const motion = coverMotion[project.slug];
+const motionCss = motion ? coverMotionCss(project.slug, motion) : null;
 if (!field) throw new Error(`No colour field for ${project.slug}`);
 
 // figma's layer blur radius is twice the gaussian deviation css blur() takes, and it scales with the 454px cover.
@@ -29,11 +38,14 @@ function ellipseStyle({ x, y, r, colour, alpha }: { x: number; y: number; r: num
 }
 ---
 <div class:list={["project-cover", `cover-${project.cover.variant}`, "is-card"]}
-  data-project-cover data-cover-variant={project.cover.variant} data-figma-field={field.figma}
+  data-project-cover data-cover-variant={project.cover.variant} data-figma-field={field.figma} data-motion={motion ? project.slug : undefined}
   style={`--cover-base: ${field.base}`}>
+  {motionCss && <style is:inline set:html={motionCss.css} />}
   <div class="cover-gradient" aria-hidden="true" data-cover-gradient style={`--field-blur: ${blur}`}>
     {field.ellipses.map((ellipse, index) => <span class="cover-field" style={ellipseStyle(ellipse, index)}></span>)}
   </div>
+  {devices && <CoverDevices devices={devices} />}
+  {motion && motionCss && <CoverMotion root slug={project.slug} figma={motion.figma} layers={motion.layers} classes={motionCss.classes} />}
   <slot />
 </div>
 <style>

@@ -193,9 +193,9 @@ export function initializeMediaControls(): void {
   });
 }
 
-/** drift each home cover colour field only while it is on screen, so off screen cards stop animating. */
+/** drift each home cover colour field, and loop each motion cover, only while it is on screen, so off screen cards stop animating. */
 export function initializeCoverGradients(): void {
-  const gradients = document.querySelectorAll<HTMLElement>("[data-cover-gradient]");
+  const gradients = document.querySelectorAll<HTMLElement>("[data-cover-gradient], [data-cover-motion]");
   if (!gradients.length || !("IntersectionObserver" in window)) return;
   const observer = new IntersectionObserver((entries) => {
     for (const entry of entries) entry.target.classList.toggle("is-live", entry.isIntersecting);

@@ -5,6 +5,8 @@ import test, { before } from "node:test";
 import assert from "node:assert/strict";
 import { aboutChapters, aboutGallery, experience, getFeaturedProjects } from "../src/data/portfolio.mjs";
 import { coverFields } from "../src/data/coverFields.mjs";
+import { coverDevices } from "../src/data/coverDevices.mjs";
+import { coverMotion } from "../src/data/coverMotion.mjs";
 
 const projectRoot = new URL("..", import.meta.url).pathname;
 let workHtml = "";
@@ -68,9 +70,12 @@ test("home grid covers are square, untitled, and a dark base under a blurred dri
     const field = coverFields[project.slug];
     const cover = card.match(/<div class="project-cover[^"]*"[^>]*>/)?.[0] ?? "";
     assert.match(cover, new RegExp(`--cover-base: ${field.base}`), `${project.slug} base`);
-    // the caption carries the name and year, so the cover itself has no title or category text.
+    // the caption carries the name and year, so the cover itself has no title or category text; only a device's own
+    // chrome (a status bar time, a browser address) and a motion cover's scene are text, inside aria-hidden layers.
     const coverHtml = card.slice(card.indexOf("<figure"), card.indexOf("</figure>"));
-    assert.equal(coverHtml.replace(/<[^>]+>/g, "").trim(), "", `${project.slug} cover has no text`);
+    const chrome = coverHtml.replace(/<style>[\s\S]*?<\/style>/g, "").replace(/<div class="cover-(devices|motion)[\s\S]*$/, "");
+    assert.equal(chrome.replace(/<[^>]+>/g, "").trim(), "", `${project.slug} cover has no text`);
+    assert.doesNotMatch(coverHtml, new RegExp(`>\\s*${project.cardTitle}\\s*<`), `${project.slug} cover has no title`);
     assert.doesNotMatch(coverHtml, new RegExp(project.category.replace(/[+]/g, "\\+")));
     const gradient = coverHtml.match(/<div class="cover-gradient"[^>]*>/)?.[0] ?? "";
     assert.match(gradient, /aria-hidden="true"/);
@@ -101,6 +106,83 @@ test("home grid covers are square, untitled, and a dark base under a blurred dri
   assert.match(motion, /^@media\(prefers-reduced-motion:no-preference\)\{\.cover-field\[[^\]]+\]\{[^}]*animation:cover-field-drift var\(--drift-s\) ease-in-out infinite alternate;[^}]*animation-play-state:paused/);
   assert.match(motion, /\.cover-gradient\[[^\]]+\]\.is-live \.cover-field\[[^\]]+\]\{animation-play-state:running\}/);
   assert.match(css, /@keyframes cover-field-drift\{to\{translate:var\(--drift-x\) var\(--drift-y\)\}\}/);
+});
+
+test("device covers draw figma's browser and phones over the field and lift and fan out on hover", () => {
+  const cards = new Map([...workHtml.matchAll(/<a class="project-card" href="\/work\/([^"]+)"[\s\S]*?<\/a>/g)].map(([card, slug]) => [slug, card]));
+  for (const [slug, card] of cards) {
+    const devices = card.match(/<div class="cover-devices is-(browser|phones)"[^>]*>/);
+    if (!coverDevices[slug]) { assert.equal(devices, null, `${slug} has no devices`); continue; }
+    assert.equal(devices?.[1], coverDevices[slug].kind, `${slug} device kind`);
+    assert.match(devices[0], /aria-hidden="true"/);
+    assert.match(devices[0], new RegExp(`data-figma="${coverDevices[slug].figma}"`));
+    // the devices sit after the field, inside the cover.
+    assert.ok(card.indexOf("data-cover-gradient") < card.indexOf("cover-devices"), `${slug} devices over the field`);
+    const images = [...card.matchAll(/<img class="device-screen"[^>]*>/g)].map(([tag]) => tag);
+    const screens = coverDevices[slug].kind === "browser" ? [coverDevices[slug].screen] : coverDevices[slug].phones;
+    assert.equal(images.length, screens.length, `${slug} screens`);
+    for (const [index, { src, width, height }] of screens.entries()) {
+      assert.match(images[index], new RegExp(`src="${src}" alt="" width="${width}" height="${height}" loading="lazy" decoding="async"`), `${slug} screen ${index}`);
+    }
+  }
+  const hub = cards.get("terpcarehub");
+  assert.deepEqual([...hub.matchAll(/<div class="device-phone is-(left|right|center)\b/g)].map(([, slot]) => slot), ["left", "right", "center"]);
+  assert.equal([...hub.matchAll(/<span class="phone-status"[^>]*><span class="phone-time"[^>]*>9:41<\/span><span class="phone-battery"[^>]*><\/span><\/span>/g)].length, 2);
+  assert.equal([...hub.matchAll(/class="phone-island"/g)].length, 2);
+  assert.equal([...cards.get("sohive").matchAll(/class="phone-island"/g)].length, 3);
+  assert.doesNotMatch(cards.get("sohive"), /phone-status/);
+  const browser = cards.get("frontground");
+  assert.match(browser, /<span class="browser-address"[^>]*>frontground · doctor<\/span>/);
+  assert.equal([...browser.matchAll(/<img class="browser-light" src="\/images\/exhibits\/browser-light-(red|yellow|green)\.svg" alt=""/g)].map(([, colour]) => colour).join(), "red,yellow,green");
+
+  const css = [...workHtml.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map((match) => readFileSync(join(projectRoot, "dist", match[1]), "utf8")).join("\n");
+  // the centre device lifts 8px and the side phones fan out 6px, as the layer names say; reduced motion keeps them still.
+  const hover = css.slice(css.indexOf("@media(prefers-reduced-motion:no-preference){.project-card:is(:hover,:focus-visible) .device-center"));
+  assert.ok(hover.length < css.length, "hover moves sit under prefers-reduced-motion: no-preference");
+  assert.match(hover, /^@media\(prefers-reduced-motion:no-preference\)\{\.project-card:is\(:hover,:focus-visible\) \.device-center\[[^\]]+\]\{translate:0 -8px\}/);
+  assert.match(hover, /\.project-card:is\(:hover,:focus-visible\) \.device-phone\[[^\]]+\]\.is-left\{translate:-6px\}/);
+  assert.match(hover, /\.project-card:is\(:hover,:focus-visible\) \.device-phone\[[^\]]+\]\.is-right\{translate:6px\}/);
+  assert.match(css, /\.device-phone\[[^\]]+\],\.device-browser\[[^\]]+\]\{[^}]*box-shadow:0 3\.965cqi 8\.811cqi #00000059/);
+});
+
+test("motion covers draw step 1 in the markup and loop their steps only on screen with motion allowed", () => {
+  const cards = new Map([...workHtml.matchAll(/<a class="project-card" href="\/work\/([^"]+)"[\s\S]*?<\/a>/g)].map(([card, slug]) => [slug, card]));
+  for (const [slug, card] of cards) {
+    const motion = card.match(/<div class="cover-motion"[^>]*>/)?.[0];
+    if (!coverMotion[slug]) { assert.equal(motion, undefined, `${slug} has no motion layer`); continue; }
+    assert.match(motion, /aria-hidden="true"/);
+    assert.match(motion, new RegExp(`data-cover-motion="${slug}"`));
+    assert.match(motion, new RegExp(`data-figma="${coverMotion[slug].figma}"`));
+    assert.match(card, new RegExp(`<div class="project-cover[^"]*"[^>]*data-motion="${slug}"`));
+  }
+  const capstone = cards.get("college-park-capstone");
+  assert.match(capstone, />Diana</);
+  assert.match(capstone, />JOURNEY · BRUCE</);
+  assert.doesNotMatch(capstone, /Maria|Tyler/);
+  // step 1 is the markup: the persona and journey cards start hidden, note 1 sits at figma's step 1 spot and turn.
+  assert.match(capstone, /class="cm-anim cm-college-park-capstone-persona"[^>]*style="[^"]*opacity: 0[;"]/);
+  assert.match(capstone, /class="cm-anim cm-college-park-capstone-note-1"[^>]*style="left: 7\.489cqi; top: 12\.775cqi;[^"]*rotate: 8deg/);
+  const ovara = cards.get("ovara");
+  for (const figure of [">20.5<", ">U.S. 30.06<", ">1,029<", ">10.9M RESIDENTS<"]) assert.ok(ovara.includes(figure), `ovara card shows ${figure}`);
+  assert.equal([...ovara.matchAll(/class="cm-anim cm-ovara-tile-\d+"/g)].length, 144);
+
+  // each cover's keyframes ship once, inline, and only under prefers-reduced-motion: no-preference.
+  const inline = [...workHtml.matchAll(/<style>(@media \(prefers-reduced-motion: no-preference\) \{[\s\S]*?)<\/style>/g)].map(([, css]) => css).join("\n");
+  for (const [slug, seconds] of [["college-park-capstone", "13s"], ["ovara", "10.8s"], ["kairo-health", "10.2s"]]) {
+    assert.match(inline, new RegExp(`@keyframes cm-${slug}-`), `${slug} keyframes`);
+    assert.match(inline, new RegExp(`\\.cm-${slug}-[a-z0-9-]+ \\{ animation-name: cm-${slug}-[a-z0-9-]+; animation-duration: ${seconds.replace(".", "\\.")}; \\}`), `${slug} loop length`);
+    // the field follows the steps on top of its slow drift.
+    assert.match(inline, new RegExp(`\\.project-cover\\[data-motion="${slug}"\\] \\.cover-field:nth-child\\(1\\) \\{ animation-name: cover-field-drift, cm-${slug}-field-1; animation-duration: var\\(--drift-s\\), ${seconds.replace(".", "\\.")}; animation-direction: alternate, normal; \\}`));
+  }
+  // capstone step 2 begins at 23.077%: the hold ends at 16.923% and the 0.8s ease lands on step 2, moved by translate
+  // from the step 1 spot (34, 58 to 60, 70) and turned flat.
+  assert.match(inline, /@keyframes cm-college-park-capstone-note-1 \{ 0%, 16\.923%, 100% \{ translate: 0cqi 0cqi; rotate: 8deg;[^}]*\} 23\.077%, 40% \{ translate: 5\.727cqi 2\.643cqi; rotate: 0deg;/);
+
+  const css = [...workHtml.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map((match) => readFileSync(join(projectRoot, "dist", match[1]), "utf8")).join("\n");
+  assert.match(css, /\.cm-anim\[[^\]]+\]\{[^}]*animation-timing-function:ease-in-out;animation-iteration-count:infinite;animation-play-state:paused/);
+  assert.match(css, /\.cover-motion\[[^\]]+\]\.is-live \.cm-anim\[[^\]]+\]\{animation-play-state:running\}/);
+  const script = readFileSync(join(projectRoot, "src/scripts/exhibits.ts"), "utf8");
+  assert.match(script, /querySelectorAll<HTMLElement>\("\[data-cover-gradient\], \[data-cover-motion\]"\)/);
 });
 
 test("home v3 follows figma 176:1721 and 177:1723: Currently and Previously under the thesis, name / year captions", () => {

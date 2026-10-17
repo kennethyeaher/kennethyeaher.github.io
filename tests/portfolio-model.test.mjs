@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import test from "node:test";
 import assert from "node:assert/strict";
 
@@ -13,6 +13,8 @@ import {
 } from "../src/data/portfolio.mjs";
 import { caseStudies } from "../src/data/caseStudies.mjs";
 import { coverFields } from "../src/data/coverFields.mjs";
+import { coverDevices } from "../src/data/coverDevices.mjs";
+import { coverMotion, motionTimeline } from "../src/data/coverMotion.mjs";
 import { approvedLedes } from "../scripts/build-approved-ledes.mjs";
 
 const specPath = new URL("../.private/redesign-spec/v2-pages.json", import.meta.url);
@@ -199,6 +201,106 @@ test("every home card takes its dark base and blurred colour field from its figm
   assert.deepEqual(coverFields.terpcarehub.ellipses[0], { x: 65, y: 55, r: 135, colour: "#b3122e", alpha: 0.9 });
   assert.deepEqual(coverFields.sohive.ellipses.at(-1), { x: 200, y: 250, r: 80, colour: "#e0b23a", alpha: 0.5 });
   assert.deepEqual(coverFields["kairo-health"].ellipses[4], { x: 230, y: 140, r: 80, colour: "#4c8dff", alpha: 0.3 });
+});
+
+/** the width and height in a png's ihdr chunk. */
+function pngSize(file) {
+  const bytes = readFileSync(file);
+  return [bytes.readUInt32BE(16), bytes.readUInt32BE(20)];
+}
+
+test("device covers follow their figma frames: a browser for frontground, three phones for the app cards", () => {
+  assert.deepEqual(Object.keys(coverDevices).sort(), ["frontground", "sohive", "terpcare", "terpcarehub"]);
+  assert.deepEqual([coverDevices.frontground.kind, coverDevices.frontground.figma, coverDevices.frontground.address], ["browser", "436:1883", "frontground · doctor"]);
+  const phones = { terpcarehub: "428:2686", sohive: "428:2698", terpcare: "428:2704" };
+  for (const [slug, figma] of Object.entries(phones)) {
+    const cover = coverDevices[slug];
+    assert.deepEqual([cover.kind, cover.figma], ["phones", figma], slug);
+    // drawn in figma's layer order, so the centre phone sits on top of the two it fans out from.
+    assert.deepEqual(cover.phones.map(({ slot }) => slot), ["left", "right", "center"], slug);
+  }
+  // status bars and islands only where figma draws them: terpcarehub's right screen carries its own.
+  const layers = (slug) => coverDevices[slug].phones.map(({ slot, statusBar = false, island = false }) => [slot, statusBar, island]);
+  assert.deepEqual(layers("terpcarehub"), [["left", true, true], ["right", false, false], ["center", true, true]]);
+  for (const slug of ["sohive", "terpcare"]) assert.deepEqual(layers(slug), [["left", false, true], ["right", false, true], ["center", false, true]]);
+  // sohive's three screens are the case study's own captures, so the cover reuses them.
+  assert.deepEqual(coverDevices.sohive.phones.map(({ src }) => src), ["/images/work/sohive/sohive-event-screen.png", "/images/work/sohive/sohive-profile-screen.png", "/images/work/sohive/sohive-feed-screen.png"]);
+  const screens = [coverDevices.frontground.screen, ...Object.keys(phones).flatMap((slug) => coverDevices[slug].phones)];
+  for (const { src, width, height } of screens) {
+    const slug = Object.keys(coverDevices).find((key) => src.startsWith(`/images/work/${key}/`));
+    assert.ok(slug, `${src} sits in its project's folder`);
+    const file = new URL(`../public${src}`, import.meta.url);
+    assert.ok(existsSync(file), `${src} exists`);
+    assert.deepEqual(pngSize(file), [width, height], `${src} size`);
+  }
+});
+
+/** every layer of a motion cover, children included. */
+function motionLayers(layers) {
+  return layers.flatMap((layer) => [layer, ...motionLayers(layer.children ?? [])]);
+}
+
+test("motion covers run figma's four smart animate steps on the prototype's holds (454:2562, 446:9788, 447:11130)", () => {
+  assert.deepEqual(Object.keys(coverMotion).sort(), ["college-park-capstone", "kairo-health", "ovara"]);
+  const expected = {
+    "college-park-capstone": ["454:2562", [2.2, 2.2, 2.6, 2.8], 0.8, 13],
+    ovara: ["446:9788", [1.2, 1.8, 2.4, 2.6], 0.7, 10.8],
+    "kairo-health": ["447:11130", [1, 1.6, 2.4, 2.4], 0.7, 10.2],
+  };
+  for (const [slug, [figma, holds, transition, duration]] of Object.entries(expected)) {
+    const motion = coverMotion[slug];
+    assert.deepEqual([motion.figma, motion.holds, motion.transition], [figma, holds, transition], slug);
+    assert.equal(motionTimeline(motion).duration, duration, `${slug} loop length`);
+    for (const layer of motionLayers(motion.layers)) {
+      if (layer.steps) assert.equal(layer.steps.length, 4, `${slug} ${layer.id} has a state per step`);
+      if (layer.src) assert.ok(existsSync(new URL(`../public${layer.src}`, import.meta.url)), `${slug} ${layer.src} exists`);
+    }
+    // the field moves with the steps, one centre per ellipse per step.
+    assert.equal(motion.field.length, 4, `${slug} field steps`);
+    for (const step of motion.field) assert.equal(step.length, coverFields[slug].ellipses.length);
+    assert.deepEqual(motion.field[0], coverFields[slug].ellipses.map(({ x, y }) => [x, y]), `${slug} step 1 field is the card field`);
+  }
+  // which layers each step shows, against the step frames (446:7303 to 446:9167, 447:9095 to 447:10622).
+  const shown = (slug, id) => motionLayers(coverMotion[slug].layers).find((layer) => layer.id === id).steps.map(({ o = 1 }) => o);
+  assert.deepEqual(shown("ovara", "legend"), [0, 1, 0, 0]);
+  assert.deepEqual(shown("ovara", "state"), [0, 0, 1, 0]);
+  assert.deepEqual(shown("ovara", "headline"), [0, 0, 0, 1]);
+  assert.deepEqual(shown("kairo-health", "extraction"), [0, 1, 1, 0]);
+  assert.deepEqual(shown("kairo-health", "summary"), [0, 0, 0, 1]);
+  assert.deepEqual(shown("college-park-capstone", "persona"), [0, 0, 1, 0]);
+  assert.deepEqual(shown("college-park-capstone", "journey"), [0, 0, 0, 1]);
+  // each step holds, then eases to the next over the transition; the last eases back to step 1.
+  assert.deepEqual(motionTimeline(coverMotion["college-park-capstone"]).stops, [[0, 16.923], [23.077, 40], [46.154, 66.154], [72.308, 93.846]]);
+});
+
+test("motion cover copy uses real figures and DC names in place of the capstone personas", () => {
+  const text = (slug) => motionLayers(coverMotion[slug].layers).flatMap(({ text: value }) => (value ? [value] : []));
+  const ovara = text("ovara");
+  for (const figure of ["20.5", "U.S. 30.06", "1,029", "10.9M RESIDENTS", "providers per 100k"]) assert.ok(ovara.includes(figure), `ovara shows ${figure}`);
+  // nothing else numeric: the figures come from the published ovara analysis.
+  const numbers = ovara.join(" ").match(/\d[\d.,]*/g);
+  assert.deepEqual([...new Set(numbers)].sort(), ["1,029", "10.9", "100", "20.5", "30.06"]);
+  assert.deepEqual(text("kairo-health").filter((value) => /^\d+$/.test(value)), ["14", "5", "2"]);
+  const capstone = text("college-park-capstone");
+  assert.ok(capstone.includes("Diana") && capstone.includes("D"), "persona is Diana");
+  assert.ok(capstone.includes("JOURNEY · BRUCE"), "journey follows Bruce");
+  for (const slug of Object.keys(coverMotion)) {
+    assert.doesNotMatch(text(slug).join(" "), /Maria|Tyler|caveats?|limitations?|future (work|improvements?)|next steps/i, slug);
+  }
+});
+
+test("no temporary figma asset urls are left in the source or the public files", () => {
+  const root = new URL("../", import.meta.url);
+  const files = [];
+  const walk = (dir) => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const path = new URL(entry.name + (entry.isDirectory() ? "/" : ""), dir);
+      if (entry.isDirectory()) walk(path);
+      else if (/\.(astro|mjs|ts|css|json|svg|html)$/.test(entry.name)) files.push(path);
+    }
+  };
+  for (const dir of ["src/", "public/"]) walk(new URL(dir, root));
+  for (const file of files) assert.doesNotMatch(readFileSync(file, "utf8"), /figma\.com\/api\/mcp\/asset/, file.pathname);
 });
 
 test("the civic case study uses the approved Information Science Capstone name", () => {
