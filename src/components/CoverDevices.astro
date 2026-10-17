@@ -1,0 +1,102 @@
+---
+// the shapes in src/data/coverDevices.mjs.
+type DeviceScreen = { src: string; width: number; height: number };
+type DevicePhone = DeviceScreen & { slot: "left" | "right" | "center"; statusBar?: true; island?: true };
+type BrowserCover = { kind: "browser"; figma: string; address: string; screen: DeviceScreen };
+type PhonesCover = { kind: "phones"; figma: string; phones: DevicePhone[] };
+
+interface Props {
+  devices: BrowserCover | PhonesCover;
+}
+// devices on a home cover (figma 428:2684): a browser cut off at the cover's foot, or three phones with the centre
+// one on top. every length is figma's px on the 454px cover, written in cqi so the devices scale with the card.
+// hover follows the layer names: the centre device lifts 8px and the side phones fan out 6px.
+const { devices } = Astro.props;
+
+/** a figma length on the 454px cover as a share of the cover's width. */
+function cq(px: number): string {
+  return `${Number((px / 4.54).toFixed(3))}cqi`;
+}
+
+/** the inline box of an absolutely placed layer, from its figma x, y, width and height. */
+function box(x: number, y: number, w: number, h: number): string {
+  return `left: ${cq(x)}; top: ${cq(y)}; width: ${cq(w)}; height: ${cq(h)}`;
+}
+
+// phone frames from 439:2655, 439:2658 and 439:2661 (and the same frames on sohive and terpcare): frame box and
+// radius, the screen's inset and radius, and the status bar and island placed inside the frame.
+const frames = {
+  left: { x: 59, y: 52, w: 100, h: 217, r: 17, screenR: 14, bar: 16, time: [10, 6], battery: [75, 7, 9, 4], island: [36, 28, 7], islandTop: [7, 9] },
+  right: { x: 295, y: 52, w: 100, h: 217, r: 17, screenR: 14, bar: 16, time: [10, 6], battery: [75, 7, 9, 4], island: [36, 28, 7], islandTop: [7, 9] },
+  center: { x: 169, y: 24, w: 116, h: 252, r: 20, screenR: 16, bar: 19, time: [12, 7], battery: [89, 8, 10, 5], island: [42, 32, 8], islandTop: [8, 10] },
+} as const;
+const inset = 4;
+
+/** the layers of one phone: its frame, its screen under an optional status bar, and an optional island. */
+function phoneLayers(phone: DevicePhone) {
+  const frame = frames[phone.slot];
+  const bar = phone.statusBar ? frame.bar : 0;
+  const [islandX, islandW, islandH] = frame.island;
+  return {
+    frame: `${box(frame.x, frame.y, frame.w, frame.h)}; border-radius: ${cq(frame.r)}`,
+    // the time and battery sit inside the bar, placed through custom properties on it.
+    status: phone.statusBar
+      ? `${box(inset, inset, frame.w - 2 * inset, bar)}; border-radius: ${cq(frame.screenR)} ${cq(frame.screenR)} 0 0; font-size: ${cq(6)}; ` +
+        `--time-x: ${cq(frame.time[0])}; --time-y: ${cq(frame.time[1])}; --battery-x: ${cq(frame.battery[0])}; --battery-y: ${cq(frame.battery[1])}; ` +
+        `--battery-w: ${cq(frame.battery[2])}; --battery-h: ${cq(frame.battery[3])}`
+      : "",
+    screen: `${box(inset, inset + bar, frame.w - 2 * inset, frame.h - 2 * inset - bar)}; border-radius: ${bar ? `0 0 ${cq(frame.screenR)} ${cq(frame.screenR)}` : cq(frame.screenR)}`,
+    island: `${box(islandX, frame.islandTop[bar ? 1 : 0], islandW, islandH)}; border-radius: ${cq(5)}`,
+  };
+}
+---
+{devices.kind === "browser" ? (
+  <div class="cover-devices is-browser" aria-hidden="true" data-figma={devices.figma}>
+    <div class="device-browser device-center" style={box(45, 34, 364, 256)}>
+      <div class="browser-chrome" style={`height: ${cq(18)}`}>
+        {["red", "yellow", "green"].map((colour, index) => (
+          <img class="browser-light" src={`/images/exhibits/browser-light-${colour}.svg`} alt="" style={box(8 + index * 9, 6, 6, 6)} />
+        ))}
+        <span class="browser-address" style={`${box(107, 4, 150, 10)}; border-radius: ${cq(5)}; font-size: ${cq(6)}; line-height: ${cq(10)}`}>{devices.address}</span>
+      </div>
+      <img class="device-screen" src={devices.screen.src} alt="" width={devices.screen.width} height={devices.screen.height} loading="lazy" decoding="async" style={box(0, 18, 364, 205)} />
+    </div>
+  </div>
+) : (
+  <div class="cover-devices is-phones" aria-hidden="true" data-figma={devices.figma}>
+    {devices.phones.map((phone) => {
+      const layers = phoneLayers(phone);
+      return (
+        <div class:list={["device-phone", `is-${phone.slot}`, { "device-center": phone.slot === "center" }]} style={layers.frame}>
+          {phone.statusBar && (
+            <span class="phone-status" style={layers.status}><span class="phone-time">9:41</span><span class="phone-battery"></span></span>
+          )}
+          <img class="device-screen" src={phone.src} alt="" width={phone.width} height={phone.height} loading="lazy" decoding="async" style={layers.screen} />
+          {phone.island && <span class="phone-island" style={layers.island}></span>}
+        </div>
+      );
+    })}
+  </div>
+)}
+<style>
+  .cover-devices { position: absolute; z-index: 1; inset: 0; pointer-events: none; }
+  .device-phone, .device-browser { position: absolute; overflow: hidden; box-shadow: 0 3.965cqi 8.811cqi rgb(0 0 0 / 35%); }
+  .device-phone { background: #1b2026; }
+  .device-browser { background: #fff; }
+  .device-screen { position: absolute; max-width: none; object-fit: cover; }
+  .device-phone .device-screen { object-position: top; }
+  .browser-chrome { position: absolute; top: 0; left: 0; width: 100%; overflow: hidden; background: #f3f4f6; }
+  .browser-light { position: absolute; max-width: none; }
+  .browser-address { position: absolute; overflow: hidden; background: #e5e7eb; color: #6b7280; font-family: var(--ui-sans); text-align: center; white-space: nowrap; }
+  .phone-status { position: absolute; overflow: hidden; background: #fff; }
+  /* figma sets the time in inter semibold; the home page loads no inter, so a 6px time falls back to the system face. */
+  .phone-time { position: absolute; top: var(--time-y); left: var(--time-x); color: #1a1a1f; font-family: "Inter", var(--ui); font-weight: 600; line-height: normal; }
+  .phone-battery { position: absolute; top: var(--battery-y); left: var(--battery-x); width: var(--battery-w); height: var(--battery-h); border-radius: 0.33cqi; background: #1a1a1f; }
+  .phone-island { position: absolute; background: #0b0d10; }
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.project-card:is(:hover, :focus-visible)) .device-center { translate: 0 -8px; }
+    :global(.project-card:is(:hover, :focus-visible)) .device-phone.is-left { translate: -6px 0; }
+    :global(.project-card:is(:hover, :focus-visible)) .device-phone.is-right { translate: 6px 0; }
+    .device-phone, .device-browser { transition: translate 320ms var(--ease-out); }
+  }
+</style>
