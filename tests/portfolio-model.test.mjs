@@ -19,9 +19,9 @@ import { approvedLedes, readProse } from "../scripts/build-approved-ledes.mjs";
 
 const specPath = new URL("../.private/redesign-spec/v2-pages.json", import.meta.url);
 
-// home grid redesign (figma 428:2684): the capstone leads, frontground follows terpcarehub. elms joins at the end until
-// batch 2 puts its card first.
+// home grid redesign (figma 428:2684): elms leads (436:1866), then the capstone, and frontground follows terpcarehub.
 const expectedOrder = [
+  "elms-redesign",
   "college-park-capstone",
   "terpcarehub",
   "frontground",
@@ -29,7 +29,6 @@ const expectedOrder = [
   "terpcare",
   "ovara",
   "kairo-health",
-  "elms-redesign",
 ];
 
 test("featured work returns the approved eight projects in the home grid order", () => {
@@ -213,9 +212,10 @@ function pngSize(file) {
   return [bytes.readUInt32BE(16), bytes.readUInt32BE(20)];
 }
 
-test("device covers follow their figma frames: a browser for frontground, three phones for the app cards", () => {
-  assert.deepEqual(Object.keys(coverDevices).sort(), ["frontground", "sohive", "terpcare", "terpcarehub"]);
+test("device covers follow their figma frames: a browser for elms and frontground, three phones for the app cards", () => {
+  assert.deepEqual(Object.keys(coverDevices).sort(), ["elms-redesign", "frontground", "sohive", "terpcare", "terpcarehub"]);
   assert.deepEqual([coverDevices.frontground.kind, coverDevices.frontground.figma, coverDevices.frontground.address], ["browser", "436:1883", "frontground · doctor"]);
+  assert.deepEqual([coverDevices["elms-redesign"].kind, coverDevices["elms-redesign"].figma, coverDevices["elms-redesign"].address], ["browser", "436:1872", "elms · redesign"]);
   const phones = { terpcarehub: "428:2686", sohive: "428:2698", terpcare: "428:2704" };
   for (const [slug, figma] of Object.entries(phones)) {
     const cover = coverDevices[slug];
@@ -229,7 +229,7 @@ test("device covers follow their figma frames: a browser for frontground, three 
   for (const slug of ["sohive", "terpcare"]) assert.deepEqual(layers(slug), [["left", false, true], ["right", false, true], ["center", false, true]]);
   // sohive's three screens are the case study's own captures, so the cover reuses them.
   assert.deepEqual(coverDevices.sohive.phones.map(({ src }) => src), ["/images/work/sohive/sohive-event-screen.png", "/images/work/sohive/sohive-profile-screen.png", "/images/work/sohive/sohive-feed-screen.png"]);
-  const screens = [coverDevices.frontground.screen, ...Object.keys(phones).flatMap((slug) => coverDevices[slug].phones)];
+  const screens = [coverDevices.frontground.screen, coverDevices["elms-redesign"].screen, ...Object.keys(phones).flatMap((slug) => coverDevices[slug].phones)];
   for (const { src, width, height } of screens) {
     const slug = Object.keys(coverDevices).find((key) => src.startsWith(`/images/work/${key}/`));
     assert.ok(slug, `${src} sits in its project's folder`);

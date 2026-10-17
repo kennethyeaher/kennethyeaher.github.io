@@ -234,7 +234,7 @@ test("Kairo renders the v2 exhibit layout from the approved spec", () => {
   assert.match(kairo, /data-count-to="55" data-count-rest=" of 56"/);
   assert.match(kairo, /<table class="journey/);
   assert.match(kairo, /<th scope="col" class="is-accent[^"]*"/);
-  // kairo hands on to elms, the last card in the home order.
+  // kairo, the last card, wraps round to elms, the first.
   assert.match(kairo, /href="\/work\/elms-redesign"/);
   assert.match(kairo, /The useful finding was a workflow insight, not a winner/);
   const badges = [...kairo.matchAll(/<a class="annotation-badge[^"]*" href="#([^"]+)" aria-describedby="([^"]+)"/g)];

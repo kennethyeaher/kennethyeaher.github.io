@@ -34,6 +34,7 @@ test("the Work page renders the approved thesis and the home grid project order"
   assert.match(visibleText(workHtml), /I’m Ken, a product designer and data scientist\./);
 
   const routes = [
+    "/work/elms-redesign",
     "/work/college-park-capstone",
     "/work/terpcarehub",
     "/work/frontground",
@@ -41,7 +42,6 @@ test("the Work page renders the approved thesis and the home grid project order"
     "/work/terpcare",
     "/work/ovara",
     "/work/kairo-health",
-    "/work/elms-redesign",
   ];
   const positions = routes.map((route) => workHtml.indexOf(`href="${route}"`));
 
@@ -132,6 +132,14 @@ test("device covers draw figma's browser and phones over the field and lift and 
   assert.equal([...hub.matchAll(/class="phone-island"/g)].length, 2);
   assert.equal([...cards.get("sohive").matchAll(/class="phone-island"/g)].length, 3);
   assert.doesNotMatch(cards.get("sohive"), /phone-status/);
+  // elms leads the grid with figma 436:1872: the new message screen at its own 4:3 ratio, 272 of the cover's px tall
+  // under the chrome, so it runs past the browser's foot (256) and the cover cuts it off; it lifts 8px on hover.
+  const elms = cards.get("elms-redesign");
+  assert.equal([...cards.keys()][0], "elms-redesign");
+  assert.match(elms, /<span class="browser-address"[^>]*>elms · redesign<\/span>/);
+  assert.match(elms, /<div class="device-browser device-center"[^>]*style="left: 9\.912cqi; top: 7\.489cqi; width: 80\.176cqi; height: 56\.388cqi"/);
+  assert.match(elms, /<img class="device-screen"[^>]*style="left: 0cqi; top: 3\.965cqi; width: 80\.176cqi; height: 59\.912cqi"/);
+  assert.match(elms, /<h3[^>]*>ELMS Redesign<\/h3>[\s\S]*?2026/);
   const browser = cards.get("frontground");
   assert.match(browser, /<span class="browser-address"[^>]*>frontground · doctor<\/span>/);
   assert.equal([...browser.matchAll(/<img class="browser-light" src="\/images\/exhibits\/browser-light-(red|yellow|green)\.svg" alt=""/g)].map(([, colour]) => colour).join(), "red,yellow,green");

@@ -1,7 +1,8 @@
 /**
- * home card devices, from the work grid (figma 428:2684): a browser for frontground (436:1883) and three phones
+ * home card devices, from the work grid (figma 428:2684): a browser for elms (436:1872) and frontground (436:1883), and three phones
  * for the app cards (428:2686, 428:2698, 428:2704). screens are figma's exports, kept in each project's folder;
- * sohive's are the case study's own captures. phones are listed in figma's layer order (left, right, then the
+ * sohive's are the case study's own captures. a browser's screen keeps its capture's ratio under the chrome, so elms's 4:3
+ * new message screen runs past the cover's foot and is cut off there, as figma draws it. phones are listed in figma's layer order (left, right, then the
  * centre phone on top), and a phone has a status bar or an island only where its figma frame draws one.
  *
  * @typedef {{ src: string, width: number, height: number }} DeviceScreen
@@ -12,6 +13,12 @@
 
 /** @type {Record<string, BrowserCover | PhonesCover>} */
 export const coverDevices = {
+  "elms-redesign": {
+    kind: "browser",
+    figma: "436:1872",
+    address: "elms · redesign",
+    screen: { src: "/images/work/elms-redesign/elms-cover-new-message.png", width: 1440, height: 1076 },
+  },
   frontground: {
     kind: "browser",
     figma: "436:1883",
