@@ -263,14 +263,14 @@ export const aboutChapters = [
   },
 ];
 
-/** home v2 order (figma 131:2038): design work first, then data and research. next and previous follow it too. */
+/** home grid order (figma 428:2684): the capstone leads and frontground follows terpcarehub. next and previous follow it too. */
 const order = [
+  "college-park-capstone",
   "terpcarehub",
   "frontground",
   "sohive",
   "terpcare",
   "ovara",
-  "college-park-capstone",
   "kairo-health",
 ];
 

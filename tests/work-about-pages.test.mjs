@@ -27,16 +27,16 @@ before(() => {
   aboutHtml = readFileSync(join(projectRoot, "dist", "about", "index.html"), "utf8");
 });
 
-test("the Work page renders the approved thesis and the design-first project order", () => {
+test("the Work page renders the approved thesis and the home grid project order", () => {
   assert.match(visibleText(workHtml), /I’m Ken, a product designer and data scientist\./);
 
   const routes = [
+    "/work/college-park-capstone",
     "/work/terpcarehub",
     "/work/frontground",
     "/work/sohive",
     "/work/terpcare",
     "/work/ovara",
-    "/work/college-park-capstone",
     "/work/kairo-health",
   ];
   const positions = routes.map((route) => workHtml.indexOf(`href="${route}"`));

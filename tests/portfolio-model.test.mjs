@@ -16,17 +16,18 @@ import { approvedLedes } from "../scripts/build-approved-ledes.mjs";
 
 const specPath = new URL("../.private/redesign-spec/v2-pages.json", import.meta.url);
 
+// home grid redesign (figma 428:2684): the capstone leads, frontground follows terpcarehub. elms joins first in batch 2.
 const expectedOrder = [
+  "college-park-capstone",
   "terpcarehub",
   "frontground",
   "sohive",
   "terpcare",
   "ovara",
-  "college-park-capstone",
   "kairo-health",
 ];
 
-test("featured work returns the approved seven projects, design work first", () => {
+test("featured work returns the approved seven projects in the home grid order", () => {
   assert.deepEqual(
     getFeaturedProjects().map((project) => project.slug),
     expectedOrder,
@@ -62,17 +63,23 @@ test("every project has a unique slug and every navigation target resolves", () 
 
 test("adjacent-project navigation wraps without a dead end", () => {
   assert.equal(
-    getAdjacentProject("terpcarehub", "previous").slug,
+    getAdjacentProject("college-park-capstone", "previous").slug,
     "kairo-health",
   );
   assert.equal(
     getAdjacentProject("kairo-health", "next").slug,
-    "terpcarehub",
+    "college-park-capstone",
   );
+  assert.equal(getAdjacentProject("college-park-capstone", "next").slug, "terpcarehub");
+  assert.equal(getAdjacentProject("terpcarehub", "next").slug, "frontground");
+  assert.equal(getAdjacentProject("frontground", "previous").slug, "terpcarehub");
   assert.equal(
     getAdjacentProject("ovara", "previous").slug,
     "terpcare",
   );
+  assert.equal(getAdjacentProject("ovara", "next").slug, "kairo-health");
+  // every next is undone by a previous, round the whole loop.
+  for (const { slug } of projects) assert.equal(getAdjacentProject(getAdjacentProject(slug, "next").slug, "previous").slug, slug);
 });
 
 test("the public identity uses the corrected professional title", () => {
@@ -389,8 +396,10 @@ test("phones added in redesign 2 fit their screens whole, and the older phones k
 test("terpcare reads as a before and after: the 2024 header facts stay, the year, summary and metrics move", () => {
   const terpcare = getProjectBySlug("terpcare");
   assert.equal(terpcare.year, "2024, redesigned 2026");
-  // the home card keeps the year the work was made.
-  assert.equal(terpcare.cardYear, "2024");
+  // the home card shows the redesign year (figma 428:2704); the case study header keeps both years.
+  assert.equal(terpcare.cardYear, "2026");
+  // the capstone card keeps the year the work was made.
+  assert.equal(getProjectBySlug("college-park-capstone").cardYear ?? getProjectBySlug("college-park-capstone").year, "2024");
   assert.deepEqual([terpcare.role, terpcare.timeline, terpcare.team], ["Product Designer", "Spring 2024", "Four-person course team"]);
   const metrics = [["15", "screens in the 2024 team concept"], ["57", "screens in the 2026 solo redesign"], ["4", "flows that play end to end"]];
   assert.deepEqual(terpcare.metrics.map(({ value, label }) => [value, label]), metrics);

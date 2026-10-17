@@ -111,14 +111,14 @@ test("the renamed capstone and expanded product evidence render publicly, and th
 });
 
 test("previous and next project links wrap without dead ends", () => {
-  const first = pages.get("terpcarehub");
+  const first = pages.get("college-park-capstone");
   const middle = pages.get("terpcare");
   const last = pages.get("kairo-health");
 
   // the v2 exhibit shell (figma 61:1059) closes on a next project link only, in the home order.
-  assert.match(first, /href="\/work\/frontground"/);
+  assert.match(first, /href="\/work\/terpcarehub"/);
   assert.match(middle, /href="\/work\/ovara"/);
-  assert.match(last, /href="\/work\/terpcarehub"/);
+  assert.match(last, /href="\/work\/college-park-capstone"/);
 });
 
 
@@ -231,7 +231,7 @@ test("Kairo renders the v2 exhibit layout from the approved spec", () => {
   assert.match(kairo, /data-count-to="55" data-count-rest=" of 56"/);
   assert.match(kairo, /<table class="journey/);
   assert.match(kairo, /<th scope="col" class="is-accent[^"]*"/);
-  assert.match(kairo, /href="\/work\/terpcarehub"/);
+  assert.match(kairo, /href="\/work\/college-park-capstone"/);
   assert.match(kairo, /The useful finding was a workflow insight, not a winner/);
   const badges = [...kairo.matchAll(/<a class="annotation-badge[^"]*" href="#([^"]+)" aria-describedby="([^"]+)"/g)];
   assert.equal(badges.length, 6);
@@ -281,7 +281,7 @@ test("Ovara renders the v2 exhibit layout from the approved spec", () => {
   assert.match(ovara, /<p class="audit-value"[^>]*>\+0\.33 → \+0\.12<\/p>/);
   assert.match(ovara, /<dt class="audit-heading is-guard"[^>]*>Guard<\/dt>/);
   assert.match(ovara, /That is the number I would have quoted in an interview\./);
-  assert.match(ovara, /href="\/work\/college-park-capstone"/);
+  assert.match(ovara, /href="\/work\/kairo-health"/);
   assertBadgesResolve(ovara, 3);
 });
 
@@ -486,7 +486,7 @@ test("the Capstone renders the v2 exhibit layout from its prose mock", () => {
   assertBadgesResolve(page, 3);
   assert.match(page, /TYLER’S JOURNEY MAP  ·  FOUR STAGES, NO PLANNING, NO ARRIVAL/);
   assert.match(page, /journey-tyler\.png/);
-  assert.match(page, /href="\/work\/kairo-health"/);
+  assert.match(page, /href="\/work\/terpcarehub"/);
 });
 
 test("Frontground renders the v2 exhibit layout from its prose mock", () => {

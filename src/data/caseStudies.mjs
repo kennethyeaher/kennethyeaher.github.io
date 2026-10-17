@@ -1833,8 +1833,8 @@ export const caseStudies = [
     cardTitle: "TerpCare",
     category: "Product Design",
     year: "2024, redesigned 2026",
-    // the home card names the year the work was made; the case study header carries the redesign.
-    cardYear: "2024",
+    // the home card names the redesign year (figma 428:2704); the case study header carries both years.
+    cardYear: "2026",
     role: "Product Designer",
     timeline: "Spring 2024",
     team: "Four-person course team",
