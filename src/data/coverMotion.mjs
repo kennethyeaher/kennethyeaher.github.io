@@ -1,290 +1,336 @@
 /**
- * home motion covers, built from figma's smart animate step frames: capstone (454:2562), ovara (446:9788) and kairo
- * (447:11130). each cover has four steps that hold for the prototype's after delay times, then ease in and out to the
- * next step over its transition, looping from step 4 back to step 1.
+ * home motion covers, built from figma's motion cover v4 timelines: capstone (482:10252), ovara (484:10700) and kairo
+ * (485:11148). each cover loops one timeline. this file holds the layers in figma's nesting; the keyframes come from
+ * figma's get_motion_context css snippets (scripts/cover-motion/*.motion.json), which scripts/build-cover-motion.mjs
+ * writes into src/styles/cover-motion/<slug>.css, keyed by the figma node id each layer carries.
  *
  * a layer's box is figma's x, y, width and height in px, relative to its parent layer (the 454 by 256 cover for a top
  * layer). style is css whose {n} tokens are figma px, written as shares of the cover so the layer scales with the card.
- * steps, when present, give the layer's state in each step (x, y, w, h, r for rotation in degrees, o for opacity, bg
- * for a fill); a step leaves out what matches the box and style. step 1 is the markup, so reduced motion shows it still.
- * field holds each step's ellipse centres for the card's colour field (src/data/coverFields.mjs).
+ * node is the figma node id the keyframes target; a layer without one never moves. each scene frame is the camera for
+ * its cards, so the cards stay nested inside it. svg layers are inlined so a path trim can draw the stroke; other
+ * vectors are files. field lists the node ids of the colour field's blobs, in the order of src/data/coverFields.mjs.
+ * still is the second of the timeline that reduced motion holds: the moment the first scene lands.
  *
  * the capstone persona and journey use dc names, diana and bruce, in place of the research personas.
  * ovara shows only figures from the published analysis: 20.5 providers per 100k in arkansas against 30.06 for the
- * u.s., 1,029 desert counties and 10.9m residents. kairo's field values are illustrative ocr reads, as in figma.
+ * u.s., 1,029 desert counties and 10.9m residents. kairo's noisy field values are illustrative ocr reads, as in figma.
  *
- * @typedef {{ x?: number, y?: number, w?: number, h?: number, r?: number, o?: number, bg?: string }} LayerState
- * @typedef {{ id: string, box: number[], style?: string, text?: string,
- *   src?: string, steps?: LayerState[], children?: MotionLayer[] }} MotionLayer
- * @typedef {{ figma: string, holds: number[], transition: number, field: [number, number][][], layers: MotionLayer[] }} CoverMotion
+ * @typedef {{ node?: string, box: number[], style?: string, text?: string, src?: string,
+ *   svg?: { w: number, h: number, body: string }, children?: MotionLayer[] }} MotionLayer
+ * @typedef {{ figma: string, seconds: number, still: number, field: string[], layers: MotionLayer[] }} CoverMotion
  */
 
-/** css for figma text: family, weight, size in px, letter spacing in em and colour. */
+/** css for figma text: family, weight, size in px, letter spacing in px and colour. */
 function type(family, weight, size, spacing, colour) {
-  const families = { mono: "var(--mono)", serif: "var(--display)", inter: "\"Inter\", var(--ui)" };
-  return `font-family: ${families[family]}; font-weight: ${weight}; font-size: {${size}}; letter-spacing: ${spacing}em; color: ${colour}`;
+  const families = {
+    mono: "var(--mono)",
+    serif: "var(--display); font-variation-settings: \"SOFT\" 0, \"WONK\" 1",
+    inter: "\"Inter\", var(--ui)",
+  };
+  return `font-family: ${families[family]}; font-weight: ${weight}; font-size: {${size}}; letter-spacing: {${spacing}}; color: ${colour}`;
 }
 
-/** the same layer state in every step, with per step overrides. */
-function each(overrides) {
-  return overrides.map((state) => state ?? {});
+/** a text layer at figma's x and y. */
+function text(node, x, y, value, style) {
+  return { node, box: [x, y], text: value, style };
 }
 
-/** opacity 1 in the listed steps (1 to 4) and 0 in the others. */
-function shownIn(...steps) {
-  return [1, 2, 3, 4].map((step) => ({ o: steps.includes(step) ? 1 : 0 }));
+/** a filled rounded box. */
+function fill(node, box, colour, radius = 0) {
+  return { node, box, style: `background: ${colour}${radius ? `; border-radius: {${radius}}` : ""}` };
 }
 
-const noteShadow = "box-shadow: 0 {6} {14} rgb(0 0 0 / 35%)";
-const noteLines = [[9, 38], [17, 30], [25, 20]].map(([y, w], index) => ({ id: `line-${index + 1}`, box: [8, y, w, 3], style: "border-radius: {1.5}; background: rgb(42 30 20 / 35%)" }));
+/** an inline svg path that figma draws by trimming its stroke; pathLength 1 lets the dash keyframes run 0 to 1. */
+function trimmed(node, box, d, stroke, width) {
+  const [, , w, h] = box;
+  const body = `<path data-node="${node}" pathLength="1" d="${d}" stroke-width="${width}" stroke-linecap="round" stroke-linejoin="round" stroke="${stroke}" />`;
+  return { box, svg: { w, h, body } };
+}
 
-// capstone notes: colour, then x, y and rotation in each step (454:450, 454:978, 454:1506, 454:2034); step 4 fades them.
-const capstoneNotes = [
-  ["#f2d7a6", [34, 58, 8], [60, 70, 0], [70, 84, 6], [70, 100, 6]],
-  ["#f2d7a6", [372, 52, 6], [60, 112, 0], [73, 88, 4.5], [73, 104, 4.5]],
-  ["#f2d7a6", [352, 170, 3], [60, 154, 0], [76, 92, 3], [76, 108, 3]],
-  ["#f0b9a0", [128, 96, -6], [198, 70, 0], [79, 96, 1.5], [79, 112, 1.5]],
-  ["#f0b9a0", [60, 150, -5], [198, 112, 0], [82, 100, 0], [82, 116, 0]],
-  ["#f0b9a0", [176, 168, 7], [198, 154, 0], [85, 104, -1.5], [85, 120, -1.5]],
-  ["#cfe0c8", [214, 48, 4], [336, 70, 0], [88, 108, -3], [88, 124, -3]],
-  ["#cfe0c8", [300, 90, -9], [336, 112, 0], [91, 112, -4.5], [91, 128, -4.5]],
-  ["#cfe0c8", [262, 158, -4], [336, 154, 0], [94, 116, -6], [94, 132, -6]],
-];
+/** a full cover scene frame: figma animates the frame itself, so it carries the camera for everything inside. */
+function scene(node, children) {
+  return { node, box: [0, 0, 454, 256], children };
+}
 
-/** a capstone column head and its rule, shown only in the affinity step. */
-function capstoneHead(id, label, x, width, colour) {
+const card = (colour, radius, shadow = "rgb(0 0 0 / 35%)") => `background: ${colour}; border-radius: {${radius}}; box-shadow: 0 {12} {15} ${shadow}`;
+const dots = (node, opacity) => ({ node, box: [0, 0, 454, 256], src: "/images/exhibits/cover-dot-grid.svg", style: `opacity: ${opacity}` });
+// the cursor svg overhangs its 11.6 by 18 frame by its 0.55 stroke on every side; the box is the svg's own.
+const cursor = (node, x, y) => ({ node, box: [x - 0.55, y - 0.55, 12.7, 19.1], src: "/images/exhibits/cover-cursor.svg" });
+
+// capstone (482:10252): a survey answer, the 17 of 24 tally, diana's persona card, then bruce's journey curve.
+const ink = "#2a1f18";
+const muted = "#8a7a6c";
+const paper = "#f6efe6";
+const answers = ["Instagram", "City newsletter", "City website", "None of these"];
+
+/** one survey answer row: its highlight, its checkbox, its label; ids run row, box, label from 482:10766. */
+function answer(label, index) {
+  const top = 60 + index * 27;
+  const id = (offset) => `482:${10766 + index * 3 + offset}`;
   return [
-    { id: `head-${id}`, box: [x, 40], text: label, style: type("mono", 500, 8, 0.1, "#fff"), steps: [{ o: 0 }, { y: 52, o: 0.7 }, { o: 0 }, { o: 0 }] },
-    { id: `rule-${id}`, box: [x, 64, 0.01, 1], style: `background: ${colour}`, steps: [{ o: 0 }, { w: width, o: 0.8 }, { o: 0 }, { o: 0 }] },
+    { node: id(0), box: [12, top, 216, 23], style: "background: #c8643b; border-radius: {7}; opacity: 0" },
+    { node: id(1), box: [22, top + 5.5, 12, 12], style: `border: {1.2} solid ${muted}; border-radius: {3.5}` },
+  ].concat(index === 3 ? [
+    fill("482:10777", [22, top + 5.5, 12, 12], "#c8643b", 3.5),
+    trimmed("482:10778", [24.5 - 0.8, top + 9 - 0.8, 8.6, 6.6], "M0.8 3.4L3.2 5.8L7.8 0.800004", "white", 1.6),
+    text("482:10779", 42, top + 5, label, type("inter", 400, 11, 0, ink)),
+  ] : [text(id(2), 42, top + 5, label, type("inter", 400, 11, 0, ink))]);
+}
+
+/** the tally's 24 segments: the first 17 have a fill that pops in; ids step 14 a segment, then 482:11090 on. */
+function segments() {
+  return Array.from({ length: 24 }, (_, index) => {
+    const x = 18 + index * 10.25;
+    const base = fill(index < 17 ? `482:${10852 + index * 14}` : `482:${11090 + index - 17}`, [x, 96, 9, 18], "rgb(42 31 24 / 10%)", 2.5);
+    return index < 17 ? [base, fill(`482:${10853 + index * 14}`, [x, 96, 9, 18], "#c8643b", 2.5)] : [base];
+  }).flat();
+}
+
+/** a persona bar row: its label, track and the bar that grows across it. */
+function personaRow(label, ids, top, colour) {
+  return [
+    text(ids[0], 18, top - 2, label, type("mono", 400, 7, 0.42, muted)),
+    fill(ids[1], [70, top, 190, 5], "rgb(42 31 24 / 8%)", 2.5),
+    fill(ids[2], [70, top, 0.01, 5], colour, 2.5),
   ];
 }
 
-const glass = (alpha, border) => `border: 1px solid rgb(255 255 255 / ${border}%); border-radius: {12}; background: rgb(255 255 255 / ${alpha}%); backdrop-filter: blur({9}); overflow: hidden`;
-
 const capstone = {
-  figma: "454:2562",
-  holds: [2.2, 2.2, 2.6, 2.8],
-  transition: 0.8,
-  field: [
-    [[60, 50], [109, 251], [425, 265], [390, 48], [235, 145]],
-    [[84, 36], [95, 285], [395, 253], [410, 40], [259, 131]],
-    [[70, 70], [65, 273], [415, 245], [434, 26], [245, 165]],
-    [[40, 58], [85, 265], [439, 231], [420, 60], [215, 153]],
-  ],
+  figma: "482:10252",
+  seconds: 13.6,
+  still: 2.9,
+  field: ["482:10254", "482:10255", "482:10256", "482:10257", "482:10258"],
   layers: [
-    { id: "dots", box: [0, 0, 454, 256], src: "/images/exhibits/cover-dot-grid.svg", style: "opacity: 0.06" },
-    { id: "kicker", box: [22, 20], text: "USER RESEARCH · SYNTHESIS", style: type("mono", 500, 9, 0.08, "rgb(255 255 255 / 55%)") },
-    ...["01  NOTES", "02  AFFINITY", "03  PERSONA", "04  JOURNEY"].map((label, index) => ({
-      id: `stage-${index + 1}`, box: [300, 20, 132], text: label, style: `${type("mono", 500, 9, 0.08, "rgb(242 215 166 / 90%)")}; text-align: right`, steps: shownIn(index + 1),
-    })),
-    { id: "track", box: [22, 234, 96, 2], style: "border-radius: {1}; background: rgb(255 255 255 / 15%)" },
-    { id: "progress", box: [22, 234, 24, 2], style: "border-radius: {1}; background: #e2a84b", steps: [{ w: 24 }, { w: 48 }, { w: 72 }, { w: 96 }] },
-    ...capstoneHead("needs", "NEEDS", 60, 58, "#f2d7a6"),
-    ...capstoneHead("pains", "PAINS", 198, 58, "#f0b9a0"),
-    ...capstoneHead("moments", "MOMENTS", 336, 58, "#cfe0c8"),
-    ...capstoneNotes.map(([colour, ...states], index) => ({
-      id: `note-${index + 1}`, box: [states[0][0], states[0][1], 58, 34],
-      style: `border-radius: {5}; background: ${colour}; ${noteShadow}; overflow: hidden`,
-      steps: states.map(([x, y, r], step) => ({ x, y, r, o: step === 3 ? 0 : 1 })),
-      children: noteLines,
-    })),
-    {
-      id: "persona", box: [262, 74, 196, 150], style: glass(8, 18),
-      steps: [{ o: 0 }, { o: 0 }, { x: 228, y: 56, o: 1 }, { x: 196, y: 40, o: 0 }],
-      children: [
-        { id: "avatar", box: [16, 16, 40, 40], src: "/images/work/capstone/cover-avatar.svg" },
-        { id: "initial", box: [27, 23.5], text: "D", style: type("serif", 400, 20, 0, "#2a1e14") },
-        { id: "persona-kicker", box: [68, 20], text: "PERSONA", style: type("mono", 500, 8, 0.1, "rgb(255 255 255 / 55%)") },
-        { id: "name", box: [68, 31], text: "Diana", style: type("serif", 400, 22, 0, "#fff") },
-        ...[["GOALS", 74, 104, "242 215 166"], ["PAINS", 96, 84, "240 185 160"], ["HABITS", 118, 116, "207 224 200"]].flatMap(([label, y, width, rgb]) => [
-          { id: `trait-${label.toLowerCase()}`, box: [16, y], text: label, style: type("mono", 400, 7, 0.08, "rgb(255 255 255 / 50%)") },
-          { id: `bar-${label.toLowerCase()}`, box: [62, y + 2, width, 4], style: `border-radius: {2}; background: rgb(${rgb} / 85%)` },
-        ]),
-      ],
-    },
-    {
-      id: "journey", box: [22, 78, 410, 160], style: glass(7, 16),
-      steps: [{ o: 0 }, { o: 0 }, { o: 0 }, { y: 50, o: 1 }],
-      children: [
-        { id: "journey-kicker", box: [18, 16], text: "JOURNEY · BRUCE", style: type("mono", 500, 8, 0.1, "rgb(255 255 255 / 60%)") },
-        { id: "baseline", box: [18, 88, 374, 1], style: "background: rgb(255 255 255 / 15%)" },
-        { id: "emotion", box: [29, 49, 352, 76], src: "/images/work/capstone/cover-emotion-line.svg" },
-        ...[30, 112, 194, 276, 380].map((x, index) => ({ id: `tick-${index + 1}`, box: [x, 132, 1, 24], style: "background: rgb(255 255 255 / 12%)" })),
-        ...[[25, 69], [107, 103], [189, 119], [271, 77], [375, 45]].map(([x, y], index) => ({
-          id: `dot-${index + 1}`, box: [x, y, 10, 10], src: `/images/work/capstone/cover-stage-dot${index === 2 ? "-low" : ""}.svg`,
-        })),
-        { id: "low-point", box: [172, 136], text: "LOW POINT", style: type("mono", 500, 7, 0.1, "rgb(240 185 160 / 90%)") },
-      ],
-    },
+    dots("482:10259", 0.06),
+    scene("482:10762", [
+      {
+        node: "482:10763", box: [107, 40, 240, 176], style: card(paper, 14),
+        children: [
+          text("482:10764", 18, 16, "SURVEY · STUDENTS", type("mono", 400, 7.5, 0.6, muted)),
+          text("482:10765", 18, 30, "Which city channels do you follow?", type("inter", 600, 12.5, 0, ink)),
+          ...answers.flatMap(answer),
+        ],
+      },
+      cursor("482:10780", 135, 192),
+    ]),
+    scene("482:10847", [
+      {
+        node: "482:10848", box: [87, 62, 280, 132], style: card(paper, 14),
+        children: [
+          text("482:10849", 18, 16, "STUDENTS SURVEYED", type("mono", 400, 7.5, 0.6, muted)),
+          text("482:10850", 18, 26, "17", type("serif", 400, 44, 0, ink)),
+          text("482:10851", 67, 52, "of 24 follow no city channel", type("inter", 400, 11.5, 0, muted)),
+          ...segments(),
+        ],
+      },
+    ]),
+    scene("482:11136", [
+      {
+        node: "482:11137", box: [87, 60, 280, 136], style: card(paper, 14),
+        children: [
+          text("482:11138", 70, 16, "Diana", type("serif", 400, 22, 0, ink)),
+          text("482:11139", 70, 46, "STUDENT · NO CITY CHANNEL", type("mono", 400, 7, 0.42, muted)),
+          ...personaRow("GOALS", ["482:11140", "482:11141", "482:11142"], 82, "#e2a84b"),
+          ...personaRow("PAINS", ["482:11143", "482:11144", "482:11145"], 100, "#b4566a"),
+          ...personaRow("HABITS", ["482:11146", "482:11147", "482:11148"], 118, "#6e9478"),
+          // the mask hides the name and steps right, a letter at a time, so diana types in.
+          fill("482:11220", [69, 14, 65, 31], paper),
+        ],
+      },
+      {
+        node: "482:11149", box: [189, 90, 76, 76], style: "background: #c8643b; border-radius: {22}",
+        children: [text("482:11150", 22.5, 13.5, "D", type("serif", 400, 40, 0, "#fff"))],
+      },
+    ]),
+    scene("482:11281", [
+      {
+        node: "482:11282", box: [57, 48, 340, 160], style: card(paper, 14),
+        children: [
+          text("482:11283", 18, 16, "JOURNEY · BRUCE", type("mono", 400, 7.5, 0.6, muted)),
+          text("482:11284", 251, 16, "3 JOURNEY MAPS", type("mono", 400, 7.5, 0.6, muted)),
+          fill("482:11285", [24, 96, 292, 1], "rgb(42 31 24 / 10%)"),
+          trimmed("482:11286", [30 - 1.1, 52 - 1.1, 282.2, 68.2], "M1.1 19.1C36.1 19.1 41.1 45.1 71.1 45.1C101.1 45.1 111.1 67.1 141.1 67.1C176.1 67.1 181.1 29.1 211.1 29.1C241.1 29.1 251.1 1.1 281.1 1.1", "#E2A84B", 2.2),
+          { node: "482:11287", box: [165.5, 113.5, 9, 9], src: "/images/work/capstone/cover-low-ring.svg" },
+          ...[["482:11288", 25.5, 65.5], ["482:11297", 95.5, 91.5], ["482:11306", 165.5, 113.5], ["482:11315", 235.5, 75.5], ["482:11324", 305.5, 47.5]].map(([node, x, y]) => ({
+            node, box: [x, y, 9, 9], src: `/images/work/capstone/${node === "482:11306" ? "cover-stage-low" : "cover-stage"}.svg`,
+          })),
+          text("482:11333", 150, 128, "LOW POINT", type("mono", 400, 6.5, 0.52, "#b4566a")),
+        ],
+      },
+    ]),
   ],
 };
 
-// ovara county tiles: a 9 by 16 grid of 10px squares 13px apart (446:7758). step 1 is unlit, step 2 colours every
-// county by access tier, step 3 dims all but arkansas, and step 4 keeps only the desert counties lit.
-const tierCodes = { p: "#6b4fbf", s: "#8db596", m: "#e9b44c", c: "#e07a5f" };
-// one letter per tile in row order, read from the step 2 fills: p well served, s adequate, m thin, c desert.
-const tiers = "ssppsspcsspmmpspmpssppccpscpssmppcspsppmsspcpcspmsmmppsppsmmcpssscssppmppmccccmmsppspsmcmmpssspcscsspmcmmcmmmcpcppppsccmcmpspsppmpppmpspsspmsmpc";
-// step 3 keeps these tiles, the arkansas focus, at full strength.
-const arkansas = new Set([87, 88, 89, 103, 104, 105, 119, 120, 121]);
+// ovara (484:10700): arkansas typed into search, the county map colouring in, the state card, then the desert count.
+const iris = "#6b5bd6";
+const tileColours = { P: iris, G: "#7fae8e", Y: "#e8b04b", R: "#e0745a" };
+// the 7 by 16 county tiles by tier, row by row (484:11212 to 484:11434): P well served, G adequate, Y thin, R desert.
+export const ovaraTiles = [
+  "PYGPRGPRYGPYGPRG",
+  "GPRYGRYGPPGPRYGR",
+  "YGGRYPPRGPYGGRYP",
+  "RRGGRGGRRGRRGGRG",
+  "PGRGPYRGPYPGRGPY",
+  "GPRYGPYGPRGPRYGP",
+  "RYGPPGPRYGRYGPPG",
+];
+const violet = "#7c7391";
+const night = "#1f1830";
+const lilac = "#f6f3fa";
 
-/** the 144 county tiles, each with its tier colour and its strength in each step. */
-function countyTiles() {
-  return [...tiers].map((code, index) => {
-    const colour = tierCodes[code];
-    const desert = code === "c";
-    return {
-      id: `tile-${index}`, box: [(index % 16) * 13, Math.floor(index / 16) * 13, 10, 10], style: "border-radius: {2.5}",
-      steps: [{ bg: "#3a2e4d" }, { bg: colour }, { bg: colour, o: arkansas.has(index) ? 1 : 0.25 }, { bg: colour, o: desert ? 1 : 0.14 }],
-    };
-  });
+/** every tile's grey base and its tier fill, which pops in; ids run base, fill from 484:11211. */
+function tiles() {
+  return ovaraTiles.flatMap((row, r) => [...row].flatMap((tier, c) => {
+    const k = r * 16 + c;
+    const box = [28 + c * 14, 78 + r * 14, 11, 11];
+    return [fill(`484:${11211 + k * 2}`, box, "rgb(255 255 255 / 8%)", 2.5), fill(`484:${11212 + k * 2}`, box, tileColours[tier], 2.5)];
+  }));
 }
+
+const legend = [["Well served", iris], ["Adequate", "#7fae8e"], ["Thin", "#e8b04b"], ["Desert", "#e0745a"]].flatMap(([label, colour], index) => [
+  fill(`484:${11435 + index * 2}`, [28 + index * 58, 190, 7, 7], colour, 1.5),
+  text(`484:${11436 + index * 2}`, 39 + index * 58, 188, label, type("inter", 400, 8, 0, "rgb(255 255 255 / 75%)")),
+]);
 
 const ovara = {
-  figma: "446:9788",
-  holds: [1.2, 1.8, 2.4, 2.6],
-  transition: 0.7,
-  field: [
-    [[70, 50], [434, 226], [90, 280], [380, 28], [225, 255]],
-    [[94, 36], [420, 260], [60, 268], [400, 20], [249, 241]],
-    [[80, 70], [390, 248], [80, 260], [424, 6], [235, 275]],
-    [[50, 58], [410, 240], [104, 246], [410, 40], [205, 263]],
-  ],
+  figma: "484:10700",
+  seconds: 13.6,
+  still: 3.4,
+  field: ["484:10702", "484:10703", "484:10704", "484:10705", "484:10706"],
   layers: [
-    { id: "dots", box: [0, 0, 454, 256], src: "/images/exhibits/cover-dot-grid.svg", style: "opacity: 0.08" },
-    {
-      id: "search", box: [87, 108, 280, 40], style: "border-radius: {20}; background: #f6f0e6; box-shadow: 0 {12} {28} rgb(0 0 0 / 30%); overflow: hidden",
-      steps: each([{}, { x: 28, y: 24, w: 210, h: 32 }, { x: 28, y: 24, w: 210, h: 32 }, { x: 28, y: 24, w: 210, h: 32 }]),
-      children: [
-        { id: "pin", box: [14, 16, 8, 8], src: "/images/work/ovara/cover-pin.svg", steps: each([{}, { y: 12 }, { y: 12 }, { y: 12 }]) },
-        { id: "query-typed", box: [30, 11], text: "Arkans", style: type("inter", 500, 14, 0, "#231a33"), steps: shownIn(1) },
-        { id: "caret", box: [80, 12, 1.5, 16], style: "background: #6b4fbf", steps: shownIn(1) },
-        { id: "query", box: [30, 9], text: "Arkansas", style: type("inter", 500, 12, 0, "#231a33"), steps: shownIn(2, 3, 4) },
-        { id: "hint", box: [204, 15.5], text: "COUNTY ACCESS", style: type("mono", 400, 7, 0.08, "#8a7f95"), steps: [{}, { x: 134, y: 11.5 }, { x: 134, y: 11.5 }, { x: 134, y: 11.5, o: 0 }] },
-        { id: "hint-all", box: [106, 11.5], text: "U.S. · ALL COUNTIES", style: type("mono", 400, 7, 0.08, "#8a7f95"), steps: shownIn(4) },
-      ],
-    },
-    {
-      id: "tiles", box: [28, 96, 205, 114], steps: [{ o: 0 }, { y: 74, o: 1 }, { y: 74, o: 1 }, { y: 74, o: 1 }],
-      children: [
-        ...countyTiles(),
-        { id: "focus", box: [88, 62, 42, 42], style: "border: {1.5} solid #f6f0e6; border-radius: {4}", steps: shownIn(3) },
-      ],
-    },
-    {
-      // the legend keys step 2 only; the arkansas and desert steps let the tiles speak.
-      id: "legend", box: [28, 222, 256, 12], steps: [{ o: 0 }, { y: 200, o: 1 }, { y: 200, o: 0 }, { y: 200, o: 0 }],
-      children: [["Well served", "#6b4fbf"], ["Adequate", "#8db596"], ["Thin", "#e9b44c"], ["Desert", "#e07a5f"]].flatMap(([label, colour], index) => [
-        { id: `key-${index + 1}`, box: [index * 64, 3, 6, 6], style: `border-radius: {1.5}; background: ${colour}` },
-        { id: `label-${index + 1}`, box: [index * 64 + 9, 0], text: label, style: type("inter", 400, 7.5, 0, "rgb(246 240 230 / 75%)") },
-      ]),
-    },
-    {
-      id: "state", box: [300, 74, 170, 124], style: "border-radius: {10}; background: #f6f0e6; box-shadow: 0 {12} {28} rgb(0 0 0 / 30%)",
-      steps: [{ o: 0 }, { o: 0 }, { x: 256, o: 1 }, { o: 0 }],
-      children: [
-        { id: "state-name", box: [14, 14], text: "ARKANSAS", style: type("mono", 500, 7.5, 0.1, "#7a6e86") },
-        { id: "value", box: [14, 26], text: "20.5", style: type("serif", 400, 34, 0, "#e07a5f") },
-        { id: "unit", box: [14, 68], text: "providers per 100k", style: type("inter", 400, 9, 0, "#5c5266") },
-        {
-          id: "track", box: [14, 94, 142, 6], style: "border-radius: {3}; background: #e7dfee",
-          children: [
-            // the fill reaches 20.5 of the 30.06 at the marker: 73 of 107px.
-            { id: "fill", box: [0, 0, 1, 6], style: "border-radius: {3}; background: #e07a5f", steps: each([{}, {}, { w: 73 }, {}]) },
-            { id: "marker", box: [107, -3, 1.5, 12], style: "background: #231a33" },
-          ],
-        },
-        { id: "marker-label", box: [97, 104], text: "U.S. 30.06", style: type("mono", 400, 7, 0, "#231a33") },
-      ],
-    },
-    {
-      id: "headline", box: [300, 82, 170, 110], steps: [{ o: 0 }, { o: 0 }, { o: 0 }, { x: 258, o: 1 }],
-      children: [
-        { id: "big", box: [0, 0], text: "1,029", style: type("serif", 400, 42, 0, "#f6f0e6") },
-        { id: "sub", box: [2, 54], text: "access desert counties", style: type("inter", 500, 10, 0, "rgb(246 240 230 / 85%)") },
-        { id: "residents", box: [2, 74], text: "10.9M RESIDENTS", style: type("mono", 400, 7.5, 0.08, "#e07a5f") },
-      ],
-    },
+    dots("484:10707", 0.08),
+    scene("484:11210", [
+      ...tiles(),
+      ...legend,
+      {
+        node: "484:11443", box: [272, 70, 160, 132], style: card(lilac, 12),
+        children: [
+          text("484:11444", 14, 14, "ARKANSAS", type("mono", 400, 7, 0.56, violet)),
+          text("484:11445", 14, 24, "20.5", type("serif", 400, 34, 0, "#e0745a")),
+          text("484:11446", 14, 68, "providers per 100k", type("inter", 400, 9, 0, violet)),
+          fill("484:11447", [14, 96, 132, 6], "rgb(31 24 48 / 10%)", 3),
+          fill("484:11448", [14, 96, 0.01, 6], "#e0745a", 3),
+          fill("484:11449", [14, 92, 2, 14], night, 1),
+          text("484:11450", 93, 110, "U.S. 30.06", type("mono", 400, 6.5, 0.26, night)),
+        ],
+      },
+      text("484:11451", 262, 80, "1,029", type("serif", 400, 48, 0, "#fff")),
+      text("484:11452", 264, 140, "counties with zero providers", type("inter", 400, 11, 0, "rgb(255 255 255 / 85%)")),
+      text("484:11453", 264, 160, "10.9M RESIDENTS", type("mono", 400, 8, 0.64, "#e0745a")),
+      {
+        node: "484:11454", box: [77, 108, 300, 40], style: card(lilac, 20, "rgb(0 0 0 / 30%)"),
+        children: [
+          { node: "484:11455", box: [18, 16, 8, 8], src: "/images/work/ovara/cover-search-pin.svg" },
+          text("484:11456", 36, 11, "Search a county or state", type("inter", 400, 13, 0, violet)),
+          text("484:11457", 36, 11, "Arkansas", type("inter", 500, 13, 0, night)),
+          { node: "484:11458", box: [266, 6, 28, 28], src: "/images/work/ovara/cover-search-button.svg" },
+          { node: "484:11460", box: [266, 6, 28, 28], src: "/images/work/ovara/cover-search-ring.svg" },
+          // the mask hides arkansas and steps right with the caret, so the word types in.
+          fill("484:11461", [35, 9, 62, 20], lilac),
+          fill("484:11486", [36, 12, 1.5, 16], iris),
+        ],
+      },
+    ]),
   ],
 };
 
-/** one kairo extraction row: the raw ocr read, the resolved value, the error underline and the two method chips. */
-function extractionRow(label, raw, resolved, y) {
-  return {
-    id: `row-${label.toLowerCase()}`, box: [0, y, 220, 42], style: "border: 1px solid rgb(255 255 255 / 8%); border-radius: {8}; background: rgb(255 255 255 / 6%)",
-    children: [
-      { id: `${label.toLowerCase()}-label`, box: [12, 8], text: label, style: type("mono", 400, 7, 0.08, "#8fa3c2") },
-      { id: `${label.toLowerCase()}-raw`, box: [12, 19], text: raw, style: type("mono", 500, 13, 0, "#b9c3d3"), steps: shownIn(1, 2, 4) },
-      { id: `${label.toLowerCase()}-value`, box: [12, 19], text: resolved, style: type("mono", 500, 13, 0, "#fff"), steps: shownIn(3) },
-      { id: `${label.toLowerCase()}-error`, box: [12, 36, 84, 1.5], style: "background: rgb(240 138 138 / 80%)", steps: shownIn(2) },
-      {
-        id: `${label.toLowerCase()}-regex`, box: [146, 13, 30, 16], style: "border-radius: {4}; background: rgb(240 138 138 / 14%)", steps: shownIn(3),
-        children: [{ id: `${label.toLowerCase()}-regex-text`, box: [6, 4], text: "RX ✕", style: type("mono", 500, 6.5, 0, "#f08a8a") }],
-      },
-      {
-        id: `${label.toLowerCase()}-llm`, box: [180, 13, 30, 16], style: "border-radius: {4}; background: rgb(127 216 164 / 14%)", steps: shownIn(3),
-        children: [{ id: `${label.toLowerCase()}-llm-text`, box: [4, 4], text: "LLM ✓", style: type("mono", 500, 6.5, 0, "#7fd8a4") }],
-      },
-    ],
-  };
+// kairo (485:11148): a scanned triage form, the extract click, noisy values resolving, then 55 of 56.
+const navy = "#0e1a33";
+const slate = "#6b7896";
+const red = "#e05a5a";
+const teal = "#22a699";
+
+/** a triage form field: its label, its box, the noisy scan and the highlight the read draws (ids from 485:11662). */
+function formField(index, value) {
+  const top = 44 + index * 25;
+  const id = (offset) => `485:${11662 + index * 4 + offset}`;
+  return [
+    fill(id(0), [12, top, 40, 3], "rgb(14 26 51 / 35%)", 1),
+    { node: id(1), box: [12, top + 6, 126, 13], style: "border: {0.8} solid rgb(14 26 51 / 25%); border-radius: {2}" },
+    text(id(2), 16, top + 8, value, type("mono", 400, 8, 0, "rgb(14 26 51 / 80%)")),
+    { node: id(3), box: [9, top + 3, 132, 19], style: "background: rgb(61 123 255 / 8%); border: {1.2} solid #3d7bff; border-radius: {3}" },
+  ];
 }
 
+/** an empty triage form field, never read. */
+function blankField(ids, top) {
+  return [fill(ids[0], [12, top, 40, 3], "rgb(14 26 51 / 35%)", 1), { node: ids[1], box: [12, top + 6, 126, 13], style: "border: {0.8} solid rgb(14 26 51 / 25%); border-radius: {2}" }];
+}
+
+/** a small rounded chip with its mono label. */
+function chip(node, labelNode, box, colour, tint, label) {
+  return { node, box, style: `background: ${tint}; border-radius: {7}`, children: [text(labelNode, 6, 3, label, type("mono", 400, 6, 0, colour))] };
+}
+
+/** an extracted field: its label, the noisy read and its underline, the clean value, and the rx and llm chips. */
+function extracted(label, noisy, clean, underline, top, ids) {
+  return [
+    text(ids[0], 14, top, label, type("mono", 400, 6.5, 0.39, slate)),
+    text(ids[1], 14, top + 10, noisy, type("mono", 400, 12, 0, navy)),
+    fill(ids[2], [14, top + 27, underline, 1.2], red),
+    text(ids[3], 14, top + 10, clean, type("mono", 400, 12, 0, navy)),
+    chip(ids[5], ids[4], [141, top + 9, 27, 14], red, "rgb(224 90 90 / 16%)", "RX ×"),
+    chip(ids[7], ids[6], [172, top + 9, 30, 14], teal, "rgb(34 166 153 / 16%)", "LLM ✓"),
+    fill(ids[8], [14, top + 33, 188, 1], "rgb(14 26 51 / 6%)"),
+  ];
+}
+
+const ids = (from) => Array.from({ length: 9 }, (_, index) => `485:${from + index}`);
+
 const kairo = {
-  figma: "447:11130",
-  holds: [1, 1.6, 2.4, 2.4],
-  transition: 0.7,
-  field: [
-    [[65, 55], [119, 251], [425, 255], [380, 48], [230, 140]],
-    [[89, 41], [105, 285], [395, 243], [400, 40], [254, 126]],
-    [[75, 75], [75, 273], [415, 235], [424, 26], [240, 160]],
-    [[45, 63], [95, 265], [439, 221], [410, 60], [210, 148]],
-  ],
+  figma: "485:11148",
+  seconds: 13.2,
+  still: 4,
+  field: ["485:11150", "485:11151", "485:11152", "485:11153", "485:11154"],
   layers: [
-    { id: "dots", box: [0, 0, 454, 256], src: "/images/exhibits/cover-dot-grid.svg", style: "opacity: 0.07" },
-    {
-      id: "form", box: [34, 30, 148, 196], style: "border-radius: {6}; background: #f7f5ef; box-shadow: 0 {14} {30} rgb(0 0 0 / 35%); overflow: hidden",
-      steps: [{}, {}, {}, { x: -40, o: 0 }],
-      children: [
-        { id: "header", box: [14, 14, 120, 7], style: "border-radius: {2}; background: rgb(44 62 92 / 85%)" },
-        { id: "form-title", box: [14, 26], text: "PEDIATRIC TRIAGE", style: type("mono", 500, 5.5, 0.06, "#2c3e5c") },
-        ...[0, 1, 2, 3, 4, 5].flatMap((row) => [
-          { id: `label-${row}`, box: [14, 44 + row * 24, 34, 4], style: "border-radius: {2}; background: #9aa4b2" },
-          { id: `box-${row}`, box: [14, 51 + row * 24, 120, 10], style: "border: {0.75} solid #c9cfd8; border-radius: {2}; background: #fff" },
-        ]),
-        // the three fields the extraction reads light up once the scan has passed.
-        ...[0, 1, 2].map((row) => ({
-          id: `highlight-${row}`, box: [12, 41 + row * 24, 124, 24], style: "border: 1px solid #4c8dff; border-radius: {3}; background: rgb(76 141 255 / 8%)", steps: shownIn(2, 3),
-        })),
-        { id: "veil", box: [0, 0, 148, 196], style: "background: rgb(122 122 122 / 18%); filter: blur({1})", steps: [{ o: 1 }, { o: 0.6 }, { o: 0 }, { o: 0 }] },
-        {
-          id: "beam", box: [0, -30, 148, 26], style: "background: linear-gradient(rgb(76 141 255 / 0%), rgb(76 141 255 / 35%) 85%, #4c8dff)",
-          steps: [{}, { y: 190 }, { y: 190, o: 0 }, { y: 190, o: 0 }],
-        },
-      ],
-    },
-    ...[["OCR · HEAVY NOISE", "#f3b27a"], ["TESSERACT READ", "#4c8dff"], ["ZERO-SHOT LLM", "#4c8dff"], ["KAIRO HEALTH", "#4c8dff"]].map(([label, colour], index) => ({
-      id: `status-${index + 1}`, box: [34, 10], text: label, style: type("mono", 500, 7, 0.1, colour), steps: shownIn(index + 1),
-    })),
-    {
-      id: "extraction", box: [202, 40, 220, 150], steps: [{ o: 0 }, { o: 1 }, { o: 1 }, { x: 140, o: 0 }],
-      children: [
-        extractionRow("DOB", "Z0/O3/2O2Z", "20/03/2022", 0),
-        extractionRow("TEMP", "3B.6 *C", "38.6 °C", 50),
-        extractionRow("WEIGHT", "l2.4 kq", "12.4 kg", 100),
-      ],
-    },
-    {
-      id: "summary", box: [80, 62, 380, 140], steps: [{ o: 0 }, { o: 0 }, { o: 0 }, { x: 40, o: 1 }],
-      children: [
-        { id: "line", box: [0, 0], text: "Noisy scans in, structured triage out.", style: type("inter", 600, 17, 0, "#fff") },
-        ...[["14", "fields per form", "#fff"], ["5", "OCR noise tiers", "#fff"], ["2", "methods compared", "#4c8dff"]].map(([n, label, colour], index) => ({
-          id: `stat-${index + 1}`, box: [index * 124, 44, 112, 70], style: "border-radius: {10}; background: rgb(255 255 255 / 6%)",
-          children: [
-            { id: `stat-${index + 1}-n`, box: [14, 10], text: n, style: type("inter", 600, 26, 0, colour) },
-            { id: `stat-${index + 1}-label`, box: [14, 46], text: label, style: type("inter", 400, 9, 0, "#8fa3c2") },
-          ],
-        })),
-      ],
-    },
+    dots("485:11155", 0.07),
+    scene("485:11658", [
+      {
+        node: "485:11659", box: [36, 30, 150, 196], style: "background: #ece8df; border-radius: {6}; overflow: hidden; box-shadow: 0 {12} {30} rgb(0 0 0 / 35%)",
+        children: [
+          fill("485:11660", [12, 12, 126, 6], "rgb(14 26 51 / 75%)", 2),
+          text("485:11661", 12, 24, "PEDIATRIC TRIAGE", type("mono", 400, 6.5, 0.39, navy)),
+          ...formField(0, "Z0/O3/2O2Z"),
+          ...formField(1, "3B.6 *C"),
+          ...formField(2, "l2.4 kq"),
+          ...blankField(["485:11674", "485:11675"], 119),
+          ...blankField(["485:11676", "485:11677"], 144),
+          ...blankField(["485:11678", "485:11679"], 169),
+          fill("485:11680", [0, -10, 150, 22], "rgb(61 123 255 / 16%)"),
+          fill("485:11681", [0, 0, 150, 2.5], "rgb(61 123 255 / 95%)"),
+        ],
+      },
+      {
+        node: "485:11682", box: [206, 30, 216, 196], style: card("#f3f5fa", 12),
+        children: [
+          text("485:11683", 14, 14, "Extract fields", type("inter", 600, 11, 0, navy)),
+          chip("485:11685", "485:11684", [143, 13, 59, 14], "#7a5cff", "rgb(122 92 255 / 16%)", "ZERO-SHOT LLM"),
+          ...extracted("DOB", "Z0/O3/2O2Z", "20/03/2022", 72, 40, ids(11686)),
+          ...extracted("TEMP", "3B.6 *C", "38.6 °C", 51, 78, ids(11695)),
+          ...extracted("WEIGHT", "l2.4 kq", "12.4 kg", 51, 116, ids(11704)),
+          {
+            node: "485:11713", box: [14, 158, 188, 26], style: "background: #3d7bff; border-radius: {8}",
+            children: [text("485:11714", 76.5, 7, "Extract", type("inter", 600, 10, 0, "#fff"))],
+          },
+          { node: "485:11715", box: [14, 158, 188, 26], style: "border: {1.5} solid #3d7bff; border-radius: {8}" },
+        ],
+      },
+      cursor("485:11716", 314, 201),
+      {
+        node: "485:11717", box: [97, 50, 260, 156], style: card("#f3f5fa", 14),
+        children: [
+          text("485:11718", 16, 14, "HEAVY NOISE · DISAGREEMENTS", type("mono", 400, 7, 0.42, slate)),
+          text("485:11719", 16, 26, "55 of 56", type("serif", 400, 36, 0, navy)),
+          text("485:11720", 16, 72, "won by the zero-shot model", type("inter", 400, 10, 0, slate)),
+          text("485:11721", 16, 100, "LLM", type("mono", 400, 7, 0.42, navy)),
+          fill("485:11722", [60, 101, 184, 7], "rgb(14 26 51 / 8%)", 3.5),
+          fill("485:11723", [60, 101, 0.01, 7], teal, 3.5),
+          text("485:11724", 16, 120, "REGEX", type("mono", 400, 7, 0.42, navy)),
+          fill("485:11725", [60, 121, 184, 7], "rgb(14 26 51 / 8%)", 3.5),
+          fill("485:11726", [60, 121, 0.01, 7], red, 3.5),
+        ],
+      },
+    ]),
   ],
 };
 
@@ -294,15 +340,3 @@ export const coverMotion = {
   ovara,
   "kairo-health": kairo,
 };
-
-/** a cover's loop length in seconds, and each step's hold as [start, end] percentages of the loop. */
-export function motionTimeline({ holds, transition }) {
-  const duration = Number((holds.reduce((sum, hold) => sum + hold, 0) + transition * holds.length).toFixed(3));
-  let at = 0;
-  const stops = holds.map((hold) => {
-    const stop = [at, at + hold].map((time) => Number(((time / duration) * 100).toFixed(3)));
-    at += hold + transition;
-    return stop;
-  });
-  return { duration, stops };
-}

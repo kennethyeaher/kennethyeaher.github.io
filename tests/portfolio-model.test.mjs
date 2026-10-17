@@ -14,7 +14,8 @@ import {
 import { caseStudies } from "../src/data/caseStudies.mjs";
 import { coverFields } from "../src/data/coverFields.mjs";
 import { coverDevices } from "../src/data/coverDevices.mjs";
-import { coverMotion, motionTimeline } from "../src/data/coverMotion.mjs";
+import { coverMotion, ovaraTiles } from "../src/data/coverMotion.mjs";
+import { coverMotionCss, coverMotionPath, readMotion, scalePx, splitSnippet } from "../scripts/build-cover-motion.mjs";
 import { approvedLedes, readProse } from "../scripts/build-approved-ledes.mjs";
 
 const specPath = new URL("../.private/redesign-spec/v2-pages.json", import.meta.url);
@@ -244,52 +245,95 @@ function motionLayers(layers) {
   return layers.flatMap((layer) => [layer, ...motionLayers(layer.children ?? [])]);
 }
 
-test("motion covers run figma's four smart animate steps on the prototype's holds (454:2562, 446:9788, 447:11130)", () => {
+/** every figma node id a motion cover renders: the layers, the paths inside inline svgs, and the field's blobs. */
+function motionNodes(slug) {
+  const layers = motionLayers(coverMotion[slug].layers);
+  const paths = layers.flatMap(({ svg }) => (svg ? [...svg.body.matchAll(/data-node="([^"]+)"/g)].map(([, node]) => node) : []));
+  return [...coverMotion[slug].field, ...layers.flatMap(({ node }) => (node ? [node] : [])), ...paths];
+}
+
+test("motion covers run figma's v4 timelines (482:10252, 484:10700, 485:11148) on every animated node", () => {
   assert.deepEqual(Object.keys(coverMotion).sort(), ["college-park-capstone", "kairo-health", "ovara"]);
-  const expected = {
-    "college-park-capstone": ["454:2562", [2.2, 2.2, 2.6, 2.8], 0.8, 13],
-    ovara: ["446:9788", [1.2, 1.8, 2.4, 2.6], 0.7, 10.8],
-    "kairo-health": ["447:11130", [1, 1.6, 2.4, 2.4], 0.7, 10.2],
-  };
-  for (const [slug, [figma, holds, transition, duration]] of Object.entries(expected)) {
+  const expected = { "college-park-capstone": ["482:10252", 13.6, 51], ovara: ["484:10700", 13.6, 141], "kairo-health": ["485:11148", 13.2, 37] };
+  for (const [slug, [figma, seconds, animated]] of Object.entries(expected)) {
     const motion = coverMotion[slug];
-    assert.deepEqual([motion.figma, motion.holds, motion.transition], [figma, holds, transition], slug);
-    assert.equal(motionTimeline(motion).duration, duration, `${slug} loop length`);
+    const { nodes, timelineCohorts } = readMotion(slug);
+    assert.deepEqual([motion.figma, motion.seconds], [figma, seconds], slug);
+    assert.deepEqual(timelineCohorts.map(({ rootNodeId, durationMs, loopMode }) => [rootNodeId, durationMs, loopMode]), [[figma, seconds * 1000, "loop"]], `${slug} one looping timeline`);
+    assert.equal(nodes.length, animated, `${slug} animated nodes`);
+    // every animated node in figma's export lands on exactly one rendered layer, and the ids are unique.
+    const rendered = motionNodes(slug);
+    assert.equal(new Set(rendered).size, rendered.length, `${slug} node ids are unique`);
+    for (const { nodeId } of nodes) assert.ok(rendered.includes(nodeId), `${slug} renders ${nodeId}`);
     for (const layer of motionLayers(motion.layers)) {
-      if (layer.steps) assert.equal(layer.steps.length, 4, `${slug} ${layer.id} has a state per step`);
       if (layer.src) assert.ok(existsSync(new URL(`../public${layer.src}`, import.meta.url)), `${slug} ${layer.src} exists`);
     }
-    // the field moves with the steps, one centre per ellipse per step.
-    assert.equal(motion.field.length, 4, `${slug} field steps`);
-    for (const step of motion.field) assert.equal(step.length, coverFields[slug].ellipses.length);
-    assert.deepEqual(motion.field[0], coverFields[slug].ellipses.map(({ x, y }) => [x, y]), `${slug} step 1 field is the card field`);
+    // the field blobs are the card field's ellipses, in order, and the reduced motion still sits inside the loop.
+    assert.equal(motion.field.length, coverFields[slug].ellipses.length, `${slug} one blob per ellipse`);
+    assert.deepEqual(nodes.slice(0, 5).map(({ nodeName }) => nodeName), ["Blob 1", "Blob 2", "Blob 3", "Blob 4", "Blob 5"]);
+    assert.deepEqual(nodes.slice(0, 5).map(({ nodeId }) => nodeId), motion.field, `${slug} field blob ids`);
+    assert.ok(motion.still > 0 && motion.still < seconds, `${slug} still`);
   }
-  // which layers each step shows, against the step frames (446:7303 to 446:9167, 447:9095 to 447:10622).
-  const shown = (slug, id) => motionLayers(coverMotion[slug].layers).find((layer) => layer.id === id).steps.map(({ o = 1 }) => o);
-  assert.deepEqual(shown("ovara", "legend"), [0, 1, 0, 0]);
-  assert.deepEqual(shown("ovara", "state"), [0, 0, 1, 0]);
-  assert.deepEqual(shown("ovara", "headline"), [0, 0, 0, 1]);
-  assert.deepEqual(shown("kairo-health", "extraction"), [0, 1, 1, 0]);
-  assert.deepEqual(shown("kairo-health", "summary"), [0, 0, 0, 1]);
-  assert.deepEqual(shown("college-park-capstone", "persona"), [0, 0, 1, 0]);
-  assert.deepEqual(shown("college-park-capstone", "journey"), [0, 0, 0, 1]);
-  // each step holds, then eases to the next over the transition; the last eases back to step 1.
-  assert.deepEqual(motionTimeline(coverMotion["college-park-capstone"]).stops, [[0, 16.923], [23.077, 40], [46.154, 66.154], [72.308, 93.846]]);
+  // each scene frame keeps its cards inside it, so its camera moves them together.
+  const scenes = (slug) => coverMotion[slug].layers.filter(({ children, box }) => children && box.join() === "0,0,454,256").map(({ node }) => node);
+  assert.deepEqual(scenes("college-park-capstone"), ["482:10762", "482:10847", "482:11136", "482:11281"]);
+  assert.deepEqual(scenes("ovara"), ["484:11210"]);
+  assert.deepEqual(scenes("kairo-health"), ["485:11658"]);
+  // the ovara tiers match figma's tile motion: desert tiles pop to 1.25 and stay lit, the rest fade to 0.16.
+  const tiles = readMotion("ovara").nodes.filter(({ nodeName }) => nodeName.startsWith("Tile "));
+  assert.equal(tiles.length, 112);
+  for (const { nodeName, codeSnippets: { css } } of tiles) {
+    const [r, c] = nodeName.slice(5).split("-").map(Number);
+    const desert = ovaraTiles[r][c] === "R";
+    assert.equal(css.includes("scale: 1.25 1.25"), desert, `${nodeName} pop`);
+    assert.equal(css.includes("opacity: 0.16"), !desert, `${nodeName} fade`);
+  }
+});
+
+test("the cover keyframes are generated from figma's snippets with every timing and value kept", () => {
+  for (const slug of Object.keys(coverMotion)) {
+    const css = readFileSync(coverMotionPath(slug), "utf8");
+    assert.equal(css, coverMotionCss(slug), `${slug} stylesheet is fresh (node scripts/build-cover-motion.mjs)`);
+    for (const { nodeId, codeSnippets } of readMotion(slug).nodes) {
+      const { declarations, keyframes } = splitSnippet(codeSnippets.css);
+      assert.ok(css.includes(`[data-node="${nodeId}"] { ${scalePx(declarations)} }`), `${slug} ${nodeId} animation`);
+      for (const rule of keyframes) {
+        assert.ok(css.includes(scalePx(rule)), `${slug} ${nodeId} keyframes`);
+        // only px lengths change: stops, easings and unitless values are figma's text.
+        assert.equal(scalePx(rule).replace(/calc\((-?[\d.]+) \* var\(--u\)\)/g, "$1px"), rule);
+      }
+    }
+  }
+  assert.equal(scalePx("translate: 138.6px -104.4px; width: 0.01px; filter: blur(0px);"), "translate: calc(138.6 * var(--u)) calc(-104.4 * var(--u)); width: calc(0.01 * var(--u)); filter: blur(0px);");
 });
 
 test("motion cover copy uses real figures and DC names in place of the capstone personas", () => {
   const text = (slug) => motionLayers(coverMotion[slug].layers).flatMap(({ text: value }) => (value ? [value] : []));
   const ovara = text("ovara");
-  for (const figure of ["20.5", "U.S. 30.06", "1,029", "10.9M RESIDENTS", "providers per 100k"]) assert.ok(ovara.includes(figure), `ovara shows ${figure}`);
+  for (const figure of ["Arkansas", "20.5", "U.S. 30.06", "1,029", "10.9M RESIDENTS", "providers per 100k", "counties with zero providers"]) assert.ok(ovara.includes(figure), `ovara shows ${figure}`);
   // nothing else numeric: the figures come from the published ovara analysis.
   const numbers = ovara.join(" ").match(/\d[\d.,]*/g);
   assert.deepEqual([...new Set(numbers)].sort(), ["1,029", "10.9", "100", "20.5", "30.06"]);
-  assert.deepEqual(text("kairo-health").filter((value) => /^\d+$/.test(value)), ["14", "5", "2"]);
+  const kairo = text("kairo-health");
+  for (const value of ["55 of 56", "won by the zero-shot model", "Extract", "PEDIATRIC TRIAGE"]) assert.ok(kairo.includes(value), `kairo shows ${value}`);
+  assert.ok(JSON.stringify(caseStudies.find(({ slug }) => slug === "kairo-health")).includes('"value":"55 of 56"'), "55 of 56 is the case study's figure");
   const capstone = text("college-park-capstone");
+  assert.ok(capstone.includes("17") && capstone.includes("of 24 follow no city channel"), "the tally is 17 of 24");
+  assert.equal(motionNodes("college-park-capstone").filter((node) => readMotion("college-park-capstone").nodes.find(({ nodeId, nodeName }) => nodeId === node && nodeName === "Seg fill")).length, 17, "17 segments fill");
   assert.ok(capstone.includes("Diana") && capstone.includes("D"), "persona is Diana");
   assert.ok(capstone.includes("JOURNEY · BRUCE"), "journey follows Bruce");
   for (const slug of Object.keys(coverMotion)) {
     assert.doesNotMatch(text(slug).join(" "), /Maria|Tyler|caveats?|limitations?|future (work|improvements?)|next steps/i, slug);
+  }
+  // the card and hero alts describe what each cover plays.
+  const alts = {
+    "college-park-capstone": ["survey", "None of these", "17 of 24", "Diana", "Bruce", "journey curve"],
+    ovara: ["Arkansas", "search", "county map", "20.5", "U.S. 30.06", "1,029"],
+    "kairo-health": ["scanned pediatric triage form", "Extract", "noisy values", "55 of 56"],
+  };
+  for (const [slug, words] of Object.entries(alts)) {
+    const study = caseStudies.find((entry) => entry.slug === slug);
+    for (const alt of [study.cardAlt, study.heroAlt]) for (const word of words) assert.ok(alt.includes(word), `${slug} alt names ${word}`);
   }
 });
 

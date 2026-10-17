@@ -82,7 +82,8 @@ test("home grid covers are square, untitled, and a dark base under a blurred dri
     assert.match(gradient, /aria-hidden="true"/);
     assert.match(gradient, /data-cover-gradient/);
     assert.match(gradient, new RegExp(`--field-blur: ${(field.blur / 2 / 454 * 100).toFixed(3)}cqi`), `${project.slug} blur`);
-    const spans = [...coverHtml.matchAll(/<span class="cover-field" style="([^"]+)"/g)].map(([, style]) => style);
+    // a motion cover's blobs carry their figma node id between the class and the style.
+    const spans = [...coverHtml.matchAll(/<span class="cover-field"(?: data-node="[^"]+")? style="([^"]+)"/g)].map(([, style]) => style);
     assert.equal(spans.length, field.ellipses.length, `${project.slug} one span per ellipse`);
     for (const [i, { x, y, r, colour, alpha }] of field.ellipses.entries()) {
       const box = `left: ${((x - r) / 454 * 100).toFixed(3)}%; top: ${((y - r) / 256 * 100).toFixed(3)}%; width: ${(2 * r / 454 * 100).toFixed(3)}%`;
@@ -104,7 +105,7 @@ test("home grid covers are square, untitled, and a dark base under a blurred dri
   // the drift runs only when the cover is on screen (is-live) and motion is allowed; reduced motion is a still.
   const motion = css.slice(css.indexOf("@media(prefers-reduced-motion:no-preference){.cover-field"));
   assert.ok(motion.length < css.length, "the drift sits under prefers-reduced-motion: no-preference");
-  assert.match(motion, /^@media\(prefers-reduced-motion:no-preference\)\{\.cover-field\[[^\]]+\]\{[^}]*animation:cover-field-drift var\(--drift-s\) ease-in-out infinite alternate;[^}]*animation-play-state:paused/);
+  assert.match(motion, /^@media\(prefers-reduced-motion:no-preference\)\{\.cover-field\[[^\]]+\]:not\(\[data-node\]\)\{[^}]*animation:cover-field-drift var\(--drift-s\) ease-in-out infinite alternate;[^}]*animation-play-state:paused/);
   assert.match(motion, /\.cover-gradient\[[^\]]+\]\.is-live \.cover-field\[[^\]]+\]\{animation-play-state:running\}/);
   assert.match(css, /@keyframes cover-field-drift\{to\{translate:var\(--drift-x\) var\(--drift-y\)\}\}/);
 });
@@ -154,7 +155,7 @@ test("device covers draw figma's browser and phones over the field and lift and 
   assert.match(css, /\.device-phone\[[^\]]+\],\.device-browser\[[^\]]+\]\{[^}]*box-shadow:0 3\.965cqi 8\.811cqi #00000059/);
 });
 
-test("motion covers draw step 1 in the markup and loop their steps only on screen with motion allowed", () => {
+test("motion covers render figma's v4 layers and loop their timelines only on screen, holding a still under reduced motion", () => {
   const cards = new Map([...workHtml.matchAll(/<a class="project-card" href="\/work\/([^"]+)"[\s\S]*?<\/a>/g)].map(([card, slug]) => [slug, card]));
   for (const [slug, card] of cards) {
     const motion = card.match(/<div class="cover-motion"[^>]*>/)?.[0];
@@ -163,33 +164,47 @@ test("motion covers draw step 1 in the markup and loop their steps only on scree
     assert.match(motion, new RegExp(`data-cover-motion="${slug}"`));
     assert.match(motion, new RegExp(`data-figma="${coverMotion[slug].figma}"`));
     assert.match(card, new RegExp(`<div class="project-cover[^"]*"[^>]*data-motion="${slug}"`));
+    // the field blobs and the dot grid sit inside the cover, and every animated figma node is in the card once.
+    const ids = [...card.matchAll(/data-node="([^"]+)"/g)].map(([, node]) => node);
+    assert.equal(new Set(ids).size, ids.length, `${slug} node ids are unique`);
+    for (const node of coverMotion[slug].field) assert.match(card, new RegExp(`<span class="cover-field"[^>]*data-node="${node}"`));
+    assert.match(card, /<img class="cm-layer"[^>]*src="\/images\/exhibits\/cover-dot-grid\.svg"/);
   }
   const capstone = cards.get("college-park-capstone");
   assert.match(capstone, />Diana</);
   assert.match(capstone, />JOURNEY · BRUCE</);
   assert.doesNotMatch(capstone, /Maria|Tyler/);
-  // step 1 is the markup: the persona and journey cards start hidden, note 1 sits at figma's step 1 spot and turn.
-  assert.match(capstone, /class="cm-anim cm-college-park-capstone-persona"[^>]*style="[^"]*opacity: 0[;"]/);
-  assert.match(capstone, /class="cm-anim cm-college-park-capstone-note-1"[^>]*style="left: 7\.489cqi; top: 12\.775cqi;[^"]*rotate: 8deg/);
+  // path trims draw on the inline paths; the cursors are svg files.
+  assert.match(capstone, /<path data-node="482:10778" pathLength="1"/);
+  assert.match(capstone, /<path data-node="482:11286" pathLength="1"/);
+  assert.match(capstone, /<img class="cm-layer" src="\/images\/exhibits\/cover-cursor\.svg"[^>]*data-node="482:10780"/);
   const ovara = cards.get("ovara");
-  for (const figure of [">20.5<", ">U.S. 30.06<", ">1,029<", ">10.9M RESIDENTS<"]) assert.ok(ovara.includes(figure), `ovara card shows ${figure}`);
-  assert.equal([...ovara.matchAll(/class="cm-anim cm-ovara-tile-\d+"/g)].length, 144);
+  for (const figure of [">Arkansas<", ">20.5<", ">U.S. 30.06<", ">1,029<", ">10.9M RESIDENTS<"]) assert.ok(ovara.includes(figure), `ovara card shows ${figure}`);
+  assert.equal([...ovara.matchAll(/data-node="484:\d+"[^>]*style="left: [\d.]+cqi; top: [\d.]+cqi; width: 2\.423cqi; height: 2\.423cqi; background: (#|rgb\(255)/g)].length, 224, "112 tiles over 112 bases");
+  const kairo = cards.get("kairo-health");
+  for (const value of [">55 of 56<", ">Extract<", ">20/03/2022<", ">Z0/O3/2O2Z<"]) assert.ok(kairo.includes(value), `kairo card shows ${value}`);
 
-  // each cover's keyframes ship once, inline, and only under prefers-reduced-motion: no-preference.
-  const inline = [...workHtml.matchAll(/<style>(@media \(prefers-reduced-motion: no-preference\) \{[\s\S]*?)<\/style>/g)].map(([, css]) => css).join("\n");
-  for (const [slug, seconds] of [["college-park-capstone", "13s"], ["ovara", "10.8s"], ["kairo-health", "10.2s"]]) {
-    assert.match(inline, new RegExp(`@keyframes cm-${slug}-`), `${slug} keyframes`);
-    assert.match(inline, new RegExp(`\\.cm-${slug}-[a-z0-9-]+ \\{ animation-name: cm-${slug}-[a-z0-9-]+; animation-duration: ${seconds.replace(".", "\\.")}; \\}`), `${slug} loop length`);
-    // the field follows the steps on top of its slow drift.
-    assert.match(inline, new RegExp(`\\.project-cover\\[data-motion="${slug}"\\] \\.cover-field:nth-child\\(1\\) \\{ animation-name: cover-field-drift, cm-${slug}-field-1; animation-duration: var\\(--drift-s\\), ${seconds.replace(".", "\\.")}; animation-direction: alternate, normal; \\}`));
+  // the keyframes ship in one stylesheet for the home page only, keyed by figma node id, on figma's loop lengths.
+  const stylesheets = (html) => [...html.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map((match) => readFileSync(join(projectRoot, "dist", match[1]), "utf8")).join("\n");
+  const css = stylesheets(workHtml);
+  for (const [slug, seconds, scene] of [["college-park-capstone", "13.6s", "482:10762"], ["ovara", "13.6s", "484:11210"], ["kairo-health", "13.2s", "485:11658"]]) {
+    const scope = `\\.project-cover\\[data-motion=${slug}\\]`;
+    assert.match(css, new RegExp(`${scope}\\{--u: ?calc\\(100cqi / 454\\)\\}`), `${slug} unit`);
+    assert.match(css, new RegExp(`${scope} \\[data-node="${scene}"\\]\\{animation:kf_${scene.replace(":", "_")}_opacity_0 ${seconds.replace(".", "\\.")} linear,`), `${slug} scene camera`);
+    // off screen the timeline holds; reduced motion holds the still frame on the timeline's own length.
+    assert.match(css, new RegExp(`${scope} :is\\(\\.cover-gradient,\\s?\\.cover-motion\\):not\\(\\.is-live\\) \\[data-node\\]\\{animation-play-state:paused\\}`), `${slug} pauses off screen`);
+    const still = `-${coverMotion[slug].still}s`.replace(".", "\\.");
+    assert.match(css, new RegExp(`@media ?\\(prefers-reduced-motion:\\s?reduce\\)\\{${scope} \\[data-node\\]\\[data-node\\]\\{animation-duration:${seconds.replace(".", "\\.")}!important;animation-iteration-count:infinite!important;animation-delay:${still};animation-play-state:paused\\}`), `${slug} reduced motion still`);
   }
-  // capstone step 2 begins at 23.077%: the hold ends at 16.923% and the 0.8s ease lands on step 2, moved by translate
-  // from the step 1 spot (34, 58 to 60, 70) and turned flat.
-  assert.match(inline, /@keyframes cm-college-park-capstone-note-1 \{ 0%, 16\.923%, 100% \{ translate: 0cqi 0cqi; rotate: 8deg;[^}]*\} 23\.077%, 40% \{ translate: 5\.727cqi 2\.643cqi; rotate: 0deg;/);
-
-  const css = [...workHtml.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map((match) => readFileSync(join(projectRoot, "dist", match[1]), "utf8")).join("\n");
-  assert.match(css, /\.cm-anim\[[^\]]+\]\{[^}]*animation-timing-function:ease-in-out;animation-iteration-count:infinite;animation-play-state:paused/);
-  assert.match(css, /\.cover-motion\[[^\]]+\]\.is-live \.cm-anim\[[^\]]+\]\{animation-play-state:running\}/);
+  assert.match(css, /@keyframes kf_482_10778_path-trim_0\{0%\{stroke-dasharray:0 1;visibility:hidden\}/);
+  assert.match(css, /@keyframes kf_484_11461_width_0\{0%\{width:calc\(62 \* var\(--u\)\)\}/);
+  // the batch 1 step keyframes and the inline per cover styles are gone.
+  assert.doesNotMatch(workHtml, /cm-anim|@keyframes cm-/);
+  // the field drift skips the blobs that follow figma's timeline.
+  assert.match(css, /\.cover-field\[[^\]]+\]:not\(\[data-node\]\)\{animation:cover-field-drift/);
+  // no other page loads the cover timelines.
+  assert.doesNotMatch(stylesheets(aboutHtml), /kf_48[245]_/);
+  assert.doesNotMatch(stylesheets(readFileSync(join(projectRoot, "dist", "work", "ovara", "index.html"), "utf8")), /kf_48[245]_/);
   const script = readFileSync(join(projectRoot, "src/scripts/exhibits.ts"), "utf8");
   assert.match(script, /querySelectorAll<HTMLElement>\("\[data-cover-gradient\], \[data-cover-motion\]"\)/);
 });

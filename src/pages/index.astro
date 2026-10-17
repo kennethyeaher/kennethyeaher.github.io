@@ -3,6 +3,10 @@
 import Base from "@/layouts/Base.astro";
 import ProjectCard from "@/components/ProjectCard.astro";
 import { getFeaturedProjects, homeNow, profile } from "@/data/portfolio.mjs";
+// the motion covers' figma timelines (scripts/build-cover-motion.mjs); no other page shows these cards.
+import "@/styles/cover-motion/college-park-capstone.css";
+import "@/styles/cover-motion/ovara.css";
+import "@/styles/cover-motion/kairo-health.css";
 
 const projects = getFeaturedProjects();
 ---

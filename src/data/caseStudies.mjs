@@ -100,9 +100,9 @@ export const caseStudies = [
     summary:
       "A seventeen stage pipeline and dashboard that counts reproductive health providers against Census population, and an audit that found three published numbers wrong before anyone else did.",
     cardImage: "/images/work/ovara/cover-gradient-poster.png",
-    cardAlt: "Ovara motion cover in the product's iris, coral, sage, marigold, and cream palette",
+    cardAlt: "Ovara motion cover on an iris and coral field: Arkansas is typed into the search bar, the county map colours in by provider tier, the Arkansas card sets 20.5 providers per 100k against the U.S. 30.06, and the desert counties stay lit beside 1,029 counties with zero providers",
     heroImage: "/images/work/ovara/cover-gradient-poster.png",
-    heroAlt: "Ovara motion cover in the product's iris, coral, sage, marigold, and cream palette",
+    heroAlt: "Ovara motion cover on an iris and coral field: Arkansas is typed into the search bar, the county map colours in by provider tier, the Arkansas card sets 20.5 providers per 100k against the U.S. 30.06, and the desert counties stay lit beside 1,029 counties with zero providers",
     cover: {
       variant: "ovara",
       poster: "/images/work/ovara/cover-gradient-poster.png",
@@ -419,9 +419,9 @@ export const caseStudies = [
     summary:
       "A controlled study of how OCR degradation changes clinical information extraction, comparing a label-anchored regex baseline with a zero-shot language model across five noise tiers.",
     cardImage: "/images/work/kairo/cover-gradient-poster.png",
-    cardAlt: "Kairo Health motion cover in clinical navy and data blue",
+    cardAlt: "Kairo Health motion cover on a navy and data blue field: a scanned pediatric triage form is read field by field, the cursor clicks Extract, noisy values like 3B.6 *C resolve to 38.6 °C, and the result card shows the zero-shot model winning 55 of 56 disagreements",
     heroImage: "/images/work/kairo/cover-gradient-poster.png",
-    heroAlt: "Kairo Health motion cover in clinical navy and data blue",
+    heroAlt: "Kairo Health motion cover on a navy and data blue field: a scanned pediatric triage form is read field by field, the cursor clicks Extract, noisy values like 3B.6 *C resolve to 38.6 °C, and the result card shows the zero-shot model winning 55 of 56 disagreements",
     cover: {
       variant: "kairo",
       poster: "/images/work/kairo/cover-gradient-poster.png",
@@ -1094,9 +1094,9 @@ export const caseStudies = [
     summary:
       "A civic research engagement that turned two surveys and contextual interviews at three city events into five personas, three journey maps, a social media audit, and recommendations for the City of College Park.",
     cardImage: "/images/work/capstone/cover-gradient-poster.png",
-    cardAlt: "User Research Capstone motion cover on a warm amber and rose field, where scattered sticky notes sort into needs, pains and moments columns, then become a persona card and a journey map with its low point",
+    cardAlt: "User Research Capstone motion cover on a warm amber and rose field: a student survey answer checks None of these, a tally fills 17 of 24 segments for students who follow no city channel, Diana's persona card types in with goals, pains and habits bars, then Bruce's journey curve draws to its low point",
     heroImage: "/images/work/capstone/cover-gradient-poster.png",
-    heroAlt: "User Research Capstone motion cover on a warm amber and rose field, where scattered sticky notes sort into needs, pains and moments columns, then become a persona card and a journey map with its low point",
+    heroAlt: "User Research Capstone motion cover on a warm amber and rose field: a student survey answer checks None of these, a tally fills 17 of 24 segments for students who follow no city channel, Diana's persona card types in with goals, pains and habits bars, then Bruce's journey curve draws to its low point",
     cover: {
       variant: "capstone",
       poster: "/images/work/capstone/cover-gradient-poster.png",

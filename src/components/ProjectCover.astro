@@ -4,7 +4,6 @@ import CoverMotion from "@/components/CoverMotion.astro";
 import { coverDevices } from "@/data/coverDevices.mjs";
 import { coverFields } from "@/data/coverFields.mjs";
 import { coverMotion } from "@/data/coverMotion.mjs";
-import { coverMotionCss } from "@/utils/coverMotion.mjs";
 
 interface Props {
   project: {
@@ -19,9 +18,8 @@ interface Props {
 const { project } = Astro.props;
 const field = coverFields[project.slug];
 const devices = coverDevices[project.slug];
-// a motion cover's steps, and the keyframes that loop them (inline, since every cover has its own).
+// a motion cover's layers; its timeline is src/styles/cover-motion/<slug>.css, which the home page imports.
 const motion = coverMotion[project.slug];
-const motionCss = motion ? coverMotionCss(project.slug, motion) : null;
 if (!field) throw new Error(`No colour field for ${project.slug}`);
 
 // figma's layer blur radius is twice the gaussian deviation css blur() takes, and it scales with the 454px cover.
@@ -40,12 +38,11 @@ function ellipseStyle({ x, y, r, colour, alpha }: { x: number; y: number; r: num
 <div class:list={["project-cover", `cover-${project.cover.variant}`, "is-card"]}
   data-project-cover data-cover-variant={project.cover.variant} data-figma-field={field.figma} data-motion={motion ? project.slug : undefined}
   style={`--cover-base: ${field.base}`}>
-  {motionCss && <style is:inline set:html={motionCss.css} />}
   <div class="cover-gradient" aria-hidden="true" data-cover-gradient style={`--field-blur: ${blur}`}>
-    {field.ellipses.map((ellipse, index) => <span class="cover-field" style={ellipseStyle(ellipse, index)}></span>)}
+    {field.ellipses.map((ellipse, index) => <span class="cover-field" data-node={motion?.field[index]} style={ellipseStyle(ellipse, index)}></span>)}
   </div>
   {devices && <CoverDevices devices={devices} />}
-  {motion && motionCss && <CoverMotion root slug={project.slug} figma={motion.figma} layers={motion.layers} classes={motionCss.classes} />}
+  {motion && <CoverMotion root slug={project.slug} figma={motion.figma} layers={motion.layers} />}
   <slot />
 </div>
 <style>
@@ -53,9 +50,10 @@ function ellipseStyle({ x, y, r, colour, alpha }: { x: number; y: number; r: num
   .cover-gradient { position: absolute; z-index: 0; inset: 0; overflow: hidden; }
   /* one blurred ellipse per figma ellipse, each blurred on its own as figma draws them. */
   .cover-field { position: absolute; aspect-ratio: 1; border-radius: 50%; filter: blur(var(--field-blur)); }
-  /* the slow drift runs only on screen (exhibits.ts sets is-live) and only when motion is welcome; otherwise the field is still. */
+  /* the slow drift runs only on screen (exhibits.ts sets is-live) and only when motion is welcome; otherwise the field is
+     still. a motion cover's blobs carry their figma node id and follow its timeline instead. */
   @media (prefers-reduced-motion: no-preference) {
-    .cover-field { animation: cover-field-drift var(--drift-s) ease-in-out infinite alternate; animation-play-state: paused; }
+    .cover-field:not([data-node]) { animation: cover-field-drift var(--drift-s) ease-in-out infinite alternate; animation-play-state: paused; }
     .cover-gradient.is-live .cover-field { animation-play-state: running; }
   }
   @keyframes cover-field-drift { to { translate: var(--drift-x) var(--drift-y); } }
