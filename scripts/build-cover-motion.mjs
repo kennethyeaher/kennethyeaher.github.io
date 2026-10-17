@@ -2,7 +2,7 @@
 // get_motion_context output (scripts/cover-motion/<name>.motion.json, saved as returned for the frame with recursive
 // true). every css snippet keeps its timings, easings and values; the only change is that each figma px length becomes
 // a share of the frame (var(--u)), so the timeline scales with the card. only the home page imports the covers' files,
-// and only the elms case study links its send path's.
+// and only the elms case study links its loops'.
 // usage: node scripts/build-cover-motion.mjs
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -14,6 +14,8 @@ export const motionSources = {
   "college-park-capstone": "capstone",
   ovara: "ovara",
   "kairo-health": "kairo",
+  "elms-course-first": "elms-course-first",
+  "elms-undo": "elms-undo",
   "elms-send-path": "elms-send-path",
 };
 

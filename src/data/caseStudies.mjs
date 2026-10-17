@@ -2803,22 +2803,22 @@ export const caseStudies = [
           course: "INST711",
           time: "10:34 AM",
         },
-        // the course and recovery cards (420:828). each is a still for now, numbered without figma's LOOP until a
-        // recording drops into its loop slot ({ src, poster, name }) at the card's own size, with no change to the layout.
+        // the course and recovery cards (420:828), drawn in html like the send path under them: course first
+        // (530:11608) and undo (531:11608), each a 960 by 540 loop filling its card, so all three elms loops match.
         loops: {
           layout: "pair",
           base: "#2a0f0c",
           visuals: [
-            { src: "/images/work/elms-redesign/elms-course-first-card.webp", width: 1280, height: 857, alt: "ELMS new message on a laptop with the course menu open: Current term, Fall 2026 first with INST711 Interaction Design Studio on top, then Favorites and More courses, nothing preselected", loop: null },
-            { src: "/images/work/elms-redesign/elms-undo-card.webp", width: 1280, height: 857, alt: "ELMS new message on a laptop after the recipient is removed: To is empty, the typed message is still there, and the send bar says no recipient selected, choose a person to continue", loop: null },
+            { src: "/images/work/elms-redesign/elms-send-path-1-course.webp", width: 960, height: 540, alt: "ELMS new message, looping: Course is chosen first, with INST711 Interaction Design Studio checked at the top of the current term, then To opens on the Teaching assistants, Instructors and Classmates groups, Barry Allen, TA is tagged Existing chat, and picking him leaves the message ready to send", loop: { motion: "elms-course-first", name: "course first" } },
+            { src: "/images/work/elms-redesign/elms-send-path-3-ready.webp", width: 960, height: 540, alt: "ELMS new message, looping: the Barry Allen, TA recipient is removed, Send turns off while the typed message stays, then typing Bar in To brings Barry back and the message is ready again", loop: { motion: "elms-undo", name: "undo" } },
           ],
           captions: [
-            { num: "01", title: "Course first, then the right people", body: "The current term sits on top and nothing is preselected. Then To opens on the role groups ELMS already uses, with Barry tagged as an existing conversation." },
-            { num: "02", title: "Undo keeps your words", body: "Removing the recipient turns Send off and keeps the message, so fixing a slip never restarts the form. Norman calls this forgiveness for slips." },
+            { num: "01", tag: "LOOP · 12s", title: "Course first, then the right people", body: "The current term sits on top and nothing is preselected. Then To opens on the role groups ELMS already uses, with Barry tagged as an existing conversation." },
+            { num: "02", tag: "LOOP · 11s", title: "Undo keeps your words", body: "Removing the recipient turns Send off and keeps the message, so fixing a slip never restarts the form. Norman calls this forgiveness for slips." },
           ],
         },
         // the whole path (420:886) closes the chapter under its own head: the send path loop (504:11596) beside its
-        // steps, the one elms card that plays, so the only one with a loop tag.
+        // steps.
         part: {
           figma: "420:886",
           eyebrow: "THE WHOLE PATH",
