@@ -214,10 +214,14 @@ function pngSize(file) {
   return [bytes.readUInt32BE(16), bytes.readUInt32BE(20)];
 }
 
-test("device covers follow their figma frames: a browser for elms and frontground, three phones for the app cards", () => {
+test("device covers follow their figma frames: a macbook for elms and frontground, three phones for the app cards", () => {
   assert.deepEqual(Object.keys(coverDevices).sort(), ["elms-redesign", "frontground", "sohive", "terpcare", "terpcarehub"]);
-  assert.deepEqual([coverDevices.frontground.kind, coverDevices.frontground.figma, coverDevices.frontground.address], ["browser", "436:1883", "frontground · doctor"]);
-  assert.deepEqual([coverDevices["elms-redesign"].kind, coverDevices["elms-redesign"].figma, coverDevices["elms-redesign"].address], ["browser", "436:1872", "elms · redesign"]);
+  // both macbooks are Device/Laptop instances (325:499) on figma 428:2664.
+  assert.deepEqual([coverDevices.frontground.kind, coverDevices.frontground.figma], ["macbook", "528:12392"]);
+  assert.deepEqual([coverDevices["elms-redesign"].kind, coverDevices["elms-redesign"].figma], ["macbook", "528:12385"]);
+  // elms shows the dc repainted ready to send screen at 1440 (figma's core-1 fill, 2880 by 2152), frontground the doctor dashboard.
+  assert.equal(coverDevices["elms-redesign"].screen.src, "/images/work/elms-redesign/elms-cover-new-message.png");
+  assert.equal(coverDevices.frontground.screen.src, "/images/work/frontground/frontground-cover-doctor.png");
   const phones = { terpcarehub: "428:2686", sohive: "428:2698", terpcare: "428:2704" };
   for (const [slug, figma] of Object.entries(phones)) {
     const cover = coverDevices[slug];

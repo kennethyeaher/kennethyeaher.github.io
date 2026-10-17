@@ -1,26 +1,23 @@
 ---
+import DeviceFrame from "@/components/DeviceFrame.astro";
+
 // the shapes in src/data/coverDevices.mjs.
 type DeviceScreen = { src: string; width: number; height: number };
 type DevicePhone = DeviceScreen & { slot: "left" | "right" | "center"; statusBar?: true; island?: true };
-type BrowserCover = { kind: "browser"; figma: string; address: string; screen: DeviceScreen };
+type MacbookCover = { kind: "macbook"; figma: string; screen: DeviceScreen };
 type PhonesCover = { kind: "phones"; figma: string; phones: DevicePhone[] };
 
 interface Props {
-  devices: BrowserCover | PhonesCover;
+  devices: MacbookCover | PhonesCover;
 }
-// devices on a home cover (figma 428:2684): a browser cut off at the cover's foot, or three phones with the centre
-// one on top. every length is figma's px on the 454px cover, written in cqi so the devices scale with the card.
-// hover follows the layer names: the centre device lifts 8px and the side phones fan out 6px.
+// devices on a home cover (figma 428:2684): a macbook, or three phones with the centre one on top. every length is
+// figma's px on the 454px cover, written in cqi so the devices scale with the card. hover follows the layer names: the
+// centre device lifts 8px and the side phones fan out 6px.
 const { devices } = Astro.props;
 
 /** a figma length on the 454px cover as a share of the cover's width. */
 function cq(px: number): string {
   return `${Number((px / 4.54).toFixed(3))}cqi`;
-}
-
-/** a browser screen's figma height: the 364 wide screen at its capture's own ratio (205 for a 16:9 capture). */
-function browserScreenHeight(screen: DeviceScreen): number {
-  return Math.round((364 * screen.height) / screen.width);
 }
 
 /** the inline box of an absolutely placed layer, from its figma x, y, width and height. */
@@ -55,16 +52,12 @@ function phoneLayers(phone: DevicePhone) {
   };
 }
 ---
-{devices.kind === "browser" ? (
-  <div class="cover-devices is-browser" aria-hidden="true" data-figma={devices.figma}>
-    <div class="device-browser device-center" style={box(45, 34, 364, 256)}>
-      <div class="browser-chrome" style={`height: ${cq(18)}`}>
-        {["red", "yellow", "green"].map((colour, index) => (
-          <img class="browser-light" src={`/images/exhibits/browser-light-${colour}.svg`} alt="" style={box(8 + index * 9, 6, 6, 6)} />
-        ))}
-        <span class="browser-address" style={`${box(107, 4, 150, 10)}; border-radius: ${cq(5)}; font-size: ${cq(6)}; line-height: ${cq(10)}`}>{devices.address}</span>
-      </div>
-      <img class="device-screen" src={devices.screen.src} alt="" width={devices.screen.width} height={devices.screen.height} loading="lazy" decoding="async" style={box(0, 18, 364, browserScreenHeight(devices.screen))} />
+{devices.kind === "macbook" ? (
+  <div class="cover-devices is-macbook" aria-hidden="true" data-figma={devices.figma}>
+    {/* the Device/Laptop instance, 384 by 207.36 at x 35 and y 28: the elms page's macbook frame (the same component),
+        whose lid, camera, bezel, base, notch and floor shadow are shares of its own width. */}
+    <div class="device-macbook device-center" style={box(35, 28, 384, 207.36)}>
+      <DeviceFrame frame="macbook" src={devices.screen.src} alt="" decorative width={devices.screen.width} height={devices.screen.height} />
     </div>
   </div>
 ) : (
@@ -85,14 +78,11 @@ function phoneLayers(phone: DevicePhone) {
 )}
 <style>
   .cover-devices { position: absolute; z-index: 1; inset: 0; pointer-events: none; }
-  .device-phone, .device-browser { position: absolute; overflow: hidden; box-shadow: 0 3.965cqi 8.811cqi rgb(0 0 0 / 35%); }
-  .device-phone { background: #1b2026; }
-  .device-browser { background: #fff; }
+  .device-phone { position: absolute; overflow: hidden; background: #1b2026; box-shadow: 0 3.965cqi 8.811cqi rgb(0 0 0 / 35%); }
+  /* the macbook draws its own floor shadow, so it takes none here. */
+  .device-macbook { position: absolute; }
   .device-screen { position: absolute; max-width: none; object-fit: cover; }
   .device-phone .device-screen { object-position: top; }
-  .browser-chrome { position: absolute; top: 0; left: 0; width: 100%; overflow: hidden; background: #f3f4f6; }
-  .browser-light { position: absolute; max-width: none; }
-  .browser-address { position: absolute; overflow: hidden; background: #e5e7eb; color: #6b7280; font-family: var(--ui-sans); text-align: center; white-space: nowrap; }
   .phone-status { position: absolute; overflow: hidden; background: #fff; }
   /* figma sets the time in inter semibold; the home page loads no inter, so a 6px time falls back to the system face. */
   .phone-time { position: absolute; top: var(--time-y); left: var(--time-x); color: #1a1a1f; font-family: "Inter", var(--ui); font-weight: 600; line-height: normal; }
@@ -102,6 +92,6 @@ function phoneLayers(phone: DevicePhone) {
     :global(.project-card:is(:hover, :focus-visible)) .device-center { translate: 0 -8px; }
     :global(.project-card:is(:hover, :focus-visible)) .device-phone.is-left { translate: -6px 0; }
     :global(.project-card:is(:hover, :focus-visible)) .device-phone.is-right { translate: 6px 0; }
-    .device-phone, .device-browser { transition: translate 320ms var(--ease-out); }
+    .device-phone, .device-macbook { transition: translate 320ms var(--ease-out); }
   }
 </style>

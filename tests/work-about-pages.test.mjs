@@ -50,7 +50,9 @@ test("the Work page renders the approved thesis and the home grid project order"
   assert.equal((workHtml.match(/class="project-card"/g) ?? []).length, 8);
   assert.equal((workHtml.match(/data-tilt-card/g) ?? []).length, 8);
   assert.equal((workHtml.match(/data-project-cover/g) ?? []).length, 8);
-  assert.doesNotMatch(workHtml, /class="cover-exhibit|data-device-frame=|class="[^"]*has-exhibit/);
+  assert.doesNotMatch(workHtml, /class="cover-exhibit|class="[^"]*has-exhibit/);
+  // the only device frames on the grid are the two macbook covers (elms and frontground).
+  assert.deepEqual([...workHtml.matchAll(/data-device-frame="([^"]+)"/g)].map(([, frame]) => frame), ["macbook", "macbook"]);
   assert.doesNotMatch(workHtml, /class="cover-scrim"|class="cover-label"/);
   // names go on the clicked card only, from the head script, so the static markup carries none.
   assert.doesNotMatch(workHtml.replace(/<script[\s\S]*?<\/script>/g, ""), /view-transition-name/);
@@ -110,21 +112,24 @@ test("home grid covers are square, untitled, and a dark base under a blurred dri
   assert.match(css, /@keyframes cover-field-drift\{to\{translate:var\(--drift-x\) var\(--drift-y\)\}\}/);
 });
 
-test("device covers draw figma's browser and phones over the field and lift and fan out on hover", () => {
+test("device covers draw figma's macbook and phones over the field and lift and fan out on hover", () => {
   const cards = new Map([...workHtml.matchAll(/<a class="project-card" href="\/work\/([^"]+)"[\s\S]*?<\/a>/g)].map(([card, slug]) => [slug, card]));
   for (const [slug, card] of cards) {
-    const devices = card.match(/<div class="cover-devices is-(browser|phones)"[^>]*>/);
+    const devices = card.match(/<div class="cover-devices is-(macbook|phones)"[^>]*>/);
     if (!coverDevices[slug]) { assert.equal(devices, null, `${slug} has no devices`); continue; }
     assert.equal(devices?.[1], coverDevices[slug].kind, `${slug} device kind`);
     assert.match(devices[0], /aria-hidden="true"/);
     assert.match(devices[0], new RegExp(`data-figma="${coverDevices[slug].figma}"`));
     // the devices sit after the field, inside the cover.
     assert.ok(card.indexOf("data-cover-gradient") < card.indexOf("cover-devices"), `${slug} devices over the field`);
-    const images = [...card.matchAll(/<img class="device-screen"[^>]*>/g)].map(([tag]) => tag);
-    const screens = coverDevices[slug].kind === "browser" ? [coverDevices[slug].screen] : coverDevices[slug].phones;
+    // a phone's screen is its own image; a macbook's sits in the device frame's screen, as on the elms page.
+    const macbook = coverDevices[slug].kind === "macbook";
+    const images = [...card.matchAll(macbook ? /<div class="device-screen"[^>]*> <picture[^>]*>\s*<img [^>]*>/g : /<img class="device-screen"[^>]*>/g)].map(([tag]) => tag);
+    const screens = macbook ? [coverDevices[slug].screen] : coverDevices[slug].phones;
     assert.equal(images.length, screens.length, `${slug} screens`);
     for (const [index, { src, width, height }] of screens.entries()) {
-      assert.match(images[index], new RegExp(`src="${src}" alt="" width="${width}" height="${height}" loading="lazy" decoding="async"`), `${slug} screen ${index}`);
+      const attributes = macbook ? `src="${src}" alt width="${width}" height="${height}" loading="lazy" fetchpriority="auto" decoding="async"` : `src="${src}" alt="" width="${width}" height="${height}" loading="lazy" decoding="async"`;
+      assert.match(images[index], new RegExp(attributes), `${slug} screen ${index}`);
     }
   }
   const hub = cards.get("terpcarehub");
@@ -133,17 +138,19 @@ test("device covers draw figma's browser and phones over the field and lift and 
   assert.equal([...hub.matchAll(/class="phone-island"/g)].length, 2);
   assert.equal([...cards.get("sohive").matchAll(/class="phone-island"/g)].length, 3);
   assert.doesNotMatch(cards.get("sohive"), /phone-status/);
-  // elms leads the grid with figma 436:1872: the new message screen at its own 4:3 ratio, 272 of the cover's px tall
-  // under the chrome, so it runs past the browser's foot (256) and the cover cuts it off; it lifts 8px on hover.
+  // elms leads the grid. elms and frontground are figma's Device/Laptop instances (528:12385, 528:12392): 384 by 207.36
+  // at x 35 and y 28 on the 454 cover, drawn by the elms page's macbook frame (lid and camera, bezel, base and notch,
+  // floor shadow), with no browser chrome; the macbook lifts 8px on hover.
   const elms = cards.get("elms-redesign");
   assert.equal([...cards.keys()][0], "elms-redesign");
-  assert.match(elms, /<span class="browser-address"[^>]*>elms · redesign<\/span>/);
-  assert.match(elms, /<div class="device-browser device-center"[^>]*style="left: 9\.912cqi; top: 7\.489cqi; width: 80\.176cqi; height: 56\.388cqi"/);
-  assert.match(elms, /<img class="device-screen"[^>]*style="left: 0cqi; top: 3\.965cqi; width: 80\.176cqi; height: 59\.912cqi"/);
   assert.match(elms, /<h3[^>]*>ELMS Redesign<\/h3>[\s\S]*?2026/);
-  const browser = cards.get("frontground");
-  assert.match(browser, /<span class="browser-address"[^>]*>frontground · doctor<\/span>/);
-  assert.equal([...browser.matchAll(/<img class="browser-light" src="\/images\/exhibits\/browser-light-(red|yellow|green)\.svg" alt=""/g)].map(([, colour]) => colour).join(), "red,yellow,green");
+  for (const slug of ["elms-redesign", "frontground"]) {
+    const card = cards.get(slug);
+    assert.match(card, /<div class="device-macbook device-center"[^>]*style="left: 7\.709cqi; top: 6\.167cqi; width: 84\.581cqi; height: 45\.674cqi"/, slug);
+    assert.match(card, /<div class="device-frame frame-macbook" data-device-frame="macbook"/, slug);
+    for (const part of ["macbook-shadow", "macbook-lid", "macbook-camera", "macbook-base", "macbook-notch"]) assert.match(card, new RegExp(`class="${part}"`), `${slug} ${part}`);
+    assert.doesNotMatch(card, /browser-(chrome|light|address)/, slug);
+  }
 
   const css = [...workHtml.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map((match) => readFileSync(join(projectRoot, "dist", match[1]), "utf8")).join("\n");
   // the centre device lifts 8px and the side phones fan out 6px, as the layer names say; reduced motion keeps them still.
@@ -152,7 +159,10 @@ test("device covers draw figma's browser and phones over the field and lift and 
   assert.match(hover, /^@media\(prefers-reduced-motion:no-preference\)\{\.project-card:is\(:hover,:focus-visible\) \.device-center\[[^\]]+\]\{translate:0 -8px\}/);
   assert.match(hover, /\.project-card:is\(:hover,:focus-visible\) \.device-phone\[[^\]]+\]\.is-left\{translate:-6px\}/);
   assert.match(hover, /\.project-card:is\(:hover,:focus-visible\) \.device-phone\[[^\]]+\]\.is-right\{translate:6px\}/);
-  assert.match(css, /\.device-phone\[[^\]]+\],\.device-browser\[[^\]]+\]\{[^}]*box-shadow:0 3\.965cqi 8\.811cqi #00000059/);
+  assert.match(css, /\.device-phone\[[^\]]+\]\{[^}]*box-shadow:0 3\.965cqi 8\.811cqi #00000059/);
+  // the macbook draws its own floor shadow (figma's 16 layer blur is css blur 8 at the component's 1000 width) and takes no box shadow.
+  assert.match(css, /\.macbook-shadow\[[^\]]+\]\{[^}]*filter:blur\(\.8cqw\)/);
+  assert.doesNotMatch(css, /\.device-macbook\[[^\]]+\]\{[^}]*box-shadow/);
 });
 
 test("motion covers render figma's v4 layers and loop their timelines only on screen, holding a still under reduced motion", () => {
