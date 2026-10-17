@@ -172,13 +172,6 @@ function sectionFor(exhibit: any) {
                 {/* laptop loops after the caption, in a pair or a feature card (frontground offline and triage). */}
                 {exhibit.loops && exhibit.loops.layout !== "wide" && <ExhibitLoops layout={exhibit.loops.layout} visuals={exhibit.loops.visuals} captions={exhibit.loops.captions} base={exhibit.loops.base} steps={exhibit.loops.steps} />}
                 {exhibit.pins && <ExhibitPins id={`${exhibit.id}-pins`} palette={palette} exhibit={exhibit.pins} />}
-                {/* a part that closes the chapter under its own head, off the rail (elms's whole path, 420:886). */}
-                {exhibit.part && (
-                  <div class="exhibit-part">
-                    <SectionHead id={`${exhibit.id}-part-heading`} eyebrow={exhibit.part.eyebrow} heading={exhibit.part.heading} level={3} />
-                    <ExhibitLoops layout={exhibit.part.loops.layout} visuals={exhibit.part.loops.visuals} captions={exhibit.part.loops.captions} base={exhibit.part.loops.base} steps={exhibit.part.loops.steps} />
-                  </div>
-                )}
               </>
             )}
             {exhibit.walkthrough && <ExhibitWalkthrough id={`${exhibit.id}-walkthrough`} palette={palette} walkthrough={exhibit.walkthrough} />}
@@ -292,9 +285,6 @@ function sectionFor(exhibit: any) {
   /* figma 413:2396: the parts before a stage stand 32 apart, and the stage block opens 24 further down. */
   .exhibit-leadins { display: grid; gap: 32px; }
   .exhibit-leadins.has-stage { margin-bottom: 56px; }
-  /* the whole path opens 56 under the cards before it, like a chapter head, its loop 32 under its own head. */
-  .exhibit-part { margin-top: 96px; }
-  .exhibit-part :global(.exhibit-loops) { margin-top: 32px; }
 
   @media (max-width: 980px) {
     .exhibit-shell { display: block; padding: 34px var(--page-gutter) 0; }

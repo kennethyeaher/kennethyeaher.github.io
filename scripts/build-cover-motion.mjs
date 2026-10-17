@@ -16,7 +16,6 @@ export const motionSources = {
   "kairo-health": "kairo",
   "elms-course-first": "elms-course-first",
   "elms-undo": "elms-undo",
-  "elms-send-path": "elms-send-path",
 };
 
 /** the parsed figma motion export of one cover. */

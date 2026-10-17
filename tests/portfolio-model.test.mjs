@@ -142,7 +142,7 @@ test("every featured project carries a project-palette motion cover and a substa
     ["kairo-health", 8],
     ["terpcare", 7],
     ["terpcarehub", 8],
-    ["elms-redesign", 8],
+    ["elms-redesign", 7],
   ]);
 
   for (const project of projects) {
@@ -309,7 +309,7 @@ test("the cover keyframes are generated from figma's snippets with every timing 
       }
     }
   }
-  // the html exhibit loops (elms's send path) come from their own export the same way.
+  // the html exhibit loops (elms's core flow cards) come from their own export the same way.
   for (const slug of Object.keys(loopMotion)) {
     const css = readFileSync(coverMotionPath(slug), "utf8");
     assert.equal(css, loopMotionCss(slug), `${slug} stylesheet is fresh (node scripts/build-cover-motion.mjs)`);

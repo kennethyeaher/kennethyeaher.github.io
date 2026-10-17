@@ -21,7 +21,7 @@
  *   its chrome scaling with it (terpcarehub 132:1846 is the 640 instance at 1.5x). fit "contain" shows a phone's whole
  *   capture, centred on bg (default #ffffff), instead of cropping it from the top; the redesign 2 phones use it.
  *   a loop of null is a still card waiting for its recording (elms), drawn at the card's size with no loop tag. a loop
- *   with motion is drawn in html over still screens (src/data/loopMotion.mjs, elms's send path) at the card's size.
+ *   with motion is drawn in html over still screens (src/data/loopMotion.mjs, elms's core flow cards) at the card's size.
  * @typedef {{
  *   type: "focus" | "leader" | "leader-vertical", num: string, label?: string,
  *   on?: number, at?: Box, target?: string, direction?: "left" | "right" | "above", theme?: "on-dark" | "on-light",
@@ -56,10 +56,10 @@
  * @typedef {{ figma: string, models: { id: string, option: string, title: string, body: string, foot: string }[], email: Record<string, string>, chat: Record<string, string> }} StageToggle
  * @typedef {{ figma: string, label: string, person: string, course: string, time: string }} StageSendBar
  * @typedef {ExhibitBase & { kind: "stage", size: "wide" | "square" | "pair", ratio?: string, visuals?: ExhibitVisual[], annotations?: ExhibitAnnotation[], notes?: ExhibitNote[], captions?: ExhibitCaption[], pins?: ExhibitPins, zoom?: true | "phone", rows?: StageRows, loops?: StageLoops,
- *   ideas?: StageIdeas, papers?: StagePapers, process?: StageProcess, toggle?: StageToggle, sendBar?: StageSendBar, part?: { figma: string, eyebrow: string, heading: string, loops: StageLoops } }} StageExhibit
+ *   ideas?: StageIdeas, papers?: StagePapers, process?: StageProcess, toggle?: StageToggle, sendBar?: StageSendBar }} StageExhibit
  *   zoom marks a small pinned stage that zooms to the active annotation (figma 168:1745); "phone" limits that to phone widths.
  *   elms adds parts around the stage: an idea board, paper prototypes, a process timeline and a model toggle before
- *   it, a playable send bar after its caption, and a part closing the chapter under its own head (figma 413:2396).
+ *   it, and a playable send bar after its caption (figma 413:2396).
  * @typedef {{ width: number, height: number, sigma: number, circles: { x: number, y: number, r: number, colour: string, alpha: number }[] }} StageField
  *   a stage's own colour field from figma, in that stage's pixels.
  * @typedef {{ label: string, title: string, body: string, screen: ExhibitVisual, focus?: { num: string, at: { x: number, y: number, w: number, h: number } } }} WalkthroughStep
@@ -2803,8 +2803,8 @@ export const caseStudies = [
           course: "INST711",
           time: "10:34 AM",
         },
-        // the course and recovery cards (420:828), drawn in html like the send path under them: course first
-        // (530:11608) and undo (531:11608), each a 960 by 540 loop filling its card, so all three elms loops match.
+        // the course and recovery cards (420:828), drawn in html: course first (530:11608) and undo (531:11608), each
+        // a 960 by 540 loop filling its card, so both elms loops match.
         loops: {
           layout: "pair",
           base: "#2a0f0c",
@@ -2816,24 +2816,6 @@ export const caseStudies = [
             { num: "01", tag: "LOOP · 12s", title: "Course first, then the right people", body: "The current term sits on top and nothing is preselected. Then To opens on the role groups ELMS already uses, with Barry tagged as an existing conversation." },
             { num: "02", tag: "LOOP · 11s", title: "Undo keeps your words", body: "Removing the recipient turns Send off and keeps the message, so fixing a slip never restarts the form. Norman calls this forgiveness for slips." },
           ],
-        },
-        // the whole path (420:886) closes the chapter under its own head: the send path loop (504:11596) beside its
-        // steps.
-        part: {
-          figma: "420:886",
-          eyebrow: "THE WHOLE PATH",
-          heading: "Eight screens, one direction",
-          loops: {
-            layout: "feature",
-            base: "#2a0f0c",
-            steps: ["Choose a course", "Choose the TA", "Send", "Sent"],
-            visuals: [
-              { src: "/images/work/elms-redesign/elms-send-path-1-course.webp", width: 960, height: 540, alt: "The ELMS send path, looping: INST711 Interaction Design Studio is chosen from the course menu, typing Bar in To narrows the role groups to Barry Allen, TA, Send is pressed, and the thread shows Message sent to Barry Allen, TA, INST711 at 10:34 AM", loop: { motion: "elms-send-path", name: "send path" } },
-            ],
-            captions: [
-              { num: "03", tag: "LOOP · 16s", title: "The send path", body: "Choose a course, choose the TA, send, sent. Every step asks one question. Krug’s second law says that matters more than the number of clicks. It ends on a Sent time and a banner, not Read, because the interface cannot promise the TA saw it." },
-            ],
-          },
         },
       },
       {
@@ -2938,14 +2920,6 @@ export const caseStudies = [
         body: [
           "In hi-fi, the conversation model came down to four moves and one form. A labeled New message button in two places, which Tidwell calls Clear Entry Points. A fixed order, Course then To then Message, where each field unlocks the next. In Norman’s terms that is a constraint.",
           "A visible audience, where one line names who gets the message before Send, which is Tidwell’s Preview pattern. And sent feedback inside the thread. Everything around those four moves stays ELMS, so the only new thing a student learns is the flow.",
-        ],
-      },
-      {
-        id: "the-whole-path",
-        label: "The whole path",
-        heading: "Eight screens, one direction",
-        body: [
-          "Every step asks one question. Krug’s second law says that matters more than the number of clicks. It ends on a Sent time and a banner, not Read, because the interface cannot promise the TA saw it.",
         ],
       },
       {

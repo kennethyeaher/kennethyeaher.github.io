@@ -631,7 +631,7 @@ test("every loop card's media tag sits in its bottom left corner, 16px in, and u
         continue;
       }
       // the tag follows the card rather than sitting inside it, so on phones it can drop below the device. an html
-      // loop (elms's send path) closes its frame and layers where a clip closes its video, and takes the same control.
+      // loop (elms's core flow cards) closes its frame and layers where a clip closes its video, and takes the same control.
       const media = item.includes("data-motion-loop") ? /<div class="motion-loop"[\s\S]*<\/div>\s*<\/div>\s*<\/div>/.source : /[\s\S]*?<\/video>\s*<\/div>\s*<\/div>/.source;
       assert.match(item, new RegExp(`<div class="loop-card"[^>]*>\\s*<div class="exhibit-loop"[^>]*>\\s*${media}\\s*<span class="loop-tag"`), slug);
       const id = item.match(/<(?:video|div class="motion-loop") id="([^"]+)"/)?.[1];

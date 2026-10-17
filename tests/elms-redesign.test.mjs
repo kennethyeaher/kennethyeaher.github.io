@@ -8,8 +8,8 @@ import { getProjectBySlug, projects } from "../src/data/portfolio.mjs";
 import * as sendBar from "../src/components/exhibits/elms-send-bar.mjs";
 
 // the elms redesign case study, from figma 413:2396 ("Case study v3 / ELMS Messages"). its screens are the frame's own
-// fills with the placeholder people repainted to dc names; the whole path card plays figma's send path loop (504:11596)
-// in html over the repainted screens, and the other loop cards hold stills until recordings exist.
+// fills with the placeholder people repainted to dc names; the core flow cards play figma's course first and undo loops
+// in html over the repainted screens, and the mid-fi loop cards hold stills until recordings exist.
 const projectRoot = new URL("..", import.meta.url).pathname;
 let page = "";
 const pages = new Map();
@@ -93,15 +93,16 @@ test("elms follows figma 413:2396: seven rail chapters, the award on the hero, F
   assert.match(pivot, /WIREFRAME · ROUND ONE/);
   assert.ok(pivot.indexOf("process-steps") < pivot.indexOf("data-model-toggle") && pivot.indexOf("data-model-toggle") < pivot.indexOf("loop-exhibit"));
 
-  // core flow: the browser with four leaders, its caption, the send bar, the two cards, then the whole path part.
+  // core flow: the browser with four leaders, its caption, the send bar, then the two cards that close it.
   const core = chapter("core-flow");
   assert.equal([...core.matchAll(/class="annotation annotation-leader/g)].length, 4);
   assert.equal([...core.matchAll(/class="annotation annotation-leader is-vertical is-above/g)].length, 1);
   assert.match(core, /<button type="button" class="send-button" disabled data-send-button[^>]*>Send message<\/button>/);
-  assert.match(core, /<h3 id="core-flow-part-heading"[^>]*>Eight screens, one direction<\/h3>/);
-  // the send path's caption and the four steps it plays.
-  assert.deepEqual([...core.matchAll(/<span class="step-text"[^>]*>([^<]+)<\/span>/g)].map((match) => match[1]), ["Choose a course", "Choose the TA", "Send", "Sent"]);
   assert.ok(core.indexOf("exhibit-caption") < core.indexOf("data-send-bar") && core.indexOf("data-send-bar") < core.indexOf("loop-exhibit"));
+  assert.equal([...core.matchAll(/<figure class="loop-exhibit"/g)].length, 2);
+  // the whole path is gone: no part head, no steps, and nothing on the page names it.
+  assert.doesNotMatch(core, /<h3\b|class="loop-steps"/);
+  assert.doesNotMatch(textOf(page), /whole path|eight screens/i);
 
   // what changed: four destinations, the hi-fi row tinted, closed by its label and note.
   const changed = chapter("what-changed");
@@ -127,27 +128,29 @@ test("placeholder people are dc characters on the screens and in the copy, and t
   assert.doesNotMatch(pivot, /[“”"]/);
   // the repaint keeps the originals in .private for an undo (there is no .private in ci).
   const originals = join(projectRoot, ".private", "elms-originals");
-  if (existsSync(originals)) for (const file of ["core-1.png", "core-2.png", "core-3.png", "path-loop.png", "wf-thread@2x.png"]) assert.ok(existsSync(join(originals, file)), file);
+  if (existsSync(originals)) for (const file of ["core-1.png", "core-2.png", "core-3.png", "wf-thread@2x.png"]) assert.ok(existsSync(join(originals, file)), file);
 });
 
-test("the stills keep an empty loop slot, and the three core flow cards each play an html loop with its own tag", () => {
+test("the stills keep an empty loop slot, and the two core flow cards each play an html loop with its own tag", () => {
   const project = getProjectBySlug("elms-redesign");
-  const cards = project.exhibits.flatMap((exhibit) => [...(exhibit.loops?.visuals ?? []), ...(exhibit.part?.loops.visuals ?? [])]);
-  assert.equal(cards.length, 5);
+  const cards = project.exhibits.flatMap((exhibit) => exhibit.loops?.visuals ?? []);
+  assert.equal(cards.length, 4);
   for (const card of cards) assert.ok(existsSync(join(projectRoot, "public", card.src)), card.src);
-  // the two mid-fi stills have no loop yet; course first, undo and the send path play, at the same 960 by 540.
+  // the two mid-fi stills have no loop yet; course first and undo play, at the same 960 by 540.
   assert.deepEqual(cards.slice(0, 2).map(({ loop }) => loop), [null, null]);
-  assert.deepEqual(cards.slice(2).map(({ loop }) => loop), [{ motion: "elms-course-first", name: "course first" }, { motion: "elms-undo", name: "undo" }, { motion: "elms-send-path", name: "send path" }]);
+  assert.deepEqual(cards.slice(2).map(({ loop }) => loop), [{ motion: "elms-course-first", name: "course first" }, { motion: "elms-undo", name: "undo" }]);
   for (const card of cards.slice(2)) assert.deepEqual([card.width, card.height], [960, 540], card.loop.motion);
   assert.equal([...page.matchAll(/<img class="loop-still-card"/g)].length, 2);
   assert.doesNotMatch(page, /<video/);
   for (const name of ["elms-course-first-card.webp", "elms-undo-card.webp"]) assert.ok(!existsSync(join(projectRoot, "public", "images", "work", "elms-redesign", name)), name);
-  // a tag and a pause control on each loop; the numbers stay 01 to 03.
-  assert.deepEqual([...page.matchAll(/LOOP · \d+s/g)].map(([tag]) => tag), ["LOOP · 12s", "LOOP · 11s", "LOOP · 16s"]);
-  assert.equal([...page.matchAll(/data-loop-toggle/g)].length, 3);
-  for (const id of ["clip-course-first-loop", "clip-undo-loop", "clip-send-path-loop"]) assert.match(page, new RegExp(`<button class="loop-toggle"[^>]*aria-controls="${id}"`), id);
-  assert.deepEqual([...page.matchAll(/<p class="loop-num"[^>]*>([^<]+)<\/p>/g)].map((match) => match[1]), ["MID-FI 01", "MID-FI 02", "01", "02", "03"]);
-  assert.match(page, /<p class="exhibit-caption-title"[^>]*>The send path<\/p>|>The send path</);
+  // a tag and a pause control on each loop; the numbers stay 01 and 02.
+  assert.deepEqual([...page.matchAll(/LOOP · \d+s/g)].map(([tag]) => tag), ["LOOP · 12s", "LOOP · 11s"]);
+  assert.equal([...page.matchAll(/data-loop-toggle/g)].length, 2);
+  for (const id of ["clip-course-first-loop", "clip-undo-loop"]) assert.match(page, new RegExp(`<button class="loop-toggle"[^>]*aria-controls="${id}"`), id);
+  assert.deepEqual([...page.matchAll(/<p class="loop-num"[^>]*>([^<]+)<\/p>/g)].map((match) => match[1]), ["MID-FI 01", "MID-FI 02", "01", "02"]);
+  // the send path loop and the files only it used are gone.
+  assert.doesNotMatch(page, /send path|elms-send-path-4-sent|paper-plane/i);
+  for (const file of ["public/images/work/elms-redesign/elms-send-path-4-sent.webp", "public/images/exhibits/elms-loop-paper-plane.svg", "scripts/cover-motion/elms-send-path.motion.json", "src/styles/cover-motion/elms-send-path.css"]) assert.ok(!existsSync(join(projectRoot, file)), file);
 });
 
 // each html loop: its figma frame, its saved export, the repainted screens it crossfades, the text it sets as text,
@@ -159,9 +162,6 @@ const htmlLoops = [
   { slug: "elms-undo", id: "clip-undo-loop", figma: "531:11608", seconds: "10.6", nodes: 15, label: /ELMS new message, looping: the Barry Allen, TA recipient is removed[^"]*ready again/,
     screens: ["elms-send-path-3-ready.webp", "elms-send-path-2-no-recipient.webp", "elms-send-path-3-ready.webp"],
     texts: ["TEACHING ASSISTANTS", "Barry Allen · TA", "Bar", "Barry Allen · TA  ×"] },
-  { slug: "elms-send-path", id: "clip-send-path-loop", figma: "504:11596", seconds: "16.4", nodes: 43, label: /The ELMS send path, looping: [^"]*Barry Allen, TA/,
-    screens: ["elms-send-path-1-course.webp", "elms-send-path-2-no-recipient.webp", "elms-send-path-3-ready.webp", "elms-send-path-4-sent.webp"],
-    texts: ["TEACHING ASSISTANTS", "INSTRUCTORS", "CLASSMATES", "Barry Allen · TA", "Dr. Prince · Professor", "Kara Danvers · Classmate", "Bar"] },
 ];
 
 /** the html of one loop's frame, up to the end of its figure. */
@@ -206,8 +206,6 @@ for (const loop of htmlLoops) {
     assert.match(css, new RegExp(`${scope}:not\\(\\.is-live\\) \\[data-node\\]\\{animation-play-state:paused\\}`));
     assert.match(css, new RegExp(`${scope} \\[data-node\\]\\[data-node\\]\\{animation-delay:-\\.45s\\}`));
     assert.match(css, new RegExp(`@media ?\\(prefers-reduced-motion:reduce\\)\\{${scope} \\[data-node\\]\\[data-node\\]\\{animation-duration:${loop.seconds.replace(".", "\\.")}s!important;animation-iteration-count:infinite!important;animation-delay:-\\.45s;animation-play-state:paused\\}\\}`));
-    // the paper plane turns through a registered property.
-    if (loop.slug === "elms-send-path") assert.match(css, /@property --rotate-transform/);
   });
 }
 
