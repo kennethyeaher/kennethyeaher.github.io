@@ -1,6 +1,6 @@
 /**
- * home motion covers, built from figma's motion cover v4 timelines: capstone (482:10252), ovara (484:10700) and kairo
- * (485:11148). each cover loops one timeline. this file holds the layers in figma's nesting; the keyframes come from
+ * home motion covers, built from figma's motion cover timelines: capstone v4 (482:10252), ovara v5 (549:11632) and
+ * kairo v4 (485:11148). each cover loops one timeline. this file holds the layers in figma's nesting; the keyframes come from
  * figma's get_motion_context css snippets (scripts/cover-motion/*.motion.json), which scripts/build-cover-motion.mjs
  * writes into src/styles/cover-motion/<slug>.css, keyed by the figma node id each layer carries.
  *
@@ -12,8 +12,8 @@
  * still is the second of the timeline that reduced motion holds: the moment the first scene lands.
  *
  * the capstone persona and journey use dc names, diana and bruce, in place of the research personas.
- * ovara shows only figures from the published analysis: 20.5 providers per 100k in arkansas against 30.06 for the
- * u.s., 1,029 desert counties and 10.9m residents. kairo's noisy field values are illustrative ocr reads, as in figma.
+ * ovara shows only figures from the published analysis and the iris atlas dashboard: cass county, missouri (fips 29037)
+ * at 0.92 providers per 100k with 108,205 residents, livingston parish at 1.39, 1,029 desert counties and 10.9m residents. kairo's noisy field values are illustrative ocr reads, as in figma.
  *
  * @typedef {{ node?: string, box: number[], style?: string, text?: string, src?: string,
  *   svg?: { w: number, h: number, body: string }, children?: MotionLayer[] }} MotionLayer
@@ -161,73 +161,135 @@ const capstone = {
   ],
 };
 
-// ovara (484:10700): arkansas typed into search, the county map colouring in, the state card, then the desert count.
-const iris = "#6b5bd6";
-const tileColours = { P: iris, G: "#7fae8e", Y: "#e8b04b", R: "#e0745a" };
-// the 7 by 16 county tiles by tier, row by row (484:11212 to 484:11434): P well served, G adequate, Y thin, R desert.
+// ovara (549:11632): the iris atlas map card fills in tier by tier, cass county is typed into search and ringed on the
+// map, its county card saves it, livingston parish joins it in the comparison, then the desert count.
+const plum = "#2f1a3e";
+const dusk = "#645b6f";
+const cream = "#f7f4ee";
+const iris = "#6846aa";
+const coral = "#c45b32";
+const rule = "#dcd5e2";
+const tierColours = { W: "#dbceee", A: "#b59dd6", U: "#8a6cbd", C: "#6041a0", D: coral };
+// the 7 by 16 county tiles by tier, row by row, from each tile's layer name (Tile r-c X): W well served, A adequate,
+// U underserved, C critical, D access desert.
 export const ovaraTiles = [
-  "PYGPRGPRYGPYGPRG",
-  "GPRYGRYGPPGPRYGR",
-  "YGGRYPPRGPYGGRYP",
-  "RRGGRGGRRGRRGGRG",
-  "PGRGPYRGPYPGRGPY",
-  "GPRYGPYGPRGPRYGP",
-  "RYGPPGPRYGRYGPPG",
+  "WWWWDADDDAWDWWAU",
+  "WWWDUDDAUDWWUUWW",
+  "CAWUDADWDCDWWDDA",
+  "DCAWCWDDUDWDDAAW",
+  "UWDDADDAWWDWWAWW",
+  "WWWUUDWDDDDACUAW",
+  "WWDADWADDADADAAW",
 ];
-const violet = "#7c7391";
-const night = "#1f1830";
-const lilac = "#f6f3fa";
+// figma numbers the tiles unevenly, so each tile's base and fill ids are listed in reading order (550:12094 on).
+const tileIds = `12094 12095 12104 12105 12114 12115 12124 12125 12134 12135 12145 12146 12155 12156 12166 12167
+12177 12178 12188 12189 12198 12199 12208 12209 12219 12220 12229 12230 12239 12240 12249 12250
+12259 12260 12269 12270 12279 12280 12289 12290 12300 12301 12310 12311 12321 12322 12332 12333
+12342 12343 12352 12353 12363 12364 12373 12374 12383 12384 12393 12394 12403 12404 12413 12414
+12423 12424 12433 12434 12443 12444 12453 12454 12463 12464 12474 12475 12484 12485 12495 12496
+12505 12506 12516 12517 12526 12527 12537 12538 12547 12548 12557 12558 12568 12569 12579 12580
+12589 12590 12600 12601 12610 12611 12620 12621 12630 12631 12640 12641 12650 12651 12661 12662
+12672 12673 12682 12683 12693 12694 12703 12704 12714 12715 12725 12726 12735 12736 12745 12746
+12755 12756 12765 12766 12775 12776 12786 12787 12797 12798 12807 12808 12818 12819 12829 12830
+12839 12840 12849 12850 12859 12860 12870 12871 12880 12881 12890 12891 12900 12901 12910 12911
+12920 12921 12930 12931 12940 12941 12950 12951 12960 12961 12970 12971 12981 12982 12991 12992
+13002 13003 13013 13014 13024 13025 13035 13036 13045 13046 13055 13056 13065 13066 13075 13076
+13085 13086 13095 13096 13105 13106 13116 13117 13126 13127 13137 13138 13147 13148 13157 13158
+13168 13169 13179 13180 13189 13190 13200 13201 13210 13211 13221 13222 13231 13232 13241 13242`.split(/\s+/).map((id) => `550:${id}`);
 
-/** every tile's grey base and its tier fill, which pops in; ids run base, fill from 484:11211. */
+/** every tile's pale base and its tier fill, which pops in over it. */
 function tiles() {
   return ovaraTiles.flatMap((row, r) => [...row].flatMap((tier, c) => {
     const k = r * 16 + c;
-    const box = [28 + c * 14, 78 + r * 14, 11, 11];
-    return [fill(`484:${11211 + k * 2}`, box, "rgb(255 255 255 / 8%)", 2.5), fill(`484:${11212 + k * 2}`, box, tileColours[tier], 2.5)];
+    const box = [c * 14, r * 14, 11, 11];
+    return [fill(tileIds[k * 2], box, "#e7e1ec", 2.5), fill(tileIds[k * 2 + 1], box, tierColours[tier], 2.5)];
   }));
 }
 
-const legend = [["Well served", iris], ["Adequate", "#7fae8e"], ["Thin", "#e8b04b"], ["Desert", "#e0745a"]].flatMap(([label, colour], index) => [
-  fill(`484:${11435 + index * 2}`, [28 + index * 58, 190, 7, 7], colour, 1.5),
-  text(`484:${11436 + index * 2}`, 39 + index * 58, 188, label, type("inter", 400, 8, 0, "rgb(255 255 255 / 75%)")),
+/** a county ring on the map: figma strokes the ellipse inside its box. */
+const ring = (node, x, y) => ({ node, box: [x, y, 19, 19], style: `border: {1.6} solid ${plum}; border-radius: 50%` });
+const legend = [["D", "0"], ["C", ">0–5"], ["U", ">5–10"], ["A", ">10–20"], ["W", ">20"]].flatMap(([tier, label], index) => [
+  fill(undefined, [14 + index * 46, 167, 7, 7], tierColours[tier], 1.5),
+  text(undefined, 25 + index * 46, 165.5, label, type("inter", 400, 7, 0, plum)),
 ]);
+const panel = (colour, radius) => `background: ${colour}; border-radius: {${radius}}; overflow: hidden; box-shadow: 0 {10} {24} rgb(47 26 62 / 32%)`;
+const countyRow = (node, name, place, rate, rateX, top) => ({
+  node, box: [0, top, 142, 34],
+  children: [
+    text(undefined, 12, 0, name, type("serif", 400, 10.5, 0, plum)),
+    text(undefined, 12, 17, place, type("inter", 400, 6.5, 0, dusk)),
+    text(undefined, rateX, 1, rate, type("inter", 600, 13, 0, plum)),
+  ],
+});
 
 const ovara = {
-  figma: "484:10700",
+  figma: "549:11632",
   seconds: 13.6,
-  still: 3.4,
-  field: ["484:10702", "484:10703", "484:10704", "484:10705", "484:10706"],
+  still: 5,
+  field: ["549:11634", "549:11635", "549:11636", "549:11637", "549:11638"],
   layers: [
-    dots("484:10707", 0.08),
-    scene("484:11210", [
-      ...tiles(),
-      ...legend,
+    dots("549:11639", 0.08),
+    scene("550:12080", [
       {
-        node: "484:11443", box: [272, 70, 160, 132], style: card(lilac, 12),
+        node: "550:12086", box: [22, 34, 252, 186], style: panel(cream, 14),
         children: [
-          text("484:11444", 14, 14, "ARKANSAS", type("mono", 400, 7, 0.56, violet)),
-          text("484:11445", 14, 24, "20.5", type("serif", 400, 34, 0, "#e0745a")),
-          text("484:11446", 14, 68, "providers per 100k", type("inter", 400, 9, 0, violet)),
-          fill("484:11447", [14, 96, 132, 6], "rgb(31 24 48 / 10%)", 3),
-          fill("484:11448", [14, 96, 0.01, 6], "#e0745a", 3),
-          fill("484:11449", [14, 92, 2, 14], night, 1),
-          text("484:11450", 93, 110, "U.S. 30.06", type("mono", 400, 6.5, 0.26, night)),
+          {
+            box: [14, 50, 221, 95],
+            children: [...tiles(), ring("550:13262", 122, 24), ring("550:13271", 164, 66)],
+          },
+          text(undefined, 14, 152, "Registered providers per 100,000 residents", type("inter", 400, 6.5, 0, dusk)),
+          ...legend,
+          {
+            box: [14, 12, 224, 26], style: `background: #fff; border: {1} solid ${rule}; border-radius: {13}; overflow: hidden`,
+            children: [
+              fill(undefined, [12, 10, 6, 6], iris, 3),
+              text("550:13282", 26, 7, "Search county or state", type("inter", 400, 9, 0, dusk)),
+              // the home page sets inter in the system face, which runs cass county 1.6px past figma's 55; a hair of
+              // tracking keeps the y inside the mask's last step.
+              text("550:13283", 26, 7, "Cass County", type("inter", 500, 9, -0.2, plum)),
+              // the mask hides cass county and steps right with the caret, so the name types in.
+              fill("550:13295", [25.5, 5, 61, 16], "#fff"),
+              fill("550:13296", [26, 7.5, 1.2, 11], iris),
+            ],
+          },
+          { node: "550:13333", box: [12.5, 10.5, 227, 29], style: `border: {1.5} solid ${iris}; border-radius: {14.5}` },
         ],
       },
-      text("484:11451", 262, 80, "1,029", type("serif", 400, 48, 0, "#fff")),
-      text("484:11452", 264, 140, "counties with zero providers", type("inter", 400, 11, 0, "rgb(255 255 255 / 85%)")),
-      text("484:11453", 264, 160, "10.9M RESIDENTS", type("mono", 400, 8, 0.64, "#e0745a")),
       {
-        node: "484:11454", box: [77, 108, 300, 40], style: card(lilac, 20, "rgb(0 0 0 / 30%)"),
+        node: "550:13339", box: [290, 34, 142, 150], style: panel("#fff", 12),
         children: [
-          { node: "484:11455", box: [18, 16, 8, 8], src: "/images/work/ovara/cover-search-pin.svg" },
-          text("484:11456", 36, 11, "Search a county or state", type("inter", 400, 13, 0, violet)),
-          text("484:11457", 36, 11, "Arkansas", type("inter", 500, 13, 0, night)),
-          { node: "484:11458", box: [266, 6, 28, 28], src: "/images/work/ovara/cover-search-button.svg" },
-          { node: "484:11460", box: [266, 6, 28, 28], src: "/images/work/ovara/cover-search-ring.svg" },
-          // the mask hides arkansas and steps right with the caret, so the word types in.
-          fill("484:11461", [35, 9, 62, 20], lilac),
-          fill("484:11486", [36, 12, 1.5, 16], iris),
+          text(undefined, 12, 12, "SELECTED COUNTY", type("mono", 400, 6, 0.48, dusk)),
+          text(undefined, 12, 23, "Cass County", type("serif", 400, 17, 0, plum)),
+          text(undefined, 12, 46, "Missouri · FIPS 29037", type("inter", 400, 7, 0, dusk)),
+          fill(undefined, [12, 60, 118, 18], "#eee7fa", 4),
+          text(undefined, 18, 64.5, "Critical · 0.92 providers / 100k", type("inter", 500, 6.8, 0, plum)),
+          text(undefined, 12, 86, "Providers", type("inter", 400, 6.5, 0, dusk)),
+          text(undefined, 12, 96, "1", type("inter", 600, 13, 0, plum)),
+          text(undefined, 66, 86, "Residents", type("inter", 400, 6.5, 0, dusk)),
+          text(undefined, 66, 96, "108,205", type("inter", 600, 13, 0, plum)),
+          {
+            node: "550:13349", box: [12, 120, 118, 20], style: `background: ${iris}; border-radius: {6}; overflow: hidden`,
+            children: [text(undefined, 25, 5, "Add to comparison", type("inter", 500, 7.5, 0, "#fff"))],
+          },
+        ],
+      },
+      {
+        node: "550:13369", box: [290, 42, 142, 134], style: panel("#fff", 12),
+        children: [
+          text(undefined, 12, 12, "COMPARE (2/2) · PER 100K", type("mono", 400, 6, 0.48, dusk)),
+          countyRow("550:13371", "Cass County", "Missouri · Critical", "0.92", 101, 28),
+          fill(undefined, [12, 64, 118, 1], rule),
+          countyRow("550:13382", "Livingston Parish", "Louisiana · Critical", "1.39", 103, 72),
+          fill(undefined, [12, 106, 118, 1], rule),
+          text("550:13393", 12, 113, "Different rates. The same tier.", type("serif", 400, 8.5, 0, plum)),
+        ],
+      },
+      {
+        box: [290, 66, 150, 100],
+        children: [
+          text("550:13408", 0, 0, "1,029", type("serif", 400, 46, 0, "#fff")),
+          text("550:13409", 2, 58, "counties with zero providers", type("inter", 400, 9.5, 0, "rgb(255 255 255 / 88%)")),
+          text("550:13410", 2, 76, "10.9M RESIDENTS", type("mono", 400, 7.5, 0.6, "#e58a63")),
         ],
       },
     ]),

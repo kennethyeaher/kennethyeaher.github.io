@@ -256,32 +256,33 @@ test("motion covers render figma's v4 layers and loop their timelines only on sc
   assert.match(capstone, /<path data-node="482:11286" pathLength="1"/);
   assert.match(capstone, /<img class="cm-layer" src="\/images\/exhibits\/cover-cursor\.svg"[^>]*data-node="482:10780"/);
   const ovara = cards.get("ovara");
-  for (const figure of [">Arkansas<", ">20.5<", ">U.S. 30.06<", ">1,029<", ">10.9M RESIDENTS<"]) assert.ok(ovara.includes(figure), `ovara card shows ${figure}`);
-  assert.equal([...ovara.matchAll(/data-node="484:\d+"[^>]*style="left: [\d.]+cqi; top: [\d.]+cqi; width: 2\.423cqi; height: 2\.423cqi; background: (#|rgb\(255)/g)].length, 224, "112 tiles over 112 bases");
+  for (const figure of [">Cass County<", ">Critical · 0.92 providers / 100k<", ">108,205<", ">Missouri · FIPS 29037<", ">Livingston Parish<", ">1.39<", ">1,029<", ">10.9M RESIDENTS<"]) assert.ok(ovara.includes(figure), `ovara card shows ${figure}`);
+  assert.doesNotMatch(ovara, />Arkansas<|>20\.5<|>U\.S\. 30\.06</);
+  assert.equal([...ovara.matchAll(/data-node="550:\d+"[^>]*style="left: [\d.]+cqi; top: [\d.]+cqi; width: 2\.423cqi; height: 2\.423cqi; background: #/g)].length, 224, "112 tiles over 112 bases");
   const kairo = cards.get("kairo-health");
   for (const value of [">55 of 56<", ">Extract<", ">20/03/2022<", ">Z0/O3/2O2Z<"]) assert.ok(kairo.includes(value), `kairo card shows ${value}`);
 
   // the keyframes ship in one stylesheet for the home page only, keyed by figma node id, on figma's loop lengths.
   const stylesheets = (html) => [...html.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map((match) => readFileSync(join(projectRoot, "dist", match[1]), "utf8")).join("\n");
   const css = stylesheets(workHtml);
-  for (const [slug, seconds, scene] of [["college-park-capstone", "13.6s", "482:10762"], ["ovara", "13.6s", "484:11210"], ["kairo-health", "13.2s", "485:11658"]]) {
+  for (const [slug, seconds, scene] of [["college-park-capstone", "13.6s", "482:10762"], ["ovara", "13.6s", "550:12080"], ["kairo-health", "13.2s", "485:11658"]]) {
     const scope = `\\.project-cover\\[data-motion=${slug}\\]`;
     assert.match(css, new RegExp(`${scope}\\{--u: ?calc\\(100cqi / 454\\)\\}`), `${slug} unit`);
-    assert.match(css, new RegExp(`${scope} \\[data-node="${scene}"\\]\\{animation:kf_${scene.replace(":", "_")}_opacity_0 ${seconds.replace(".", "\\.")} linear,`), `${slug} scene camera`);
+    assert.match(css, new RegExp(`${scope} \\[data-node="${scene}"\\]\\{animation:kf_${scene.replace(":", "_")}_opacity_0 ${seconds.replace(".", "\\.")} linear[,;}]`), `${slug} scene camera`);
     // off screen the timeline holds; reduced motion holds the still frame on the timeline's own length.
     assert.match(css, new RegExp(`${scope} :is\\(\\.cover-gradient,\\s?\\.cover-motion\\):not\\(\\.is-live\\) \\[data-node\\]\\{animation-play-state:paused\\}`), `${slug} pauses off screen`);
     const still = `-${coverMotion[slug].still}s`.replace(".", "\\.");
     assert.match(css, new RegExp(`@media ?\\(prefers-reduced-motion:\\s?reduce\\)\\{${scope} \\[data-node\\]\\[data-node\\]\\{animation-duration:${seconds.replace(".", "\\.")}!important;animation-iteration-count:infinite!important;animation-delay:${still};animation-play-state:paused\\}`), `${slug} reduced motion still`);
   }
   assert.match(css, /@keyframes kf_482_10778_path-trim_0\{0%\{stroke-dasharray:0 1;visibility:hidden\}/);
-  assert.match(css, /@keyframes kf_484_11461_width_0\{0%\{width:calc\(62 \* var\(--u\)\)\}/);
+  assert.match(css, /@keyframes kf_550_13295_translate_0\{0%\{translate:0px 0px\}/);
   // the batch 1 step keyframes and the inline per cover styles are gone.
   assert.doesNotMatch(workHtml, /cm-anim|@keyframes cm-/);
   // the field drift skips the blobs that follow figma's timeline.
   assert.match(css, /\.cover-field\[[^\]]+\]:not\(\[data-node\]\)\{animation:cover-field-drift/);
   // no other page loads the cover timelines.
-  assert.doesNotMatch(stylesheets(aboutHtml), /kf_48[245]_/);
-  assert.doesNotMatch(stylesheets(readFileSync(join(projectRoot, "dist", "work", "ovara", "index.html"), "utf8")), /kf_48[245]_/);
+  assert.doesNotMatch(stylesheets(aboutHtml), /kf_(48[245]|549|550)_/);
+  assert.doesNotMatch(stylesheets(readFileSync(join(projectRoot, "dist", "work", "ovara", "index.html"), "utf8")), /kf_(48[245]|549|550)_/);
   const script = readFileSync(join(projectRoot, "src/scripts/exhibits.ts"), "utf8");
   assert.match(script, /querySelectorAll<HTMLElement>\("\[data-cover-gradient\], \[data-cover-motion\]"\)/);
 });

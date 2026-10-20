@@ -257,9 +257,9 @@ function motionNodes(slug) {
   return [...coverMotion[slug].field, ...layers.flatMap(({ node }) => (node ? [node] : [])), ...paths];
 }
 
-test("motion covers run figma's v4 timelines (482:10252, 484:10700, 485:11148) on every animated node", () => {
+test("motion covers run figma's timelines (482:10252, ovara v5 549:11632, 485:11148) on every animated node", () => {
   assert.deepEqual(Object.keys(coverMotion).sort(), ["college-park-capstone", "kairo-health", "ovara"]);
-  const expected = { "college-park-capstone": ["482:10252", 13.6, 51], ovara: ["484:10700", 13.6, 141], "kairo-health": ["485:11148", 13.2, 37] };
+  const expected = { "college-park-capstone": ["482:10252", 13.6, 51], ovara: ["549:11632", 13.6, 136], "kairo-health": ["485:11148", 13.2, 37] };
   for (const [slug, [figma, seconds, animated]] of Object.entries(expected)) {
     const motion = coverMotion[slug];
     const { nodes, timelineCohorts } = readMotion(slug);
@@ -282,15 +282,16 @@ test("motion covers run figma's v4 timelines (482:10252, 484:10700, 485:11148) o
   // each scene frame keeps its cards inside it, so its camera moves them together.
   const scenes = (slug) => coverMotion[slug].layers.filter(({ children, box }) => children && box.join() === "0,0,454,256").map(({ node }) => node);
   assert.deepEqual(scenes("college-park-capstone"), ["482:10762", "482:10847", "482:11136", "482:11281"]);
-  assert.deepEqual(scenes("ovara"), ["484:11210"]);
+  assert.deepEqual(scenes("ovara"), ["550:12080"]);
   assert.deepEqual(scenes("kairo-health"), ["485:11658"]);
-  // the ovara tiers match figma's tile motion: desert tiles pop to 1.25 and stay lit, the rest fade to 0.16.
+  // the ovara tiers match figma's tile motion and layer names (Tile r-c X): desert tiles pop to 1.18 and stay lit, the rest fade to 0.16.
   const tiles = readMotion("ovara").nodes.filter(({ nodeName }) => nodeName.startsWith("Tile "));
   assert.equal(tiles.length, 112);
   for (const { nodeName, codeSnippets: { css } } of tiles) {
-    const [r, c] = nodeName.slice(5).split("-").map(Number);
-    const desert = ovaraTiles[r][c] === "R";
-    assert.equal(css.includes("scale: 1.25 1.25"), desert, `${nodeName} pop`);
+    const [, r, c, tier] = nodeName.match(/^Tile (\d+)-(\d+) ([WAUCD])$/).map((part, index) => (index && index < 3 ? Number(part) : part));
+    assert.equal(ovaraTiles[r][c], tier, `${nodeName} tier`);
+    const desert = tier === "D";
+    assert.equal(css.includes("scale: 1.18 1.18"), desert, `${nodeName} pop`);
     assert.equal(css.includes("opacity: 0.16"), !desert, `${nodeName} fade`);
   }
 });
@@ -325,10 +326,13 @@ test("the cover keyframes are generated from figma's snippets with every timing 
 test("motion cover copy uses real figures and DC names in place of the capstone personas", () => {
   const text = (slug) => motionLayers(coverMotion[slug].layers).flatMap(({ text: value }) => (value ? [value] : []));
   const ovara = text("ovara");
-  for (const figure of ["Arkansas", "20.5", "U.S. 30.06", "1,029", "10.9M RESIDENTS", "providers per 100k", "counties with zero providers"]) assert.ok(ovara.includes(figure), `ovara shows ${figure}`);
-  // nothing else numeric: the figures come from the published ovara analysis.
-  const numbers = ovara.join(" ").match(/\d[\d.,]*/g);
-  assert.deepEqual([...new Set(numbers)].sort(), ["1,029", "10.9", "100", "20.5", "30.06"]);
+  const shown = ovara.join(" ");
+  for (const figure of ["Cass County", "0.92", "108,205", "29037", "Livingston Parish", "1.39", "1,029", "10.9M"]) assert.ok(shown.includes(figure), `ovara shows ${figure}`);
+  // nothing else numeric: those figures from the published ovara analysis, the legend's tier thresholds (0, 5, 10, 20
+  // per 100,000), cass county's one provider and the comparison's 2 of 2.
+  const numbers = shown.match(/\d[\d.,]*/g);
+  assert.deepEqual([...new Set(numbers)].sort(), ["0", "0.92", "1", "1,029", "1.39", "10", "10.9", "100", "100,000", "108,205", "2", "20", "29037", "5"]);
+  assert.doesNotMatch(shown, /Arkansas|20\.5|30\.06/);
   const kairo = text("kairo-health");
   for (const value of ["55 of 56", "won by the zero-shot model", "Extract", "PEDIATRIC TRIAGE"]) assert.ok(kairo.includes(value), `kairo shows ${value}`);
   // the site's jetbrains mono has no ✓, so each llm chip draws the font's own check as an svg in the glyph's cell.
@@ -348,7 +352,7 @@ test("motion cover copy uses real figures and DC names in place of the capstone 
   // the card and hero alts describe what each cover plays.
   const alts = {
     "college-park-capstone": ["survey", "None of these", "17 of 24", "Diana", "Bruce", "journey curve"],
-    ovara: ["Arkansas", "search", "county map", "20.5", "U.S. 30.06", "1,029"],
+    ovara: ["Cass County", "search", "0.92", "Livingston Parish", "1.39", "1,029"],
     "kairo-health": ["scanned pediatric triage form", "Extract", "noisy values", "55 of 56"],
   };
   for (const [slug, words] of Object.entries(alts)) {
