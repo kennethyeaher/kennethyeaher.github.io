@@ -263,8 +263,8 @@
       "That reframed the work. I went back to ideation around the conversation patterns students already know, rebuilt the mid-fi wireframes as chats, and only then moved to hi-fi. Jakob’s Law still applied. The familiar app just changed from Gmail to WhatsApp."
     ],
     [
-      "In hi-fi, the conversation model came down to four moves and one form. A labeled New message button in two places, which Tidwell calls Clear Entry Points. A fixed order, Course then To then Message, where each field unlocks the next. In Norman’s terms that is a constraint.",
-      "A visible audience, where one line names who gets the message before Send, which is Tidwell’s Preview pattern. And sent feedback inside the thread. Everything around those four moves stays ELMS, so the only new thing a student learns is the flow."
+      "In hi-fi, the conversation model came down to four moves and one form. A labeled New message button in two places, which Tidwell calls Clear Entry Points. A fixed order, Course then To then Message, where each field unlocks the next. In Norman’s terms that is a constraint. Krug’s second law says one question per step matters more than the number of clicks.",
+      "A visible audience, where one line names who gets the message before Send, which is Tidwell’s Preview pattern. And sent feedback inside the thread. It shows a Sent time, not Read, because the interface cannot promise the TA saw it. Everything around those four moves stays ELMS, so the only new thing a student learns is the flow."
     ],
     [
       "Each column reads top to bottom, from the ELMS Inbox today, through my paper sketches and wireframes, to the hi-fi prototype. Lean UX calls this outcomes over output: every change targets a doubt from the audit, not just a screen.",

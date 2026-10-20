@@ -2776,8 +2776,8 @@ export const caseStudies = [
         eyebrow: "CORE FLOW",
         heading: "One form that asks one question at a time",
         lede: [
-          "In hi-fi, the conversation model came down to four moves and one form. A labeled New message button in two places, which Tidwell calls Clear Entry Points. A fixed order, Course then To then Message, where each field unlocks the next. In Norman’s terms that is a constraint.",
-          "A visible audience, where one line names who gets the message before Send, which is Tidwell’s Preview pattern. And sent feedback inside the thread. Everything around those four moves stays ELMS, so the only new thing a student learns is the flow.",
+          "In hi-fi, the conversation model came down to four moves and one form. A labeled New message button in two places, which Tidwell calls Clear Entry Points. A fixed order, Course then To then Message, where each field unlocks the next. In Norman’s terms that is a constraint. Krug’s second law says one question per step matters more than the number of clicks.",
+          "A visible audience, where one line names who gets the message before Send, which is Tidwell’s Preview pattern. And sent feedback inside the thread. It shows a Sent time, not Read, because the interface cannot promise the TA saw it. Everything around those four moves stays ELMS, so the only new thing a student learns is the flow.",
         ],
         // the core flow stage (420:819): the browser at 228, 150 on the 1116 by 640 stage, three leaders on the left
         // and one dropping onto the New message button.
@@ -2918,8 +2918,8 @@ export const caseStudies = [
         label: "Core flow",
         heading: "One form that asks one question at a time",
         body: [
-          "In hi-fi, the conversation model came down to four moves and one form. A labeled New message button in two places, which Tidwell calls Clear Entry Points. A fixed order, Course then To then Message, where each field unlocks the next. In Norman’s terms that is a constraint.",
-          "A visible audience, where one line names who gets the message before Send, which is Tidwell’s Preview pattern. And sent feedback inside the thread. Everything around those four moves stays ELMS, so the only new thing a student learns is the flow.",
+          "In hi-fi, the conversation model came down to four moves and one form. A labeled New message button in two places, which Tidwell calls Clear Entry Points. A fixed order, Course then To then Message, where each field unlocks the next. In Norman’s terms that is a constraint. Krug’s second law says one question per step matters more than the number of clicks.",
+          "A visible audience, where one line names who gets the message before Send, which is Tidwell’s Preview pattern. And sent feedback inside the thread. It shows a Sent time, not Read, because the interface cannot promise the TA saw it. Everything around those four moves stays ELMS, so the only new thing a student learns is the flow.",
         ],
       },
       {
