@@ -1500,35 +1500,6 @@ export const caseStudies = [
         ],
       },
       {
-        kind: "rows", id: "core-flows", chapter: "Core flows", figma: "56:807",
-        lede: [
-          "The original files held three near identical copies of the whole flow, one per clinical credential, because the tool I built them in had no components. Every fix had to be made three times and they drifted apart anyway. The fourth nav item was labelled Med on some screens and Orders on others.",
-          "Rebuilding it as one screen tree with role gates fixed that. A doctor and a nurse see the same screen and the same wording. Only settings and the admin section actually differ, and the sidebar grows a sixth item to say so.",
-        ],
-        eyebrow: "CORE FLOWS",
-        heading: "One tree with three doors, not three products",
-        base: "#012e42",
-        // row stages from the prose mock (90:2297, 90:2305, 90:2313).
-        fields: [
-          { width: 600, height: 600, sigma: 45, circles: [{ x: 160, y: 140, r: 260, colour: "#145676", alpha: 0.9 }, { x: 550, y: 510, r: 190, colour: "#0C8B44", alpha: 0.9 }] },
-          { width: 600, height: 600, sigma: 45, circles: [{ x: 140, y: 540, r: 280, colour: "#003F5D", alpha: 0.9 }, { x: 570, y: 90, r: 210, colour: "#145676", alpha: 0.9 }] },
-          { width: 600, height: 600, sigma: 45, circles: [{ x: 130, y: 50, r: 210, colour: "#0C8B44", alpha: 0.9 }, { x: 540, y: 520, r: 240, colour: "#003F5D", alpha: 0.9 }] },
-        ],
-        visuals: [
-          { src: "/images/work/frontground/frontground-doctor.png", width: 1919, height: 1079, alt: "Frontground clinical dashboard showing patient overview, schedule, open requests, and the patient order queue", frame: "browser", url: "frontground", screen: { w: 780, h: 439 }, at: { x: 9.33, y: 25, w: 130 },
-            loop: { src: "/images/work/frontground/frontground-doctor-loop.mp4", poster: "/images/work/frontground/frontground-doctor-loop-poster.webp", name: "doctor" } },
-          { src: "/images/work/frontground/frontground-nurse.png", width: 1919, height: 1079, alt: "Frontground patient record showing profile, vitals grid, history, notes, medication, and lab results", frame: "browser", url: "frontground", screen: { w: 780, h: 439 }, at: { x: 9.33, y: 25, w: 130 },
-            loop: { src: "/images/work/frontground/frontground-nurse-loop.mp4", poster: "/images/work/frontground/frontground-nurse-loop-poster.webp", name: "nurse" } },
-          // no recorded admin flow exists, so this row is a still and shows no loop tag.
-          { src: "/images/work/frontground/frontground-admin.png", width: 1919, height: 1079, alt: "Frontground admin dashboard showing patient and physician overviews, the staff roster, and the day's schedule", frame: "browser", url: "frontground", screen: { w: 780, h: 439 }, at: { x: 9.33, y: 25, w: 130 } },
-        ],
-        captions: [
-          { tag: "LOOP · 6S", title: "Doctor: build for the queue", body: "The first screen answers who is in front of me right now. Arrivals, acuity and open requests get the space, and the trend chart sits to the side." },
-          { tag: "LOOP · 6S", title: "Nurse: the same screen, the same words", body: "A doctor and a nurse see the same screen and the same wording. Fixes are made once instead of three times." },
-          { tag: "LOOP · 6S", title: "Admin: one more door", body: "Only settings and the admin section actually differ between credentials, and the sidebar grows a sixth item to say so." },
-        ],
-      },
-      {
         kind: "custom", graphic: "visit-map", id: "the-problem", chapter: "The problem", figma: "56:871",
         lede: [
           "The research ran across Liberian healthcare facilities, and the two sites I spent the most time on were JFK Medical Center and the MSF clinic in Monrovia. I spoke to physicians, nurses, and administrators. I deliberately did not ask what features they wanted. I asked them to walk me through a single outpatient visit end to end, and I asked where it usually goes wrong.",

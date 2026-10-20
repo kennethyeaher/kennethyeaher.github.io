@@ -174,6 +174,13 @@ test("Frontground's laptop loops follow the loop conventions and the stills they
   for (const [, visual] of loops) await assertLoopFiles(visual, sizes[visual.loop.name]);
   // the greyscale specimen draws its queue live (figma 365:519), so the triage-queue capture is gone too.
   assertStillsGone("frontground", ["sync-failed", "offline-queue", "duplicate-check", "triage-handoff", "triage-queue", "vitals-trend"]);
+  // the core flows chapter went with its admin still and its doctor and nurse loops.
+  assertStillsGone("frontground", ["admin"]);
+  for (const name of ["doctor", "nurse"]) {
+    for (const file of [`frontground-${name}-loop.mp4`, `frontground-${name}-loop-poster.webp`]) {
+      assert.ok(!existsSync(publicFile(`/images/work/frontground/${file}`)), `${file} still ships`);
+    }
+  }
 });
 
 /** a loop whose device and colour field are baked in: no frame or box of its own, its poster as its src at the

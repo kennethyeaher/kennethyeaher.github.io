@@ -135,7 +135,7 @@ test("home v3 keeps Currently and Previously as short prose, and the compact his
 
 test("every featured project carries a project-palette motion cover and a substantial case narrative", () => {
   const minimumSections = new Map([
-    ["frontground", 8],
+    ["frontground", 7],
     ["sohive", 8],
     ["college-park-capstone", 8],
     ["ovara", 8],
@@ -520,7 +520,7 @@ const exhibitSlugs = ["kairo-health", "ovara", "terpcarehub", "college-park-caps
 const figmaRails = {
   ovara: ["01 Overview", "02 The dashboard", "03 The finding", "04 Corrections", "05 Design", "06 Reflection"],
   terpcarehub: ["01 Overview", "02 Core flows", "03 The measure", "04 Where it landed", "05 Design system", "06 Booking", "07 Reflection"],
-  frontground: ["01 Overview", "02 Core flows", "03 The problem", "04 The solution", "05 The system", "06 Offline", "07 Triage", "08 Where it stands"],
+  frontground: ["01 Overview", "02 The problem", "03 The solution", "04 The system", "05 Offline", "06 Triage", "07 Where it stands"],
   sohive: ["01 Overview", "02 Core flows", "03 The feed", "04 The audit", "05 Identity", "06 RSVP outcomes", "07 Host side", "08 Reflection"],
 };
 
@@ -557,7 +557,7 @@ test("exhibits are optional and only the converted pages opt in", () => {
   assert.deepEqual(getProjectBySlug("ovara").exhibits.map(({ kind }) => kind), ["hero", "rows", "stage", "custom", "section", "section"]);
   assert.deepEqual(getProjectBySlug("terpcarehub").exhibits.map(({ kind }) => kind), ["hero", "rows", "custom", "stage", "custom", "rows", "section"]);
   assert.deepEqual(getProjectBySlug("college-park-capstone").exhibits.map(({ kind }) => kind), ["hero", "heatmap", "stage", "journey", "section"]);
-  assert.deepEqual(getProjectBySlug("frontground").exhibits.map(({ kind }) => kind), ["hero", "rows", "custom", "stage", "section", "stage", "stage", "section"]);
+  assert.deepEqual(getProjectBySlug("frontground").exhibits.map(({ kind }) => kind), ["hero", "custom", "stage", "section", "stage", "stage", "section"]);
   assert.deepEqual(getProjectBySlug("terpcare").exhibits.map(({ kind }) => kind), ["hero", "journey", "stage", "rows", "rows", "stage", "stage", "section"]);
   assert.deepEqual(getProjectBySlug("sohive").exhibits.map(({ kind }) => kind), ["hero", "rows", "pair", "custom", "section", "stage", "stage", "section"]);
   assert.deepEqual(getProjectBySlug("elms-redesign").exhibits.map(({ kind }) => kind), ["hero", "custom", "stage", "stage", "stage", "journey", "section"]);
@@ -661,11 +661,17 @@ test("the approved lede fixture matches the prose export", { skip: !existsSync(p
   assert.deepEqual(JSON.parse(readFileSync(fixturePath, "utf8")), expected, "tests/fixtures/approved-ledes.json is out of date; run node scripts/build-approved-ledes.mjs");
 });
 
+// chapters cut from a page after the prose and spec exports were taken: the rail entry and its figma frame.
+// frontground's core flows (56:807) went with its doctor and nurse loops and admin still.
+const cutChapters = { frontground: { rail: "02 Core flows", figma: "56:807" } };
+
 test("converted pages follow their prose mock word for word", { skip: !existsSync(prosePath) && "prose export not present" }, () => {
   const mocks = readProse();
   for (const slug of mockSlugs) {
     const project = getProjectBySlug(slug);
-    const mock = mocks[slug];
+    const cut = cutChapters[slug];
+    const kept = mocks[slug].rail.map((entry, index) => [entry, mocks[slug].chapters[index]]).filter(([entry]) => entry !== cut?.rail);
+    const mock = { rail: kept.map(([entry], index) => `0${index + 1} ${entry.replace(/^\d+ /, "")}`), chapters: kept.map(([, chapter]) => chapter) };
     assert.deepEqual(project.exhibits.map(({ chapter }, index) => `0${index + 1} ${chapter}`), mock.rail, `${slug} rail matches the mock`);
     assert.equal(project.exhibits.length, mock.chapters.length);
     for (const [exhibit, chapter] of project.exhibits.map((exhibit, index) => [exhibit, mock.chapters[index]])) {
@@ -688,7 +694,7 @@ function assertMatchesSpec(slug) {
   const spec = JSON.parse(readFileSync(specPath, "utf8")).pages.find((page) => page.slug === slug);
   const project = getProjectBySlug(slug);
   const [hero, ...rest] = project.exhibits;
-  const [specHero, ...specRest] = spec.sections;
+  const [specHero, ...specRest] = spec.sections.filter(({ id }) => id !== cutChapters[slug]?.figma);
 
   assert.deepEqual(hero.metrics.map(({ value, label }) => [value, label]), spec.metrics);
   if (specHero.kpi) {

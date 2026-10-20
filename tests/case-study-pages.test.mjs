@@ -158,8 +158,8 @@ test("every loop control joins its media tag as one pill and never sits on the d
     for (const device of html.matchAll(/<div class="device-frame[^"]*"(?:(?!<\/video>).)*<\/video>/gs)) assert.doesNotMatch(device[0], /data-loop-toggle/, slug);
     assert.doesNotMatch(html, /<div class="exhibit-loop"(?:(?!<\/div>).)*data-loop-toggle/s, slug);
   }
-  // twelve, plus sohive's rsvp and host loops, terpcare's mood and privacy loops, and terpcarehub's alert detail and find care loops.
-  assert.equal(loops, 18);
+  // ten, plus sohive's rsvp and host loops, terpcare's mood and privacy loops, and terpcarehub's alert detail and find care loops.
+  assert.equal(loops, 16);
 });
 
 test("reading progress matches figma 26:105, filled in the case study accent, with its empty track hidden (v3)", () => {
@@ -496,16 +496,14 @@ test("the Capstone renders the v2 exhibit layout from its prose mock", () => {
 test("Frontground renders the v2 exhibit layout from its prose mock", () => {
   const page = pages.get("frontground");
   const sectionIds = [...page.matchAll(/<section[^>]*\bid="([^"]+)"[^>]*data-case-section/g)].map((match) => match[1]);
-  assert.deepEqual(sectionIds, ["overview", "core-flows", "the-problem", "the-solution", "the-system", "offline", "triage", "where-it-stands"]);
+  assert.deepEqual(sectionIds, ["overview", "the-problem", "the-solution", "the-system", "offline", "triage", "where-it-stands"]);
   assert.match(page, /Three columns, three questions/);
   assert.match(page, /What the venture taught me and what I still owe it/);
-  // doctor and nurse rows are clean recorded loops; the admin row is a still with no loop tag.
-  for (const name of ["doctor", "nurse"]) {
-    assert.match(page, new RegExp(`data-src="/images/work/frontground/frontground-${name}-loop\\.mp4"`));
-    assert.match(page, new RegExp(`data-loop-name="${name} loop"`));
-  }
-  assert.equal([...page.matchAll(/class="row-tag"/g)].length, 2);
-  assert.match(page, /frontground-admin\.png/);
+  // the core flows chapter is gone, so no rows, no row tags, and none of its admin still or doctor and nurse loops.
+  assert.doesNotMatch(page, /class="exhibit-rows/);
+  assert.doesNotMatch(page, /class="row-tag"/);
+  assert.doesNotMatch(page, /frontground-admin/);
+  assert.doesNotMatch(page, /frontground-(doctor|nurse)-loop/);
   // the six stage visit graphic: html words over an svg rail, two legend categories.
   assert.equal([...page.matchAll(/<li class="is-(care|time)"[^>]*>\s*<span class="stage-num"/g)].length, 6);
   assert.equal([...page.matchAll(/<li class="is-time"[^>]*>\s*<span class="stage-num"/g)].length, 2);
@@ -516,13 +514,13 @@ test("Frontground renders the v2 exhibit layout from its prose mock", () => {
   assert.equal([...page.matchAll(/class="annotation annotation-leader is-left/g)].length, 6);
   assert.equal([...page.matchAll(/class="annotation annotation-leader is-vertical/g)].length, 2);
   assert.match(page, /What the interviews put on the first screen/);
-  // the proposed stages close on full width recorded loops after their caption instead of rows; only core flows has rows.
+  // the proposed stages close on full width recorded loops after their caption instead of rows; no chapter has rows.
   for (const [id, next] of [["offline", "triage"], ["triage", "where-it-stands"]]) {
     const chapter = page.slice(page.indexOf(`id="${id}"`), page.indexOf(`id="${next}"`));
     assert.ok(chapter.indexOf('class="stage-caption"') < chapter.indexOf('class="exhibit-loops'), `${id} loops follow the caption`);
     assert.doesNotMatch(chapter, /class="exhibit-rows/, `${id} has no rows`);
   }
-  assert.equal([...page.matchAll(/class="exhibit-row"/g)].length, 3);
+  assert.equal([...page.matchAll(/class="exhibit-row"/g)].length, 0);
   assert.match(page, /href="\/work\/sohive"/);
 });
 
