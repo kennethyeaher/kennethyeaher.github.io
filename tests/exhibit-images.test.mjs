@@ -59,8 +59,8 @@ test("every exhibit srcset the built pages emit offers only copies the manifest 
 const renderedWidths = {
   "frontground-doctor": 838,
   "frontground-nurse": 698,
-  "ovara-dashboard-county-overview": 1326,
-  "ovara-dashboard-map-selected": 879,
+  "ovara-atlas-explorer": 1326,
+  "ovara-atlas-finding": 820,
   "journey-tyler": 1116,
   "journey-jessica": 560,
   "persona-maria": 639,

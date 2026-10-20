@@ -89,11 +89,11 @@ export const coverFields = {
     base: "#1a1326",
     blur: 72,
     ellipses: [
-      { x: 70, y: 50, r: 140, colour: "#6b4fbf", alpha: 0.75 },
-      { x: 434, y: 226, r: 120, colour: "#e07a5f", alpha: 0.6 },
-      { x: 90, y: 280, r: 130, colour: "#4a2b5e", alpha: 0.85 },
-      { x: 380, y: 28, r: 100, colour: "#e9b44c", alpha: 0.4 },
-      { x: 225, y: 255, r: 85, colour: "#8fb39a", alpha: 0.3 },
+      { x: 70, y: 50, r: 140, colour: "#6846aa", alpha: 0.75 },
+      { x: 434, y: 226, r: 120, colour: "#c45b32", alpha: 0.6 },
+      { x: 90, y: 280, r: 130, colour: "#2f1a3e", alpha: 0.85 },
+      { x: 380, y: 28, r: 100, colour: "#b59dd6", alpha: 0.4 },
+      { x: 225, y: 255, r: 85, colour: "#4a3698", alpha: 0.3 },
     ],
   },
   "kairo-health": {

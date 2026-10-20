@@ -208,6 +208,41 @@ function assertStillsGone(folder, names) {
   }
 }
 
+test("Ovara's dashboard rows play the Iris atlas loops and every earlier dashboard capture is gone", async () => {
+  const { default: sharp } = await import("sharp");
+  const ovara = projects.find((project) => project.slug === "ovara");
+  const rows = ovara.exhibits.find((exhibit) => exhibit.id === "the-dashboard");
+  assert.deepEqual(rows.visuals.map((visual) => visual.loop.name), ["search", "compare", "filter"]);
+  assert.deepEqual(rows.captions.map(({ tag }) => tag), ["RECORDED LIVE", "LOOP · 17S", "LOOP · 11S"]);
+  for (const visual of rows.visuals) {
+    // a browser framed row keeps a still of its own under the loop, so the src is a capture and not the poster.
+    assert.match(visual.src, /^\/images\/work\/ovara\/ovara-atlas-[a-z]+\.png$/);
+    assert.equal(visual.loop.src, `/images/work/ovara/ovara-atlas-${visual.loop.name}-loop.mp4`);
+    assert.equal(visual.loop.poster, visual.loop.src.replace(/\.mp4$/, "-poster.webp"));
+    const clip = readFileSync(publicFile(visual.loop.src));
+    assert.ok(clip.indexOf("moov") > 0 && clip.indexOf("moov") < clip.indexOf("mdat"), `${visual.loop.src} is faststart`);
+    assert.ok(clip.includes("avc1"), `${visual.loop.src} is h264`);
+    assert.ok(!clip.includes("soun"), `${visual.loop.src} has no audio`);
+    assert.deepEqual(mp4Size(clip), [1280, 800], `${visual.loop.src} size`);
+    const poster = await sharp(publicFile(visual.loop.poster)).metadata();
+    assert.deepEqual([poster.format, poster.width, poster.height], ["webp", 1280, 800], visual.loop.poster);
+    for (const file of [visual.src, visual.loop.src, visual.loop.poster]) assert.doesNotMatch(readFileSync(publicFile(file)).toString("latin1"), /c2pa|anthropic|claude|Lavf/i, file);
+  }
+  for (const name of ["explorer", "comparison", "missouri", "finding"]) {
+    const still = await sharp(publicFile(`/images/work/ovara/ovara-atlas-${name}.png`)).metadata();
+    assert.deepEqual([still.width, still.height], [2880, 1800], name);
+  }
+  // the cover, the stage and the field circles take the Iris atlas iris, burnt coral and cream.
+  const colours = JSON.stringify([ovara.cover.palette, ovara.stagePalette, rows.fields]);
+  assert.doesNotMatch(colours, /6B4FBF|E87A3C|F5EFE4/i);
+  assert.match(colours, /#6846AA/);
+  assert.match(colours, /#C45B32/);
+  assert.ok(ovara.cover.palette.includes("#F7F4EE"));
+  for (const loop of ["state", "county", "findings"]) assert.ok(!existsSync(publicFile(`/images/work/ovara/ovara-${loop}-loop.mp4`)), `${loop} loop still ships`);
+  assertStillsGone("ovara", ["dashboard-county-overview", "dashboard-findings", "dashboard-map-selected"]);
+  for (const old of ["dashboard-state", "dashboard-map", "dashboard-county"]) assert.ok(!existsSync(publicFile(`/images/work/ovara/ovara-${old}.jpg`)), `ovara-${old}.jpg still ships`);
+});
+
 test("sohive's rsvp outcomes and host side each show one wide loop in place of four annotated phones", async () => {
   const sohive = projects.find((project) => project.slug === "sohive");
   const alts = {

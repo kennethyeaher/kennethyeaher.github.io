@@ -101,24 +101,24 @@ export const caseStudies = [
     summary:
       "A seventeen stage pipeline and dashboard that counts reproductive health providers against Census population, and an audit that found three published numbers wrong before anyone else did.",
     cardImage: "/images/work/ovara/cover-gradient-poster.png",
-    cardAlt: "Ovara motion cover on an iris and coral field: Arkansas is typed into the search bar, the county map colours in by provider tier, the Arkansas card sets 20.5 providers per 100k against the U.S. 30.06, and the desert counties stay lit beside 1,029 counties with zero providers",
+    cardAlt: "Ovara motion cover on an iris and burnt coral field: the county tiles fill in on the access tier ramp, Cass County is typed into search and selected at 0.92 providers per 100k, Livingston Parish joins it in a comparison at 1.39, then the coral desert counties stay lit beside 1,029 counties with zero providers",
     heroImage: "/images/work/ovara/cover-gradient-poster.png",
-    heroAlt: "Ovara motion cover on an iris and coral field: Arkansas is typed into the search bar, the county map colours in by provider tier, the Arkansas card sets 20.5 providers per 100k against the U.S. 30.06, and the desert counties stay lit beside 1,029 counties with zero providers",
+    heroAlt: "Ovara motion cover on an iris and burnt coral field: the county tiles fill in on the access tier ramp, Cass County is typed into search and selected at 0.92 providers per 100k, Livingston Parish joins it in a comparison at 1.39, then the coral desert counties stay lit beside 1,029 counties with zero providers",
     cover: {
       variant: "ovara",
       poster: "/images/work/ovara/cover-gradient-poster.png",
-      palette: ["#17102C", "#6B4FBF", "#E87A3C", "#5B9066", "#C9A652", "#F5EFE4"],
+      palette: ["#17102C", "#6846AA", "#C45B32", "#5B9066", "#C9A652", "#F7F4EE"],
       exhibit: /** @type {const} */ ({
-        "src": "/images/work/ovara/ovara-dashboard-map.jpg",
-        "alt": "Ovara county tier choropleth across 3,144 counties with the five tier legend in frame",
-        "width": 2000,
-        "height": 1153,
+        "src": "/images/work/ovara/ovara-atlas-explorer.png",
+        "alt": "Ovara county explorer opening on 1,029 counties with zero providers above the county map, with Cass County, Missouri selected beside it at 0.92 providers per 100k",
+        "width": 2880,
+        "height": 1800,
         "frame": "laptop"
       }),
       titlePlacement: "center",
     },
     // figma's stage colours for ovara (55:663) run in a different order from the cover palette.
-    stagePalette: ["#17102C", "#2A1B55", "#6B4FBF", "#E87A3C"],
+    stagePalette: ["#17102C", "#2A1B55", "#6846AA", "#C45B32"],
     exhibits: /** @type {Exhibit[]} */ ([
       {
         kind: "hero", id: "overview", chapter: "Overview", figma: "55:662",
@@ -129,8 +129,8 @@ export const caseStudies = [
           "The data to answer it already exists. It sits in a federal provider registry of roughly eight million records, Census population tables, ZIP to county crosswalks, and HRSA shortage designations, and none of those sources agree on geography without work. Ovara is the pipeline I built to join them and the dashboard I built to read the result.",
         ],
         visuals: [
-          { src: "/images/work/ovara/ovara-dashboard-map-selected.png", width: 2880, height: 1800, alt: "Ovara county tier choropleth across 3,144 counties with a county tooltip, the five tier legend, and the selected county's detail bar", frame: "browser", url: "ovara · county level", priority: true, at: { x: 10.6, y: 12, w: 78.9 } },
-          { src: "/images/work/ovara/ovara-dashboard-county-overview.png", width: 2880, height: 1800, alt: "Access deserts KPI from the live Ovara dashboard", crop: { x: 0.26667, y: 0.30667, w: 0.22639, h: 0.12667 }, at: { x: 68.1, y: 68.3, w: 26.9 } },
+          { src: "/images/work/ovara/ovara-atlas-explorer.png", width: 2880, height: 1800, alt: "Ovara county explorer opening on 1,029 counties with zero providers above the county map, with Cass County, Missouri selected beside it at 0.92 providers per 100k", frame: "browser", url: "ovara · county level", priority: true, at: { x: 10.6, y: 12, w: 78.9 } },
+          { src: "/images/work/ovara/ovara-atlas-explorer.png", width: 2880, height: 1800, alt: "Counties with zero providers KPI from the live Ovara dashboard: 1,029, 32.7% of 3,144 counties", crop: { x: 0.16389, y: 0.17778, w: 0.22639, h: 0.12667 }, at: { x: 68.1, y: 68.3, w: 26.9 } },
         ],
         metrics: [
           { value: "1,029", label: "counties with zero providers" },
@@ -141,33 +141,33 @@ export const caseStudies = [
       {
         kind: "rows", id: "the-dashboard", chapter: "The dashboard", figma: "55:677",
         lede: [
-          "The reader I built this for is the person I used to hand analysis to, someone deciding where a multi site women's health group opens next. That person needs to compare two candidate counties, not admire a national pattern. The interface only partly serves them. It shows where supply is thin and leaves the ranking, the confidence, and the what if to the reader.",
-          "The Dash interface opens on the national picture and moves down. State level gives per capita density, a ranked bar chart, and a choropleth. Switching to county level swaps in the tier map across 3,144 counties, the tier distribution, and a findings card for whatever is selected. Selecting a state filters the companion views, and reset restores the national view from any state of the interface.",
-          "The state view no longer offers a risk tier, because the model behind it was retired. It shows observed density and a rank, and it says so.",
+          "The reader I built this for is the person I used to hand analysis to, someone deciding where a multi site women's health group opens next. That person needs to compare two candidate counties, not admire a national pattern, so the redesign is built around that comparison. It shows where supply is thin, ranks the thinnest counties that still have a provider, and puts two counties side by side. It still leaves the what if to the reader.",
+          "The county explorer opens on the national finding and keeps the selected county beside the map. Search takes a county name, a state, or a five digit FIPS code. State and tier filters are drafted in a dialog and only change the view when applied, so the map, the ranked list and the totals always describe the same scope. Saving a county starts a comparison tray that holds two, and Reset view returns to the national scope from anywhere.",
+          "State overview sits in its own tab and no longer offers a risk tier, because the model behind it was retired. It shows observed density and a rank, and it says so.",
           "The pipeline runs in seventeen ordered stages, from pulling the NPPES weekly release through writing the dashboard exports. Critical stages abort the run so a later stage never reads a stale input, and reporting stages warn and continue so a chart bug does not look like a pipeline failure. Each stage writes a named artifact with a data dictionary beside it, so any figure on the dashboard can be traced back through the transformations to the federal file it came from.",
           "The definition of supply is a choice rather than a given, so I made it visible. 100,397 providers enter the analysis across twelve of the thirteen tracked taxonomy codes. Obstetrics and Gynecology alone is 55.9 percent of the count. Certified nurse midwives, midwives, and women's health nurse practitioners together are 28.2 percent, and reproductive endocrinologists are 2.0 percent. The state rates cover 99,544 of them, because 853 sit in Puerto Rico, another territory, a military postal address, or abroad, and there is no state population to divide those by. Anyone reading the map should know that a county counted as served might have a midwife and no surgeon.",
         ],
         eyebrow: "THE DASHBOARD",
-        heading: "Two grains, one interface, and a reset that always works",
+        heading: "A county explorer built around one comparison",
         base: "#1e1538",
         // each row's colour field from figma 55:683, 55:703 and 55:723, in the row stage's own pixels.
         fields: [
-          { width: 600, height: 600, sigma: 45, circles: [{ x: 150, y: 150, r: 250, colour: "#2A1B55", alpha: 0.9 }, { x: 510, y: 510, r: 210, colour: "#6B4FBF", alpha: 0.9 }] },
-          { width: 600, height: 600, sigma: 45, circles: [{ x: 140, y: 500, r: 260, colour: "#6B4FBF", alpha: 0.9 }, { x: 550, y: 50, r: 170, colour: "#E87A3C", alpha: 0.9 }] },
-          { width: 600, height: 600, sigma: 45, circles: [{ x: 130, y: 50, r: 210, colour: "#C9A652", alpha: 0.9 }, { x: 540, y: 520, r: 240, colour: "#6B4FBF", alpha: 0.9 }] },
+          { width: 600, height: 600, sigma: 45, circles: [{ x: 150, y: 150, r: 250, colour: "#2A1B55", alpha: 0.9 }, { x: 510, y: 510, r: 210, colour: "#6846AA", alpha: 0.9 }] },
+          { width: 600, height: 600, sigma: 45, circles: [{ x: 140, y: 500, r: 260, colour: "#6846AA", alpha: 0.9 }, { x: 550, y: 50, r: 170, colour: "#C45B32", alpha: 0.9 }] },
+          { width: 600, height: 600, sigma: 45, circles: [{ x: 130, y: 50, r: 210, colour: "#C9A652", alpha: 0.9 }, { x: 540, y: 520, r: 240, colour: "#6846AA", alpha: 0.9 }] },
         ],
         visuals: [
-          { src: "/images/work/ovara/ovara-dashboard-state.jpg", width: 2000, height: 1153, alt: "Ovara state level dashboard showing per capita density KPIs and a ranked state chart", frame: "browser", url: "ovara", at: { x: 9.33, y: 16, w: 126.67 },
-            loop: { src: "/images/work/ovara/ovara-state-loop.mp4", poster: "/images/work/ovara/ovara-state-loop-poster.webp", name: "state" } },
-          { src: "/images/work/ovara/ovara-dashboard-county-overview.png", width: 2880, height: 1800, alt: "Ovara county level dashboard switching from the access deserts KPI to the tier map", frame: "browser", url: "ovara", at: { x: 9.33, y: 16, w: 126.67 },
-            loop: { src: "/images/work/ovara/ovara-county-loop.mp4", poster: "/images/work/ovara/ovara-county-loop-poster.webp", name: "county" } },
-          { src: "/images/work/ovara/ovara-dashboard-findings.png", width: 2880, height: 1800, alt: "Ovara county map selecting a county, then scrolling to its findings card above the five access risk tiers", frame: "browser", url: "ovara", at: { x: 9.33, y: 16, w: 126.67 },
-            loop: { src: "/images/work/ovara/ovara-findings-loop.mp4", poster: "/images/work/ovara/ovara-findings-loop-poster.webp", name: "findings" } },
+          { src: "/images/work/ovara/ovara-atlas-explorer.png", width: 2880, height: 1800, alt: "Ovara county explorer recording: San Bernardino County is picked on the map, Cass County is typed into search and found on the second page, the panel switches to Critical at 0.92 providers per 100k, and Add to comparison saves it to the tray", frame: "browser", url: "ovara", at: { x: 9.33, y: 16, w: 126.67 },
+            loop: { src: "/images/work/ovara/ovara-atlas-search-loop.mp4", poster: "/images/work/ovara/ovara-atlas-search-loop-poster.webp", name: "search" } },
+          { src: "/images/work/ovara/ovara-atlas-comparison.png", width: 2880, height: 1800, alt: "Ovara comparison recording: Livingston Parish is searched, selected and added beside Cass County, then Compare opens both counties row by row at 0.92 and 1.39 providers per 100k, both Critical", frame: "browser", url: "ovara", at: { x: 9.33, y: 16, w: 126.67 },
+            loop: { src: "/images/work/ovara/ovara-atlas-compare-loop.mp4", poster: "/images/work/ovara/ovara-atlas-compare-loop-poster.webp", name: "compare" } },
+          { src: "/images/work/ovara/ovara-atlas-missouri.png", width: 2880, height: 1800, alt: "Ovara filter recording: the filter dialog opens on All states and All tiers, Missouri is drafted, and Apply moves the map, list and totals to 115 counties and 48 access deserts", frame: "browser", url: "ovara", at: { x: 9.33, y: 16, w: 126.67 },
+            loop: { src: "/images/work/ovara/ovara-atlas-filter-loop.mp4", poster: "/images/work/ovara/ovara-atlas-filter-loop-poster.webp", name: "filter" } },
         ],
         captions: [
-          { tag: "RECORDED LIVE", title: "State level opens on observed density", body: "The state view opens on observed density per 100,000 and a rank. There is no predicted tier here any more." },
-          { tag: "LOOP · 6S", title: "County level swaps in the tier map", body: "Switching to county level swaps in the tier map across 3,144 counties, the tier distribution, and a findings card for whatever is selected." },
-          { tag: "LOOP · 6S", title: "The findings card writes a different sentence", body: "It branches on what the selected county actually holds, whether that is a desert, thin supply, or no shortage, and flags weak registry coverage." },
+          { tag: "RECORDED LIVE", title: "Search, select, save", body: "Cass County, Missouri comes up by name. One provider and 108,205 residents sit beside the map, with a note that one registry record can move this rate." },
+          { tag: "LOOP · 17S", title: "Two counties, the same measures", body: "Cass County and Livingston Parish line up row by row. Both are Critical, and the comparison says a rate gap alone is not a recommendation." },
+          { tag: "LOOP · 11S", title: "Draft a filter, then apply it", body: "Missouri is drafted in the dialog and nothing changes until Apply. Then the map, the list and the totals move together to 115 counties and 48 access deserts." },
         ],
       },
       {
@@ -182,16 +182,16 @@ export const caseStudies = [
         ],
         eyebrow: "THE FINDING",
         heading: "1,029 counties have no reproductive health provider at all",
-        visuals: [{ src: "/images/work/ovara/ovara-dashboard-map-selected.png", width: 2880, height: 1800, alt: "Ovara county tier choropleth across 3,144 counties with a county tooltip, the five tier legend, and the selected county's detail bar", frame: "browser", url: "ovara · county level", at: { x: 13.3, y: 10, w: 73.5 } }],
+        visuals: [{ src: "/images/work/ovara/ovara-atlas-finding.png", width: 2880, height: 1800, alt: "Ovara county explorer scrolled to the county map on the access tier ramp, Cass County, Missouri selected beside it at 0.92 providers per 100k, and the distribution bar counting 1,029 access desert counties", frame: "browser", url: "ovara · county level", at: { x: 13.3, y: 10, w: 73.5 } }],
         annotations: [
-          { type: "focus", num: "01", on: 0, at: { x: 32.6, y: 22.7, w: 17.4, h: 16.5 } },
-          { type: "focus", num: "02", on: 0, at: { x: 89.6, y: 24.8, w: 8.3, h: 42.3 } },
-          { type: "focus", num: "03", on: 0, at: { x: 2.8, y: 85.6, w: 94.4, h: 15.5 } },
+          { type: "focus", num: "01", on: 0, at: { x: 17.2, y: 10.7, w: 56.1, h: 37 } },
+          { type: "focus", num: "02", on: 0, at: { x: 75, y: 7.2, w: 22.8, h: 47.6 } },
+          { type: "focus", num: "03", on: 0, at: { x: 64.6, y: 66, w: 33.8, h: 9.5 } },
         ],
         notes: [
-          { n: "01", title: "Access deserts held out in coral", body: "The tier map reads the same four step purple ramp as every chart beside it, with access deserts held out in coral." },
-          { n: "02", title: "A ramp that holds on both grounds", body: "Lightness is pinned to roughly L 0.53 to 0.80 in OKLab, so the ramp stays readable on the light basemap and on the dark plum panel." },
-          { n: "03", title: "The findings card branches", body: "It writes a different sentence for a desert, thin supply, or no shortage, instead of one conclusion reused for every county." },
+          { n: "01", title: "Deserts sit off the ramp", body: "The map runs an ordered iris ramp from Critical to Well served. Burnt coral marks zero registered providers, because zero is a different state, not a smaller amount." },
+          { n: "02", title: "The selected county stays put", body: "Its count, population and rate survive pointer movement, so touch and keyboard readers get the same values as a mouse." },
+          { n: "03", title: "Counted two ways", body: "The distribution bar counts counties per tier, and the headline pairs 1,029 counties with 10.9 million residents, so the rural skew shows on sight." },
         ],
       },
       {
@@ -215,9 +215,9 @@ export const caseStudies = [
         heading: "The interface has to make the uncertainty visible, not smooth it over",
         lede: [
           "A dashboard that presents a shaky model with the same visual confidence as a direct count is misleading by construction. Most of the interface decisions here came out of that one problem.",
-          "Colour carries the tier meaning, so it is defined once and shared. Access tiers use a single four step purple ramp that has to stay readable on the light basemap and on the dark plum panel, which pins its lightness window to roughly L 0.53 to 0.80 in OKLab and holds a minimum contrast of 1.78 on the light ground and 3.03 on the dark. Coral is reserved for one meaning, the access desert tier, so a reader who learns it on the map reads it correctly on every chart.",
+          "Colour carries the tier meaning, so it is defined once and shared. The Iris atlas redesign moved the dashboard onto cream surfaces with an ordered iris ramp, darkest where supply is thinnest. Burnt coral is reserved for one meaning, zero registered providers, so a reader who learns it on the map reads it correctly on every chart. Hue never carries the meaning alone. Every tier has a label, the legend gives its range, and the selected county shows its exact rate.",
           "Colour alone was not enough in one case. Checking the taxonomy chart under simulated deuteranopia, two of the three category hues came out at a Delta E of 0.4, which is not a distinguishable difference. I regrouped the bars by category with spacing and a legend, so the grouping survives without colour at all. The tier chart carries the same redundancy in position and label.",
-          "The findings card under the county map used to state a conclusion the data did not always support, because it was written for one case and reused for the rest. It now branches on what the selected county actually holds, whether that is a desert, thin supply, or no shortage, and it flags weak registry coverage for that state. I believe that is the part of this project that would matter most in a real policy or clinical setting. A correct number with the wrong sentence attached is worse than no number.",
+          "The county detail used to be a findings card under the map that stated one conclusion for every case. In the redesign the selected county sits beside the map with its count, its population and its rate, and a plain sentence about what they mean, such as one provider registered in a county of 108,205 residents. When a single registry record can swing the rate, the panel says so. I believe that is the part of this project that would matter most in a real policy or clinical setting. A correct number with the wrong sentence attached is worse than no number.",
         ],
       },
       {
@@ -228,7 +228,7 @@ export const caseStudies = [
           "The version of this project I submitted was wrong in three places, and it looked finished. All three defects passed a run, produced plausible output, and rendered cleanly. What caught them was recomputing published numbers from source instead of trusting the README, and asking of each feature whether it could contain the answer.",
           "The lesson I took is narrower and more useful than being careful. A number needs a guard, not a comment. Connecticut was fixed by a check that raises on a vintage mismatch, the denominator by a plausibility range, and the leak by a test that fails if the feature returns. Those three guards are why I would put my name on the current numbers.",
           "I also changed what I think a good result looks like here. The regression was the assignment, and it does not work. The count does, and it is the finding that has held through every correction. Reporting the model as a negative result and putting the county count in the headline is the version of this project I would want an analyst to inherit.",
-          "One gap I would not defend. I never put this in front of the person it was built for. Everything above is my judgment checked against data rather than against a user, and the difference shows in the product half of the project. There is no ranked shortlist, no confidence marker on a county where a single provider swings the rate, and no way to ask what two more providers would change. I would run that conversation before I added another chart.",
+          "One gap I would not defend. I never put this in front of the person it was built for. The redesign added the pieces I said were missing, a ranked list of the thinnest counties, a warning where one registry record swings the rate, and a two county comparison, but those came from my own reading of Tidwell, not from watching someone use it. The first study I would run asks a participant to find Cass County, explain its denominator, compare it with Livingston Parish, filter to Missouri and return to the national view, and watches whether Critical gets read as a clinical diagnosis.",
         ],
       },
     ]),
@@ -348,15 +348,15 @@ export const caseStudies = [
       {
         id: "dashboard",
         label: "Dashboard",
-        heading: "Two grains, one interface, and a reset that always works",
+        heading: "A county explorer built around one comparison",
         body: [
-          "The reader I built this for is the person I used to hand analysis to, someone deciding where a multi site women's health group opens next. That person needs to compare two candidate counties, not admire a national pattern. The interface only partly serves them. It shows where supply is thin and leaves the ranking, the confidence, and the what if to the reader.",
-          "The Dash interface opens on the national picture and moves down. State level gives per capita density, a ranked bar chart, and a choropleth. Switching to county level swaps in the tier map across 3,144 counties, the tier distribution, and a findings card for whatever is selected. Selecting a state filters the companion views, and reset restores the national view from any state of the interface.",
-          "The state view no longer offers a risk tier, because the model behind it was retired. It shows observed density and a rank, and it says so.",
+          "The reader I built this for is the person I used to hand analysis to, someone deciding where a multi site women's health group opens next. That person needs to compare two candidate counties, not admire a national pattern, so the redesign is built around that comparison. It shows where supply is thin, ranks the thinnest counties that still have a provider, and puts two counties side by side. It still leaves the what if to the reader.",
+          "The county explorer opens on the national finding and keeps the selected county beside the map. Search takes a county name, a state, or a five digit FIPS code. State and tier filters are drafted in a dialog and only change the view when applied, so the map, the ranked list and the totals always describe the same scope. Saving a county starts a comparison tray that holds two, and Reset view returns to the national scope from anywhere.",
+          "State overview sits in its own tab and no longer offers a risk tier, because the model behind it was retired. It shows observed density and a rank, and it says so.",
         ],
         media: [
-          { src: "/images/work/ovara/ovara-dashboard-state.jpg", width: 2000, height: 1153, alt: "Ovara state level dashboard showing per capita density KPIs and a ranked state chart", caption: "The state view opens on observed density per 100,000 and a rank. There is no predicted tier here any more.", wide: true },
-          { src: "/images/work/ovara/ovara-dashboard-map.jpg", width: 2000, height: 1153, alt: "Ovara county tier choropleth across 3,144 counties with the five tier legend in frame", caption: "The county tier map reads the same four step purple ramp as every chart beside it, with access deserts held out in coral.", wide: true },
+          { src: "/images/work/ovara/ovara-atlas-explorer.png", width: 2880, height: 1800, alt: "Ovara county explorer opening on 1,029 counties with zero providers above the county map, with Cass County, Missouri selected beside it at 0.92 providers per 100k", caption: "The county explorer opens on the national finding and keeps the selected county beside the map.", wide: true },
+          { src: "/images/work/ovara/ovara-atlas-comparison.png", width: 2880, height: 1800, alt: "Ovara comparison of Cass County, Missouri and Livingston Parish, Louisiana by density, provider count, population, represented taxonomy codes and access tier, both Critical", caption: "Both counties are Critical. A density difference alone does not establish clinical capacity.", wide: true },
         ],
       },
       {
@@ -365,12 +365,12 @@ export const caseStudies = [
         heading: "The interface has to make the uncertainty visible, not smooth it over",
         body: [
           "A dashboard that presents a shaky model with the same visual confidence as a direct count is misleading by construction. Most of the interface decisions here came out of that one problem.",
-          "Colour carries the tier meaning, so it is defined once and shared. Access tiers use a single four step purple ramp that has to stay readable on the light basemap and on the dark plum panel, which pins its lightness window to roughly L 0.53 to 0.80 in OKLab and holds a minimum contrast of 1.78 on the light ground and 3.03 on the dark. Coral is reserved for one meaning, the access desert tier, so a reader who learns it on the map reads it correctly on every chart.",
+          "Colour carries the tier meaning, so it is defined once and shared. The Iris atlas redesign moved the dashboard onto cream surfaces with an ordered iris ramp, darkest where supply is thinnest. Burnt coral is reserved for one meaning, zero registered providers, so a reader who learns it on the map reads it correctly on every chart. Hue never carries the meaning alone. Every tier has a label, the legend gives its range, and the selected county shows its exact rate.",
           "Colour alone was not enough in one case. Checking the taxonomy chart under simulated deuteranopia, two of the three category hues came out at a Delta E of 0.4, which is not a distinguishable difference. I regrouped the bars by category with spacing and a legend, so the grouping survives without colour at all. The tier chart carries the same redundancy in position and label.",
-          "The findings card under the county map used to state a conclusion the data did not always support, because it was written for one case and reused for the rest. It now branches on what the selected county actually holds, whether that is a desert, thin supply, or no shortage, and it flags weak registry coverage for that state. I believe that is the part of this project that would matter most in a real policy or clinical setting. A correct number with the wrong sentence attached is worse than no number.",
+          "The county detail used to be a findings card under the map that stated one conclusion for every case. In the redesign the selected county sits beside the map with its count, its population and its rate, and a plain sentence about what they mean, such as one provider registered in a county of 108,205 residents. When a single registry record can swing the rate, the panel says so. I believe that is the part of this project that would matter most in a real policy or clinical setting. A correct number with the wrong sentence attached is worse than no number.",
         ],
         media: [
-          { src: "/images/work/ovara/ovara-dashboard-county.jpg", width: 2000, height: 1153, alt: "Ovara county view for Alabama with the findings card beneath the tier map", caption: "Alabama selected. The findings card writes a different sentence depending on what the selected area actually holds.", wide: true },
+          { src: "/images/work/ovara/ovara-atlas-mobile.png", width: 780, height: 1688, alt: "Ovara county explorer on a 390 wide phone: the national finding as one compact card, search, state and tier filters, a List and Map switch, and the selected county's details", caption: "A smaller screen changes the hierarchy. Exact values remain available without navigating a tiny national map." },
         ],
       },
       {
@@ -379,7 +379,7 @@ export const caseStudies = [
         heading: "Every run records the inputs that produced it",
         body: [
           "Each run writes a manifest recording the git commit, the pandas, numpy and scikit learn versions, the NPPES source file with its size and modification time, the ACS year behind county population and the different ACS year behind the demand features, the CBSA delineation and population files, the ZCTA relationship file vintage, the Connecticut crosswalk source and vendoring date, and the HRSA cache timestamp.",
-          "The manifest exists because two Census vintages drifted apart unnoticed and cost Connecticut its entire county layer. Its values are read from the same module constants the stages themselves use, so it cannot fall out of step with the pipeline. Twenty eight tests cover the county dataset, the access model dataset, the county map, and the findings card, including the leakage guard and the geography vintage guard.",
+          "The manifest exists because two Census vintages drifted apart unnoticed and cost Connecticut its entire county layer. Its values are read from the same module constants the stages themselves use, so it cannot fall out of step with the pipeline. Sixty five tests cover the county dataset, the access model dataset, the county map, the comparison rules and the atlas dashboard in a browser, including the leakage guard and the geography vintage guard.",
         ],
       },
       {
@@ -401,7 +401,7 @@ export const caseStudies = [
           "The version of this project I submitted was wrong in three places, and it looked finished. All three defects passed a run, produced plausible output, and rendered cleanly. What caught them was recomputing published numbers from source instead of trusting the README, and asking of each feature whether it could contain the answer.",
           "The lesson I took is narrower and more useful than being careful. A number needs a guard, not a comment. Connecticut was fixed by a check that raises on a vintage mismatch, the denominator by a plausibility range, and the leak by a test that fails if the feature returns. Those three guards are why I would put my name on the current numbers.",
           "I also changed what I think a good result looks like here. The regression was the assignment, and it does not work. The count does, and it is the finding that has held through every correction. Reporting the model as a negative result and putting the county count in the headline is the version of this project I would want an analyst to inherit.",
-          "One gap I would not defend. I never put this in front of the person it was built for. Everything above is my judgment checked against data rather than against a user, and the difference shows in the product half of the project. There is no ranked shortlist, no confidence marker on a county where a single provider swings the rate, and no way to ask what two more providers would change. I would run that conversation before I added another chart.",
+          "One gap I would not defend. I never put this in front of the person it was built for. The redesign added the pieces I said were missing, a ranked list of the thinnest counties, a warning where one registry record swings the rate, and a two county comparison, but those came from my own reading of Tidwell, not from watching someone use it. The first study I would run asks a participant to find Cass County, explain its denominator, compare it with Livingston Parish, filter to Missouri and return to the national view, and watches whether Critical gets read as a clinical diagnosis.",
         ],
       },
     ],

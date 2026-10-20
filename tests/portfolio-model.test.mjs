@@ -406,11 +406,9 @@ test("Ovara publishes the real analytical product evidence and repository", () =
         href === "https://github.com/kennethyeaher/inst737-final-project-kenneth-yeaher",
     ),
   );
-  assert.ok(media.some(({ src }) => src.endsWith("ovara-dashboard-state.jpg")));
-  assert.ok(media.some(({ src }) => src.endsWith("ovara-dashboard-map.jpg")));
-  assert.ok(media.some(({ src }) => src.endsWith("ovara-dashboard-county.jpg")));
-  assert.ok(media.some(({ src }) => src.endsWith("ovara-dashboard-map.jpg")));
-  assert.equal(media.some(({ src }) => src.endsWith("ovara-dashboard.png")), false);
+  // the Iris atlas captures replaced every earlier dashboard still.
+  for (const name of ["explorer", "comparison", "mobile"]) assert.ok(media.some(({ src }) => src.endsWith(`ovara-atlas-${name}.png`)), name);
+  assert.equal(media.some(({ src }) => /ovara-dashboard/.test(src)), false);
   assert.deepEqual(
     media
       .filter(({ src }) => /ovara-(cover|method|benchmark|county-scale)\.png$/.test(src))
