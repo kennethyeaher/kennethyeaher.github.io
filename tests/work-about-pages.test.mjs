@@ -133,12 +133,13 @@ test("device covers draw figma's macbook and phones over the field and lift and 
       assert.match(images[index], new RegExp(attributes), `${slug} screen ${index}`);
     }
   }
-  const hub = cards.get("terpcarehub");
-  assert.deepEqual([...hub.matchAll(/<div class="device-phone is-(left|right|center)\b/g)].map(([, slot]) => slot), ["left", "right", "center"]);
-  assert.equal([...hub.matchAll(/<span class="phone-status"[^>]*><span class="phone-time"[^>]*>9:41<\/span><span class="phone-battery"[^>]*><\/span><\/span>/g)].length, 2);
-  assert.equal([...hub.matchAll(/class="phone-island"/g)].length, 2);
-  assert.equal([...cards.get("sohive").matchAll(/class="phone-island"/g)].length, 3);
-  assert.doesNotMatch(cards.get("sohive"), /phone-status/);
+  // terpcarehub's phones are its motion cover's now; sohive and terpcare keep three device phones with islands.
+  assert.doesNotMatch(cards.get("terpcarehub"), /cover-devices|device-phone/);
+  for (const slug of ["sohive", "terpcare"]) {
+    assert.deepEqual([...cards.get(slug).matchAll(/<div class="device-phone is-(left|right|center)\b/g)].map(([, slot]) => slot), ["left", "right", "center"], slug);
+    assert.equal([...cards.get(slug).matchAll(/class="phone-island"/g)].length, 3, slug);
+  }
+  assert.doesNotMatch(workHtml, /phone-status/);
   // elms leads the grid. elms and frontground are figma's Device/Laptop instances (528:12385, 528:12392): 384 by 207.36
   // at x 35 and y 28 on the 454 cover, drawn by the elms page's macbook frame (lid and camera, bezel, base and notch,
   // floor shadow), with no browser chrome; the macbook expands on hover (the next test).
@@ -194,7 +195,8 @@ test("the elms and frontground macbooks expand as figma's demo timelines draw it
       start = index + 1;
     } else if (css[index] === "}") { stack.pop(); start = index + 1; }
   }
-  const expanded = rules.filter(({ body }) => /scale:1\.(12|06)/.test(body));
+  // keyframe stops are not rules a card state applies (terpcarehub's find care card scales in from 1.12), so they are skipped.
+  const expanded = rules.filter(({ media, body }) => !media.startsWith("@keyframes") && /scale:1\.(12|06)/.test(body));
   // in cover units: scale 1.12 and 50px down on the 454 cover (11.013cqi) for the macbook, scale 1.06 for its field, on
   // focus, on click (is-expanding), and on hover only where a pointer hovers. all of it sits under no-preference.
   assert.deepEqual(expanded.map(({ selector }) => selector.replace(/\[data-astro-cid-\w+\]/g, "")).sort(), [
@@ -245,7 +247,8 @@ test("motion covers render figma's v4 layers and loop their timelines only on sc
     const ids = [...card.matchAll(/data-node="([^"]+)"/g)].map(([, node]) => node);
     assert.equal(new Set(ids).size, ids.length, `${slug} node ids are unique`);
     for (const node of coverMotion[slug].field) assert.match(card, new RegExp(`<span class="cover-field"[^>]*data-node="${node}"`));
-    assert.match(card, /<img class="cm-layer"[^>]*src="\/images\/exhibits\/cover-dot-grid\.svg"/);
+    // every motion cover but terpcarehub's lays the dot grid over its field.
+    assert.equal(/<img class="cm-layer"[^>]*src="\/images\/exhibits\/cover-dot-grid\.svg"/.test(card), slug !== "terpcarehub", `${slug} dot grid`);
   }
   const capstone = cards.get("college-park-capstone");
   assert.match(capstone, />Diana</);
@@ -261,11 +264,20 @@ test("motion covers render figma's v4 layers and loop their timelines only on sc
   assert.equal([...ovara.matchAll(/data-node="550:\d+"[^>]*style="left: [\d.]+cqi; top: [\d.]+cqi; width: 2\.423cqi; height: 2\.423cqi; background: #/g)].length, 224, "112 tiles over 112 bases");
   const kairo = cards.get("kairo-health");
   for (const value of [">55 of 56<", ">Extract<", ">20/03/2022<", ">Z0/O3/2O2Z<"]) assert.ok(kairo.includes(value), `kairo card shows ${value}`);
+  // terpcarehub (584:18068): the real screens are image layers, the two checks draw in, and the search types flu shot.
+  const hub = cards.get("terpcarehub");
+  for (const value of [">flu shot<", ">University Health Center<", ">Booked · Today 2:40 PM<", ">Booked in two taps<", ">Plan accepted<", ">$0 copay<", ">Add to calendar<", ">ALERTS<", ">FIND CARE<", ">PROGRAMS<"]) assert.ok(hub.includes(value), `terpcarehub card shows ${value}`);
+  for (const screen of ["terpcarehub-cover-home", "terpcarehub-cover-find-care", "terpcarehub-cover-wellness", "mobile-provider-detail", "mobile-booking-confirmed"]) {
+    assert.match(hub, new RegExp(`<img class="cm-layer" src="/images/work/terpcarehub/${screen}\\.png"[^>]*style="[^"]*object-fit: cover`), screen);
+  }
+  assert.match(hub, /<path data-node="584:18138" pathLength="1"/);
+  assert.match(hub, /<path data-node="585:18626" pathLength="1"/);
 
   // the keyframes ship in one stylesheet for the home page only, keyed by figma node id, on figma's loop lengths.
   const stylesheets = (html) => [...html.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map((match) => readFileSync(join(projectRoot, "dist", match[1]), "utf8")).join("\n");
   const css = stylesheets(workHtml);
-  for (const [slug, seconds, scene] of [["college-park-capstone", "13.6s", "482:10762"], ["ovara", "13.6s", "550:12080"], ["kairo-health", "13.2s", "485:11658"]]) {
+  // terpcarehub's scene frame has no camera of its own, so its centre phone stands in: the first layer that fades.
+  for (const [slug, seconds, scene] of [["college-park-capstone", "13.6s", "482:10762"], ["ovara", "13.6s", "550:12080"], ["kairo-health", "13.2s", "485:11658"], ["terpcarehub", "21s", "585:18527"]]) {
     const scope = `\\.project-cover\\[data-motion=${slug}\\]`;
     assert.match(css, new RegExp(`${scope}\\{--u: ?calc\\(100cqi / 454\\)\\}`), `${slug} unit`);
     assert.match(css, new RegExp(`${scope} \\[data-node="${scene}"\\]\\{animation:kf_${scene.replace(":", "_")}_opacity_0 ${seconds.replace(".", "\\.")} linear[,;}]`), `${slug} scene camera`);
@@ -281,8 +293,8 @@ test("motion covers render figma's v4 layers and loop their timelines only on sc
   // the field drift skips the blobs that follow figma's timeline.
   assert.match(css, /\.cover-field\[[^\]]+\]:not\(\[data-node\]\)\{animation:cover-field-drift/);
   // no other page loads the cover timelines.
-  assert.doesNotMatch(stylesheets(aboutHtml), /kf_(48[245]|549|550)_/);
-  assert.doesNotMatch(stylesheets(readFileSync(join(projectRoot, "dist", "work", "ovara", "index.html"), "utf8")), /kf_(48[245]|549|550)_/);
+  assert.doesNotMatch(stylesheets(aboutHtml), /kf_(48[245]|549|550|58[45])_/);
+  assert.doesNotMatch(stylesheets(readFileSync(join(projectRoot, "dist", "work", "ovara", "index.html"), "utf8")), /kf_(48[245]|549|550|58[45])_/);
   const script = readFileSync(join(projectRoot, "src/scripts/exhibits.ts"), "utf8");
   assert.match(script, /querySelectorAll<HTMLElement>\("\[data-cover-gradient\], \[data-cover-motion\]"\)/);
 });

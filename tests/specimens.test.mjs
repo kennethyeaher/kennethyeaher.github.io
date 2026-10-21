@@ -412,9 +412,13 @@ test("the specimen fonts are self-hosted, latin only, and load only on the pages
   for (const name of readdirSync(assets).filter((file) => file.endsWith(".css") || file.endsWith(".js"))) {
     assert.doesNotMatch(readFileSync(join(assets, name), "utf8"), /fonts\/(inter|figtree)\//, name);
   }
-  for (const page of ["index.html", "about/index.html", "explore/index.html"]) {
+  for (const page of ["about/index.html", "explore/index.html"]) {
     assert.doesNotMatch(readFileSync(join(projectRoot, "dist", page), "utf8"), /fonts\/(inter|figtree)\//, page);
   }
+  // the home page declares figtree in its head for terpcarehub's motion cover, and still no inter.
+  const home = readFileSync(join(projectRoot, "dist", "index.html"), "utf8");
+  assert.ok(home.split("</head>")[0].includes(fontFiles.figtree), "home declares figtree in its head");
+  assert.doesNotMatch(home, /fonts\/inter\//);
   for (const slug of wanted.keys()) {
     const head = pages.get(slug).split("</head>")[0];
     for (const name of wanted.get(slug)) assert.ok(head.includes(fontFiles[name]), `${slug} declares ${name} in its head`);

@@ -743,9 +743,9 @@ export const caseStudies = [
     summary:
       "A redesign of a campus health hub built around one measure: how long a University of Maryland student takes to go from noticing a symptom to knowing what to do about it.",
     cardImage: "/images/work/terpcarehub/cover-gradient-poster.png",
-    cardAlt: "TerpCareHub motion cover in University of Maryland red and gold",
+    cardAlt: "Motion cover: three TerpCareHub prototype screens, a search for flu shot booked at University Health Center for 2:40 PM, then the booking confirmed screen.",
     heroImage: "/images/work/terpcarehub/cover-gradient-poster.png",
-    heroAlt: "TerpCareHub motion cover in University of Maryland red and gold",
+    heroAlt: "Motion cover: three TerpCareHub prototype screens, a search for flu shot booked at University Health Center for 2:40 PM, then the booking confirmed screen.",
     cover: {
       variant: "terpcarehub",
       poster: "/images/work/terpcarehub/cover-gradient-poster.png",

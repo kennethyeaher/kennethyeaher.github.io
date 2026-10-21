@@ -1,6 +1,6 @@
 // the faces the live specimens set, self-hosted and cut to the weights used by scripts/instance-fonts.py (latin only).
-// a case study page declares only the faces its own specimens need, in its head (SpecimenFonts.astro), so no other
-// page fetches or even names them.
+// a case study page declares only the faces its own specimens need, in its head (SpecimenFonts.astro). the home page
+// declares figtree for terpcarehub's motion cover; no other page fetches or even names them.
 export const specimenFaces = {
   inter: { family: "Inter", weight: "400 700", src: "/fonts/inter/inter-latin.woff2" },
   figtree: { family: "Figtree", weight: "400 700", src: "/fonts/figtree/figtree-latin.woff2" },

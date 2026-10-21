@@ -14,6 +14,7 @@ export const motionSources = {
   "college-park-capstone": "capstone",
   ovara: "ovara",
   "kairo-health": "kairo",
+  terpcarehub: "terpcarehub",
   "elms-course-first": "elms-course-first",
   "elms-undo": "elms-undo",
 };

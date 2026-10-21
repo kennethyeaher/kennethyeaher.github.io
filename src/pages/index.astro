@@ -2,16 +2,20 @@
 // Work index: the thesis over Currently and Previously, then the project grid (home v3, figma 176:1721 and 177:1723).
 import Base from "@/layouts/Base.astro";
 import ProjectCard from "@/components/ProjectCard.astro";
+import SpecimenFonts from "@/components/exhibits/specimens/SpecimenFonts.astro";
 import { getFeaturedProjects, homeNow, profile } from "@/data/portfolio.mjs";
 // the motion covers' figma timelines (scripts/build-cover-motion.mjs); no other page shows these cards.
 import "@/styles/cover-motion/college-park-capstone.css";
 import "@/styles/cover-motion/ovara.css";
 import "@/styles/cover-motion/kairo-health.css";
+import "@/styles/cover-motion/terpcarehub.css";
 
 const projects = getFeaturedProjects();
 ---
 
 <Base description={profile.intro}>
+  {/* terpcarehub's motion cover is set in figtree (400, 500 and 600), so home declares the self-hosted cut too. */}
+  <SpecimenFonts slot="head" fonts={["figtree"]} />
   <div class="home-page">
     <section class="home-intro" aria-labelledby="home-title">
       <div class="home-thesis" data-reveal>

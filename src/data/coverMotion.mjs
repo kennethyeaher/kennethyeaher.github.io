@@ -1,6 +1,6 @@
 /**
- * home motion covers, built from figma's motion cover timelines: capstone v4 (482:10252), ovara v5 (549:11632) and
- * kairo v4 (485:11148). each cover loops one timeline. this file holds the layers in figma's nesting; the keyframes come from
+ * home motion covers, built from figma's motion cover timelines: capstone v4 (482:10252), ovara v5 (549:11632),
+ * kairo v4 (485:11148) and terpcarehub v2 (584:18068). each cover loops one timeline. this file holds the layers in figma's nesting; the keyframes come from
  * figma's get_motion_context css snippets (scripts/cover-motion/*.motion.json), which scripts/build-cover-motion.mjs
  * writes into src/styles/cover-motion/<slug>.css, keyed by the figma node id each layer carries.
  *
@@ -26,6 +26,7 @@ function type(family, weight, size, spacing, colour) {
     mono: "var(--mono)",
     serif: "var(--display); font-variation-settings: \"SOFT\" 0, \"WONK\" 1",
     inter: "\"Inter\", var(--ui)",
+    figtree: "\"Figtree\", var(--ui)",
   };
   return `font-family: ${families[family]}; font-weight: ${weight}; font-size: {${size}}; letter-spacing: {${spacing}}; color: ${colour}`;
 }
@@ -405,9 +406,226 @@ const kairo = {
   ],
 };
 
+// terpcarehub v2 (584:18068): the prototype's alerts, find care and programs screens rise in three phones and fan out,
+// the centre phone grows into the find care card, flu shot is searched and booked with an undo, then the provider and
+// booking confirmed screens rise with a gold badge and the closing line. the cover has no dot grid.
+const hubInk = "#1d1517";
+const hubMuted = "#8a7d80";
+const hubRed = "#c8102e";
+const hubGold = "#f2c14e";
+const mist = "#f5f1f0";
+const leaf = "#1f6b40";
+const hubCard = `background: #fff; border-radius: {14}; box-shadow: 0 {10} {24} rgb(31 5 13 / 38%)`;
+// figma strokes these frames inside; an inset shadow draws the same line without moving the children a border would.
+const inside = (colour, width = 1) => `box-shadow: inset 0 0 0 {${width}} ${colour}`;
+
+// act 1 phone frames, as the device cover drew them (439:2655, 439:2658, 439:2661): frame, status bar, screen, island.
+const hubPhones = {
+  left: { node: "585:18518", box: [59, 52, 100, 217], r: 17, screenR: 14, bar: 16, time: [10, 6], battery: [75, 7, 9, 4], island: [36, 9, 28, 7], rotate: true },
+  right: { node: "585:18536", box: [295, 52, 100, 217], r: 17, screenR: 14, rotate: true },
+  center: { node: "585:18527", box: [169, 24, 116, 252], r: 20, screenR: 16, bar: 19, time: [12, 7], battery: [89, 8, 10, 5], island: [42, 10, 32, 8] },
+};
+
+/** an act 1 phone: its frame, a white status bar where figma draws one, the real screen under it, and the island. the
+    side phones turn through figma's registered --rotate-transform, which their keyframes run. */
+function hubPhone(slot, src) {
+  const { node, box, r, screenR, bar = 0, time, battery, island } = hubPhones[slot];
+  const [, , w, h] = box;
+  const screen = { box: [4, 4 + bar, w - 8, h - 8 - bar], src, style: `object-fit: cover; object-position: top; border-radius: ${bar ? `0 0 {${screenR}} {${screenR}}` : `{${screenR}}`}` };
+  const status = bar ? [{
+    box: [4, 4, w - 8, bar], style: `background: #fff; border-radius: {${screenR}} {${screenR}} 0 0; overflow: hidden`,
+    children: [text(undefined, time[0], time[1], "9:41", type("inter", 600, 6, 0, "#1a1a1f")), fill(undefined, battery, "#1a1a1f", 1.5)],
+  }] : [];
+  return {
+    node, box, style: `background: #1b2026; border-radius: {${r}}; overflow: hidden; box-shadow: 0 {18} {40} rgb(0 0 0 / 35%)`,
+    children: [...status, screen, ...(island ? [fill(undefined, island, "#0b0d10", 5)] : [])],
+  };
+}
+
+/** an act 1 label under a phone: the gold dot and its mono name. */
+function phoneLabel(node, box, label) {
+  return {
+    node, box, style: `background: rgb(29 21 23 / 92%); border-radius: {8}; overflow: hidden; box-shadow: 0 {12} {22} rgb(20 3 8 / 35%)`,
+    children: [fill(undefined, [8, 6, 4, 4], hubGold, 2), text(undefined, 17, 4, label, type("mono", 500, 6, 0.6, "#fff"))],
+  };
+}
+
+/** a filter chip, and the red on state that fades in over it when it is picked. */
+function filterChip(node, on, box, label, labelX) {
+  const [, , w, h] = box;
+  return {
+    node, box, style: `background: #fff; border-radius: {8}; ${inside("#ddd3d4")}`,
+    children: [
+      text(undefined, labelX, 4, label, type("figtree", 500, 7, 0, "#4a3f42")),
+      ...(on ? [{ node: on, box: [0, 0, w, h], style: `background: ${hubRed}; border-radius: {8}; opacity: 0`, children: [text(undefined, labelX, 4, label, type("figtree", 500, 7, 0, "#fff"))] }] : []),
+    ],
+  };
+}
+
+/** a clinic result row: name, detail, the plan accepted pill, its copay and the open now dot. */
+function result(node, top, name, detail, copay, selected) {
+  return {
+    node, box: [14, top, 222, 44], style: `background: #fff; border-radius: {10}; ${inside("#e6dcdd")}`,
+    children: [
+      text(undefined, 10, 7, name, type("figtree", 600, 8.5, 0, hubInk)),
+      text(undefined, 10, 19, detail, type("figtree", 400, 6.5, 0, hubMuted)),
+      { box: [10, 29, 46, 10], style: "background: #e5f3ea; border-radius: {5}", children: [text(undefined, 5, 1.5, "Plan accepted", type("figtree", 500, 5.5, 0, leaf))] },
+      text(undefined, 62, 29.5, copay, type("figtree", 600, 7, 0, hubInk)),
+      { box: [170, 10, 4, 4], style: "background: #2e9e5b; border-radius: 50%" },
+      text(undefined, 177, 7.5, "Open now", type("figtree", 500, 6.5, 0, leaf)),
+      ...(selected ? [{ node: selected, box: [0, 0, 222, 44], style: `border: {1.2} solid ${hubRed}; border-radius: {10}; opacity: 0` }] : []),
+    ],
+  };
+}
+
+/** a time slot on the booking card, with the red on state for the one that is picked. */
+function timeSlot(node, on, x, label, labelX) {
+  return {
+    node, box: [x, 86, 38, 20], style: `background: #fff; border-radius: {6}; ${inside("#ddd3d4")}`,
+    children: [
+      text(undefined, labelX, 6, label, type("figtree", 500, 7, 0, "#4a3f42")),
+      ...(on ? [{ node: on, box: [0, 0, 38, 20], style: `background: ${hubRed}; border-radius: {6}; opacity: 0`, children: [text(undefined, labelX, 6, label, type("figtree", 500, 7, 0, "#fff"))] }] : []),
+    ],
+  };
+}
+
+/** an act 3 phone: the real screen in a dark bezel with a dynamic island. figma's frame strokes 1px inside, so the
+    screen and island sit 1px nearer the border than their figma x and y. */
+function bookedPhone(node, box, r, screenR, island, src) {
+  const [, , w, h] = box;
+  return {
+    node, box, style: `background: #0e0b0c; border: {1} solid #3a3033; border-radius: {${r}}; overflow: hidden; box-shadow: 0 {12} {22} rgb(20 3 8 / 50%)`,
+    children: [
+      { box: [3, 3, w - 8, h - 8], src, style: `object-fit: cover; border-radius: {${screenR}}` },
+      fill(undefined, [island[0] - 1, island[1] - 1, island[2], island[3]], "#000", island[4]),
+    ],
+  };
+}
+
+/** an act 3 chip that floats in beside the phones. */
+function floatChip(node, box, label, colour, tint) {
+  return {
+    node, box, style: `background: ${tint}; border-radius: {9}; overflow: hidden; box-shadow: 0 {12} {22} rgb(20 3 8 / 30%)`,
+    children: [text(undefined, 8, 5, label, type("figtree", 600, 7, 0, colour))],
+  };
+}
+
+const hubScreens = "/images/work/terpcarehub";
+
+const terpcarehub = {
+  figma: "584:18068",
+  seconds: 21,
+  still: 18.0,
+  field: ["584:18070", "584:18071", "584:18072", "584:18073", "584:18074"],
+  layers: [
+    {
+      node: "585:18516", box: [0, 0, 454, 256],
+      children: [
+        text("585:18517", 14, 12, "TERPCAREHUB · UMD CAMPUS HEALTH", type("mono", 500, 6.5, 0.65, "rgb(255 255 255 / 62%)")),
+        hubPhone("left", `${hubScreens}/terpcarehub-cover-home.png`),
+        hubPhone("right", `${hubScreens}/terpcarehub-cover-wellness.png`),
+        // the centre phone scales 2.6 times from its centre as it dissolves into the find care card.
+        hubPhone("center", `${hubScreens}/terpcarehub-cover-find-care.png`),
+        phoneLabel("585:18524", [84, 222, 50, 16], "ALERTS"),
+        phoneLabel("585:18533", [195.5, 228, 63, 16], "FIND CARE"),
+        phoneLabel("585:18538", [316, 222, 58, 16], "PROGRAMS"),
+      ],
+    },
+    scene("584:18076", [
+      {
+        node: "584:18077", box: [22, 26, 250, 204], style: hubCard,
+        children: [
+          text(undefined, 14, 12, "Find care", type("figtree", 600, 12, 0, hubInk)),
+          text(undefined, 163, 16, "UMD · COLLEGE PARK", type("mono", 400, 6, 0.48, hubMuted)),
+          {
+            box: [14, 32, 222, 24], style: `background: ${mist}; border-radius: {12}`,
+            children: [
+              { box: [10, 7, 10, 10], svg: { w: 10, h: 10, body: `<circle cx="4.2" cy="4.2" r="3.2" stroke="${hubMuted}" stroke-width="1.1" /><path d="M6.6 6.6L9 9" stroke="${hubMuted}" stroke-width="1.1" stroke-linecap="round" />` } },
+              text("584:18084", 26, 6.5, "Clinics, symptoms or services", type("figtree", 400, 8, 0, "#a1969a")),
+              text("584:18085", 26, 6, "flu shot", type("figtree", 500, 8.5, 0, hubInk)),
+              // the cover hides flu shot and steps right with the caret, so the search types in.
+              fill("584:18086", [25.5, 4, 32, 16], mist),
+              fill("584:18087", [26, 6.5, 1.2, 11], hubRed),
+            ],
+          },
+          { node: "584:18088", box: [13, 31, 224, 26], style: `border: {1} solid ${hubRed}; border-radius: {13}; opacity: 0` },
+          filterChip("584:18089", "584:18091", [14, 64, 46, 16], "Open now", 6.5),
+          filterChip("584:18093", "584:18095", [66, 64, 62, 16], "Takes my plan", 8.5),
+          filterChip(undefined, undefined, [134, 64, 52, 16], "On campus", 8),
+          text("584:18099", 14, 87, "2 CLINICS OPEN NOW · SOONEST FIRST", type("mono", 400, 5.5, 0.33, hubMuted)),
+          result("584:18100", 98, "University Health Center", "Primary care · On campus · 4 min walk", "$0 copay", "584:18108"),
+          result("584:18109", 148, "College Park Family Care", "Urgent care · 1.2 mi", "$25 copay"),
+        ],
+      },
+      {
+        node: "584:18117", box: [286, 26, 146, 204], style: hubCard,
+        children: [
+          text(undefined, 12, 12, "NEXT AVAILABLE", type("mono", 400, 6, 0.48, hubMuted)),
+          text(undefined, 12, 22, "University Health Center", type("figtree", 600, 10, 0, hubInk)),
+          { box: [12, 52, 52, 12], style: "background: #e5f3ea; border-radius: {6}", children: [text(undefined, 6.5, 2.5, "Plan accepted", type("figtree", 500, 6, 0, leaf))] },
+          text(undefined, 70, 53.5, "$0 copay", type("figtree", 600, 7.5, 0, hubInk)),
+          text(undefined, 12, 76, "TODAY", type("mono", 400, 6, 0.48, hubMuted)),
+          timeSlot("584:18124", "584:18126", 12, "2:40 PM", 5.5),
+          timeSlot(undefined, undefined, 54, "3:10 PM", 6.5),
+          timeSlot(undefined, undefined, 96, "4:00 PM", 5.5),
+          { box: [12, 116, 122, 22], style: `background: ${mist}; border-radius: {6}`, children: [text(undefined, 8, 6.5, "Reason for visit (optional)", type("figtree", 400, 6.5, 0, "#a1969a"))] },
+          {
+            node: "584:18134", box: [12, 150, 122, 26], style: `background: ${hubRed}; border-radius: {13}`,
+            children: [
+              text(undefined, 22, 8.5, "Book today at 2:40 PM", type("figtree", 600, 7.5, 0, "#fff")),
+              {
+                node: "584:18136", box: [0, 0, 122, 26], style: `background: ${hubInk}; border-radius: {13}; opacity: 0`,
+                children: [
+                  trimmed("584:18138", [12, 8, 10, 10], "M1.5 5.2L4 7.6L8.6 2.6", hubGold, 1.4),
+                  text(undefined, 27, 8.5, "Booked · Today 2:40 PM", type("figtree", 600, 7.5, 0, "#fff")),
+                ],
+              },
+            ],
+          },
+          text(undefined, 12, 184, "SIGN IN ONLY TO BOOK", type("mono", 400, 5.5, 0.44, hubMuted)),
+        ],
+      },
+      {
+        node: "584:18141", box: [152, 214, 150, 28], style: `background: ${hubInk}; border-radius: {10}; overflow: hidden; box-shadow: 0 {10} {24} rgb(31 5 13 / 38%)`,
+        children: [
+          text(undefined, 10, 7, "Booked for today at 2:40 PM", type("figtree", 500, 7, 0, "#fff")),
+          text(undefined, 122, 7, "Undo", type("figtree", 600, 7, 0, hubGold)),
+          // the timer's width runs down from 130 to 0.5 figma px as the undo window closes.
+          { node: "584:18144", box: [10, 23, 130, 1.5], style: `background: ${hubGold}; border-radius: {1}; opacity: 0.8` },
+        ],
+      },
+      {
+        box: [20, 84, 320, 90],
+        children: [
+          text("584:18146", 0, 0, "TERPCAREHUB · BOOKING", type("mono", 500, 7, 0.7, hubGold)),
+          text("584:18147", 0, 14, "Booked in two taps", type("serif", 400, 24, 0, "#fff")),
+          { node: "584:18148", box: [1, 46, 200], text: "From a search to a booked slot, with plan and cost on the card.", style: `${type("figtree", 400, 9, 0, "rgb(255 255 255 / 78%)")}; white-space: normal` },
+        ],
+      },
+      cursor("584:18149", 200, 170),
+    ]),
+    {
+      node: "585:18617", box: [0, 0, 454, 256],
+      children: [
+        bookedPhone("585:18618", [254, 44, 124, 259], 19.84, 16.12, [44.64, 7.44, 34.72, 8.68, 4.34], `${hubScreens}/mobile-provider-detail.png`),
+        bookedPhone("585:18621", [312, 22, 140, 294], 22.4, 18.2, [50.4, 8.4, 39.2, 9.8, 4.9], `${hubScreens}/mobile-booking-confirmed.png`),
+        // the badge pops from 0.2 about its centre, then its check draws in.
+        {
+          node: "585:18624", box: [299, 92, 26, 26], style: `background: ${hubGold}; border-radius: {13}; filter: drop-shadow(0 {12} {11} rgb(20 3 8 / 40%))`,
+          children: [trimmed("585:18626", [6, 6, 14, 14], "M2.5 7.3L5.6 10.3L11.5 3.8", hubInk, 2)],
+        },
+        floatChip("585:18627", [214, 176, 62, 18], "Plan accepted", leaf, "#e5f3ea"),
+        floatChip("585:18629", [398, 150, 46, 18], "$0 copay", hubInk, "#fff"),
+        floatChip("585:18631", [262, 226, 67, 18], "Add to calendar", hubGold, hubInk),
+      ],
+    },
+  ],
+};
+
 /** @type {Record<string, CoverMotion>} */
 export const coverMotion = {
   "college-park-capstone": capstone,
   ovara,
   "kairo-health": kairo,
+  terpcarehub,
 };

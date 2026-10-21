@@ -28,8 +28,8 @@ const { slug, figma, layers, root = false, frame = 454 } = Astro.props;
   : <div class="cm-layer" data-node={layer.node} style={layerStyle(layer, frame)}>{layer.children && <Astro.self slug={slug} layers={layer.children} frame={frame} />}</div>
 ))}
 <style>
-  /* figma sets some text in inter. the home page loads no specimen fonts (specimens.test.mjs), so that text falls back
-     to the system face. */
+  /* figma sets some text in inter. the home page loads no inter (specimens.test.mjs), so that text falls back to the
+     system face. terpcarehub's figtree is declared on the home page (index.astro). */
   .cover-motion { position: absolute; z-index: 1; inset: 0; overflow: hidden; pointer-events: none; }
   /* figma places a layer by its top left corner; scale and rotate keyframes turn it about its centre, as figma does. */
   .cm-layer { position: absolute; box-sizing: border-box; max-width: none; line-height: normal; white-space: pre; }

@@ -3,7 +3,7 @@
  * a field is the cover frame's dark fill under blurred ellipses. x, y and r are an ellipse's centre and radius on the
  * 454 by 256 cover; colour and alpha are its fill and fill opacity; blur is figma's layer blur radius, which the svg
  * export writes as a gaussian stdDeviation of half that. the capstone, ovara and kairo fields sit inside their motion
- * cover instances.
+ * cover instances, and terpcarehub's is its motion cover's colour field (584:18069).
  *
  * @typedef {{ x: number, y: number, r: number, colour: string, alpha: number }} FieldEllipse
  * @typedef {{ figma: string, base: string, blur: number, ellipses: FieldEllipse[] }} CoverField
@@ -36,7 +36,7 @@ export const coverFields = {
     ],
   },
   terpcarehub: {
-    figma: "451:8407",
+    figma: "584:18069",
     base: "#140c10",
     blur: 72,
     ellipses: [

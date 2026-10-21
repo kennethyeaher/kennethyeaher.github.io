@@ -15,7 +15,7 @@ import { caseStudies } from "../src/data/caseStudies.mjs";
 import { coverFields } from "../src/data/coverFields.mjs";
 import { coverDevices } from "../src/data/coverDevices.mjs";
 import { coverMotion, ovaraTiles } from "../src/data/coverMotion.mjs";
-import { coverMotionCss, coverMotionPath, loopMotionCss, readMotion, scalePx, splitSnippet } from "../scripts/build-cover-motion.mjs";
+import { coverMotionCss, coverMotionPath, loopMotionCss, motionSources, readMotion, scalePx, splitSnippet } from "../scripts/build-cover-motion.mjs";
 import { loopMotion } from "../src/data/loopMotion.mjs";
 import { approvedLedes, readProse } from "../scripts/build-approved-ledes.mjs";
 
@@ -187,7 +187,7 @@ test("every home card takes its dark base and blurred colour field from its figm
   // the cover frame's fill, the colour field frame's node, figma's blur radius and its ellipse count.
   const expected = {
     "college-park-capstone": ["#15110d", "I454:3047;454:451", 72, 5],
-    terpcarehub: ["#140c10", "451:8407", 72, 5],
+    terpcarehub: ["#140c10", "584:18069", 72, 5],
     frontground: ["#071311", "451:8413", 72, 5],
     sohive: ["#0f1014", "445:7303", 70, 6],
     terpcare: ["#150a0b", "451:8419", 72, 5],
@@ -217,24 +217,24 @@ function pngSize(file) {
 }
 
 test("device covers follow their figma frames: a macbook for elms and frontground, three phones for the app cards", () => {
-  assert.deepEqual(Object.keys(coverDevices).sort(), ["elms-redesign", "frontground", "sohive", "terpcare", "terpcarehub"]);
+  // terpcarehub's phones moved into its motion cover, so four device covers are left.
+  assert.deepEqual(Object.keys(coverDevices).sort(), ["elms-redesign", "frontground", "sohive", "terpcare"]);
   // both macbooks are Device/Laptop instances (325:499) on figma 428:2664.
   assert.deepEqual([coverDevices.frontground.kind, coverDevices.frontground.figma], ["macbook", "528:12392"]);
   assert.deepEqual([coverDevices["elms-redesign"].kind, coverDevices["elms-redesign"].figma], ["macbook", "528:12385"]);
   // elms shows the dc repainted ready to send screen at 1440 (figma's core-1 fill, 2880 by 2152), frontground the doctor dashboard.
   assert.equal(coverDevices["elms-redesign"].screen.src, "/images/work/elms-redesign/elms-cover-new-message.png");
   assert.equal(coverDevices.frontground.screen.src, "/images/work/frontground/frontground-cover-doctor.png");
-  const phones = { terpcarehub: "428:2686", sohive: "428:2698", terpcare: "428:2704" };
+  const phones = { sohive: "428:2698", terpcare: "428:2704" };
   for (const [slug, figma] of Object.entries(phones)) {
     const cover = coverDevices[slug];
     assert.deepEqual([cover.kind, cover.figma], ["phones", figma], slug);
     // drawn in figma's layer order, so the centre phone sits on top of the two it fans out from.
     assert.deepEqual(cover.phones.map(({ slot }) => slot), ["left", "right", "center"], slug);
   }
-  // status bars and islands only where figma draws them: terpcarehub's right screen carries its own.
-  const layers = (slug) => coverDevices[slug].phones.map(({ slot, statusBar = false, island = false }) => [slot, statusBar, island]);
-  assert.deepEqual(layers("terpcarehub"), [["left", true, true], ["right", false, false], ["center", true, true]]);
-  for (const slug of ["sohive", "terpcare"]) assert.deepEqual(layers(slug), [["left", false, true], ["right", false, true], ["center", false, true]]);
+  // islands only where figma draws them, and no phone draws a status bar.
+  const layers = (slug) => coverDevices[slug].phones.map(({ slot, island = false, ...rest }) => [slot, island, "statusBar" in rest]);
+  for (const slug of ["sohive", "terpcare"]) assert.deepEqual(layers(slug), [["left", true, false], ["right", true, false], ["center", true, false]]);
   // sohive's three screens are the case study's own captures, so the cover reuses them.
   assert.deepEqual(coverDevices.sohive.phones.map(({ src }) => src), ["/images/work/sohive/sohive-event-screen.png", "/images/work/sohive/sohive-profile-screen.png", "/images/work/sohive/sohive-feed-screen.png"]);
   const screens = [coverDevices.frontground.screen, coverDevices["elms-redesign"].screen, ...Object.keys(phones).flatMap((slug) => coverDevices[slug].phones)];
@@ -259,9 +259,10 @@ function motionNodes(slug) {
   return [...coverMotion[slug].field, ...layers.flatMap(({ node }) => (node ? [node] : [])), ...paths];
 }
 
-test("motion covers run figma's timelines (482:10252, ovara v5 549:11632, 485:11148) on every animated node", () => {
-  assert.deepEqual(Object.keys(coverMotion).sort(), ["college-park-capstone", "kairo-health", "ovara"]);
-  const expected = { "college-park-capstone": ["482:10252", 13.6, 51], ovara: ["549:11632", 13.6, 136], "kairo-health": ["485:11148", 13.2, 37] };
+test("motion covers run figma's timelines (482:10252, ovara v5 549:11632, 485:11148, terpcarehub v2 584:18068) on every animated node", () => {
+  assert.deepEqual(Object.keys(coverMotion).sort(), ["college-park-capstone", "kairo-health", "ovara", "terpcarehub"]);
+  assert.deepEqual(Object.keys(motionSources).filter((slug) => coverMotion[slug]).sort(), Object.keys(coverMotion).sort());
+  const expected = { "college-park-capstone": ["482:10252", 13.6, 51], ovara: ["549:11632", 13.6, 136], "kairo-health": ["485:11148", 13.2, 37], terpcarehub: ["584:18068", 21, 45] };
   for (const [slug, [figma, seconds, animated]] of Object.entries(expected)) {
     const motion = coverMotion[slug];
     const { nodes, timelineCohorts } = readMotion(slug);
@@ -286,6 +287,20 @@ test("motion covers run figma's timelines (482:10252, ovara v5 549:11632, 485:11
   assert.deepEqual(scenes("college-park-capstone"), ["482:10762", "482:10847", "482:11136", "482:11281"]);
   assert.deepEqual(scenes("ovara"), ["550:12080"]);
   assert.deepEqual(scenes("kairo-health"), ["485:11658"]);
+  // terpcarehub stacks act 1, the find and book scene and act 3 over its field, with no dot grid.
+  assert.deepEqual(scenes("terpcarehub"), ["585:18516", "584:18076", "585:18617"]);
+  assert.equal(coverMotion.terpcarehub.still, 18.0);
+  assert.ok(!motionLayers(coverMotion.terpcarehub.layers).some(({ src }) => src?.includes("cover-dot-grid")), "terpcarehub has no dot grid");
+  // its screens are the prototype's own captures: act 1's three phones, then act 3's provider detail and booking confirmed.
+  const screens = motionLayers(coverMotion.terpcarehub.layers).flatMap(({ src }) => (src?.endsWith(".png") ? [src.split("/").pop()] : []));
+  assert.deepEqual(screens, ["terpcarehub-cover-home.png", "terpcarehub-cover-wellness.png", "terpcarehub-cover-find-care.png", "mobile-provider-detail.png", "mobile-booking-confirmed.png"]);
+  // the booked check and the badge check are path trims, and the side phones turn through the registered rotation.
+  const trims = motionLayers(coverMotion.terpcarehub.layers).flatMap(({ svg }) => (svg ? [...svg.body.matchAll(/data-node="([^"]+)" pathLength="1"/g)].map(([, node]) => node) : []));
+  assert.deepEqual(trims, ["584:18138", "585:18626"]);
+  const hubCss = coverMotionCss("terpcarehub");
+  assert.ok(hubCss.includes("@property --rotate-transform { syntax: '<angle>'; initial-value: 0rad; inherits: false; }"));
+  assert.ok(hubCss.includes("@keyframes kf_584_18144_width_0 { 0% { width: calc(130 * var(--u)); }"), "the undo timer runs down in cover px");
+  assert.ok(hubCss.includes("animation-timing-function: step-end; translate: calc(4 * var(--u)) 0px;"), "the type cover steps");
   // the ovara tiers match figma's tile motion and layer names (Tile r-c X): desert tiles pop to 1.18 and stay lit, the rest fade to 0.16.
   const tiles = readMotion("ovara").nodes.filter(({ nodeName }) => nodeName.startsWith("Tile "));
   assert.equal(tiles.length, 112);
@@ -356,6 +371,7 @@ test("motion cover copy uses real figures and DC names in place of the capstone 
     "college-park-capstone": ["survey", "None of these", "17 of 24", "Diana", "Bruce", "journey curve"],
     ovara: ["Cass County", "search", "0.92", "Livingston Parish", "1.39", "1,029"],
     "kairo-health": ["scanned pediatric triage form", "Extract", "noisy values", "55 of 56"],
+    terpcarehub: ["three TerpCareHub prototype screens", "flu shot", "University Health Center", "2:40 PM", "booking confirmed"],
   };
   for (const [slug, words] of Object.entries(alts)) {
     const study = caseStudies.find((entry) => entry.slug === slug);
