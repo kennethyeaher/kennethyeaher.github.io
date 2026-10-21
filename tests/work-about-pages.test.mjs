@@ -35,10 +35,10 @@ test("the Work page renders the approved thesis and the home grid project order"
 
   const routes = [
     "/work/elms-redesign",
-    "/work/college-park-capstone",
+    "/work/terpcarehub",
     "/work/sohive",
     "/work/ovara",
-    "/work/terpcarehub",
+    "/work/college-park-capstone",
     "/work/terpcare",
     "/work/frontground",
     "/work/kairo-health",

@@ -21,14 +21,14 @@ import { approvedLedes, readProse } from "../scripts/build-approved-ledes.mjs";
 
 const specPath = new URL("../.private/redesign-spec/v2-pages.json", import.meta.url);
 
-// home grid redesign (figma 428:2684): elms leads (436:1866), then the capstone, sohive and ovara, then terpcarehub,
+// home grid redesign (figma 428:2684): elms leads (436:1866), then terpcarehub, sohive and ovara, then the capstone,
 // terpcare and frontground.
 const expectedOrder = [
   "elms-redesign",
-  "college-park-capstone",
+  "terpcarehub",
   "sohive",
   "ovara",
-  "terpcarehub",
+  "college-park-capstone",
   "terpcare",
   "frontground",
   "kairo-health",
@@ -71,20 +71,20 @@ test("every project has a unique slug and every navigation target resolves", () 
 
 test("adjacent-project navigation wraps without a dead end", () => {
   assert.equal(
-    getAdjacentProject("college-park-capstone", "previous").slug,
+    getAdjacentProject("terpcarehub", "previous").slug,
     "elms-redesign",
   );
-  // kairo hands on to elms, and elms wraps round to the capstone.
+  // kairo hands on to elms, and elms wraps round to terpcarehub.
   assert.equal(getAdjacentProject("kairo-health", "next").slug, "elms-redesign");
-  assert.equal(getAdjacentProject("elms-redesign", "next").slug, "college-park-capstone");
-  assert.equal(getAdjacentProject("college-park-capstone", "next").slug, "sohive");
-  assert.equal(getAdjacentProject("terpcarehub", "next").slug, "terpcare");
+  assert.equal(getAdjacentProject("elms-redesign", "next").slug, "terpcarehub");
+  assert.equal(getAdjacentProject("college-park-capstone", "next").slug, "terpcare");
+  assert.equal(getAdjacentProject("terpcarehub", "next").slug, "sohive");
   assert.equal(getAdjacentProject("frontground", "previous").slug, "terpcare");
   assert.equal(
     getAdjacentProject("ovara", "previous").slug,
     "sohive",
   );
-  assert.equal(getAdjacentProject("ovara", "next").slug, "terpcarehub");
+  assert.equal(getAdjacentProject("ovara", "next").slug, "college-park-capstone");
   assert.equal(getAdjacentProject("frontground", "next").slug, "kairo-health");
   // every next is undone by a previous, round the whole loop.
   for (const { slug } of projects) assert.equal(getAdjacentProject(getAdjacentProject(slug, "next").slug, "previous").slug, slug);

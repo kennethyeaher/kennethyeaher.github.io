@@ -118,10 +118,10 @@ test("previous and next project links wrap without dead ends", () => {
   const last = pages.get("elms-redesign");
 
   // the v2 exhibit shell (figma 61:1059) closes on a next project link only, in the home order.
-  assert.match(first, /href="\/work\/sohive"/);
+  assert.match(first, /href="\/work\/terpcare"/);
   assert.match(middle, /href="\/work\/frontground"/);
   assert.match(kairo, /class="next-link" href="\/work\/elms-redesign"/);
-  assert.match(last, /class="next-link" href="\/work\/college-park-capstone"/);
+  assert.match(last, /class="next-link" href="\/work\/terpcarehub"/);
 });
 
 
@@ -285,7 +285,7 @@ test("Ovara renders the v2 exhibit layout from the approved spec", () => {
   assert.match(ovara, /<p class="audit-value"[^>]*>\+0\.33 → \+0\.12<\/p>/);
   assert.match(ovara, /<dt class="audit-heading is-guard"[^>]*>Guard<\/dt>/);
   assert.match(ovara, /That is the number I would have quoted in an interview\./);
-  assert.match(ovara, /href="\/work\/terpcarehub"/);
+  assert.match(ovara, /href="\/work\/college-park-capstone"/);
   assertBadgesResolve(ovara, 3);
 });
 
@@ -333,7 +333,7 @@ test("TerpCareHub renders the v2 exhibit layout from its prose mock", () => {
   // four interface states, each with its name and line.
   assert.equal([...page.matchAll(/<p class="state-name"/g)].length, 4);
   assert.match(page, /interface-state-degraded\.png/);
-  assert.match(page, /href="\/work\/terpcare"/);
+  assert.match(page, /href="\/work\/sohive"/);
 });
 
 /** the visible text of an html fragment, tags dropped and whitespace collapsed. */
@@ -490,7 +490,7 @@ test("the Capstone renders the v2 exhibit layout from its prose mock", () => {
   assertBadgesResolve(page, 3);
   assert.match(page, /TYLER’S JOURNEY MAP  ·  FOUR STAGES, NO PLANNING, NO ARRIVAL/);
   assert.match(page, /journey-tyler\.png/);
-  assert.match(page, /href="\/work\/sohive"/);
+  assert.match(page, /href="\/work\/terpcare"/);
 });
 
 test("Frontground renders the v2 exhibit layout from its prose mock", () => {
