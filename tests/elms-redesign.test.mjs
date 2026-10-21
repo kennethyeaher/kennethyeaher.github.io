@@ -110,7 +110,7 @@ test("elms follows figma 413:2396: seven rail chapters, the award on the hero, F
   assert.match(changed, /<tr class="is-accent-row"[^>]*>\s*<th scope="row"[^>]*>HI-FI PROTOTYPE<\/th>/);
   assert.match(changed, /FOUR ROUNDS  ·  AUDIT, PAPER, WIREFRAMES, HI-FI/);
   // the next project is the capstone, the first card in the home order.
-  assert.match(page, /class="next-link" href="\/work\/college-park-capstone"/);
+  assert.match(page, /class="next-link" href="\/work\/terpcarehub"/);
 });
 
 test("placeholder people are dc characters on the screens and in the copy, and the professor's advice is paraphrased", () => {
