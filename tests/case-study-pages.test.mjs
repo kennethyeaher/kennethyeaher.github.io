@@ -118,8 +118,8 @@ test("previous and next project links wrap without dead ends", () => {
   const last = pages.get("elms-redesign");
 
   // the v2 exhibit shell (figma 61:1059) closes on a next project link only, in the home order.
-  assert.match(first, /href="\/work\/terpcarehub"/);
-  assert.match(middle, /href="\/work\/ovara"/);
+  assert.match(first, /href="\/work\/sohive"/);
+  assert.match(middle, /href="\/work\/frontground"/);
   assert.match(kairo, /class="next-link" href="\/work\/elms-redesign"/);
   assert.match(last, /class="next-link" href="\/work\/college-park-capstone"/);
 });
@@ -285,7 +285,7 @@ test("Ovara renders the v2 exhibit layout from the approved spec", () => {
   assert.match(ovara, /<p class="audit-value"[^>]*>\+0\.33 → \+0\.12<\/p>/);
   assert.match(ovara, /<dt class="audit-heading is-guard"[^>]*>Guard<\/dt>/);
   assert.match(ovara, /That is the number I would have quoted in an interview\./);
-  assert.match(ovara, /href="\/work\/kairo-health"/);
+  assert.match(ovara, /href="\/work\/terpcarehub"/);
   assertBadgesResolve(ovara, 3);
 });
 
@@ -333,7 +333,7 @@ test("TerpCareHub renders the v2 exhibit layout from its prose mock", () => {
   // four interface states, each with its name and line.
   assert.equal([...page.matchAll(/<p class="state-name"/g)].length, 4);
   assert.match(page, /interface-state-degraded\.png/);
-  assert.match(page, /href="\/work\/frontground"/);
+  assert.match(page, /href="\/work\/terpcare"/);
 });
 
 /** the visible text of an html fragment, tags dropped and whitespace collapsed. */
@@ -490,7 +490,7 @@ test("the Capstone renders the v2 exhibit layout from its prose mock", () => {
   assertBadgesResolve(page, 3);
   assert.match(page, /TYLER’S JOURNEY MAP  ·  FOUR STAGES, NO PLANNING, NO ARRIVAL/);
   assert.match(page, /journey-tyler\.png/);
-  assert.match(page, /href="\/work\/terpcarehub"/);
+  assert.match(page, /href="\/work\/sohive"/);
 });
 
 test("Frontground renders the v2 exhibit layout from its prose mock", () => {
@@ -521,7 +521,7 @@ test("Frontground renders the v2 exhibit layout from its prose mock", () => {
     assert.doesNotMatch(chapter, /class="exhibit-rows/, `${id} has no rows`);
   }
   assert.equal([...page.matchAll(/class="exhibit-row"/g)].length, 0);
-  assert.match(page, /href="\/work\/sohive"/);
+  assert.match(page, /href="\/work\/kairo-health"/);
 });
 
 test("Frontground's offline chapter pairs two laptop loops and triage features one with its steps (figma 325:506, 325:545)", () => {
@@ -738,7 +738,7 @@ test("TerpCare renders the v2 exhibit layout from its prose mock", () => {
   assert.equal([...mood.matchAll(/Dark mode from the same tokens/g)].length, 1);
   // no other rows carry a lead or zigzag (frontground, terpcarehub).
   for (const [slug, other] of pages) if (slug !== "terpcare") assert.doesNotMatch(other, /class="rows-lead"|is-zigzag/, `${slug} has no rows lead or zigzag`);
-  assert.match(page, /href="\/work\/ovara"/);
+  assert.match(page, /href="\/work\/frontground"/);
 });
 
 test("sohive renders the v2 exhibit layout from its prose mock", () => {
@@ -769,7 +769,7 @@ test("sohive renders the v2 exhibit layout from its prose mock", () => {
   // the artboard count draws 114 and 34 tiles in html, with its counts as text.
   assert.equal([...page.matchAll(/<div class="count-tiles"[^>]*>([\s\S]*?)<\/div>/g)].map((match) => (match[1].match(/<i\b/g) ?? []).length).join(","), "114,34");
   assert.match(page, /<span class="count-number"[^>]*>114<\/span>/);
-  assert.match(page, /href="\/work\/terpcare"/);
+  assert.match(page, /href="\/work\/ovara"/);
 });
 
 test("exactly the eleven small pinned stages zoom to the active annotation (figma 168:1745, 197:1727)", () => {

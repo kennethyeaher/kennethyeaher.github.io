@@ -263,16 +263,16 @@ export const aboutChapters = [
   },
 ];
 
-/** home grid order (figma 428:2684): elms leads (436:1866), then the capstone, and frontground follows terpcarehub.
-    next and previous follow it too, so kairo wraps round to elms. */
+/** home grid order (figma 428:2684): elms leads (436:1866), then the capstone, sohive and ovara, then terpcarehub,
+    terpcare and frontground. next and previous follow it too, so kairo wraps round to elms. */
 const order = [
   "elms-redesign",
   "college-park-capstone",
-  "terpcarehub",
-  "frontground",
   "sohive",
-  "terpcare",
   "ovara",
+  "terpcarehub",
+  "terpcare",
+  "frontground",
   "kairo-health",
 ];
 

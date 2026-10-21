@@ -21,15 +21,16 @@ import { approvedLedes, readProse } from "../scripts/build-approved-ledes.mjs";
 
 const specPath = new URL("../.private/redesign-spec/v2-pages.json", import.meta.url);
 
-// home grid redesign (figma 428:2684): elms leads (436:1866), then the capstone, and frontground follows terpcarehub.
+// home grid redesign (figma 428:2684): elms leads (436:1866), then the capstone, sohive and ovara, then terpcarehub,
+// terpcare and frontground.
 const expectedOrder = [
   "elms-redesign",
   "college-park-capstone",
-  "terpcarehub",
-  "frontground",
   "sohive",
-  "terpcare",
   "ovara",
+  "terpcarehub",
+  "terpcare",
+  "frontground",
   "kairo-health",
 ];
 
@@ -76,14 +77,15 @@ test("adjacent-project navigation wraps without a dead end", () => {
   // kairo hands on to elms, and elms wraps round to the capstone.
   assert.equal(getAdjacentProject("kairo-health", "next").slug, "elms-redesign");
   assert.equal(getAdjacentProject("elms-redesign", "next").slug, "college-park-capstone");
-  assert.equal(getAdjacentProject("college-park-capstone", "next").slug, "terpcarehub");
-  assert.equal(getAdjacentProject("terpcarehub", "next").slug, "frontground");
-  assert.equal(getAdjacentProject("frontground", "previous").slug, "terpcarehub");
+  assert.equal(getAdjacentProject("college-park-capstone", "next").slug, "sohive");
+  assert.equal(getAdjacentProject("terpcarehub", "next").slug, "terpcare");
+  assert.equal(getAdjacentProject("frontground", "previous").slug, "terpcare");
   assert.equal(
     getAdjacentProject("ovara", "previous").slug,
-    "terpcare",
+    "sohive",
   );
-  assert.equal(getAdjacentProject("ovara", "next").slug, "kairo-health");
+  assert.equal(getAdjacentProject("ovara", "next").slug, "terpcarehub");
+  assert.equal(getAdjacentProject("frontground", "next").slug, "kairo-health");
   // every next is undone by a previous, round the whole loop.
   for (const { slug } of projects) assert.equal(getAdjacentProject(getAdjacentProject(slug, "next").slug, "previous").slug, slug);
 });

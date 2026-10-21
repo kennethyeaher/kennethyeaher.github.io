@@ -36,11 +36,11 @@ test("the Work page renders the approved thesis and the home grid project order"
   const routes = [
     "/work/elms-redesign",
     "/work/college-park-capstone",
-    "/work/terpcarehub",
-    "/work/frontground",
     "/work/sohive",
-    "/work/terpcare",
     "/work/ovara",
+    "/work/terpcarehub",
+    "/work/terpcare",
+    "/work/frontground",
     "/work/kairo-health",
   ];
   const positions = routes.map((route) => workHtml.indexOf(`href="${route}"`));
