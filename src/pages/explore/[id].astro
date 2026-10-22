@@ -1,238 +1,700 @@
 ---
-// one explore item (figma 299:2331, 300:2052): back to the grid in the item's own view, a 560px square visual with
-// arrows either side and dots under it, then the code and the info line. with scripts off the visuals stack.
+// one explore item, v5 (figma 638:17643 rest and 638:17682 scrolled for a macbook item, 639:17658 and 639:17709 for
+// the iphones). at rest: back to the grid, the neighbouring items, the large device between its screen arrows, dots,
+// the code and title and the scroll hint. scrolling lifts the device to half size with its top at 104 and the project
+// sheet rises under it, driven by a view timeline on the scene. without scroll timelines, or with scripts off, the
+// sheet simply follows the device; reduced motion lays the page out in the scrolled state from the start.
 import Base from "@/layouts/Base.astro";
-import { exploreItems, visualBackground } from "@/data/explore.mjs";
+import DeviceFrame from "@/components/DeviceFrame.astro";
+import { exploreItems } from "@/data/explore.mjs";
+import { exploreSrcset } from "@/utils/exploreSrcset";
 
 type ExploreItem = (typeof exploreItems)[number];
 
 interface Props {
   item: ExploreItem;
+  prev: ExploreItem;
+  next: ExploreItem;
 }
 
 export function getStaticPaths() {
-  return exploreItems.map((item) => ({ params: { id: item.id }, props: { item } }));
+  const count = exploreItems.length;
+  return exploreItems.map((item, index) => ({
+    params: { id: item.id },
+    props: { item, prev: exploreItems[(index - 1 + count) % count], next: exploreItems[(index + 1) % count] },
+  }));
 }
 
-const { item } = Astro.props;
-const back = item.category === "personal" ? "/explore?view=personal" : "/explore";
-const many = item.visuals.length > 1;
+const { item, prev, next } = Astro.props;
+const macbook = item.device === "macbook";
+// iphones open with screen 2 in front (left, centre, right show screens 1, 2, 3); a macbook opens on screen 1.
+const start = macbook ? 0 : 1;
+const positions = ["left", "front", "right"];
+const number = (index: number) => String(index + 1).padStart(2, "0");
 ---
 
-<Base title={item.code} description={`${item.code}, ${item.category} work by Kenneth Yeaher. ${item.info}`}>
-  <article class="explore-item">
-    <a class="explore-back" href={back}><span aria-hidden="true">‹</span>Explore</a>
-    <div class="explore-viewer" data-viewer role="group" aria-roledescription="carousel" aria-label={`${item.code} visuals`}>
-      {many && <button type="button" class="explore-arrow is-prev" data-step="-1" aria-label="Previous visual">‹</button>}
-      <div class="explore-stage" data-stage>
+<Base title={item.title} description={item.line}>
+  <article class="explore-item" data-device={item.device}>
+    <div class="item-scene">
+      <div class="item-pin">
+        <div class="item-top">
+          <a class="item-back" href="/explore"><span aria-hidden="true">‹</span>Explore</a>
+          <nav class="item-pager" aria-label="More projects">
+            <a class="item-pager-link" href={`/explore/${prev.id}`} rel="prev">
+              <span aria-hidden="true">‹</span><span class="item-pager-label"><span class="sr-only">Previous project: </span>{prev.title}</span>
+            </a>
+            <a class="item-pager-link" href={`/explore/${next.id}`} rel="next">
+              <span class="item-pager-label"><span class="sr-only">Next project: </span>{next.title}</span><span aria-hidden="true">›</span>
+            </a>
+          </nav>
+        </div>
+
+        <div class="item-viewer" data-item-viewer data-start={start} role="group" aria-roledescription="carousel" aria-label={`${item.title} screens`}>
+          <div class="item-slot">
+            <button type="button" class="item-arrow is-prev" data-step="-1" aria-label="Previous screen">‹</button>
+            <div class="item-device" data-item-stage>
+              {
+                macbook ? (
+                  <DeviceFrame frame="macbook" src={item.screens[0].src} alt={item.screens[0].alt}>
+                    {item.screens.map((screen, index) => (
+                      <picture class:list={["item-screen", index === start && "is-current"]} data-screen>
+                        <source type="image/webp" srcset={exploreSrcset(screen.src)} sizes="(max-width: 760px) calc(100vw - 40px), 836px" />
+                        <img src={screen.src} alt={screen.alt} width="2880" height="1800" loading={index === 0 ? "eager" : "lazy"} fetchpriority={index === 0 ? "high" : "auto"} decoding="async" />
+                      </picture>
+                    ))}
+                  </DeviceFrame>
+                ) : (
+                  <div class="item-phones">
+                    {item.screens.map((screen, index) => (
+                      <div class="item-phone" data-phone data-pos={positions[index]}>
+                        <DeviceFrame frame="iphone" src={screen.src} alt={screen.alt} priority={index === 1} srcset={exploreSrcset(screen.src)} sizes="(max-width: 760px) 140px, 280px" />
+                      </div>
+                    ))}
+                  </div>
+                )
+              }
+            </div>
+            <button type="button" class="item-arrow is-next" data-step="1" aria-label="Next screen">›</button>
+          </div>
+          <div class="item-dots" role="group" aria-label="Screens">
+            {
+              item.screens.map((_, index) => (
+                <button type="button" class="item-dot" data-dot aria-label={`Screen ${index + 1} of ${item.screens.length}`} aria-pressed={index === start ? "true" : "false"} />
+              ))
+            }
+          </div>
+          <p class="sr-only" aria-live="polite" data-item-status></p>
+        </div>
+
+        {/* the sheet's h1 carries the title for assistive tech, so the rest caption and the hint are visual only. */}
+        <div class="item-caption" aria-hidden="true">
+          <p class="item-caption-code">{item.code}</p>
+          <p class="item-caption-title">{item.title}</p>
+          <p class="item-hint">SCROLL FOR THE PROJECT ↓</p>
+        </div>
+      </div>
+    </div>
+
+    <section class="item-sheet" aria-labelledby="item-title">
+      <div class="item-head">
+        <div class="item-name">
+          <p class="item-code">{item.code}</p>
+          <h1 class="item-title" id="item-title">{item.title}</h1>
+          <p class="item-meta">{item.meta}</p>
+        </div>
+        <p class="item-about">{item.about}</p>
+      </div>
+      <ol class="item-steps">
         {
-          item.visuals.map((visual, index) =>
-            "src" in visual ? (
-              <img class:list={["explore-slide", index === 0 && "is-current"]} data-slide src={visual.src} alt={visual.alt} decoding="async" />
-            ) : (
-              <div class:list={["explore-slide", index === 0 && "is-current"]} data-slide aria-hidden="true" style={`background-image: ${visualBackground(visual)}`} />
-            ),
+          item.steps.map((step, index) => (
+            <li class="item-step">
+              <picture class="item-thumb">
+                <source type="image/webp" srcset={exploreSrcset(item.thumbs[index].src)} sizes="(max-width: 760px) calc(100vw - 40px), 290px" />
+                <img src={item.thumbs[index].src} alt={item.thumbs[index].alt} width="290" height="181" loading="lazy" decoding="async" />
+              </picture>
+              <span class="item-step-number" aria-hidden="true">{number(index)}</span>
+              <h2 class="item-step-title">{step.title}</h2>
+              <p class="item-step-body">{step.body}</p>
+            </li>
+          ))
+        }
+      </ol>
+      <div class="item-foot">
+        <p class="item-tags">{item.tags}</p>
+        {
+          item.links.length > 0 && (
+            <ul class="item-links">
+              {item.links.map((link) => (
+                <li>
+                  <a href={link.url} target="_blank" rel="noopener">
+                    {link.label} <span aria-hidden="true">↗</span>
+                    <span class="sr-only">(opens in a new tab)</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
           )
         }
       </div>
-      {many && <button type="button" class="explore-arrow is-next" data-step="1" aria-label="Next visual">›</button>}
-      {
-        many && (
-          <ol class="explore-dots" aria-hidden="true">
-            {item.visuals.map((_, index) => <li class:list={["explore-dot", index === 0 && "is-current"]} data-dot />)}
-          </ol>
-        )
-      }
-      <p class="sr-only" aria-live="polite" data-viewer-status></p>
-    </div>
-    <h1 class="explore-item-code">{item.code}</h1>
-    <p class="explore-item-info">{item.info}</p>
+    </section>
   </article>
 </Base>
 
 <script>
-  import "@/scripts/explore.ts";
+  import "@/scripts/explore-item.ts";
 </script>
 
 <style>
-  /* the home column, the back link at y=200 level with the rail and the visual 64px under its top. the bottom margin
-     collapses with the footer's 96px one, so the credit sits 36px under the info line. */
+  /* the page spans the viewport (main's 96px rail padding is pulled back), so the device centres on the screen like
+     figma, and the sheet is the 924 column at x=258 of 1440. every size hangs off a few lengths:
+     --slot-h, the band the device is centred in (640 in figma, 264 to 904, shrunk to fit the viewport height);
+     --dw and --dh, the device box (macbook 1000 wide; the three iphones span 791.6 by 640);
+     --lift-top and --lift-scale, where the device ends up (top at 104, half size);
+     --s-end, the sheet's top once lifted (the dots 22 under the device, the sheet 38 under the dots);
+     --run, the scroll the motion takes: the sheet rises from the fold to --s-end one pixel per pixel scrolled. */
   .explore-item {
+    --pad-top: 136px;
+    --slot-top: calc(var(--pad-top) + 64px);
+    --slot-h: clamp(300px, 100svh - 443px, 640px);
+    --ratio: 0.54;
+    --dw-cap: 1000px;
+    --arrow-k: 1;
+    --dw-rest: min(var(--dw-cap), var(--slot-h) / var(--ratio), 100cqw - 280px);
+    --dw: var(--dw-rest);
+    --dh: calc(var(--dw) * var(--ratio));
+    --lift-top: 104px;
+    --lift-scale: 0.5;
+    --s-end: calc(var(--lift-top) + var(--dh) * var(--lift-scale) + 66px);
+    --run: max(160px, 100svh - var(--s-end));
+    margin-left: -96px;
+    container-type: inline-size;
+  }
+
+  /* the iphones group (figma 639:17688 to 639:17700): 791.6 by 640, and its arrows stay at the macbook's x. */
+  .explore-item[data-device="iphones"] {
+    --ratio: 0.8085;
+    --dw-cap: 792px;
+    --arrow-k: 1.2626;
+  }
+
+  .item-pin {
+    position: relative;
     display: flex;
-    width: min(924px, 100% - 48px);
-    margin-bottom: -84px;
-    margin-left: max(24px, (100% - 924px) / 2 - 48px);
-    padding-top: 136px;
+    padding-top: var(--pad-top);
     align-items: center;
     flex-direction: column;
   }
 
-  .explore-back {
+  .item-top {
     display: flex;
-    align-self: flex-start;
+    width: min(924px, 100% - 48px);
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 24px;
+  }
+
+  .item-back,
+  .item-pager-link {
+    display: flex;
     gap: 8px;
     color: var(--muted);
     font: 15px / 20px var(--ui-sans);
     transition: color 180ms ease;
   }
 
-  .explore-back:hover,
-  .explore-back:focus-visible {
+  .item-back:hover,
+  .item-back:focus-visible,
+  .item-pager-link:hover,
+  .item-pager-link:focus-visible {
     color: var(--ink);
   }
 
-  /* arrows 68px out from the visual's edges, centred on its height. */
-  .explore-viewer {
-    display: grid;
+  .item-pager {
+    display: flex;
+    min-width: 0;
+    gap: 24px;
+  }
+
+  .item-viewer {
+    display: flex;
     width: 100%;
     margin-top: 44px;
     align-items: center;
-    column-gap: 46px;
-    grid-template-columns: 44px minmax(0, 560px) 44px;
-    justify-content: center;
+    flex-direction: column;
   }
 
-  .explore-stage {
+  .item-slot {
+    position: relative;
     display: grid;
-    gap: 24px;
-    grid-column: 2;
-    grid-row: 1;
-    touch-action: pan-y;
+    width: 100%;
+    height: var(--slot-h);
+    place-items: center;
   }
 
-  .explore-slide {
+  .item-device {
+    width: var(--dw);
+    touch-action: pan-y;
+    transform-origin: 50% 0;
+  }
+
+  /* the three macbook screens stack in the lid; the current one shows. scripts off, that is screen 1. */
+  .item-screen {
+    position: absolute;
+    inset: 0;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 300ms ease, visibility 300ms;
+  }
+
+  .item-screen.is-current {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  .item-screen img {
     display: block;
     width: 100%;
-    aspect-ratio: 1;
+    height: 100%;
     object-fit: cover;
+    object-position: left top;
   }
 
-  :global(.nav-ready) .explore-slide:not(.is-current) {
+  /* the front phone is 310.68 of the 791.6 group; a side phone is 0.86 of it, its centre 84.4% of a phone width out. */
+  .item-phones {
+    position: relative;
+    height: var(--dh);
+  }
+
+  .item-phone {
+    position: absolute;
+    top: 0;
+    left: 30.376%;
+    width: 39.247%;
+    transition: transform 450ms var(--ease-out);
+  }
+
+  .item-phone[data-pos="front"] {
+    z-index: 2;
+  }
+
+  .item-phone[data-pos="left"] {
+    z-index: 1;
+    transform: translateX(-84.4%) scale(0.86);
+  }
+
+  .item-phone[data-pos="right"] {
+    z-index: 1;
+    transform: translateX(84.4%) scale(0.86);
+  }
+
+  :global(.nav-ready) .item-phone:not([data-pos="front"]) {
+    cursor: pointer;
+  }
+
+  /* the screen arrows (figma 638:17665, 638:17666) sit at x=200 and 1230 of 1440, 36px out from the macbook's sides
+     at the band's middle. they and the dots only show with scripts. */
+  .item-arrow,
+  .item-dots {
     display: none;
   }
 
-  .explore-arrow,
-  .explore-dots {
-    display: none;
-  }
-
-  :global(.nav-ready) .explore-arrow {
+  :global(.nav-ready) .item-arrow {
+    position: absolute;
+    z-index: 3;
+    top: 50%;
+    left: calc(50% - var(--dw) * var(--arrow-k) / 2 - 36px);
     display: grid;
     width: 44px;
     height: 44px;
+    margin: -22px 0 0 -22px;
     padding: 0;
     border: 0;
     background: none;
     color: var(--ink-strong);
     cursor: pointer;
     font: 32px / 1 var(--ui-sans);
-    grid-row: 1;
     place-items: center;
   }
 
-  .explore-arrow.is-prev {
-    grid-column: 1;
+  :global(.nav-ready) .item-arrow.is-next {
+    left: calc(50% + var(--dw) * var(--arrow-k) / 2 + 36px);
   }
 
-  .explore-arrow.is-next {
-    grid-column: 3;
-  }
-
-  /* three 6px dots 8px apart, 24px under the visual; the current one in ink. */
-  :global(.nav-ready) .explore-dots {
+  /* three 6px dots 8px apart, 24px under the band; each is a 14 by 20 button around its dot. */
+  :global(.nav-ready) .item-dots {
     display: flex;
-    margin: 24px 0 0;
-    padding: 0;
-    gap: 8px;
-    grid-column: 2;
-    justify-content: center;
-    list-style: none;
+    margin-top: 21px;
+    transform-origin: 50% 0;
   }
 
-  .explore-dot {
+  .item-dot {
+    display: grid;
+    width: 14px;
+    height: 12px;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    place-items: center;
+  }
+
+  .item-dot::before {
     width: 6px;
     height: 6px;
     border-radius: 50%;
     background: color-mix(in srgb, var(--muted) 35%, var(--canvas));
+    content: "";
   }
 
-  .explore-dot.is-current {
+  .item-dot[aria-pressed="true"]::before {
     background: var(--ink-strong);
   }
 
-  .explore-item-code {
-    margin: 24px 0 0;
-    color: var(--ink-strong);
-    font: 15px / 18px var(--mono);
+  /* code 30 under the dots, the title 18 under the code, the hint 20 under the title (figma 638:17671 to 638:17681). */
+  .item-caption {
+    display: flex;
+    margin-top: 30px;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
   }
 
-  .explore-item-info {
-    margin: 20px 0 0;
-    color: var(--muted);
+  :global(html:not(.nav-ready)) .item-caption {
+    margin-top: 60px;
+  }
+
+  .item-caption-code {
+    margin: 0;
+    color: var(--color-annotate);
+    font: 15px / 20px var(--mono);
+  }
+
+  .item-caption-title {
+    margin: 18px 0 0;
+    color: var(--ink);
     font: 15px / 20px var(--ui-sans);
   }
 
-  @media (max-width: 980px) {
-    .explore-item {
-      width: auto;
-      margin-left: 0;
-      padding-inline: 20px;
-      padding-top: 40px;
+  .item-hint {
+    margin: 20px 0 0;
+    color: var(--muted);
+    font: 11px / 15px var(--mono);
+    letter-spacing: 0.08em;
+  }
+
+  /* the project sheet (figma 638:17722): a rule, then the code, title and meta in a 380 column and the about from
+     x=424, then the steps 40 under the taller column, then tags and links 32 under the steps. */
+  .item-sheet {
+    position: relative;
+    width: min(924px, 100% - 48px);
+    margin: 96px auto 0;
+    padding-top: 30px;
+    border-top: 1px solid var(--rule);
+  }
+
+  .item-head {
+    display: grid;
+    align-items: start;
+    column-gap: 44px;
+    grid-template-columns: 380px minmax(0, 500px);
+  }
+
+  .item-code {
+    margin: 0;
+    color: var(--color-annotate);
+    font: 12px / 16px var(--mono);
+    letter-spacing: 0.08em;
+  }
+
+  .item-title {
+    margin: 8px 0 0;
+    color: var(--ink-strong);
+    font: 400 44px / 1.04 var(--display);
+    letter-spacing: -0.02em;
+  }
+
+  .item-meta {
+    margin: 14px 0 0;
+    color: var(--muted);
+    font: 11px / 15px var(--mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .item-about {
+    margin: 0;
+    color: var(--ink);
+    font: 17px / 1.55 var(--ui-sans);
+  }
+
+  .item-steps {
+    display: grid;
+    margin: 40px 0 0;
+    padding: 0;
+    column-gap: 27px;
+    grid-template-columns: repeat(3, 290px);
+    list-style: none;
+  }
+
+  .item-step {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+  }
+
+  .item-thumb img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 290 / 181;
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    object-fit: cover;
+    object-position: center top;
+  }
+
+  .item-step-number {
+    margin-top: 16px;
+    color: var(--muted);
+    font: 11px / 15px var(--mono);
+    letter-spacing: 0.08em;
+  }
+
+  .item-step-title {
+    margin: 7px 0 0;
+    color: var(--ink-strong);
+    font: 400 22px / 1.15 var(--display);
+  }
+
+  .item-step-body {
+    margin: 8px 0 0;
+    color: var(--ink);
+    font: 14px / 1.5 var(--ui-sans);
+  }
+
+  .item-foot {
+    display: flex;
+    margin-top: 32px;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px 24px;
+    flex-wrap: wrap;
+  }
+
+  .item-tags {
+    margin: 0;
+    color: var(--muted);
+    font: 11px / 15px var(--mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .item-links {
+    display: flex;
+    margin: 0;
+    padding: 0;
+    gap: 24px;
+    list-style: none;
+  }
+
+  .item-links a {
+    color: var(--ink);
+    font: 14px / 20px var(--ui-sans);
+    transition: color 180ms ease;
+  }
+
+  .item-links a:hover,
+  .item-links a:focus-visible {
+    color: var(--ink-strong);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  /* the scroll motion: the scene is a viewport plus --run tall, the pin sticks for that run, and its view timeline's
+     contain range (scene top at the viewport top until its bottom meets the viewport bottom) drives one linear lift.
+     the sheet is pulled up so it starts just under the fold and reaches --s-end as the lift ends; it then scrolls on
+     with the pin. browsers without scroll timelines keep the plain flow above. */
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .item-scene {
+        height: calc(100svh + var(--run));
+        view-timeline: --item-scene block;
+      }
+
+      .item-pin {
+        position: sticky;
+        top: 0;
+        height: 100svh;
+      }
+
+      .item-sheet {
+        z-index: 4;
+        margin-top: calc(var(--s-end) - 100svh);
+        background: var(--canvas);
+        box-shadow: 0 0 0 100vmax var(--canvas);
+        clip-path: inset(-1px -100vmax 0);
+      }
+
+      .item-device,
+      :global(.nav-ready) .item-dots,
+      .item-top,
+      .item-caption,
+      :global(.nav-ready) .item-arrow {
+        /* longhands: the css minifier rewrites a shorthand with no name to animation: none. */
+        animation-fill-mode: both;
+        animation-timing-function: linear;
+        animation-timeline: --item-scene;
+        animation-range: contain 0% contain 100%;
+      }
+
+      .item-device {
+        animation-name: item-device-lift;
+      }
+
+      :global(.nav-ready) .item-dots {
+        animation-name: item-dots-lift;
+      }
+
+      .item-top,
+      .item-caption,
+      :global(.nav-ready) .item-arrow {
+        animation-name: item-fade;
+        animation-range: contain 0% contain 30%;
+      }
     }
   }
 
-  /* phones (figma 300:2052): the visual takes the column and the arrows sit on it, 8px in from its edges. */
+  /* the device's top goes from the middle of the band to --lift-top as it halves. */
+  @keyframes item-device-lift {
+    to {
+      transform: translateY(calc(var(--lift-top) - var(--slot-top) - (var(--slot-h) - var(--dh)) / 2)) scale(var(--lift-scale));
+    }
+  }
+
+  @keyframes item-dots-lift {
+    to {
+      transform: translateY(calc(var(--lift-top) + var(--dh) * var(--lift-scale) - var(--slot-top) - var(--slot-h) - 2px));
+    }
+  }
+
+  @keyframes item-fade {
+    to {
+      visibility: hidden;
+      opacity: 0;
+    }
+  }
+
+  /* reduced motion opens in the scrolled layout: the device at its lifted size under the back link, the dots 22 under
+     it and the sheet 38 under them, with no rest caption, and screens swap without easing. */
+  @media (prefers-reduced-motion: reduce) {
+    .explore-item {
+      --dw: calc(var(--dw-rest) * var(--lift-scale));
+    }
+
+    .item-slot {
+      height: var(--dh);
+    }
+
+    :global(.nav-ready) .item-dots {
+      margin-top: 19px;
+    }
+
+    .item-caption {
+      display: none;
+    }
+
+    .item-sheet {
+      margin-top: 38px;
+    }
+
+    .item-screen,
+    .item-phone {
+      transition: none;
+    }
+  }
+
+  /* under 980 the rail is a row in the header, so main has no rail padding and the page starts 40 under the header. */
+  @media (max-width: 980px) {
+    .explore-item {
+      --pad-top: 40px;
+      --slot-h: clamp(260px, 100svh - 420px, 640px);
+      --dw-rest: min(var(--dw-cap), var(--slot-h) / var(--ratio), 100cqw - 160px);
+      margin-left: 0;
+    }
+
+    .item-top,
+    .item-sheet {
+      width: auto;
+      margin-inline: 20px;
+      align-self: stretch;
+    }
+  }
+
+  /* phones: the device takes the column at rest, centred in a band that puts the hint near the bottom of the first
+     screen, and lifts to 60% with its top 24 from the top. the arrows sit on it with a round backdrop in the page
+     colour, the sheet stacks, and the pager keeps only its arrows. */
   @media (max-width: 760px) {
-    .explore-viewer {
+    .explore-item {
+      --slot-top: calc(var(--pad-top) + 48px);
+      --dw-rest: calc(100cqw - 40px);
+      --slot-h: max(var(--dh), 100svh - 440px);
+      --lift-top: 24px;
+      --lift-scale: 0.6;
+    }
+
+    .item-viewer {
       margin-top: 28px;
-      grid-template-columns: minmax(0, 1fr);
     }
 
-    .explore-stage {
-      grid-column: 1;
+    .item-pager-label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
     }
 
-    /* on phones the arrows sit on the visual, so each gets a round backdrop in the page colour to stay readable
-       on any gradient or photo, in both themes. */
-    :global(.nav-ready) .explore-arrow {
-      z-index: 1;
+    .item-pager-link {
+      min-width: 24px;
+      justify-content: center;
+    }
+
+    :global(.nav-ready) .item-arrow {
       width: 36px;
       height: 36px;
+      margin: -18px 0 0;
       border-radius: 50%;
       background: color-mix(in srgb, var(--canvas) 88%, transparent);
       font-size: 24px;
     }
 
-    .explore-arrow.is-prev {
-      grid-column: 1;
-      justify-self: start;
-      margin-left: 8px;
+    :global(.nav-ready) .item-arrow.is-prev {
+      left: 28px;
     }
 
-    .explore-arrow.is-next {
-      grid-column: 1;
-      justify-self: end;
-      margin-right: 8px;
+    :global(.nav-ready) .item-arrow.is-next {
+      left: auto;
+      right: 28px;
     }
 
-    :global(.nav-ready) .explore-dots {
-      margin-top: 20px;
-      grid-column: 1;
+    .item-head {
+      grid-template-columns: minmax(0, 1fr);
+      row-gap: 20px;
     }
 
-    .explore-item-code {
-      margin-top: 20px;
+    .item-title {
+      font-size: 36px;
     }
 
-    .explore-item-info {
-      margin-top: 16px;
+    .item-steps {
+      row-gap: 40px;
+      grid-template-columns: minmax(0, 1fr);
     }
-  }
 
-  /* the 375 frame puts the credit 63px under the info line, with the footer's 72px phone margin. */
-  @media (max-width: 620px) {
-    .explore-item {
-      margin-bottom: -33px;
+    .item-foot {
+      flex-direction: column;
+      align-items: flex-start;
     }
   }
 </style>
