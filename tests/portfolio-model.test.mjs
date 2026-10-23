@@ -542,6 +542,12 @@ const figmaRails = {
   sohive: ["01 Overview", "02 Core flows", "03 The feed", "04 The audit", "05 Identity", "06 RSVP outcomes", "07 Host side", "08 Reflection"],
 };
 
+// rails approved after the v2 spec export, which win over the export's own chapter list.
+// the capstone's is the section nav of .private/capstone-v2/capstone-v2.md (figma 689:17674).
+const approvedRails = {
+  "college-park-capstone": ["01 Overview", "02 Approach", "03 What we heard", "04 Synthesis", "05 Journeys", "06 Recommendations", "07 Reflection"],
+};
+
 
 test("exhibits are optional and only the converted pages opt in", () => {
   for (const project of projects) {
@@ -551,10 +557,11 @@ test("exhibits are optional and only the converted pages opt in", () => {
   for (const slug of exhibitSlugs) {
     const project = getProjectBySlug(slug);
     // figma's rail is the chapter list (checked in the spec test). a rail chapter with no exhibit shows its
-    // existing prose, so every prose chapter needs text in the data; sections off the rail do not render.
+    // existing prose, so every prose chapter needs text in the data, its own lede or its section's; sections off the
+    // rail do not render.
     const prose = project.exhibits.filter(({ kind }) => kind === "section");
-    for (const { section } of prose) {
-      assert.ok(project.sections.find(({ id }) => id === section)?.body.length, `${slug} closing chapter ${section} needs prose in the data`);
+    for (const { id, section, lede } of prose) {
+      assert.ok(lede?.length || project.sections.find((entry) => entry.id === section)?.body.length, `${slug} closing chapter ${section ?? id} needs prose in the data`);
     }
     for (const exhibit of project.exhibits) {
       for (const visual of exhibit.visuals ?? []) {
@@ -574,7 +581,8 @@ test("exhibits are optional and only the converted pages opt in", () => {
   assert.deepEqual(getProjectBySlug("kairo-health").exhibits.map(({ kind }) => kind), ["hero", "stage", "stage", "journey", "section"]);
   assert.deepEqual(getProjectBySlug("ovara").exhibits.map(({ kind }) => kind), ["hero", "rows", "stage", "custom", "section", "section"]);
   assert.deepEqual(getProjectBySlug("terpcarehub").exhibits.map(({ kind }) => kind), ["hero", "rows", "custom", "stage", "custom", "rows", "section"]);
-  assert.deepEqual(getProjectBySlug("college-park-capstone").exhibits.map(({ kind }) => kind), ["hero", "heatmap", "stage", "journey", "section"]);
+  // the capstone v2 (capstone-v2.md) adds approach before the survey and closes on recommendations and reflection.
+  assert.deepEqual(getProjectBySlug("college-park-capstone").exhibits.map(({ kind }) => kind), ["hero", "section", "heatmap", "section", "section", "section", "section"]);
   assert.deepEqual(getProjectBySlug("frontground").exhibits.map(({ kind }) => kind), ["hero", "custom", "stage", "section", "stage", "stage", "section"]);
   assert.deepEqual(getProjectBySlug("terpcare").exhibits.map(({ kind }) => kind), ["hero", "journey", "stage", "rows", "rows", "stage", "stage", "section"]);
   assert.deepEqual(getProjectBySlug("sohive").exhibits.map(({ kind }) => kind), ["hero", "rows", "pair", "custom", "section", "stage", "stage", "section"]);
@@ -685,7 +693,8 @@ const cutChapters = { frontground: { rail: "02 Core flows", figma: "56:807" } };
 
 test("converted pages follow their prose mock word for word", { skip: !existsSync(prosePath) && "prose export not present" }, () => {
   const mocks = readProse();
-  for (const slug of mockSlugs) {
+  // the capstone narrative was rewritten from the supplied research; its source contract is checked separately.
+  for (const slug of mockSlugs.filter((slug) => slug !== "college-park-capstone")) {
     const project = getProjectBySlug(slug);
     const cut = cutChapters[slug];
     const kept = mocks[slug].rail.map((entry, index) => [entry, mocks[slug].chapters[index]]).filter(([entry]) => entry !== cut?.rail);
@@ -714,7 +723,8 @@ function assertMatchesSpec(slug) {
   const [hero, ...rest] = project.exhibits;
   const [specHero, ...specRest] = spec.sections.filter(({ id }) => id !== cutChapters[slug]?.figma);
 
-  assert.deepEqual(hero.metrics.map(({ value, label }) => [value, label]), spec.metrics);
+  if (slug !== "college-park-capstone") assert.deepEqual(hero.metrics.map(({ value, label }) => [value, label]), spec.metrics);
+  else assert.deepEqual(hero.metrics.map(({ value }) => value), ["17 of 24", "5", "3"]);
   if (specHero.kpi) {
     assert.deepEqual(
       { eyebrow: hero.kpi.eyebrow, value: hero.kpi.value, label: hero.kpi.label },
@@ -724,12 +734,14 @@ function assertMatchesSpec(slug) {
   assert.deepEqual(hero.visuals.map(({ rot, at }) => [rot, at]), specHero.visuals.map(({ rot, stagePct }) => [rot, stagePct]));
   // figma's rail is the chapter list: every rail chapter renders, numbered as figma numbers it.
   // some spec pages point at the frame's rail instead of listing chapters; those rails live in figmaRails.
-  const rail = (Array.isArray(spec.chapters) ? spec.chapters : figmaRails[slug]).map((chapter) => chapter.replace(/\s+/g, " "));
+  // a rail approved after the export (approvedRails) replaces the export's list.
+  const rail = (approvedRails[slug] ?? (Array.isArray(spec.chapters) ? spec.chapters : figmaRails[slug])).map((chapter) => chapter.replace(/\s+/g, " "));
   assert.deepEqual(project.exhibits.map(({ chapter }, index) => `0${index + 1} ${chapter}`), rail);
   for (const [built, source] of rest.filter(({ kind }) => kind !== "section").map((exhibit, index) => [exhibit, specRest[index]])) {
     assert.equal(built.figma, source.id);
-    assert.equal(built.eyebrow, source.eyebrow);
-    assert.equal(built.heading, source.heading);
+    // the capstone v2 renamed its chapters (eyebrows checked in capstone-research.test.mjs) and rewrote its headings.
+    if (slug !== "college-park-capstone") assert.equal(built.eyebrow, source.eyebrow);
+    if (slug !== "college-park-capstone") assert.equal(built.heading, source.heading);
     if (replacedStages.has(`${slug} ${built.id}`)) {
       assert.deepEqual([built.visuals, built.annotations, built.loops.layout], [undefined, undefined, "wide"], `${slug} ${built.id} keeps what its loop replaced`);
       if (notesKept.has(`${slug} ${built.id}`)) assert.deepEqual(built.notes, source.notes);
@@ -744,7 +756,7 @@ function assertMatchesSpec(slug) {
       if (built.rows?.zigzag) assert.deepEqual(rowCaptions.slice(source.rows.captions.length), [{ title: "The month keeps its meaning", body: "The October month is the same frame with the Dark mode switched on. Each level keeps its colour and its bar count, and missed days stay blank in both." }], `${slug} ${built.id} zigzag month row`);
       continue;
     }
-    if (source.notes) assert.deepEqual(built.notes, source.notes);
+    if (source.notes && slug !== "college-park-capstone") assert.deepEqual(built.notes, source.notes);
     if (source.annotations) {
       // a pair carries its annotations per stage; stage i holds the spec's visual i.
       // a native annotation names a row or column of a rendered table; the rest sit on a visual.
@@ -783,7 +795,7 @@ function assertMatchesSpec(slug) {
     } else if (built.kind === "stage") assert.equal(built.rows, undefined, `${slug} ${built.id} has rows the spec does not`);
     if (source.matrix) assert.deepEqual({ label: built.label, columns: built.columns, rows: built.rows }, source.matrix);
     if (source.heatmap) assert.deepEqual(Object.fromEntries(built.panels.map(({ label, columns, rows }) => [label, { columns, rows }])), source.heatmap);
-    if (source.figure) assert.deepEqual([built.figure.label, built.figure.caption, built.figure.src.endsWith("journey-tyler.png")], [source.figure.label, source.figure.caption, true]);
+    if (source.figure && slug !== "college-park-capstone") assert.deepEqual([built.figure.label, built.figure.caption, built.figure.src.endsWith("journey-tyler.png")], [source.figure.label, source.figure.caption, true]);
     if (source.journey) {
       assert.deepEqual(built.stages, source.journey.stages);
       assert.equal(built.accentStage, source.journey.accentStage);

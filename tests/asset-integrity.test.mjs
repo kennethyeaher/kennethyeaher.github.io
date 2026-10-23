@@ -141,7 +141,7 @@ function exhibitVisuals() {
       for (const visual of [...(exhibit.visuals ?? []), ...(exhibit.stages ?? []).flatMap((stage) => stage.visuals ?? []), ...(exhibit.tiles ?? []), ...(exhibit.figure ? [exhibit.figure] : []),
         ...(exhibit.scroller ? [exhibit.scroller.visual] : []), ...(exhibit.walkthrough?.steps ?? []).map((step) => step.screen), ...(exhibit.pins ? [exhibit.pins.visual] : []),
         ...(exhibit.rows?.visuals ?? []), ...(exhibit.specimens ?? []).flatMap((specimen) => specimen.visual ? [specimen.visual] : []),
-        ...(exhibit.papers?.cards ?? []).map((card) => card.photo)]) {
+        ...(exhibit.papers?.cards ?? []).map((card) => card.photo), ...(exhibit.blocks ?? []).flatMap((block) => block.image?.src ? [block.image] : [])]) {
         visuals.set(visual.src, visual);
       }
     }
@@ -306,7 +306,14 @@ test("the exhibit size manifest lists the standard widths below each source plus
       assert.ok(existsSync(join(sizedDir, file)) && statSync(join(sizedDir, file)).size > 0, `${file} is missing`);
     }
   }
-  // nothing ships unused: every file in the sized folder is one the manifest names.
+  // a zoomable figure's zoom copy is the one file outside the manifest, named for the width its zoom draws at.
+  for (const project of projects) for (const exhibit of project.exhibits ?? []) for (const block of exhibit.blocks ?? []) {
+    if (!block.image?.src || typeof block.zoom !== "number") continue;
+    const file = `${block.image.src.split("/").pop().replace(/\.[^.]+$/, "")}-${block.zoom}.webp`;
+    assert.ok(existsSync(join(sizedDir, file)) && statSync(join(sizedDir, file)).size > 0, `${file} is missing`);
+    expectedFiles.add(file);
+  }
+  // nothing ships unused: every file in the sized folder is one the manifest names, or a zoom copy.
   assert.deepEqual(readdirSync(sizedDir).filter((file) => !expectedFiles.has(file)), []);
   // and the manifest names only exhibit images.
   assert.deepEqual(Object.keys(manifest).sort(), [...new Set(exhibitVisuals().map((visual) => visual.src.split("/").pop().replace(/\.[^.]+$/, "")))].sort());

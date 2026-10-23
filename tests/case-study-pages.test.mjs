@@ -38,16 +38,18 @@ before(() => {
 test("all eight approved case studies render from one route system", () => {
   assert.equal(pages.size, 8);
 
-  for (const html of pages.values()) {
+  for (const [slug, html] of pages) {
     assert.match(html, /data-case-nav/);
     assert.match(html, /data-chapter-select/);
     assert.match(html, /class="case-meta"/);
-    assert.match(html, />\s*Role\s*</);
-    assert.match(html, />\s*Timeline\s*</);
-    assert.match(html, />\s*Team\s*</);
-    assert.match(html, />\s*Skills\s*</);
+    // a page with its own meta columns (the capstone v2, capstone-v2.md) renders those; the rest keep the four.
+    const labels = [...html.slice(html.indexOf('class="case-meta"'), html.indexOf("</dl>", html.indexOf('class="case-meta"'))).matchAll(/<dt[^>]*>([^<]+)<\/dt>/g)].map((match) => match[1].trim());
+    const meta = projects.find((entry) => entry.slug === slug).meta;
+    assert.deepEqual(labels, meta ? meta.map(({ label }) => label) : ["Role", "Timeline", "Team", "Skills"], slug);
     assert.match(html, /data-project-pager/);
   }
+  assert.deepEqual(projects.filter(({ meta }) => meta).map(({ slug }) => slug), ["college-park-capstone"]);
+  assert.match(pages.get("college-park-capstone"), /<dl class="case-meta" data-columns="5"/);
 });
 
 test("chapter links and mobile wayfinding target every project section", () => {
@@ -201,9 +203,14 @@ test("reading progress matches figma 26:105, filled in the case study accent, wi
 test("metric labels are serif sentence case on every page, and tiles in a row share one height", () => {
   for (const [slug, html] of pages) {
     const labels = [...html.matchAll(/<div class="metric"[^>]*>\s*<dt[^>]*>([^<]+)<\/dt>/g)].map((match) => match[1]);
-    assert.equal(labels.length, 3, slug);
+    // the capstone's at a glance band takes the metric cards' place (capstone-v2.md); its four stats are checked below.
+    assert.equal(labels.length, slug === "college-park-capstone" ? 0 : 3, slug);
     for (const label of labels) assert.match(label, /^[A-Z0-9]/, `${slug}: ${label}`);
   }
+  const glance = pages.get("college-park-capstone");
+  assert.equal([...glance.matchAll(/<div class="exhibit-glance"/g)].length, 1);
+  assert.equal([...glance.matchAll(/<span class="glance-value"[^>]*>([^<]+)<\/span>/g)].length, 4);
+  for (const [slug, html] of pages) if (slug !== "college-park-capstone") assert.doesNotMatch(html, /class="exhibit-glance"/, slug);
   const source = readFileSync(join(projectRoot, "src", "components", "exhibits", "ExhibitMetrics.astro"), "utf8");
   assert.match(source, /\.metric dt \{ color: var\(--color-muted-label\); font: 16px \/ 1\.3 var\(--body\); \}/);
   // grid items stretch to the row, and the reversed column packs the value to the top.
@@ -430,9 +437,11 @@ test("every sideways scrolling card fades at its right edge while there is more,
   assert.match(css, /\.edge-fade::after \{ position: absolute;[^}]*opacity: 0; pointer-events: none; \}/);
   // only where scroll-driven animation exists; elsewhere the fade stays at 0.
   assert.match(css, /@supports \(animation-timeline: scroll\(\)\) and \(timeline-scope: --edge\) \{\s*\.edge-fade > \.edge-scroll \{ scroll-timeline: --edge inline; \}\s*\.edge-fade::after \{ animation: edge-fade linear both; animation-timeline: --edge; \}\s*@keyframes edge-fade \{ 0%, 92% \{ opacity: 1; \} 100% \{ opacity: 0; \} \}/);
-  for (const [slug, kind] of [["college-park-capstone", "heatmap"], ["college-park-capstone", "journey"], ["terpcare", "journey"], ["terpcarehub", "timeline"], ["frontground", "visit"]]) {
+  for (const [slug, kind] of [["college-park-capstone", "heatmap"], ["terpcare", "journey"], ["terpcarehub", "timeline"], ["frontground", "visit"]]) {
     assert.match(pages.get(slug), new RegExp(`<div class="edge-fade"[^>]*>\\s*<div class="${kind}-scroll edge-scroll"`), `${slug} wraps its ${kind}`);
   }
+  // the capstone's journey comparison table gave way to the breakdown grid (capstone-v2.md), which stacks on phones instead.
+  assert.doesNotMatch(pages.get("college-park-capstone"), /class="journey-scroll|<table class="journey/);
 });
 
 test("a tap plays the laptop scroll, since touch screens have no hover", () => {
@@ -471,11 +480,14 @@ test("TerpCareHub's walkthrough steps, pin notes and pins never dim by opacity",
   }
 });
 
-test("the Capstone renders the v2 exhibit layout from its prose mock", () => {
+test("the Capstone preserves survey evidence and renders the revised research chapters", () => {
   const page = pages.get("college-park-capstone");
   const sectionIds = [...page.matchAll(/<section[^>]*\bid="([^"]+)"[^>]*data-case-section/g)].map((match) => match[1]);
-  assert.deepEqual(sectionIds, ["overview", "the-survey", "the-persona", "three-journeys", "evidence"]);
-  assert.match(page, /What this research supports, and what it does not/);
+  assert.deepEqual(sectionIds, ["overview", "approach", "the-survey", "the-persona", "three-journeys", "recommendations", "reflection"]);
+  // the four chapter headings of figma 689:17674.
+  for (const heading of ["The city was publishing beyond the students it reached", "Five ways to understand participation", "Follow the experience beyond the announcement", "Connect the findings to the next decision"]) {
+    assert.match(page, new RegExp(`<h2[^>]*>${heading}</h2>`), heading);
+  }
   // the heatmap is two real tables from the spec numbers, shaded by share.
   assert.equal([...page.matchAll(/<table class="heatmap"/g)].length, 2);
   assert.match(page, /<th scope="col"[^>]*>[\s\S]*?Students[\s\S]*?N = 23/);
@@ -486,11 +498,98 @@ test("the Capstone renders the v2 exhibit layout from its prose mock", () => {
   assert.match(page, /<th scope="row" aria-describedby="the-survey-note-02"[^>]*>\s*None/);
   assert.match(page, /<th scope="col" aria-describedby="the-survey-note-03"[^>]*>\s*<span class="heatmap-col"[^>]*>Residents/);
   for (const n of ["01", "02", "03"]) assert.match(page, new RegExp(`<li id="the-survey-note-${n}"`));
-  // the persona keeps linked badges; the journey grid closes on tyler's map.
-  assertBadgesResolve(page, 3);
-  assert.match(page, /TYLER’S JOURNEY MAP  ·  FOUR STAGES, NO PLANNING, NO ARRIVAL/);
+  // the persona's badged maria stage gave way to the needs table and lens card (figma 689:17855), so no badges are
+  // left; the journeys chapter closes on condensed lanes after maria's whole board, not tyler's map figure.
+  assertBadgesResolve(page, 0);
+  assert.doesNotMatch(page, /TYLER’S JOURNEY MAP/);
   assert.match(page, /journey-tyler\.png/);
   assert.match(page, /href="\/work\/terpcare"/);
+});
+
+/** the visible text of a piece of html, entities decoded. */
+function plainText(html) {
+  return html
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&#39;/g, "'")
+    .replace(/&amp;/g, "&")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+test("the Capstone renders every v2 exhibit heading and SOURCE line from capstone-v2.md", () => {
+  const page = pages.get("college-park-capstone");
+  const project = projects.find((entry) => entry.slug === "college-park-capstone");
+  // the rail is the spec's section nav.
+  const aside = page.slice(page.indexOf('<aside class="case-rail"'), page.indexOf("</aside>"));
+  assert.deepEqual([...aside.matchAll(/<a class="rail-link"[^>]*>\s*([^<]+?)\s*<\/a>/g)].map((match) => match[1]), ["Overview", "Approach", "What we heard", "Synthesis", "Journeys", "Recommendations", "Reflection"]);
+  // each new exhibit renders its own block and title.
+  const headings = {
+    "five-sources": "Five sources, one set of questions",
+    "who-answered": "Who answered",
+    "where-every-journey-broke": "Where every journey broke",
+    "working-artifact": "The working artifact",
+    "what-the-city-received": "What the city received",
+    "maps-to-report": "From my maps to the city&#39;s report",
+    "five-needs": "Five needs shape participation",
+    "maria-lens": "Maria / Language access",
+    "journey-jessica": "Jessica / Planning a family outing",
+    "journey-tyler": "Tyler / Joining a discovered event",
+    "journey-maria": "Maria / Participating with language support",
+    "research-decisions": "Make the path from evidence to decision visible",
+  };
+  for (const [id, heading] of Object.entries(headings)) {
+    assert.match(page, new RegExp(`<div id="${id}" class="exhibit-block is-[a-z]+"[^>]*>\\s*<header class="exhibit-head"[^>]*>\\s*<h3 id="${id}-heading"[^>]*>${heading}</h3>`), id);
+  }
+  assert.match(page, /<p class="columns-label"[^>]*>RESEARCH QUESTIONS<\/p>/);
+  assert.match(page, /<p id="glance-label" class="glance-label"[^>]*>AT A GLANCE<\/p>/);
+  assert.match(page, /<h3 id="test-next-heading"[^>]*>What I would test next<\/h3>/);
+  // every SOURCE line the spec gives, each once, behind its mono label.
+  const sources = [...page.matchAll(/<p class="exhibit-source"[^>]*><span class="source-label"[^>]*>Source<\/span>([\s\S]*?)<\/p>/g)].map((match) => plainText(match[1]));
+  assert.deepEqual(sources, [
+    "Final Report, Methods and Project Deliverables, pp. 2–4.",
+    "Final Report pp. 14–19: survey results and the City of College Park Age-Friendly Action Plan. Counts, not population estimates.",
+    "Final Report, survey results pp. 15–17.",
+    "Final Report pp. 15–17. Counts, not population estimates. Student preference item has one fewer response.",
+    "Team persona board in FigJam. Needs reframed by me from each persona's goals and frustrations.",
+    "Maria's persona and journey map in FigJam.",
+    "My FigJam journey maps, final drafts. I aligned the stages; ratings are the friction notes on each map, marked not rated where a stage had none.",
+    "Journey map board in FigJam, final draft. Every note on the three maps is mine.",
+    "My Jessica journey map, FigJam final draft. A composite scenario built around the persona.",
+    "My Tyler journey map, FigJam final draft. A composite scenario built around the persona.",
+    "My Maria journey map, FigJam final draft. A composite scenario built around the persona.",
+    "My FigJam journey maps and the Final Report, pp. 12–14 and 27. The team wrote the report; the map notes are mine.",
+    "Survey results and journey maps. Interpretation and decisions are my synthesis for this case study.",
+  ]);
+  // the breakdown: five stage columns, three persona rows of five cells, one empty plan cell, three findings.
+  const grid = page.slice(page.indexOf('id="where-every-journey-broke"'), page.indexOf('id="working-artifact"'));
+  assert.deepEqual([...grid.matchAll(/<span class="stage-column"[^>]*>([^<]+)<\/span>/g)].map((match) => match[1]), ["DISCOVER", "PLAN", "ARRIVE", "EXPERIENCE", "AFTER"]);
+  assert.deepEqual([...grid.matchAll(/<span class="persona-name"[^>]*>([^<]+)<\/span>/g)].map((match) => match[1]), ["Jessica", "Tyler", "Maria"]);
+  assert.equal([...grid.matchAll(/<td role="cell"/g)].length, 15);
+  assert.equal([...grid.matchAll(/class="cell-empty"/g)].length, 1);
+  assert.equal([...grid.matchAll(/<span class="rating tone-(annotate|accent|soft|outline)"/g)].length, 14);
+  for (const label of ["FINDING 01", "FINDING 02", "FINDING 03"]) assert.match(grid, new RegExp(`>${label}<`));
+  // method owners: three solid accent chips for the work Kenneth built or led.
+  assert.deepEqual([...page.matchAll(/<p class="method-owner( is-solid)?"[^>]*>([^<]+)<\/p>/g)].map(([, solid, label]) => [label, Boolean(solid)]), [["BUILT BY ME", true], ["LED BY ME", true], ["LED BY ME", true], ["TEAM", false], ["LED BY TEAMMATES", false]]);
+  // the bars print x/n.
+  assert.deepEqual([...page.matchAll(/<span class="bar-value"[^>]*>([^<]+)<\/span>/g)].map((match) => match[1]), ["3/27", "21/27", "3/27", "5/26", "15/26", "6/26", "2/9", "4/9", "2/9", "1/9"]);
+  // the working artifact is a sized, zoomable picture with the spec alt.
+  const artifact = project.exhibits.find(({ id }) => id === "three-journeys").blocks.find(({ id }) => id === "working-artifact");
+  const figure = page.slice(page.indexOf('id="working-artifact"'), page.indexOf('class="exhibit-source"', page.indexOf('id="working-artifact"')));
+  assert.match(figure, /data-figure-zoom/);
+  assert.match(figure, /srcset="\/images\/exhibits\/sized\/maria-journey-map-320\.webp 320w,[^"]*maria-journey-map-1920\.webp 1920w"/);
+  assert.ok(figure.includes(`alt="${artifact.image.alt}" width="3600" height="1744"`), "working artifact alt and size");
+  // four deliverables, the measurement note, seven trace rows with their pages, three lessons and the closing line.
+  assert.deepEqual([...page.matchAll(/<p class="deliverable-label"[^>]*>([^<]+)<\/p>/g)].map((match) => match[1]), ["FINAL REPORT", "SOCIAL MEDIA AUDIT", "PERSONAS", "JOURNEY MAPS"]);
+  assert.match(page, /<p class="note-label"[^>]*>MEASUREMENT BUILT IN<\/p>/);
+  assert.deepEqual([...page.matchAll(/<span class="trace-page"[^>]*>([^<]+)<\/span>/g)].map((match) => match[1]), ["P. 12", "P. 12", "P. 12", "P. 13", "P. 27", "P. 13", "P. 14"]);
+  const reflection = page.slice(page.indexOf('<section id="reflection"'), page.indexOf("</section>", page.indexOf('<section id="reflection"')));
+  assert.deepEqual([...reflection.matchAll(/<p class="column-label"[^>]*>(LESSON 0\d)<\/p>/g)].map((match) => match[1]), ["LESSON 01", "LESSON 02", "LESSON 03"]);
+  assert.ok(reflection.indexOf('id="lessons"') < reflection.indexOf('id="test-next"'), "the lessons come before the test next prose");
+  assert.match(reflection, /<p class="chapter-closing"[^>]*>The project ended with the reports\. I don&#39;t know which recommendations the city adopted, so this case study claims the research, not an outcome\.<\/p>\s*$/);
+  // no em dash anywhere in the page's visible copy.
+  assert.doesNotMatch(plainText(page.slice(page.indexOf("<main"))), /\u2014/);
 });
 
 test("Frontground renders the v2 exhibit layout from its prose mock", () => {
@@ -772,12 +871,13 @@ test("sohive renders the v2 exhibit layout from its prose mock", () => {
   assert.match(page, /href="\/work\/ovara"/);
 });
 
-test("exactly the eleven small pinned stages zoom to the active annotation (figma 168:1745, 197:1727)", () => {
+test("exactly the ten small pinned stages zoom to the active annotation (figma 168:1745, 197:1727)", () => {
   // every data-pin-zoom element across the seven pages, by page and stage id; the pair and the walkthrough give one
   // exhibit several stage elements (each feed stage zooms on its own; the walkthrough's pinned stage, and the one
-  // static step with a focus box). frontground's solution and sohive's feed zoom from their leaders (197:1727).
+  // static step with a focus box). frontground's solution and sohive's feed zoom from their leaders (197:1727). the
+  // capstone's maria stage gave way to the needs table and lens card of figma 689:17674.
   const expected = {
-    ovara: ["the-finding"], "kairo-health": ["field-by-tier"], "college-park-capstone": ["the-persona"],
+    ovara: ["the-finding"], "kairo-health": ["field-by-tier"], "college-park-capstone": [],
     frontground: ["the-solution", "offline", "triage"], terpcare: ["the-original"], sohive: ["the-feed-0", "the-feed-1"],
     terpcarehub: ["core-flows-walkthrough-1", "core-flows-walkthrough-pin"], "elms-redesign": [],
   };
