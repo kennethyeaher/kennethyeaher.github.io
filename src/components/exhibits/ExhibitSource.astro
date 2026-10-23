@@ -1,0 +1,19 @@
+---
+// the line every v2 research exhibit ends on (capstone-v2.md): a rule, then a mono SOURCE label and the source text.
+// the data stores the text without its label.
+interface Props {
+  text: string;
+}
+const { text } = Astro.props;
+---
+<p class="exhibit-source"><span class="source-label">Source</span> {text}</p>
+<style>
+  .exhibit-source { display: flex; gap: 14px; margin: 32px 0 0; padding-top: 16px; border-top: 1px solid var(--rule); color: var(--muted); font: 11px / 1.6 var(--mono); letter-spacing: 0.02em; }
+  .source-label { flex: none; letter-spacing: 0.07em; text-transform: uppercase; }
+  /* a second line under the same rule. */
+  .exhibit-source + .exhibit-source { margin-top: 0; padding-top: 6px; border-top: 0; }
+  @media (max-width: 620px) {
+    .exhibit-source { display: block; }
+    .source-label { margin-right: 8px; }
+  }
+</style>

@@ -1,0 +1,25 @@
+---
+// a sunken note inside a v2 research exhibit (capstone-v2.md): a mono label over a serif body. compact sets the body
+// in Geist 15 for the narrow column beside the bars (figma 690:103).
+interface Props {
+  note: { label: string; body: string };
+  compact?: boolean;
+}
+const { note, compact = false } = Astro.props;
+---
+<div class:list={["exhibit-note", compact && "is-compact"]}>
+  <p class="note-label">{note.label}</p>
+  <p class="note-body">{note.body}</p>
+</div>
+<style>
+  .exhibit-note { display: grid; gap: 12px; padding: 28px; border-radius: 12px; background: var(--surface-sunken); }
+  /* --muted, not --secondary: 4.57:1 on the sunken fill where --secondary reads 4.37. */
+  .note-label { margin: 0; color: var(--muted); font: 11px / 1.4 var(--mono); letter-spacing: 0.07em; text-transform: uppercase; }
+  .note-body { margin: 0; max-width: 980px; color: var(--ink-strong); font: 19px / 1.45 var(--body); }
+  .is-compact { padding: 20px; }
+  .is-compact .note-body { color: var(--ink); font: 15px / 1.45 var(--ui-sans); }
+  @media (max-width: 620px) {
+    .exhibit-note { padding: 20px; }
+    .note-body { font-size: 17px; }
+  }
+</style>

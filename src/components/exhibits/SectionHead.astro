@@ -6,11 +6,13 @@ interface Props {
   id?: string;
   /** 3 for a head inside a chapter, such as a live specimen's. */
   level?: 2 | 3;
+  /** the v2 research layout's head (capstone-v2.md): a Geist 15 eyebrow over a Fraunces 40 heading. */
+  large?: boolean;
 }
-const { eyebrow, heading, id, level = 2 } = Astro.props;
+const { eyebrow, heading, id, level = 2, large = false } = Astro.props;
 const Heading = level === 3 ? "h3" : "h2";
 ---
-<header class="section-head">
+<header class:list={["section-head", large && "is-large"]}>
   <p class="section-eyebrow">{eyebrow}</p>
   <Heading id={id}>{heading}</Heading>
 </header>
@@ -18,4 +20,7 @@ const Heading = level === 3 ? "h3" : "h2";
   .section-head { display: grid; gap: 14px; max-width: 760px; }
   .section-eyebrow { margin: 0; color: var(--muted); font: 11px / 14px var(--mono); letter-spacing: 0.06em; text-transform: uppercase; }
   :is(h2, h3) { margin: 0; color: var(--ink-strong); font: 400 clamp(26px, 3vw, 32px) / 1.1 var(--display); letter-spacing: -0.015em; }
+  .is-large { gap: 10px; max-width: 900px; }
+  .is-large .section-eyebrow { font: 15px / 20px var(--ui-sans); letter-spacing: 0; text-transform: none; }
+  .is-large :is(h2, h3) { font-size: clamp(30px, 3.6vw, 40px); line-height: 1.12; }
 </style>

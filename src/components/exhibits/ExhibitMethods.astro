@@ -1,0 +1,67 @@
+---
+// five method cards and the flow they feed (figma 690:22). each card is an eyebrow, a Fraunces 22 title, a Geist 14
+// body, then reach and what it gave us under a rule, and an owner chip: solid accent for the methods I ran, soft for
+// the rest. the flow is a row of pills joined by orange arrows; the solid pill is the step I built.
+interface Props {
+  cards: {
+    eyebrow: string;
+    title: string;
+    body: string;
+    reach: string;
+    gaveUs: string;
+    owner: { label: string; solid: boolean };
+  }[];
+  labels: { reach: string; gaveUs: string };
+  flow: { label: string; solid?: boolean }[];
+}
+const { cards, labels, flow } = Astro.props;
+---
+<ol class="method-cards">
+  {cards.map((card) => (
+    <li>
+      <p class="method-eyebrow">{card.eyebrow}</p>
+      <h4>{card.title}</h4>
+      <p class="method-body">{card.body}</p>
+      <dl>
+        <dt>{labels.reach}</dt>
+        <dd>{card.reach}</dd>
+        <dt>{labels.gaveUs}</dt>
+        <dd>{card.gaveUs}</dd>
+      </dl>
+      <p class:list={["method-owner", card.owner.solid && "is-solid"]}>{card.owner.label}</p>
+    </li>
+  ))}
+</ol>
+<ol class="method-flow" aria-label="How the sources fed the work">
+  {flow.map((step, index) => (
+    <li>
+      {index > 0 && <span class="flow-arrow" aria-hidden="true">→</span>}
+      <span class:list={["flow-pill", step.solid && "is-solid"]}>{step.label}</span>
+    </li>
+  ))}
+</ol>
+<style>
+  .method-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 16px; margin: 0; padding: 0; list-style: none; }
+  .method-cards li { display: flex; flex-direction: column; padding: 20px; border: 1px solid var(--rule); border-radius: 12px; background: var(--surface); }
+  .method-eyebrow { margin: 0; color: var(--accent); font: 11px / 1.4 var(--mono); letter-spacing: 0.07em; text-transform: uppercase; }
+  h4 { margin: 14px 0 0; color: var(--ink-strong); font: 400 22px / 1.18 var(--display); letter-spacing: -0.01em; }
+  .method-body { margin: 14px 0 0; color: var(--ink); font: 14px / 1.45 var(--ui-sans); }
+  dl { margin: 16px 0 0; padding-top: 16px; border-top: 1px solid var(--rule); }
+  dt { color: var(--muted); font: var(--label-micro, 10px) / 1.4 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; }
+  dd { margin: 8px 0 0; color: var(--ink-strong); font: 14px / 1.4 var(--ui-sans); }
+  dd + dt { margin-top: 16px; }
+  /* the chip follows its card's own text (figma 690:22), so chips sit at different heights across the row. */
+  .method-owner { align-self: flex-start; margin: 18px 0 0; padding: 4px 10px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font: var(--label-micro, 10px) / 1.3 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; }
+  .method-owner.is-solid { background: var(--accent); color: var(--on-accent); }
+
+  .method-flow { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 0; margin: 32px 0 0; padding: 0; list-style: none; }
+  .method-flow li { display: flex; align-items: center; }
+  .flow-arrow { padding: 0 14px; color: var(--color-annotate); font: 18px / 1 var(--ui-sans); }
+  .flow-pill { padding: 10px 16px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font: 500 15px / 1.2 var(--ui-sans); }
+  .flow-pill.is-solid { background: var(--accent); color: var(--on-accent); }
+  @media (max-width: 620px) {
+    .method-cards { grid-template-columns: minmax(0, 1fr); }
+    .flow-arrow { padding: 0 8px; }
+    .flow-pill { padding: 8px 12px; font-size: 14px; }
+  }
+</style>

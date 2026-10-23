@@ -1,0 +1,39 @@
+---
+// five needs shape participation (figma 689:17825): one row per persona, an orange mono number, the name in Fraunces,
+// the need in accent and what it asks for, a rule under each row from the name on. on phones the need and its detail
+// drop under the name.
+interface Props {
+  rows: { n: string; name: string; need: string; detail: string }[];
+}
+const { rows } = Astro.props;
+---
+<ol class="needs">
+  {rows.map((row) => (
+    <li>
+      <span class="need-number" aria-hidden="true">{row.n}</span>
+      <p class="need-name">{row.name}</p>
+      <p class="need-goal">{row.need}</p>
+      <p class="need-detail">{row.detail}</p>
+    </li>
+  ))}
+</ol>
+<style>
+  .needs { margin: 0; padding: 0; list-style: none; }
+  li { position: relative; display: grid; grid-template-columns: 58px minmax(0, 187fr) minmax(0, 394fr) minmax(0, 478fr); align-items: baseline; padding: 24px 0 36px; }
+  /* the rule starts under the name, leaving the number column open. */
+  li::after { content: ""; position: absolute; left: 58px; right: 0; bottom: 0; border-bottom: 1px solid var(--rule); }
+  li p { margin: 0; }
+  li > :is(.need-name, .need-goal) { padding-right: 24px; }
+  .need-number { color: var(--color-annotate); font: 12px / 1.4 var(--mono); letter-spacing: 0.06em; }
+  .need-name { color: var(--ink-strong); font: 400 26px / 1.12 var(--display); letter-spacing: -0.01em; }
+  .need-goal { color: var(--accent); font: 21px / 1.4 var(--ui-sans); }
+  .need-detail { color: var(--ink); font: 18px / 1.4 var(--ui-sans); }
+  @media (max-width: 760px) {
+    li { grid-template-columns: 40px minmax(0, 1fr); padding: 20px 0; }
+    li::after { left: 40px; }
+    li > :not(.need-number) { grid-column: 2; padding: 0; }
+    .need-number { grid-row: 1; }
+    .need-goal { margin-top: 10px; font-size: 19px; }
+    .need-detail { margin-top: 4px; font-size: 16px; }
+  }
+</style>

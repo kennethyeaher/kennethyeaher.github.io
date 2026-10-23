@@ -1,0 +1,72 @@
+---
+// a chapter's ordered sub exhibits in the v2 research layout (capstone-v2.md; shapes in src/data/capstoneResearch.mjs).
+// each block opens on its own title and subtitle when it has one, and ends on its rule and SOURCE line when it has one.
+import ExhibitBars from "@/components/exhibits/ExhibitBars.astro";
+import ExhibitBreakdown from "@/components/exhibits/ExhibitBreakdown.astro";
+import ExhibitColumns from "@/components/exhibits/ExhibitColumns.astro";
+import ExhibitDeliverables from "@/components/exhibits/ExhibitDeliverables.astro";
+import ExhibitFigure from "@/components/exhibits/ExhibitFigure.astro";
+import ExhibitHead from "@/components/exhibits/ExhibitHead.astro";
+import ExhibitLanes from "@/components/exhibits/ExhibitLanes.astro";
+import ExhibitLens from "@/components/exhibits/ExhibitLens.astro";
+import ExhibitMethods from "@/components/exhibits/ExhibitMethods.astro";
+import ExhibitNeeds from "@/components/exhibits/ExhibitNeeds.astro";
+import ExhibitNote from "@/components/exhibits/ExhibitNote.astro";
+import ExhibitReasoning from "@/components/exhibits/ExhibitReasoning.astro";
+import ExhibitSource from "@/components/exhibits/ExhibitSource.astro";
+import ExhibitTrace from "@/components/exhibits/ExhibitTrace.astro";
+
+interface Props {
+  blocks: any[];
+}
+const { blocks } = Astro.props;
+---
+<div class="exhibit-blocks">
+  {blocks.map((block) => (
+    <div id={block.id} class={`exhibit-block is-${block.kind}`}>
+      {block.heading && block.kind !== "prose" && <ExhibitHead id={`${block.id}-heading`} heading={block.heading} subtitle={block.subtitle} />}
+      {block.kind === "questions" && (
+        <ExhibitColumns label={block.label} items={block.items.map((item: any) => ({ label: item.n, title: item.title }))} />
+      )}
+      {block.kind === "methods" && <ExhibitMethods cards={block.cards} labels={block.labels} flow={block.flow} />}
+      {block.kind === "bars" && <ExhibitBars groups={block.groups} note={block.note} />}
+      {block.kind === "breakdown" && (
+        <>
+          <ExhibitBreakdown id={block.id} caption={block.heading} stages={block.stages} tags={block.tags} ratingTones={block.ratingTones} personas={block.personas} />
+          <div class="block-after"><ExhibitColumns items={block.findings} level={4} /></div>
+        </>
+      )}
+      {block.kind === "figure" && <ExhibitFigure image={block.image} zoom={block.zoom} />}
+      {block.kind === "deliverables" && <ExhibitDeliverables cards={block.cards} />}
+      {block.kind === "trace" && <ExhibitTrace id={block.id} caption={block.heading} columns={block.columns} rows={block.rows} />}
+      {block.kind === "needs" && <ExhibitNeeds rows={block.rows} />}
+      {block.kind === "lens" && <ExhibitLens goal={block.goal} items={block.items} />}
+      {block.kind === "lanes" && <ExhibitLanes labels={block.labels} stages={block.stages} />}
+      {block.kind === "reasoning" && <ExhibitReasoning id={block.id} caption={block.heading} columns={block.columns} rows={block.rows} />}
+      {block.kind === "lessons" && <ExhibitColumns items={block.items} />}
+      {block.kind === "prose" && (
+        <div class="block-prose">
+          <h3 id={`${block.id}-heading`}>{block.heading}</h3>
+          <p>{block.body}</p>
+        </div>
+      )}
+      {/* the bars carry their note in their own right column. */}
+      {block.note && block.kind !== "bars" && <div class="block-after"><ExhibitNote note={block.note} /></div>}
+      {block.source && <ExhibitSource text={block.source} />}
+    </div>
+  ))}
+</div>
+<style>
+  /* exhibits inside a chapter sit 32 to 48 apart (capstone-v2.md); the first opens under the lede. */
+  .exhibit-blocks { display: grid; gap: 48px; margin-top: 48px; }
+  .exhibit-block { min-width: 0; }
+  .block-after { margin-top: 32px; }
+  .is-breakdown .block-after { margin-top: 48px; }
+  .block-prose { display: grid; gap: 24px; max-width: 820px; }
+  .block-prose h3 { margin: 0; color: var(--ink-strong); font: 400 clamp(30px, 3.6vw, 40px) / 1.12 var(--display); letter-spacing: -0.015em; }
+  .block-prose p { margin: 0; color: var(--ink); font: 21px / 1.45 var(--body); }
+  @media (max-width: 760px) {
+    .exhibit-blocks { gap: 40px; margin-top: 40px; }
+    .block-prose p { font-size: 19px; }
+  }
+</style>

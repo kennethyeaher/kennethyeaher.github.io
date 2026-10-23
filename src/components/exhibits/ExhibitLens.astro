@@ -1,0 +1,48 @@
+---
+// maria / language access (figma 689:17855): the participation goal on an accent card, then four labelled lines with
+// rules between, the question to validate in orange. figma's goal symbol is three flat circles; they are drawn here
+// from the theme tokens so the card holds in the dark theme. on phones the lines drop under the card.
+interface Props {
+  goal: { label: string; title: string; tag: string };
+  items: { label: string; body: string; tone?: "annotate" }[];
+}
+const { goal, items } = Astro.props;
+---
+<div class="lens">
+  <div class="lens-card">
+    <p class="lens-card-label">{goal.label}</p>
+    <p class="lens-goal">{goal.title}</p>
+    <p class="lens-tag"><span class="lens-symbol" aria-hidden="true"></span>{goal.tag}</p>
+  </div>
+  <dl class="lens-lines">
+    {items.map((item) => (
+      <div>
+        <dt class:list={[item.tone === "annotate" && "is-annotate"]}>{item.label}</dt>
+        <dd>{item.body}</dd>
+      </div>
+    ))}
+  </dl>
+</div>
+<style>
+  .lens { display: grid; grid-template-columns: minmax(0, 364fr) minmax(0, 705fr); gap: 48px; align-items: start; }
+  .lens-card { display: grid; grid-template-rows: auto 1fr auto; gap: 40px; min-height: 475px; padding: 28px; border-radius: 8px; background: var(--accent); color: var(--on-accent); }
+  .lens-card p { margin: 0; }
+  .lens-card-label, .lens-tag { color: var(--accent-soft); font: 12px / 1.4 var(--mono); letter-spacing: 0.06em; }
+  .lens-goal { font: 400 36px / 1.12 var(--display); letter-spacing: -0.015em; }
+  .lens-tag { display: flex; align-items: center; gap: 22px; }
+  /* outer ring in accent soft, an accent ring inside it and a dot in the card's text colour. */
+  .lens-symbol { flex: none; width: 101px; height: 101px; border-radius: 50%; background: radial-gradient(circle, var(--on-accent) 0 9px, var(--accent) 9.5px 25px, var(--accent-soft) 25.5px); }
+  .lens-lines { margin: 0; }
+  .lens-lines div { display: grid; gap: 8px; padding: 20px 0; border-top: 1px solid var(--rule); }
+  .lens-lines div:first-child { padding-top: 6px; border-top: 0; }
+  dt { color: var(--accent); font: 12px / 1.4 var(--mono); letter-spacing: 0.06em; }
+  dt.is-annotate { color: var(--color-annotate); }
+  dd { margin: 0; color: var(--ink); font: 21px / 1.4 var(--ui-sans); }
+  @media (max-width: 760px) {
+    .lens { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+    .lens-card { min-height: 0; gap: 28px; padding: 24px; }
+    .lens-goal { font-size: 30px; }
+    .lens-symbol { width: 72px; height: 72px; background: radial-gradient(circle, var(--on-accent) 0 6px, var(--accent) 6.5px 18px, var(--accent-soft) 18.5px); }
+    dd { font-size: 18px; }
+  }
+</style>

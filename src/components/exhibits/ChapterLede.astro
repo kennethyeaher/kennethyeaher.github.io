@@ -5,17 +5,24 @@
 type Sentence = string | { text: string; newCopy: true };
 interface Props {
   paragraphs: (string | Sentence[])[];
+  /** the v2 research layout's lede (capstone-v2.md): Newsreader 21. */
+  large?: boolean;
 }
-const { paragraphs } = Astro.props;
+const { paragraphs, large = false } = Astro.props;
 const shown = paragraphs
   .map((paragraph) => (typeof paragraph === "string" ? paragraph : paragraph.filter((sentence) => typeof sentence === "string").join(" ")))
   .filter(Boolean);
 ---
-<div class="chapter-lede">
+<div class:list={["chapter-lede", large && "is-large"]}>
   {shown.map((paragraph) => <p>{paragraph}</p>)}
 </div>
 <style>
   .chapter-lede { max-width: 680px; margin-top: 32px; }
   .chapter-lede p { margin: 0; color: var(--ink); font: 17px / 1.5 var(--body); }
   .chapter-lede p + p { margin-top: 16px; }
+  .is-large { max-width: 820px; margin-top: 20px; }
+  .is-large p { font-size: 21px; line-height: 1.4; }
+  @media (max-width: 620px) {
+    .is-large p { font-size: 19px; }
+  }
 </style>

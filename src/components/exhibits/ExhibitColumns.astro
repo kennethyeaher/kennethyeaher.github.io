@@ -1,0 +1,37 @@
+---
+// three ruled columns (capstone-v2.md): research questions (figma 690:7), journey findings (692:8) and lessons
+// (693:105). each item is a top rule, an orange mono label, a Fraunces 24 title and an optional Geist 15 body.
+interface Props {
+  items: { label: string; title: string; body?: string }[];
+  /** a mono label over the whole set, such as RESEARCH QUESTIONS. */
+  label?: string;
+  /** 4 when the set sits under an exhibit title. */
+  level?: 3 | 4;
+}
+const { items, label, level = 3 } = Astro.props;
+const Heading = level === 4 ? "h4" : "h3";
+---
+<div class="exhibit-columns">
+  {label && <p class="columns-label">{label}</p>}
+  <ol>
+    {items.map((item) => (
+      <li>
+        <p class="column-label">{item.label}</p>
+        <Heading>{item.title}</Heading>
+        {item.body && <p class="column-body">{item.body}</p>}
+      </li>
+    ))}
+  </ol>
+</div>
+<style>
+  .columns-label { margin: 0 0 24px; color: var(--muted); font: 11px / 1.4 var(--mono); letter-spacing: 0.07em; text-transform: uppercase; }
+  ol { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px 24px; margin: 0; padding: 0; list-style: none; }
+  li { display: grid; align-content: start; gap: 12px; padding-top: 18px; border-top: 1px solid var(--rule); }
+  .column-label { margin: 0; color: var(--color-annotate); font: 11px / 1.4 var(--mono); letter-spacing: 0.07em; text-transform: uppercase; }
+  :is(h3, h4) { margin: 0; color: var(--ink-strong); font: 400 24px / 1.2 var(--display); letter-spacing: -0.01em; }
+  .column-body { margin: 0; color: var(--ink); font: 15px / 1.45 var(--ui-sans); }
+  @media (max-width: 760px) {
+    ol { grid-template-columns: minmax(0, 1fr); }
+    :is(h3, h4) { font-size: 22px; }
+  }
+</style>

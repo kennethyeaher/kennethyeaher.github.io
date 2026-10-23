@@ -1,0 +1,59 @@
+---
+// from my maps to the city's report (figma 693:26): an opportunity note from a journey map beside the report line it
+// became, an orange arrow between them and the report page in orange mono. a real table with explicit roles; on
+// phones each row stacks, the arrow turning down between the two halves.
+interface Props {
+  id: string;
+  caption: string;
+  columns: string[];
+  rows: { label: string; opportunity: string; page: string; report: string }[];
+}
+const { id, caption, columns, rows } = Astro.props;
+---
+<table class="trace" role="table">
+  <caption id={`${id}-caption`} class="sr-only">{caption}</caption>
+  <thead role="rowgroup">
+    <tr role="row">
+      {columns.map((column, index) => <th scope="col" role="columnheader" class:list={[index === 1 && "is-report"]}>{column}</th>)}
+    </tr>
+  </thead>
+  <tbody role="rowgroup">
+    {rows.map((row) => (
+      <tr role="row">
+        <td role="cell">
+          <span class="trace-label">{row.label}</span>
+          <span class="trace-text">{row.opportunity}</span>
+        </td>
+        <td role="cell" class="is-report">
+          <span class="trace-arrow" aria-hidden="true">→</span>
+          <span class="trace-page">{row.page}</span>
+          <span class="trace-text">{row.report}</span>
+        </td>
+      </tr>
+    ))}
+  </tbody>
+</table>
+<style>
+  .trace { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  .trace :is(th, td) { padding: 18px 0; border-bottom: 1px solid var(--rule); text-align: left; vertical-align: top; }
+  /* the source's own rule closes the table, so the last row draws none. */
+  .trace tbody tr:last-child td { border-bottom: 0; }
+  .trace th { padding-top: 0; color: var(--muted); font: 400 11px / 1.4 var(--mono); letter-spacing: 0.07em; }
+  .trace th.is-report { color: var(--color-annotate); }
+  /* the report half starts after a gutter that holds the arrow. */
+  .trace .is-report { position: relative; padding-left: 64px; }
+  .trace td:first-child { padding-right: 16px; }
+  .trace-arrow { position: absolute; top: 16px; left: 12px; color: var(--color-annotate); font: 18px / 1 var(--ui-sans); }
+  .trace-label, .trace-page { display: block; color: var(--muted); font: var(--label-micro, 10px) / 1.4 var(--mono); letter-spacing: 0.08em; }
+  .trace-page { color: var(--color-annotate); }
+  .trace-text { display: block; margin-top: 8px; color: var(--ink-strong); font: 15px / 1.45 var(--ui-sans); }
+  @media (max-width: 620px) {
+    .trace, .trace :is(tbody, tr, td) { display: block; }
+    .trace thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+    .trace tr { padding: 18px 0; border-bottom: 1px solid var(--rule); }
+    .trace tbody tr:last-child { border-bottom: 0; }
+    .trace td, .trace td:first-child { padding: 0; border: 0; }
+    .trace .is-report { margin-top: 12px; padding-left: 28px; }
+    .trace-arrow { top: 0; left: 2px; transform: rotate(90deg); }
+  }
+</style>

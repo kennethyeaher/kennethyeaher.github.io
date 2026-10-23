@@ -1,0 +1,65 @@
+---
+// a condensed journey (figma 689:17884, 689:17934, 689:17976): lanes for stage, scenario, need and the proposed
+// response, one column per stage with a numbered marker joined to the next. the lane names sit in their own column and
+// each cell carries its lane name for screen readers; the columns share rows through subgrid so the lanes line up.
+// on phones each stage becomes its own block with the lane names shown.
+interface Props {
+  labels: { stage: string; scenario: string; need: string; response: string };
+  stages: { name: string; scenario: string; need: string; response: string }[];
+}
+const { labels, stages } = Astro.props;
+---
+<div class="lanes" style={`--stages: ${stages.length}`}>
+  <div class="lane-labels" aria-hidden="true">
+    <span>{labels.stage}</span>
+    <span>{labels.scenario}</span>
+    <span>{labels.need}</span>
+    <span class="is-response">{labels.response}</span>
+  </div>
+  <ol class="lane-stages">
+    {stages.map((stage, index) => (
+      <li>
+        <p class="lane-stage"><span class="lane-marker" aria-hidden="true">{index + 1}</span><span class="lane-name">{stage.name}</span></p>
+        <p class="lane-cell"><span class="lane-label">{labels.scenario}</span> {stage.scenario}</p>
+        <p class="lane-cell is-need"><span class="lane-label">{labels.need}</span> {stage.need}</p>
+        <p class="lane-cell is-response"><span class="lane-label">{labels.response}</span> <span class="lane-response">{stage.response}</span></p>
+      </li>
+    ))}
+  </ol>
+</div>
+<style>
+  .lanes { display: grid; grid-template-columns: 169px repeat(var(--stages), minmax(0, 1fr)); grid-template-rows: repeat(4, auto); }
+  .lane-labels, .lane-stages, li { display: grid; grid-template-rows: subgrid; grid-row: span 4; }
+  .lane-stages { grid-column: 2 / -1; grid-template-columns: subgrid; margin: 0; padding: 0; list-style: none; }
+  .lane-labels > *, li > * { margin: 0; padding-right: 18px; }
+  /* the lane rows: stage and scenario share the first band; need and response each open on a rule. */
+  .lane-labels > :nth-child(1), .lane-stage { padding-bottom: 28px; }
+  .lane-labels > :nth-child(2), .lane-cell:nth-child(2) { padding-bottom: 30px; }
+  .lane-labels > :nth-child(3), .lane-cell.is-need { padding-block: 30px 36px; border-top: 1px solid var(--rule); }
+  .lane-labels > :nth-child(4), .lane-cell.is-response { padding-top: 25px; border-top: 1px solid var(--rule); }
+  .lane-labels > * { color: var(--muted); font: 12px / 1.4 var(--mono); letter-spacing: 0.06em; }
+  .lane-labels > :nth-child(1) { padding-top: 18px; }
+  .lane-labels > :nth-child(3) { padding-top: 34px; }
+  .lane-labels > .is-response { padding-top: 44px; color: var(--color-annotate); }
+  .lane-stage { position: relative; display: grid; gap: 14px; }
+  .lane-marker { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: var(--on-accent); font: 12px / 1 var(--ui-sans); }
+  /* the progression line runs from this marker to just short of the next. */
+  li:not(:last-child) .lane-stage::after { content: ""; position: absolute; top: 13.5px; left: 30px; right: 10px; height: 1.5px; background: var(--accent); }
+  .lane-name { color: var(--ink-strong); font: 400 22px / 1.12 var(--display); letter-spacing: -0.01em; }
+  .lane-cell { color: var(--ink); font: 19px / 1.4 var(--ui-sans); }
+  .lane-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .lane-response { display: block; min-height: 133px; padding: 18px 14px; border-radius: 4px; background: var(--accent-soft); color: var(--accent); font-size: 17px; }
+  @media (max-width: 760px) {
+    .lanes, .lane-stages, li { display: block; }
+    .lane-labels { display: none; }
+    li { padding: 24px 0; border-top: 1px solid var(--rule); }
+    li:first-child { padding-top: 0; border-top: 0; }
+    li > * { padding: 0; }
+    li:not(:last-child) .lane-stage::after { display: none; }
+    .lane-stage { grid-template-columns: 28px minmax(0, 1fr); align-items: center; gap: 12px; padding: 0; }
+    .lanes .lane-cell { margin-top: 20px; padding: 0; border: 0; font-size: 17px; }
+    .lane-label { position: static; display: block; width: auto; height: auto; margin-bottom: 4px; overflow: visible; clip-path: none; color: var(--muted); font: 11px / 1.4 var(--mono); letter-spacing: 0.06em; }
+    .is-response .lane-label { color: var(--color-annotate); }
+    .lane-response { min-height: 0; padding: 14px; font-size: 16px; }
+  }
+</style>

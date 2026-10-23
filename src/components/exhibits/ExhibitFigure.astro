@@ -1,0 +1,47 @@
+---
+// a full width working artifact (figma 692:153): the image at full width with a 12 radius and a rule stroke. the
+// image waits for its export; while src is null the exhibit shows its head and source only. a zoom figure opens on
+// the whole board to pan (src/scripts/figure-zoom.ts) from a webp written at the zoom width
+// (scripts/build-exhibit-images.mjs); its button stays hidden until the script wires it.
+import { exhibitName, exhibitSrcset } from "@/utils/exhibitSrcset";
+
+interface Props {
+  image: { src: string | null; width: number; height: number; alt: string };
+  /** the width the zoomed board draws at, which has a webp copy of its own. */
+  zoom?: number;
+}
+const { image, zoom } = Astro.props;
+const style = `--ratio: ${image.width} / ${image.height}${zoom ? `; --zoom-w: ${zoom}px` : ""}`;
+const zoomSrc = image.src && zoom ? `/images/exhibits/sized/${exhibitName(image.src)}-${zoom}.webp` : undefined;
+---
+{image.src && (
+  <div class="exhibit-figure" style={style} data-figure-zoom={zoomSrc}>
+    <div class="figure-pan">
+      <picture>
+        <source type="image/webp" srcset={exhibitSrcset(image.src)} sizes="min(1116px, 100vw - 48px)" />
+        <img src={image.src} alt={image.alt} width={image.width} height={image.height} loading="lazy" decoding="async" />
+      </picture>
+    </div>
+    {zoom && <button type="button" class="figure-zoom" hidden>Zoom in</button>}
+  </div>
+)}
+<style>
+  .exhibit-figure { position: relative; }
+  /* the stroke and radius sit on the pan box, which clips the image at rest and scrolls it when zoomed. content-box
+     keeps the image's own ratio inside the stroke, so the box neither clips nor gaps it. */
+  .figure-pan { box-sizing: content-box; aspect-ratio: var(--ratio); overflow: hidden; border: 1px solid var(--rule); border-radius: 12px; }
+  .figure-pan img { display: block; width: 100%; height: auto; }
+  [data-figure-zoom] .figure-pan img { cursor: zoom-in; }
+  .is-zoomed .figure-pan { overflow: auto; overscroll-behavior: contain; }
+  .is-zoomed .figure-pan img { width: var(--zoom-w); max-width: none; cursor: grab; }
+  .is-dragging .figure-pan img { cursor: grabbing; }
+  .figure-pan:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  /* the zoom bar's pill (figma 168:1745), one button that zooms in and out. */
+  .figure-zoom { position: absolute; z-index: 1; bottom: 8px; left: 8px; padding: 7px 14px; border: 0; border-radius: 18px; background: var(--ink-strong); color: var(--canvas); font: 500 11px / 14px var(--mono); cursor: pointer; }
+  .figure-zoom::before { position: absolute; inset: -8px -6px; content: ""; }
+  .figure-zoom:focus-visible { outline: 2px solid var(--canvas); outline-offset: -2px; }
+  /* on a phone the 166px tall box is one row of notes, so the zoomed box grows to most of the screen. */
+  @media (max-width: 620px) {
+    .is-zoomed .figure-pan { aspect-ratio: auto; height: min(70svh, 560px); }
+  }
+</style>

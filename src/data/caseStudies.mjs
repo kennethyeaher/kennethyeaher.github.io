@@ -86,6 +86,12 @@
  *   (.private/redesign-spec/prose.json); section names the narrative section that text comes from.
  * @typedef {HeroExhibit | StageExhibit | RowsExhibit | PairExhibit | JourneyExhibit | HeatmapExhibit | MatrixExhibit | CustomExhibit | SectionExhibit} Exhibit
  */
+import {
+  capstoneGlance, capstoneQuestions, capstoneSources, capstoneRespondents, capstoneBreakdown, capstoneWorkingArtifact,
+  capstoneDeliverables, capstoneTrace, capstoneLessons, capstoneTestNext, capstoneClosing, capstoneNeeds, capstoneLens,
+  capstoneLanes, capstoneReasoning,
+} from "./capstoneResearch.mjs";
+
 export const caseStudies = [
   {
     slug: "ovara",
@@ -1090,10 +1096,18 @@ export const caseStudies = [
     year: "2024",
     role: "Project Manager",
     timeline: "Fall 2024",
-    team: "Four person student team. I ran the in-person surveys and talked with residents, and made the personas and journey maps myself. Teammates led the social media audit and the recommendations, with my input.",
+    team: "Project management, both Qualtrics surveys, in-person surveying and resident conversations, persona and journey map design",
+    // the five metadata columns of the v2 spec (capstone-v2.md), in order; the layout reads role, timeline, team and skills until it reads this.
+    meta: [
+      { label: "Role", value: "Project Manager, team of four" },
+      { label: "Client", value: "City of College Park, Communications" },
+      { label: "Timeline", value: "Fall 2024" },
+      { label: "My contribution", value: "Project management, both Qualtrics surveys, in-person surveying and resident conversations, persona and journey map design" },
+      { label: "Methods", value: "Surveys, field observation, contextual interviews, secondary data, social media audit" },
+    ],
     skills: ["User research", "Personas", "Journey mapping", "Client leadership"],
     summary:
-      "A civic research engagement that turned two surveys and contextual interviews at three city events into five personas, three journey maps, a social media audit, and recommendations for the City of College Park.",
+      "Helping College Park understand why city communication was missing students and residents, and turn exploratory research into more accessible routes to participation.",
     cardImage: "/images/work/capstone/cover-gradient-poster.png",
     cardAlt: "User Research Capstone motion cover on a warm amber and rose field: a student survey answer checks None of these, a tally fills 17 of 24 segments for students who follow no city channel, Diana's persona card types in with goals, pains and habits bars, then Bruce's journey curve draws to its low point",
     heroImage: "/images/work/capstone/cover-gradient-poster.png",
@@ -1116,13 +1130,11 @@ export const caseStudies = [
     exhibits: /** @type {Exhibit[]} */ ([
       {
         kind: "hero", id: "overview", chapter: "Overview", figma: "73:1005",
-        eyebrow: "OVERVIEW",
-        heading: "Making city communication easier to enter",
+        eyebrow: "Overview",
+        heading: "Understanding what helps people participate",
         lede: [
-          "The City of College Park serves families, students, long-time residents, and bilingual households through many separate channels. Our capstone team studied how people discovered city programs, where communication lost momentum, and what would make participation feel more relevant.",
-          "As project manager, I led the client relationship with Assistant City Manager Bill Gardiner, coordinated our institutional advisors, and kept research, synthesis, and presentation work aligned with the city’s goals. The client team also included Katherine Garcia, the bilingual communications coordinator, and Ryna Quinones, the communications and events manager. Garcia’s title is the reason the bilingual access thread in this project was never incidental. The city already had someone responsible for it.",
-          "The engagement covered field research, a social-media audit, five personas, three journey maps, a final report, and an executive presentation. I translated that broad scope into weekly decisions, clarified ownership, and made sure each artifact answered a question the city could use.",
-          "Leading the relationship also meant making research legible without flattening the differences between students, parents, newer residents, and Spanish-speaking households.",
+          "College Park's communications team wanted to reach a population that keeps changing: tens of thousands of UMD students, long time residents and a growing Spanish speaking community. Our team of four set out to learn how each group finds city events, what keeps them from going, and what the city could change.",
+          "I was the project manager. I ran our Trello board, built both Qualtrics surveys, did the in-person surveying and held the resident conversations at city events myself, and led the design of our personas and journey maps; the three journey maps in this case study are my FigJam boards. Teammates led the social media audit and the final recommendations, with my input.",
         ],
         visuals: [
           { src: "/images/work/capstone/journey-jessica.png", width: 3551, height: 1649, alt: "Jessica’s journey map across five stages, Awareness, Planning, Arrival, Experience and Post-Event, with rows for touchpoints, user actions, goals, feelings, pain points and opportunities", rot: 5, at: { x: 3.6, y: 7.2, w: 50.2 } },
@@ -1132,23 +1144,35 @@ export const caseStudies = [
         kpi: { eyebrow: "STUDENT SURVEY", value: "17 of 24", label: "followed none of the city’s accounts", at: { x: 5.4, y: 73.3 } },
         metrics: [
           { value: "17 of 24", label: "students followed no city channel" },
-          { value: "5", label: "personas from 33 responses and field interviews" },
-          { value: "3", label: "resident journey maps" },
+          { value: "5", label: "provisional personas" },
+          { value: "3", label: "scenario journey maps" },
         ],
+        // the at a glance band under the metadata (figma 689:18146); its stats share the metrics shape.
+        glance: capstoneGlance,
       },
       {
-        kind: "heatmap", id: "the-survey", chapter: "The survey", figma: "73:1067",
+        kind: "section", id: "approach", chapter: "Approach", section: "approach", figma: "690:2",
+        eyebrow: "Approach",
+        heading: "When the survey stalled, we went where residents already were",
         lede: [
-          "We ran two surveys, one for University of Maryland students and one for College Park residents. Twenty two of the twenty four students had never attended a City of College Park event. Seventeen followed none of the city’s accounts at all. Seven followed Instagram, two Twitter, one Facebook. The city was publishing into a place these students were not standing.",
-          "We combined the two surveys with contextual interviews at three city events: College Park Day, Good Neighbor Day, and Friday Night LIVE. Observing the experience in context showed the distance between publishing information and helping a resident act on it.",
-          "Face-to-face conversations made two needs especially clear: Spanish-speaking families wanted more consistent bilingual access, while students wanted city initiatives to feel connected to their lives rather than adjacent to campus.",
-          "Interest was real and it was not universal. Fourteen students said they were somewhat interested in hearing more and two said very interested. Eight said they were not interested at all. That is a third of the cohort, and it puts a ceiling on what better communication alone can do.",
-          "Channel preferences pointed in two directions. Twenty of the twenty three students who answered chose social media, with nine each for email and text, six for campus bulletins, and four for the campus calendar. The nine residents inverted it: six chose email, five text, four bulletins, three social. One channel strategy was never going to serve both groups.",
-          "The social media audit ran alongside the surveys and closed on six recommendations: accessibility, interactivity and community pride, broader and more balanced content, visual storytelling, cross promotion, and measurement.",
+          "Students answered our survey quickly. Residents who aren't students were much harder to reach. So we changed the method, not the question: I went to three city hosted events, surveyed people in person, watched how they arrived and moved through each event, and talked with residents on site. Observing in the wild showed us what a survey can't, like the entrance, the parking and the moment someone decides to stay (Rogers, Sharp and Preece, Interaction Design, \u00a78.6).",
         ],
-        eyebrow: "THE SURVEY",
-        heading: "Most students had never attended, and most followed nothing the city posts",
+        // the chapter's exhibits in order (see capstoneResearch.mjs for each shape); task 2 renders them.
+        blocks: [capstoneQuestions, capstoneSources, capstoneRespondents],
+      },
+      {
+        kind: "heatmap", id: "the-survey", chapter: "What we heard", figma: "73:1067",
+        lede: [
+          "24 students and nine residents answered. At that size the numbers are signals, not estimates, so each one was checked against what we saw in the field.",
+        ],
+        eyebrow: "What we heard",
+        heading: "The city was publishing beyond the students it reached",
         base: "#0b2c44",
+        // exhibits 04 and 05 (figma 689:17724, 689:17783) share this stage, so it closes on both their lines.
+        source: [
+          "Final Report, survey results pp. 15–17.",
+          "Final Report pp. 15–17. Counts, not population estimates. Student preference item has one fewer response.",
+        ],
         panels: [
           { label: "PREFERRED UPDATES", columns: ["Students · N = 23", "Residents · N = 9"], rows: [
             ["Social media", "20 of 23", "3 of 9"],
@@ -1171,82 +1195,51 @@ export const caseStudies = [
           { type: "focus", num: "03", target: "PREFERRED UPDATES, Residents column including its header" },
         ],
         notes: [
-          { n: "01", title: "Two cohorts, opposite habits", body: "Twenty of twenty three students chose social media. The nine residents inverted it: six chose email, five text, three social. One channel strategy was never going to serve both groups." },
-          { n: "02", title: "Publishing where students are not", body: "Seventeen of twenty four students followed none of the city’s accounts. The city was publishing into a place these students were not standing." },
-          { n: "03", title: "Nine answers, not a rate", body: "Nine residents was enough to tell us which questions were worth asking. It is not enough to estimate how common an answer is across College Park." },
+          { n: "01", title: "Different preferences in this sample", body: "Students selected social media most often. Residents selected email most often. This is a directional signal from two small groups, not a population comparison." },
+          { n: "02", title: "Publishing where students are not", body: "Seventeen of twenty four students followed no city account. Test whether distribution through campus partners reaches people the existing accounts miss." },
+          { n: "03", title: "Nine resident responses", body: "Nine residents was enough to tell us which questions were worth asking. It is not enough to estimate how common an answer is across College Park." },
         ],
       },
       {
-        kind: "stage", id: "the-persona", chapter: "The persona", figma: "73:1040", size: "wide", ratio: "1116 / 800", zoom: true,
+        kind: "section", id: "the-persona", chapter: "Synthesis", figma: "689:17820",
         lede: [
-          "Jessica, Alex, Priya, Tyler, and Maria stand for five different relationships to College Park: an engaged parent eight years in, a married graphic designer three years in with no children, an on-campus student leader, an off-campus junior, and a Spanish speaking mother of a four year old.",
-          "Each profile has two frames. The first carries the photograph, the basics, and a seven axis personality scale. The second carries motivations, frustrations, goals, preferred communication channels, and quotes. Both are on this page, because the second frame is where the research actually sits and showing only the first one would have been the flattering choice.",
-          "The channel rows sit closest to the survey data, though even those were measured by cohort rather than by person. Age, household, occupation, and the personality scales came out of contextual interviews and the team’s reading of them. That makes these a shared vocabulary for talking about residents, not a description of the population, and the difference matters the moment someone uses a persona to justify a decision.",
+          "We looked across survey answers, field notes and interviews for recurring goals and barriers, and wrote five personas around them (Rogers, Sharp and Preece, \u00a711.5). Three became focus personas with full journey maps: Jessica, Tyler and Maria. Here each one is reframed around the need that should change a design decision.",
         ],
-        eyebrow: "THE PERSONA",
-        heading: "Five personas built from two surveys and a semester of conversations",
-        visuals: [
-          { src: "/images/work/capstone/persona-maria.png", width: 2393, height: 1332, alt: "Maria persona card with photo, the label Spanish-Speaking Community Member, age 29, customer service representative, married with a four year old, Spanish first language with intermediate English, five years in College Park, a bio, and a seven axis personality scale", at: { x: 21.3, y: 5, w: 57.3 } },
-          { src: "/images/work/capstone/persona-maria-detail.png", width: 2384, height: 1299, alt: "Maria detail panel listing motivations, frustrations, goals, preferred communication channels and three quotes", at: { x: 21.3, y: 51.5, w: 57.3 } },
-        ],
-        annotations: [
-          { type: "focus", num: "01", on: 0, at: { x: 56.6, y: 7.3, w: 40.3, h: 83.7 } },
-          { type: "focus", num: "02", on: 1, at: { x: 62.8, y: 14.3, w: 28.7, h: 7.4 } },
-          { type: "focus", num: "03", on: 1, at: { x: 60.3, y: 48.1, w: 36.9, h: 48.7 } },
-        ],
-        notes: [
-          { n: "01", title: "Not survey outputs", body: "Age, occupation, household, and the personality scales came from sixteen contextual interviews and the team’s reading of them, not from either survey." },
-          { n: "02", title: "A channel no survey offered", body: "Channel lists sit closest to the survey data, but only as cohort totals. Maria’s reaches past them: she prefers WhatsApp, which neither survey offered as an option." },
-          { n: "03", title: "Not a participant’s own words", body: "The sixteen contextual interviews were counted but never transcribed, so nothing on a card is a participant’s own words." },
-        ],
+        eyebrow: "Synthesis",
+        heading: "Five ways to understand participation",
+        // exhibits 07 and 12 (figma 689:17825, 689:17855).
+        blocks: [capstoneNeeds, capstoneLens],
+        closing: "Maria is shown in depth here; the other four follow the same structure.",
       },
       {
-        kind: "journey", id: "three-journeys", chapter: "Three journeys", figma: "73:1091",
+        kind: "section", id: "three-journeys", chapter: "Journeys", figma: "689:17879",
         lede: [
-          "All three maps carry the same six rows: touchpoints, user actions, goals, feelings, pain points, and opportunities. The stage columns are not shared. Jessica’s map runs Awareness, Planning, Arrival, Experience, Post-Event. Maria’s opens on Curiosity and closes on Reflection. Tyler’s has no Planning stage and no Arrival stage at all.",
-          "Tyler’s map is the one I would put in front of a communications team first. He had no planning stage because he did not plan. He walked down Knox Road on a Friday night looking for a bar, heard live music coming from City Hall, and went in. His first recorded pain point is that he was unaware Friday Night LIVE existed until he stumbled onto it. He lives in College Park, and the channel that reached him was sound.",
-          "The opportunity rows converge even though the stages do not. Jessica’s asks for parking maps and activity schedules published on the event page. Tyler’s asks for posters, digital boards, and student newsletters on campus. Maria’s asks for promotional materials in Spanish, distributed through community hubs. Three residents, three versions of one request: make it findable before I am standing in front of it.",
+          "I built a journey map for each focus persona, from first hearing about an event to deciding whether to come back. Lined up side by side, the three maps break in the same places.",
         ],
-        eyebrow: "THREE JOURNEYS",
-        heading: "Three residents, three different routes into the same kind of event",
-        stages: ["01 Stages on the map", "02 Where the journey starts", "03 First pain point", "04 Opportunity"],
-        accentStage: "04",
-        tones: ["muted", "muted", "muted"],
-        rows: [
-          { label: "JESSICA", cells: [
-            "Awareness, Planning, Arrival, Experience, Post-Event",
-            "A Facebook event page, a flyer at a local daycare, a friend",
-            "No detailed information about parking or an event schedule",
-            "Parking maps and activity schedules published on the event page",
-          ] },
-          { label: "TYLER", cells: [
-            "Curiosity, Exploration, Experience, Reflection",
-            "Music from City Hall, heard while walking down Knox Road",
-            "No central source. Unaware of the event until he stumbled onto it",
-            "Posters, digital boards, and student newsletters on campus",
-          ] },
-          { label: "MARIA", cells: [
-            "Curiosity, Planning, Arrival, Experience, Reflection",
-            "A flyer at her child’s school and a social media post in Spanish",
-            "Uncertainty about whether the event welcomed Spanish speaking families",
-            "Promotional materials in Spanish, distributed through community hubs",
-          ] },
-        ],
-        figure: { src: "/images/work/capstone/journey-tyler.png", width: 3574, height: 1638, alt: "Tyler’s journey map across four stages, Curiosity, Exploration, Experience and Reflection, with rows for touchpoints, user actions, goals, feelings, pain points and opportunities", label: "TYLER’S JOURNEY MAP  ·  FOUR STAGES, NO PLANNING, NO ARRIVAL", caption: "Tyler’s map has no Planning stage because Tyler did not plan. Three residents, three versions of one request: make it findable before I am standing in front of it." },
+        eyebrow: "Journeys",
+        heading: "Follow the experience beyond the announcement",
+        // the grid and maria's board, then exhibits 13 to 15.
+        blocks: [capstoneBreakdown, capstoneWorkingArtifact, ...capstoneLanes],
       },
       {
-        kind: "section", id: "evidence", chapter: "Evidence", section: "evidence",
-        eyebrow: "EVIDENCE",
-        heading: "What this research supports, and what it does not",
+        kind: "section", id: "recommendations", chapter: "Recommendations", section: "recommendations", figma: "689:18026",
+        eyebrow: "Recommendations",
+        heading: "Connect the findings to the next decision",
         lede: [
-          "Twenty four students answered the campus survey and nine residents answered the resident one. Nine is small enough that I want to be precise about what it carries. It was enough to tell us which questions were worth asking. It is not enough to estimate how common an answer is across College Park, so the resident channel preferences on this page should be read as nine people’s answers rather than a rate.",
-          "Those nine also skew new. Four had lived in College Park between one and three years, two for less than a year, two for four to ten, and one for more than ten. The resident sample is mostly recent arrivals, which means it says least about the residents who have been here longest.",
-          "The personas rest on a narrower base than the word persona usually implies. The surveys measured channel preference by cohort, not by person, so no profile’s channel list is a respondent’s answer. The lists are consistent with the cohort totals, and one reaches past them: Maria prefers WhatsApp, which neither survey offered as an option. Age, occupation, household, and the personality scales are not survey outputs either. They came from sixteen contextual interviews at College Park Day, Good Neighbor Day, and Friday Night LIVE, none of which we transcribed. The count belongs in the report and it is not there.",
-          "The bigger gap is that none of this went back to the people it describes. We built five personas and three journey maps, presented them to the city, and handed them over. No resident ever saw the profile meant to represent them. Maria is the one I would fix first. She carries the project’s argument about bilingual access, her journey map is the most detailed of the three, and the resident survey never asked a single question about language. Katherine Garcia, the city’s bilingual communications coordinator, sat on the client team. Checking Maria against her reading was available to us and we did not do it.",
-          "What the work does support is narrower and still worth something. Twenty two of twenty four students had never attended a City of College Park event, a gap large enough that the direction is not in doubt even if the exact share is. The journey maps are honest reconstructions of three specific paths through one kind of event. The personas gave the city a shared vocabulary it did not have before. None of that needs a bigger sample to be useful. It needs me to say which claims rest on measurement and which rest on judgment.",
-          "Meeting residents face to face changed the project from an academic exercise into a responsibility. I learned to lead with curiosity, translate qualitative evidence into a shared direction, and keep a team focused on the people behind the artifact.",
-          "Presenting to the City of College Park confirmed my interest in human-computer interaction. The most valuable outcome was a common picture of the community that helped a client reason more carefully about communication.",
+          "The team turned the research into a 30 page report for the city. Here is what the city received, how my journey maps fed the report, and the reasoning behind each decision.",
         ],
+        // exhibit 16 closes the chapter.
+        blocks: [capstoneDeliverables, capstoneTrace, capstoneReasoning],
+      },
+      {
+        kind: "section", id: "reflection", chapter: "Reflection", section: "reflection", figma: "693:100",
+        eyebrow: "Reflection",
+        heading: "What I'd do differently",
+        lede: [
+          "Running this project taught me as much about research operations as about the city.",
+        ],
+        blocks: [capstoneLessons, capstoneTestNext],
+        closing: capstoneClosing,
       },
     ]),
     links: [
@@ -1261,8 +1254,8 @@ export const caseStudies = [
     ],
     metrics: [
       { value: "17 of 24", label: "students followed no city channel" },
-      { value: "5", label: "personas from 33 responses and field interviews" },
-      { value: "3", label: "resident journey maps" },
+      { value: "5", label: "provisional personas" },
+      { value: "3", label: "scenario journey maps" },
     ],
     evidence: {
       personaCount: 5,
@@ -1271,12 +1264,20 @@ export const caseStudies = [
     },
     sections: [
       {
+        "id": "research-decisions",
+        "label": "Research to decisions",
+        "heading": "Turn each finding into a decision the city can test",
+        "body": [
+          "The original report offered a broad set of recommendations. In this retrospective, I prioritize three experiments by their connection to the evidence and the effort required to learn from them. These priorities are my current interpretation, not decisions documented as adopted by the city."
+        ]
+      },
+      {
         id: "overview",
         label: "Overview",
-        heading: "Making city communication easier to enter",
+        heading: "Understanding what helps people participate",
         body: [
-          "The City of College Park serves families, students, long-time residents, and bilingual households through many separate channels. Our capstone team studied how people discovered city programs, where communication lost momentum, and what would make participation feel more relevant.",
-          "As project manager, I led the client relationship with Assistant City Manager Bill Gardiner, coordinated our institutional advisors, and kept research, synthesis, and presentation work aligned with the city’s goals. The client team also included Katherine Garcia, the bilingual communications coordinator, and Ryna Quinones, the communications and events manager. Garcia’s title is the reason the bilingual access thread in this project was never incidental. The city already had someone responsible for it.",
+          "College Park's communications team wanted to reach a population that keeps changing: tens of thousands of UMD students, long time residents and a growing Spanish speaking community. Our team of four set out to learn how each group finds city events, what keeps them from going, and what the city could change.",
+          "I was the project manager. I ran our Trello board, built both Qualtrics surveys, did the in-person surveying and held the resident conversations at city events myself, and led the design of our personas and journey maps; the three journey maps in this case study are my FigJam boards. Teammates led the social media audit and the final recommendations, with my input.",
         ],
         media: [
           {
@@ -1285,6 +1286,14 @@ export const caseStudies = [
             caption: "The class opened by writing down what we each wanted from the semester. Mine reads providing social impact. Most of the rest ask for hands on experience, which is a fair account of what a capstone is for.",
             wide: true,
           },
+        ],
+      },
+      {
+        id: "approach",
+        label: "Approach",
+        heading: "When the survey stalled, we went where residents already were",
+        body: [
+          "Students answered our survey quickly. Residents who aren't students were much harder to reach. So we changed the method, not the question: I went to three city hosted events, surveyed people in person, watched how they arrived and moved through each event, and talked with residents on site. Observing in the wild showed us what a survey can't, like the entrance, the parking and the moment someone decides to stay (Rogers, Sharp and Preece, Interaction Design, \u00a78.6).",
         ],
       },
       {
@@ -1315,12 +1324,9 @@ export const caseStudies = [
       {
         id: "survey-audit",
         label: "Survey + audit",
-        heading: "Most students had never attended, and most followed nothing the city posts",
+        heading: "Most surveyed students had never attended or followed a city account",
         body: [
-          "We ran two surveys, one for University of Maryland students and one for College Park residents. Twenty two of the twenty four students had never attended a City of College Park event. Seventeen followed none of the city’s accounts at all. Seven followed Instagram, two Twitter, one Facebook. The city was publishing into a place these students were not standing.",
-          "Interest was real and it was not universal. Fourteen students said they were somewhat interested in hearing more and two said very interested. Eight said they were not interested at all. That is a third of the cohort, and it puts a ceiling on what better communication alone can do.",
-          "Channel preferences pointed in two directions. Twenty of the twenty three students who answered chose social media, with nine each for email and text, six for campus bulletins, and four for the campus calendar. The nine residents inverted it: six chose email, five text, four bulletins, three social. One channel strategy was never going to serve both groups.",
-          "The social media audit ran alongside the surveys and closed on six recommendations: accessibility, interactivity and community pride, broader and more balanced content, visual storytelling, cross promotion, and measurement.",
+          "24 students and nine residents answered. At that size the numbers are signals, not estimates, so each one was checked against what we saw in the field.",
         ],
         artifact: {
           eyebrow: "Survey findings · two audiences",
@@ -1352,11 +1358,9 @@ export const caseStudies = [
       {
         id: "personas",
         label: "Personas",
-        heading: "Five personas built from two surveys and a semester of conversations",
+        heading: "Five participation needs the city can design for",
         body: [
-          "Jessica, Alex, Priya, Tyler, and Maria stand for five different relationships to College Park: an engaged parent eight years in, a married graphic designer three years in with no children, an on-campus student leader, an off-campus junior, and a Spanish speaking mother of a four year old.",
-          "Each profile has two frames. The first carries the photograph, the basics, and a seven axis personality scale. The second carries motivations, frustrations, goals, preferred communication channels, and quotes. Both are on this page, because the second frame is where the research actually sits and showing only the first one would have been the flattering choice.",
-          "The channel rows sit closest to the survey data, though even those were measured by cohort rather than by person. Age, household, occupation, and the personality scales came out of contextual interviews and the team’s reading of them. That makes these a shared vocabulary for talking about residents, not a description of the population, and the difference matters the moment someone uses a persona to justify a decision.",
+          "We looked across survey answers, field notes and interviews for recurring goals and barriers, and wrote five personas around them (Rogers, Sharp and Preece, \u00a711.5). Three became focus personas with full journey maps: Jessica, Tyler and Maria. Here each one is reframed around the need that should change a design decision.",
         ],
         media: [
           { src: "/images/work/capstone/capstone-provenance.png", width: 2400, height: 4186, alt: "Provenance diagram in three hops. Hop one lists four evidence sources: student survey 24, resident survey 9, sixteen contextual interviews marked not transcribed, and three blocks of secondary figures marked partly sourced. Hop two audits the thirteen fields of a persona card, eleven marked no survey item, two marked cohort level, one marked authored. Hop three connects five personas to three journey maps, with Alex and Priya marked no journey map", caption: "Two of the thirteen fields on a persona card have any survey basis, and both only as a cohort total. The sixteen contextual interviews in the first row were counted but never transcribed, so nothing on a card is a participant's own words.", wide: true },
@@ -1375,11 +1379,9 @@ export const caseStudies = [
       {
         id: "journey-maps",
         label: "Journey maps",
-        heading: "Three residents, three different routes into the same kind of event",
+        heading: "Three scenarios reveal different barriers to participation",
         body: [
-          "All three maps carry the same six rows: touchpoints, user actions, goals, feelings, pain points, and opportunities. The stage columns are not shared. Jessica’s map runs Awareness, Planning, Arrival, Experience, Post-Event. Maria’s opens on Curiosity and closes on Reflection. Tyler’s has no Planning stage and no Arrival stage at all.",
-          "Tyler’s map is the one I would put in front of a communications team first. He had no planning stage because he did not plan. He walked down Knox Road on a Friday night looking for a bar, heard live music coming from City Hall, and went in. His first recorded pain point is that he was unaware Friday Night LIVE existed until he stumbled onto it. He lives in College Park, and the channel that reached him was sound.",
-          "The opportunity rows converge even though the stages do not. Jessica’s asks for parking maps and activity schedules published on the event page. Tyler’s asks for posters, digital boards, and student newsletters on campus. Maria’s asks for promotional materials in Spanish, distributed through community hubs. Three residents, three versions of one request: make it findable before I am standing in front of it.",
+          "I built a journey map for each focus persona, from first hearing about an event to deciding whether to come back. Lined up side by side, the three maps break in the same places.",
         ],
         artifact: {
           eyebrow: "Journey maps · three residents",
@@ -1403,10 +1405,7 @@ export const caseStudies = [
         label: "Recommendations",
         heading: "Six recommendations, and two of them specific enough to buy",
         body: [
-          "We gave the city six recommendations: update the personas every year, improve engagement platform by platform, add an interactive digital tool, track participation properly, build long term partnerships with schools and campus groups, and use the deliverables in day to day communication rather than filing them. Four of those are the kind of advice any consultancy hands over. Two were specific enough to act on the same week.",
-          "The first was moving event management off Nextdoor and onto Eventbrite, for the analytics. Eventbrite reports RSVP counts and attendee demographics, integrates with Google Analytics, collects structured post-event surveys, and publishes event pages in more than one language. That last point carries more weight than it looks like it should, because the bilingual access problem running through this project is partly a tooling problem and not only a translation one.",
-          "The second was replacing Hootsuite. The audit found four problems with it for a team this size: pricing that climbs steeply as seats are added, an interface with a real learning curve, thin collaboration tools, and accessibility support behind competitors that ship captioning and alt text properly. We costed five alternatives rather than naming one, because the right answer depends on whether the city optimises for budget or for governance.",
-          "The recommendation I would defend hardest is the first one on that list. Five profiles built from thirty three survey responses and a semester of conversations are a starting position, not a finished instrument. They are worth more to the city as something maintained every year than as something delivered once.",
+          "The team turned the research into a 30 page report for the city. Here is what the city received, how my journey maps fed the report, and the reasoning behind each decision.",
         ],
         artifact: {
           eyebrow: "Social media audit · tooling",
@@ -1427,11 +1426,11 @@ export const caseStudies = [
         label: "Evidence",
         heading: "What this research supports, and what it does not",
         body: [
-          "Twenty four students answered the campus survey and nine residents answered the resident one. Nine is small enough that I want to be precise about what it carries. It was enough to tell us which questions were worth asking. It is not enough to estimate how common an answer is across College Park, so the resident channel preferences on this page should be read as nine people’s answers rather than a rate.",
-          "Those nine also skew new. Four had lived in College Park between one and three years, two for less than a year, two for four to ten, and one for more than ten. The resident sample is mostly recent arrivals, which means it says least about the residents who have been here longest.",
-          "The personas rest on a narrower base than the word persona usually implies. The surveys measured channel preference by cohort, not by person, so no profile’s channel list is a respondent’s answer. The lists are consistent with the cohort totals, and one reaches past them: Maria prefers WhatsApp, which neither survey offered as an option. Age, occupation, household, and the personality scales are not survey outputs either. They came from sixteen contextual interviews at College Park Day, Good Neighbor Day, and Friday Night LIVE, none of which we transcribed. The count belongs in the report and it is not there.",
-          "The bigger gap is that none of this went back to the people it describes. We built five personas and three journey maps, presented them to the city, and handed them over. No resident ever saw the profile meant to represent them. Maria is the one I would fix first. She carries the project’s argument about bilingual access, her journey map is the most detailed of the three, and the resident survey never asked a single question about language. Katherine Garcia, the city’s bilingual communications coordinator, sat on the client team. Checking Maria against her reading was available to us and we did not do it.",
-          "What the work does support is narrower and still worth something. Twenty two of twenty four students had never attended a City of College Park event, a gap large enough that the direction is not in doubt even if the exact share is. The journey maps are honest reconstructions of three specific paths through one kind of event. The personas gave the city a shared vocabulary it did not have before. None of that needs a bigger sample to be useful. It needs me to say which claims rest on measurement and which rest on judgment.",
+          "The delivered outcome was a research handoff: five personas, three journey maps, a social media audit, and recommendations. The supplied materials do not document implementation or changes in attendance, engagement, or satisfaction. I would not claim those outcomes from this project.",
+          "The surveys support descriptive statements about 24 student respondents and nine resident respondents. Six of the nine residents had lived in College Park for three years or less. The report does not provide respondent level records, recruitment denominators, or enough information to assess overlap between the groups.",
+          "The qualitative materials support provisional scenarios and questions for further research. The final report documents contextual interviews but does not provide an interview count or transcripts. I therefore describe the methods without assigning an unverified interview count.",
+          "The report also includes secondary percentages with unclear sourcing and conflicting demographic figures. Those figures are not used here as local survey findings. Neither the survey charts nor the persona artifacts establish the prevalence of language barriers.",
+          "My main lesson is to make the path from evidence to decision visible. A small exploratory study can help a team decide what to investigate and prototype. The next step is to check those interpretations with residents, including people who do not already attend city events."
         ],
         media: [
           { src: "/images/work/capstone/capstone-sample.png", width: 2400, height: 2205, alt: "Sample diagram. Two cohort cards, 24 UMD students and 9 College Park residents, with resident tenure drawn as four bars: less than one year 2, one to three years 4, four to ten years 2, more than ten years 1. A gold panel marked not recorded covers how people were reached. Four cards below cover what the sample does not reach: language nothing asked, the screener not published, long tenure 1 of 9, event experience 2 of 33", caption: "Six of the nine residents had lived in College Park three years or less. Two people in the whole sample of thirty three had ever attended a city event.", wide: true },
@@ -1442,8 +1441,7 @@ export const caseStudies = [
         label: "Reflection",
         heading: "This project made HCI feel like the work I wanted to keep doing",
         body: [
-          "Meeting residents face to face changed the project from an academic exercise into a responsibility. I learned to lead with curiosity, translate qualitative evidence into a shared direction, and keep a team focused on the people behind the artifact.",
-          "Presenting to the City of College Park confirmed my interest in human-computer interaction. The most valuable outcome was a common picture of the community that helped a client reason more carefully about communication.",
+          "Running this project taught me as much about research operations as about the city.",
         ],
       },
     ],

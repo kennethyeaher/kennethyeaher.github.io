@@ -1,0 +1,19 @@
+---
+// a v2 research exhibit's own title and subtitle (capstone-v2.md): Fraunces 40 over Geist 18, one level under the
+// chapter heading.
+interface Props {
+  heading: string;
+  subtitle?: string;
+  id?: string;
+}
+const { heading, subtitle, id } = Astro.props;
+---
+<header class="exhibit-head">
+  <h3 id={id}>{heading}</h3>
+  {subtitle && <p>{subtitle}</p>}
+</header>
+<style>
+  .exhibit-head { display: grid; gap: 12px; max-width: 860px; margin-bottom: 32px; }
+  h3 { margin: 0; color: var(--ink-strong); font: 400 clamp(30px, 3.6vw, 40px) / 1.12 var(--display); letter-spacing: -0.015em; }
+  p { margin: 0; color: var(--ink); font: 18px / 1.45 var(--ui-sans); }
+</style>

@@ -1,0 +1,35 @@
+---
+// the at a glance band under the metadata (figma 689:18146): a sunken band with a mono label, a Fraunces 34 headline
+// and four stats, each a Fraunces 52 accent number over a Geist 16 label.
+interface Props {
+  glance: { label: string; headline: string; stats: { value: string; label: string }[] };
+}
+const { glance } = Astro.props;
+---
+<div class="exhibit-glance" role="group" aria-labelledby="glance-label">
+  <p id="glance-label" class="glance-label">{glance.label}</p>
+  <p class="glance-headline">{glance.headline}</p>
+  <ul>
+    {glance.stats.map((stat) => (
+      <li><span class="glance-value">{stat.value}</span> <span class="glance-stat">{stat.label}</span></li>
+    ))}
+  </ul>
+</div>
+<style>
+  .exhibit-glance { margin-top: 40px; padding: 48px; border-radius: 12px; background: var(--surface-sunken); }
+  .glance-label { margin: 0; color: var(--muted); font: 11px / 1.4 var(--mono); letter-spacing: 0.07em; text-transform: uppercase; }
+  .glance-headline { max-width: 780px; margin: 32px 0 0; color: var(--ink-strong); font: 400 34px / 1.24 var(--display); letter-spacing: -0.015em; }
+  ul { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 32px 24px; margin: 32px 0 0; padding: 0; list-style: none; }
+  li { display: grid; align-content: start; gap: 12px; }
+  .glance-value { color: var(--accent); font: 400 52px / 1 var(--display); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .glance-stat { color: var(--ink); font: 16px / 1.4 var(--ui-sans); }
+  @media (max-width: 900px) {
+    ul { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 620px) {
+    .exhibit-glance { padding: 28px 22px; }
+    .glance-headline { margin-top: 20px; font-size: 26px; }
+    ul { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+    .glance-value { font-size: 44px; }
+  }
+</style>

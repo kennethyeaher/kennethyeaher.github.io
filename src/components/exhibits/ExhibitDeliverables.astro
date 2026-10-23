@@ -1,0 +1,27 @@
+---
+// what the city received (figma 693:2): four equal cards, each a mono label, a Fraunces 34 count and a Geist 14 body.
+interface Props {
+  cards: { label: string; count: string; body: string }[];
+}
+const { cards } = Astro.props;
+---
+<ul class="deliverables">
+  {cards.map((card) => (
+    <li>
+      <p class="deliverable-label">{card.label}</p>
+      <p class="deliverable-count">{card.count}</p>
+      <p class="deliverable-body">{card.body}</p>
+    </li>
+  ))}
+</ul>
+<style>
+  .deliverables { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin: 0; padding: 0; list-style: none; }
+  li { display: grid; align-content: start; gap: 12px; padding: 20px 20px 24px; border: 1px solid var(--rule); border-radius: 12px; background: var(--surface); }
+  li p { margin: 0; }
+  .deliverable-label { color: var(--accent); font: 11px / 1.4 var(--mono); letter-spacing: 0.07em; text-transform: uppercase; }
+  .deliverable-count { color: var(--ink-strong); font: 400 34px / 1.1 var(--display); letter-spacing: -0.015em; }
+  .deliverable-body { color: var(--ink); font: 14px / 1.45 var(--ui-sans); }
+  @media (max-width: 620px) {
+    .deliverables { grid-template-columns: minmax(0, 1fr); }
+  }
+</style>

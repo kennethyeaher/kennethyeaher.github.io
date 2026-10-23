@@ -1,0 +1,59 @@
+---
+// who answered (figma 690:103): groups of horizontal bars, students in the accent and residents in the annotate
+// orange, each value in mono as x/n. student groups fill the left column; the resident group and the note fill the
+// right. a bar's length is its share of its own group's n, so the bars are honest within a group, not across groups.
+import ExhibitNote from "@/components/exhibits/ExhibitNote.astro";
+
+interface Bar { label: string; value: number; total: number }
+interface Group { label: string; count: string; tone: "accent" | "annotate"; bars: Bar[] }
+interface Props {
+  groups: Group[];
+  note?: { label: string; body: string };
+}
+const { groups, note } = Astro.props;
+const columns = [groups.filter((group) => group.tone !== "annotate"), groups.filter((group) => group.tone === "annotate")];
+---
+<div class="exhibit-bars">
+  {columns.map((column, index) => (
+    <div class="bars-column">
+      {column.map((group) => (
+        <div class={`bars-group tone-${group.tone}`}>
+          <h4>{group.label}</h4>
+          <p class="bars-count">{group.count}</p>
+          <ul>
+            {group.bars.map((bar) => (
+              <li>
+                <span class="bar-label">{bar.label}</span>
+                <span class="bar-track">
+                  <span class="bar-fill" style={`--share: ${(bar.value / bar.total).toFixed(4)}`} aria-hidden="true"></span>
+                  <span class="bar-value">{bar.value}/{bar.total}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+      {index === 1 && note && <ExhibitNote note={note} compact />}
+    </div>
+  ))}
+</div>
+<style>
+  .exhibit-bars { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 40px 48px; }
+  .bars-column { display: grid; align-content: start; gap: 36px; }
+  h4 { margin: 0; color: var(--ink-strong); font: 400 26px / 1.2 var(--display); letter-spacing: -0.01em; }
+  .bars-count { margin: 8px 0 0; color: var(--muted); font: 11px / 1.4 var(--mono); letter-spacing: 0.07em; }
+  ul { display: grid; gap: 12px; margin: 18px 0 0; padding: 0; list-style: none; }
+  li { display: grid; grid-template-columns: minmax(0, 200px) minmax(0, 1fr); gap: 16px; align-items: center; }
+  .bar-label { color: var(--ink-strong); font: 15px / 1.35 var(--ui-sans); }
+  /* the fill takes its share of the track left after the value's own room, so 21/27 never pushes its label out. */
+  .bar-track { display: flex; align-items: center; gap: 14px; min-width: 0; }
+  .bar-fill { flex: none; width: calc((100% - 56px) * var(--share)); height: 18px; border-radius: 2px; background: var(--accent); }
+  .tone-annotate .bar-fill { background: var(--color-annotate); }
+  .bar-value { flex: none; color: var(--muted); font: 11px / 1 var(--mono); letter-spacing: 0.04em; font-variant-numeric: tabular-nums; }
+  @media (max-width: 760px) {
+    .exhibit-bars { grid-template-columns: minmax(0, 1fr); }
+    li { grid-template-columns: minmax(0, 132px) minmax(0, 1fr); gap: 12px; }
+    .bar-label { font-size: 14px; }
+    h4 { font-size: 22px; }
+  }
+</style>

@@ -1,6 +1,7 @@
 import { initializeTheme, initializeCoverGradients, initializeExhibitLoops, initializeAnnotationFallback, initializeMetricCounters, initializeCoverDepth, initializeCoverExpand, initializeReadingProgress, initializeMediaControls, initializeScrollers, initializeWalkthroughs } from "./exhibits";
 import { initializePointerDot } from "./pointer-dot";
 import { initializePinZoom } from "./pin-zoom";
+import { initializeFigureZoom } from "./figure-zoom";
 import { initializeAboutChapters } from "./about-chapters";
 
 /**
@@ -20,6 +21,7 @@ function initializeSite(): void {
   initializeScrollers();
   initializePointerDot();
   initializePinZoom();
+  initializeFigureZoom();
   initializeAboutChapters();
 
   document.documentElement.classList.add("nav-ready");
