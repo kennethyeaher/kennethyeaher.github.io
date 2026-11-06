@@ -32,7 +32,7 @@ function runLoader({ hostname = analytics.productionHost, search = "", stored = 
     currentScript: { dataset },
     createElement: () => ({}),
     head: { append: (script) => added.push(script.src) },
-    addEventListener: (type, listener) => listeners.push(listener),
+    addEventListener: (...args) => listeners.push(args[1]),
   };
   const window = {};
   vm.runInNewContext(code, { window, document, localStorage, location: { hostname, search }, URLSearchParams });
