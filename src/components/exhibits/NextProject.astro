@@ -6,7 +6,7 @@ interface Props {
 const { next } = Astro.props;
 ---
 <nav class="next-project" aria-label="More case studies" data-project-pager>
-  <a class="next-link" href={`/work/${next.slug}`}>
+  <a class="next-link" href={`/work/${next.slug}`} data-track="next_project" data-track-label={next.slug}>
     <span class="next-eyebrow">Next project</span>
     <span class="next-title">{next.cardTitle} <span aria-hidden="true">→</span></span>
     <img class="next-preview" src={next.cover.poster} alt="" width="240" height="135" loading="lazy" decoding="async" />

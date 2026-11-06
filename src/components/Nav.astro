@@ -32,12 +32,12 @@ function isActive(href: string): boolean {
   {
     crumb ? (
       <nav class="breadcrumb" aria-label="Breadcrumb">
-        <a href="/"><span aria-hidden="true">←</span>Work</a>
+        <a href="/" data-track="nav" data-track-label="work"><span aria-hidden="true">←</span>Work</a>
         <span class="breadcrumb-slash" aria-hidden="true">/</span>
         <span class="breadcrumb-current" aria-current="page">{crumb}</span>
       </nav>
     ) : (
-      <a class="brand-name" href="/">{profile.name}</a>
+      <a class="brand-name" href="/" data-track="nav" data-track-label="home">{profile.name}</a>
     )
   }
   {/* a fixed rail at the left edge (figma 176:1721), a row under the name at 980px and below, where the chapter rail
@@ -55,6 +55,8 @@ function isActive(href: string): boolean {
               target={link.external ? "_blank" : undefined}
               rel={link.external ? "noreferrer" : undefined}
               data-astro-prefetch={link.external ? "false" : "viewport"}
+              data-track="nav"
+              data-track-label={link.label.toLowerCase()}
             >
               {link.label}
             </a>
@@ -64,7 +66,7 @@ function isActive(href: string): boolean {
     </ul>
   </nav>
   {/* after the links, so focus reaches it last, matching where it hangs. */}
-  <button class="theme-cord" type="button" data-theme-toggle data-cursor="cord" aria-label="Dark theme" aria-pressed="false">
+  <button class="theme-cord" type="button" data-theme-toggle data-cursor="cord" data-track="theme_cord" data-track-label="cord" aria-label="Dark theme" aria-pressed="false">
     <span class="theme-cord-visual" aria-hidden="true"><span class="theme-cord-line"></span><span class="theme-cord-knob"></span></span>
   </button>
 </header>

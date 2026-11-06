@@ -43,7 +43,7 @@ const number = (index: number) => String(index + 1).padStart(2, "0");
             <a class="item-pager-link" href={`/explore/${prev.id}`} rel="prev">
               <span aria-hidden="true">‹</span><span class="item-pager-label"><span class="sr-only">Previous project: </span>{prev.title}</span>
             </a>
-            <a class="item-pager-link" href={`/explore/${next.id}`} rel="next">
+            <a class="item-pager-link" href={`/explore/${next.id}`} rel="next" data-track="next_project" data-track-label={next.id}>
               <span class="item-pager-label"><span class="sr-only">Next project: </span>{next.title}</span><span aria-hidden="true">›</span>
             </a>
           </nav>

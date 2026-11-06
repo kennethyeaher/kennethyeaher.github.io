@@ -21,7 +21,7 @@ import { exploreCategories, exploreItems } from "@/data/explore.mjs";
       {
         exploreItems.map((item, index) => (
           <li class="reel-row" data-reel-row data-category={item.category} data-side={index % 2 === 0 ? "start" : "swap"}>
-            <a class="reel-link" href={`/explore/${item.id}`} data-astro-prefetch="viewport">
+            <a class="reel-link" href={`/explore/${item.id}`} data-astro-prefetch="viewport" data-track="explore_item" data-track-label={item.id}>
               <div class="reel-cover" data-cursor="card" data-cursor-label={`View ${item.title}`}>
                 <video
                   class="reel-video"
