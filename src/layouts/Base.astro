@@ -1,6 +1,7 @@
 ---
 // Shared editorial shell for every portfolio route.
 import "@/styles/global.css";
+import { analytics } from "@/data/analytics.mjs";
 import { profile } from "@/data/portfolio.mjs";
 import Footer from "@/components/Footer.astro";
 import Nav from "@/components/Nav.astro";
@@ -91,6 +92,43 @@ const ogImage = new URL(image ?? "/images/portfolio-preview-2026.png", Astro.sit
     <meta name="twitter:title" content={pageTitle} />
     <meta name="twitter:description" content={pageDescription} />
     <meta name="twitter:image" content={ogImage} />
+    {/* google analytics and clarity, live site only. the ids come in as data attributes from src/data/analytics.mjs.
+        ?notrack=1 keeps a browser out of the numbers and ?notrack=0 lets it back in, on any host. */}
+    <script is:inline data-ga4={analytics.ga4Id} data-clarity={analytics.clarityId} data-host={analytics.productionHost}>
+      {
+        const { ga4, clarity: clarityId, host } = document.currentScript.dataset;
+        const asked = new URLSearchParams(location.search).get("notrack");
+        // without storage the flag cannot last, so ?notrack=1 still holds for this page.
+        let notrack = asked === "1";
+        try {
+          if (asked === "1") localStorage.setItem("ky-notrack", "1");
+          if (asked === "0") localStorage.removeItem("ky-notrack");
+          notrack = localStorage.getItem("ky-notrack") !== null;
+        } catch {}
+        if (location.hostname === host && !notrack) {
+          /** add one async script to the head, so neither tag holds up the first paint. */
+          const load = (src) => {
+            const script = document.createElement("script");
+            script.async = true;
+            script.src = src;
+            document.head.append(script);
+          };
+          window.dataLayer = window.dataLayer || [];
+          /** queue a gtag command. gtag.js reads the arguments object, so an array or rest args would be ignored. */
+          window.gtag = function () {
+            window.dataLayer.push(arguments);
+          };
+          /** queue a clarity command until the clarity tag loads and takes over. */
+          window.clarity = function () {
+            (window.clarity.q = window.clarity.q || []).push(arguments);
+          };
+          window.gtag("js", new Date());
+          window.gtag("config", ga4);
+          load(`https://www.googletagmanager.com/gtag/js?id=${ga4}`);
+          load(`https://www.clarity.ms/tag/${clarityId}`);
+        }
+      }
+    </script>
     {/* page specific head content, such as the live specimens' own fonts on the case studies that show one. */}
     <slot name="head" />
   </head>
