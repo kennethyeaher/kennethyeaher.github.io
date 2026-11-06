@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/banner.svg" alt="Kenneth Yeaher Portfolio. Product, data, venture, and HCI work, led by evidence. An index of five numbered case studies." width="100%">
+  <img src="docs/assets/banner.svg" alt="Kenneth Yeaher Portfolio. I’m Ken, a product designer and data scientist. Eight case studies and an Explore reel of personal and school work." width="100%">
 </p>
 
 <p align="center">

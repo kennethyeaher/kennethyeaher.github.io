@@ -1,21 +1,27 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="320" viewBox="0 0 1200 320" role="img" aria-labelledby="title description">
   <title id="title">Kenneth Yeaher Portfolio</title>
-  <desc id="description">Kenneth Yeaher Portfolio. Product, data, venture, and human computer interaction work, led by evidence. An index of five numbered case studies.</desc>
+  <desc id="description">Kenneth Yeaher Portfolio. I’m Ken, a product designer and data scientist. Eight case studies and an Explore reel of personal and school work.</desc>
+  <defs>
+    <linearGradient id="card-1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8c1a11"/><stop offset="1" stop-color="#e21833"/></linearGradient>
+    <linearGradient id="card-2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b3122e"/><stop offset="1" stop-color="#e8a317"/></linearGradient>
+    <linearGradient id="card-3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d23a2e"/><stop offset="1" stop-color="#1e9e4a"/></linearGradient>
+    <linearGradient id="card-4" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6846aa"/><stop offset="1" stop-color="#c45b32"/></linearGradient>
+    <linearGradient id="card-5" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c8643b"/><stop offset="1" stop-color="#3a2418"/></linearGradient>
+    <linearGradient id="card-6" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c8102e"/><stop offset="1" stop-color="#f2a33a"/></linearGradient>
+    <linearGradient id="card-7" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0f6b4f"/><stop offset="1" stop-color="#1e8c7a"/></linearGradient>
+    <linearGradient id="card-8" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2f6bff"/><stop offset="1" stop-color="#12306b"/></linearGradient>
+  </defs>
   <rect x="0.5" y="0.5" width="1199" height="319" rx="20" fill="#f8fafb" stroke="#dce2e6"/>
-  <text x="96" y="92" fill="#7b8792" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="13" letter-spacing="2">KENNETH YEAHER · PORTFOLIO</text>
-  <text x="94" y="156" fill="#273440" font-family="Georgia,'Times New Roman',serif" font-size="46">Product, data, venture,</text>
-  <text x="94" y="210" fill="#273440" font-family="Georgia,'Times New Roman',serif" font-size="46">and HCI work, led by <tspan font-style="italic" fill="#1f4f7a">evidence.</tspan></text>
-  <text x="96" y="258" fill="#1f4f7a" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" letter-spacing="2">ASTRO · TYPESCRIPT · FIVE CASE STUDIES</text>
-  <g font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" fill="#7b8792">
-    <rect x="812" y="64" width="300" height="1" fill="#dce2e6"/>
-    <text x="812" y="94">01</text><rect x="852" y="84" width="180" height="8" rx="2" fill="#273440"/><rect x="1052" y="84" width="60" height="8" rx="2" fill="#dce9f3"/>
-    <rect x="812" y="110" width="300" height="1" fill="#dce2e6"/>
-    <text x="812" y="140">02</text><rect x="852" y="130" width="150" height="8" rx="2" fill="#273440"/><rect x="1052" y="130" width="60" height="8" rx="2" fill="#dce9f3"/>
-    <rect x="812" y="156" width="300" height="1" fill="#dce2e6"/>
-    <text x="812" y="186">03</text><rect x="852" y="176" width="166" height="8" rx="2" fill="#273440"/><rect x="1052" y="176" width="60" height="8" rx="2" fill="#dce9f3"/>
-    <rect x="812" y="202" width="300" height="1" fill="#dce2e6"/>
-    <text x="812" y="232">04</text><rect x="852" y="222" width="124" height="8" rx="2" fill="#273440"/><rect x="1052" y="222" width="60" height="8" rx="2" fill="#dce9f3"/>
-    <rect x="812" y="248" width="300" height="1" fill="#dce2e6"/>
-    <text x="812" y="278">05</text><rect x="852" y="268" width="140" height="8" rx="2" fill="#273440"/><rect x="1052" y="268" width="60" height="8" rx="2" fill="#1f4f7a"/>
-  </g>
+  <text x="96" y="92" fill="#626f7b" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="13" letter-spacing="2">KENNETH YEAHER · PORTFOLIO</text>
+  <text x="94" y="156" fill="#273440" font-family="Georgia,'Times New Roman',serif" font-size="46">I’m Ken, a product designer</text>
+  <text x="94" y="210" fill="#273440" font-family="Georgia,'Times New Roman',serif" font-size="46">and data scientist.</text>
+  <text x="96" y="258" fill="#626f7b" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" letter-spacing="2">ASTRO · TYPESCRIPT · EIGHT CASE STUDIES · EXPLORE</text>
+  <rect x="804" y="52" width="148" height="48" rx="3" fill="url(#card-1)"/>
+  <rect x="964" y="52" width="148" height="48" rx="3" fill="url(#card-2)"/>
+  <rect x="804" y="108" width="148" height="48" rx="3" fill="url(#card-3)"/>
+  <rect x="964" y="108" width="148" height="48" rx="3" fill="url(#card-4)"/>
+  <rect x="804" y="164" width="148" height="48" rx="3" fill="url(#card-5)"/>
+  <rect x="964" y="164" width="148" height="48" rx="3" fill="url(#card-6)"/>
+  <rect x="804" y="220" width="148" height="48" rx="3" fill="url(#card-7)"/>
+  <rect x="964" y="220" width="148" height="48" rx="3" fill="url(#card-8)"/>
 </svg>
