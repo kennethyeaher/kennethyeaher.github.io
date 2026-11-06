@@ -83,36 +83,37 @@ Former `/projects`, `/contact`, and `/education` URLs are retained as redirects 
 
 ## Editing content
 
-The current public content lives in [`src/data/portfolio.mjs`](src/data/portfolio.mjs). It controls:
+The current public content lives in three files under `src/data/`:
 
-- header identity and contact links;
-- home-page experience;
-- About writing and gallery entries;
-- project order, copy, metrics, media, and case-study chapters.
+- [`portfolio.mjs`](src/data/portfolio.mjs) controls header identity and contact links, the home page Currently and Previously lines, About writing, experience, and gallery entries, and project order;
+- [`caseStudies.mjs`](src/data/caseStudies.mjs) controls project copy, metrics, media, and case-study chapters;
+- [`explore.mjs`](src/data/explore.mjs) controls the Explore categories and items.
 
-Add future user-supplied About photographs to the `aboutGallery` array only after placing the real files in `public/images/`. The page intentionally creates no empty photo placeholders.
+Add future user-supplied About photographs to the `aboutGallery` array only after placing the real files in `public/images/about/`. The page intentionally creates no empty photo placeholders.
 
-Project visuals live under `public/images/work/`. Every visible project image is a user-approved source artifact or a direct Figma export. Do not substitute CSS drawings, handcrafted SVGs, emoji, or generic placeholders for evidence.
+Project visuals live under `public/images/work/` and `public/images/exhibits/`, and Explore visuals live under `public/images/explore/`. Every visible project image is a user-approved source artifact or a direct Figma export. Do not substitute CSS drawings, handcrafted SVGs, emoji, or generic placeholders for evidence.
 
 ## Structure
 
 ```text
 src/
   components/       Shared navigation, cards, gallery, media, and case-study UI
-  data/portfolio.mjs
+  data/             Content files, led by portfolio.mjs, caseStudies.mjs, and explore.mjs
   layouts/Base.astro
   pages/
     index.astro
     about.astro
+    explore/
     work/[slug].astro
-  scripts/site.ts   Mobile navigation, reveal behavior, chapter state, and cursor
+  scripts/          site.ts and the browser scripts for each feature
   styles/global.css
 public/
   images/work/
+  images/exhibits/
+  images/explore/
   resume/kyresume.pdf
+scripts/            Build steps for covers, social cards, and sized images
 tests/
-qa/                 Browser captures and the source-to-implementation comparison
-design-qa.md         Final visual QA record
 ```
 
 ## Published site
