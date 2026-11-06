@@ -126,6 +126,19 @@ const ogImage = new URL(image ?? "/images/portfolio-preview-2026.png", Astro.sit
           window.gtag("config", ga4);
           load(`https://www.googletagmanager.com/gtag/js?id=${ga4}`);
           load(`https://www.clarity.ms/tag/${clarityId}`);
+          // capture phase, so a handler that stops propagation (the pin zoom does) cannot hide a click.
+          document.addEventListener(
+            "click",
+            /** send the nearest data-track element's name and label to both tools. */
+            (event) => {
+              const target = event.target.closest?.("[data-track]");
+              if (!target) return;
+              const { track: name, trackLabel: label } = target.dataset;
+              window.gtag("event", name, { label });
+              window.clarity("event", name);
+            },
+            true,
+          );
         }
       }
     </script>
