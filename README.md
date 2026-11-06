@@ -130,7 +130,3 @@ University of Maryland, College Park
 [![LinkedIn: Kenneth Yeaher](https://img.shields.io/badge/LinkedIn-Kenneth_Yeaher-0A66C2?style=flat)](https://www.linkedin.com/in/kennethyeaher/)
 
 `Astro` · `TypeScript` · `Portfolio Design`
-
-## Deferred content
-
-Fun and Coursework remain deferred until their content and artifacts are assembled. Their pages and navigation entries are not part of this update. Annotation, comparison, and recorded video exhibits are supported by the media renderer; publish them only when the matching source material and authored explanation are available.
