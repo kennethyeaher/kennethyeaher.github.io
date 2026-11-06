@@ -23,15 +23,15 @@
 
 ---
 
-<img src="docs/assets/home-1440.png" alt="The portfolio home page at 1440px wide. A slim header with the name, the line Product designer and data scientist, and Work, About, and Resume links. The serif headline reads I'm Ken, a product specialist led by evidence, beside a dated experience list from hiveSocial in 2021 to the USM Maryland Momentum Fund in 2026. Below are the first two project cards, USM Venture Benchmark and Ovara." width="100%">
+<img src="docs/assets/home-1440.png" alt="The portfolio home page at 1440px wide. The name Kenneth Yeaher sits top left over a left rail of Work, Explore, About, and Resume links, and a theme cord hangs from the top right. The serif headline reads I'm Ken, a product designer and data scientist, above the Currently and Previously lines. Below are the first two project cards, ELMS Redesign and TerpCareHub." width="100%">
 
 <details>
 <summary><strong>See the mobile layout</strong></summary>
 <br>
-<p align="center"><img src="docs/assets/home-375.png" alt="The home page at 375px wide. The header collapses to the name and a Menu button, the headline wraps over four lines, and the experience list stacks each role under its organization." width="320"></p>
+<p align="center"><img src="docs/assets/home-375.png" alt="The home page at 375px wide. The name sits over a row of Work, Explore, About, and Resume links, the headline wraps over three lines, the Currently and Previously lines stack, and the ELMS Redesign card follows." width="320"></p>
 </details>
 
-<sub>The published site before the current local redesign, captured October 3, 2026.</sub>
+<sub>The current home page, captured from a local build on November 5, 2026.</sub>
 
 ## My contribution
 
