@@ -72,8 +72,10 @@ Home cards show a live gradient drawn from each project's palette. It drifts slo
 
 | Route | Purpose |
 |---|---|
-| `/` | Work page with the editorial introduction, experience, and eight featured projects |
-| `/about` | HCI-focused biography, identity lanes, and the real-photo-only gallery |
+| `/` | Work page with the headline, the Currently and Previously lines, and eight featured projects |
+| `/explore` | Reel of personal and school work, filtered by category |
+| `/explore/[id]` | Detail page for each Explore piece |
+| `/about` | HCI-focused biography, experience, education, interests, and photo chapters |
 | `/work/[slug]` | Reusable evidence-led case-study page |
 | `/resume/kyresume.pdf` | Byte-for-byte copy of the supplied master résumé PDF |
 
