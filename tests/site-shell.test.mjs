@@ -236,13 +236,13 @@ test("annotation motion follows the exhibit note and stays off under reduced mot
 test("the v3 header is the name or a breadcrumb with no bar, rule or menu (figma 176:1721, 177:1801)", () => {
   const home = readFileSync(join(projectRoot, "dist", "index.html"), "utf8");
   const header = (html) => html.slice(html.indexOf('<header class="site-header">'), html.indexOf("</header>"));
-  assert.match(header(home), /^<header class="site-header">\s*<a class="brand-name" href="\/">Kenneth Yeaher<\/a>/);
+  assert.match(header(home), /^<header class="site-header">\s*<a class="brand-name" href="\/" data-track="nav" data-track-label="home">Kenneth Yeaher<\/a>/);
   assert.doesNotMatch(header(home), /class="breadcrumb"/);
   for (const slug of ["kairo-health", "ovara"]) {
     const html = readFileSync(join(projectRoot, "dist", "work", slug, "index.html"), "utf8");
     const title = html.match(/<h1 id="case-title"[^>]*>([^<]+)<\/h1>/)[1];
     // back to work, a decorative slash in a lighter tone, then the title in ink, marked as the current page.
-    assert.match(header(html), new RegExp(`^<header class="site-header">\\s*<nav class="breadcrumb" aria-label="Breadcrumb">\\s*<a href="/"><span aria-hidden="true">←</span>Work</a>\\s*<span class="breadcrumb-slash" aria-hidden="true">/</span>\\s*<span class="breadcrumb-current" aria-current="page">${title}</span>\\s*</nav>`));
+    assert.match(header(html), new RegExp(`^<header class="site-header">\\s*<nav class="breadcrumb" aria-label="Breadcrumb">\\s*<a href="/" data-track="nav" data-track-label="work"><span aria-hidden="true">←</span>Work</a>\\s*<span class="breadcrumb-slash" aria-hidden="true">/</span>\\s*<span class="breadcrumb-current" aria-current="page">${title}</span>\\s*</nav>`));
     assert.doesNotMatch(header(html), /class="brand-name"/);
   }
   for (const html of [home]) assert.doesNotMatch(html, /data-nav-toggle|data-menu-label|brand-role|brand-lockup/);
@@ -272,7 +272,7 @@ test("the primary rail is fixed at the left edge, squares the current page and t
     assert.match(html, /<nav class="site-nav( is-case)?" aria-label="Primary navigation">\s*<ul class="rail">/, file);
     assert.deepEqual(labels(html), ["Work", "Explore", "About", "Resume"], file);
     assert.deepEqual(current(html), [active], file);
-    assert.match(rail(html), /<a href="\/resume\/kyresume\.pdf" class="rail-link" target="_blank" rel="noreferrer" data-astro-prefetch="false">/, file);
+    assert.match(rail(html), /<a href="\/resume\/kyresume\.pdf" class="rail-link" target="_blank" rel="noreferrer" data-astro-prefetch="false" data-track="nav" data-track-label="resume">/, file);
   }
   // case studies hand the desktop spot to the chapter rail, and keep the row on phones.
   assert.match(readFileSync(join(projectRoot, "dist", "work", "ovara", "index.html"), "utf8"), /<nav class="site-nav is-case"/);
