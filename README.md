@@ -66,7 +66,7 @@ npm run build
 - `npm run check` runs Astro and TypeScript diagnostics.
 - `npm run build` generates eight project social cards, then produces the static site in `dist/`.
 
-Home cards show a live gradient drawn from each project's palette. It drifts slowly, brightens on hover or focus, pauses off screen, and falls back to the poster image without JavaScript. Case-study heroes show existing interface screens or research artifacts with a playback control. Theme choice follows the operating system until a visitor chooses light or dark. Page transitions, reveals, and cover depth respect reduced motion. Native navigation and content remain available without JavaScript.
+Home cards show a device mockup or a short motion cover over a gradient drawn from each project's palette, and the gradient drifts only while on screen. Case-study heroes show existing interface screens or research artifacts with a playback control. On mouse and trackpad, a dot cursor replaces the native one. Theme choice follows the operating system until a visitor pulls the cord at the top right to choose light or dark. Pages fade through on navigation. Page transitions, reveals, and cover motion respect reduced motion. Without JavaScript, the cursor stays native, the cord is hidden, and navigation and content remain available.
 
 ## Current routes
 
